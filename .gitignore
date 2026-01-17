@@ -1,0 +1,19 @@
+# --- Node Modules & Logs ---
+node_modules/
+npm-debug.log
+.env
+.DS_Store
+dist/
+build/
+
+# --- PocketBase Ignored Files ---
+# Kita tidak mau upload file exe-nya karena besar & beda OS beda file
+backend/pocketbase
+backend/pocketbase.exe
+
+# Kita WAJIB ignore databasenya, karena data tidak boleh di-public
+backend/pb_data/
+
+# Tapi kita MAU commit migrasi (struktur tabel) & hooks
+!backend/pb_migrations/
+!backend/pb_hooks/
