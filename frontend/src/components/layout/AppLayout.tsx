@@ -16,7 +16,8 @@ export default function AppLayout() {
 
       {/* 3. MAIN CONTENT AREA */}
       <main className="flex-1 overflow-y-auto bg-slate-50/50">
-        <div className="p-4 md:p-8">
+        {/* <div className="p-4 md:p-8"> */}
+        <div>
            {/* Padding lebih kecil di mobile (p-4) biar lega */}
            <Outlet /> 
         </div>

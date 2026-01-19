@@ -10,6 +10,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+// 1. IMPORT TOOLTIP COMPONENTS
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 // Fungsi Helper Initials
 const getInitials = (name: string) => {
@@ -23,7 +30,7 @@ const getInitials = (name: string) => {
 
 export const getColumns = (
   onEdit: (client: Client) => void,
-  onDelete: (client: Client) => void // <--- Tambahkan parameter ini
+  onDelete: (client: Client) => void
 ): ColumnDef<Client>[] => [
   {
     accessorKey: "company_name",
@@ -46,11 +53,38 @@ export const getColumns = (
     header: "Telepon",
     cell: ({ row }) => row.getValue("phone") || "-",
   },
+  
+  // --- 2. UPDATE BAGIAN ALAMAT DI SINI ---
   {
     accessorKey: "address",
     header: "Alamat",
-    cell: ({ row }) => <span className="truncate max-w-[200px] block" title={row.getValue("address")}>{row.getValue("address") || "-"}</span>,
+    cell: ({ row }) => {
+      const address = row.getValue("address") as string || "-";
+      
+      // Jika alamat kosong/pendek, tampilkan biasa saja
+      if (address === "-" || address.length < 20) {
+        return <span>{address}</span>;
+      }
+
+      return (
+        <TooltipProvider>
+          <Tooltip delayDuration={200}> {/* Delay biar ga kedip2 pas lewat mouse */}
+            <TooltipTrigger asChild>
+              {/* max-w-[200px] membatasi lebar, truncate bikin titik-titik */}
+              <span className="truncate max-w-[250px] block cursor-default hover:text-slate-900 transition-colors">
+                {address}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent className="max-w-[400px] break-words bg-slate-800 text-white">
+              <p>{address}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )
+    },
   },
+  // ---------------------------------------
+
   {
     id: "actions",
     cell: ({ row }) => {
@@ -73,7 +107,6 @@ export const getColumns = (
             <DropdownMenuItem onClick={() => onEdit(client)}>
                 <Pencil className="mr-2 h-4 w-4" /> Edit Data
             </DropdownMenuItem>
-            {/* Tombol Delete */}
             <DropdownMenuItem onClick={() => onDelete(client)} className="text-red-600 focus:text-red-600 focus:bg-red-50">
                 <Trash2 className="mr-2 h-4 w-4" /> Hapus Klien
             </DropdownMenuItem>
