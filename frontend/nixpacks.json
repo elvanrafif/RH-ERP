@@ -1,0 +1,7 @@
+{
+  "providers": ["node"],
+  "variables": {
+    "NIXPACKS_NODE_VERSION": "22.13.0",
+    "NIXPACKS_PM": "npm"
+  }
+}
