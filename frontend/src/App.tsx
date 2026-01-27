@@ -59,23 +59,14 @@ function AppRoutes() {
 }
 
 function App() {
-  // STATE LOADING
   const [isLoading, setIsLoading] = useState(true);
-
-  // Jika Anda ingin loading hanya muncul SEKALI saat refresh (bukan tiap navigasi),
-  // logic ini sudah benar karena App.tsx hanya mount sekali.
-  
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        {/* AnimatePresence memungkinkan animasi Exit berjalan sebelum komponen hilang */}
-        <AnimatePresence >
-        {/* <AnimatePresence mode="wait"> */}
+        <AnimatePresence>
             {isLoading ? (
-                // Tampilkan Splash Screen
                 <SplashScreen key="splash" onComplete={() => setIsLoading(false)} />
             ) : (
-                // Tampilkan Aplikasi Utama (Router)
                 <BrowserRouter>
                     <AppRoutes />
                 </BrowserRouter>
