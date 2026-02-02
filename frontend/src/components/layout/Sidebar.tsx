@@ -87,7 +87,8 @@ function SidebarContent({
           {collapsed && <div className="my-2 border-t w-8 mx-auto" />}
           
           <NavItem to="/clients" icon={Users} label="Clients" collapsed={collapsed} isActive={isActive("/clients")} onClick={handleLinkClick} />
-          <NavItem to="/settings" icon={Settings} label="Settings" collapsed={collapsed} isActive={isActive("/settings")} onClick={handleLinkClick} />
+          <NavItem to="/settings/users" icon={Users} label="User Management" collapsed={collapsed} isActive={isActive("/settings/users")} onClick={handleLinkClick} />
+          <NavItem to="/settings/profile" icon={Users} label="Profile" collapsed={collapsed} isActive={isActive("/settings/profile")} onClick={handleLinkClick} />
         </nav>
       </ScrollArea>
 

@@ -54,6 +54,7 @@ const getInitials = (name?: string) => {
 // --- DEFINISI KOLOM ---
 
 export const getColumns = (
+  onView: (project: Project) => void,
   onEdit: (project: Project) => void,
   onDelete: (project: Project) => void
 ): ColumnDef<Project>[] => [

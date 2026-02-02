@@ -23,6 +23,8 @@ import QuotationEditor from "./pages/quotations/QuotationEditor"
 
 // Hooks
 import { useSessionTimeout } from "@/hooks/useSessionTimeout"
+import UserManagementPage from "./pages/settings/users/UserManagement"
+import ProfilePage from "./pages/settings/profile/ProfilePage"
 
 const queryClient = new QueryClient();
 
@@ -68,7 +70,8 @@ function AppRoutes() {
         <Route path="quotations/:id" element={<QuotationEditor />} />
         <Route path="invoices" element={<ComingSoon title="Invoice Generator" />} />
         <Route path="clients" element={<ClientsPage />} />
-        <Route path="settings" element={<ComingSoon title="Settings" />} />
+        <Route path="settings/users" element={<UserManagementPage />} />
+        <Route path="settings/profile" element={<ProfilePage />} />
       </Route>
     </Routes>
   )

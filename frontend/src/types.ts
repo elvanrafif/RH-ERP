@@ -3,6 +3,9 @@ export interface User {
     name: string;
     email: string;
     avatar?: string;
+    division?: string;
+    role: string;
+    phone?: string;
 }
 
 export interface Client {
@@ -20,6 +23,7 @@ export interface Project {
     type: 'arsitektur' | 'sipil' | 'interior';
     status: string;
     value: number; // Contract Value
+    contract_value: number; // Contract Value
     deadline: string;
     start_date?: string;
     end_date?: string;

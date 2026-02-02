@@ -12,9 +12,16 @@ import {
     Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { 
-    DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger 
+    DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator 
 } from "@/components/ui/dropdown-menu"
-import { MoreHorizontal, CalendarClock, Pencil, Trash2, MapPin, Ruler } from "lucide-react"
+import { 
+    MoreHorizontal, CalendarClock, Pencil, Trash2, 
+    MapPin, Ruler, Maximize2, CalendarRange, StickyNote, Eye 
+} from "lucide-react"
+
+// Import Komponen Detail Baru
+import { ProjectDetailsModal } from "./ProjectDetailsModal"
+import { formatDateShort, getAvatarUrl, getInitials } from "@/lib/helpers"
 
 // --- TYPES & INTERFACES ---
 export type KanbanColumnDefinition = {
@@ -25,7 +32,7 @@ export type KanbanColumnDefinition = {
 
 interface KanbanProps {
     data: Project[];
-    columnsConfig: KanbanColumnDefinition[]; // PROP BARU: Config Kolom
+    columnsConfig: KanbanColumnDefinition[];
     onEdit: (project: Project) => void;
     onDelete: (project: Project) => void;
     onStatusChange: (id: string, status: string) => void;
@@ -37,16 +44,6 @@ interface KanbanState {
   columnOrder: string[];
 }
 
-// --- HELPERS ---
-const formatRupiah = (val: number) => {
-    return new Intl.NumberFormat('id-ID', {
-        style: 'currency', currency: 'IDR', maximumFractionDigits: 0
-    }).format(val);
-}
-
-const getInitials = (name?: string) => name ? name.split(" ").map((n) => n[0]).join("").substring(0, 2).toUpperCase() : "??";
-const getAvatarUrl = (user?: any) => user?.avatar ? pb.files.getUrl(user, user.avatar) : null;
-
 // --- COMPONENT ---
 export default function ProjectKanban({ data, columnsConfig, onEdit, onDelete, onStatusChange }: KanbanProps) {
   
@@ -54,21 +51,21 @@ export default function ProjectKanban({ data, columnsConfig, onEdit, onDelete, o
     tasks: {}, columns: {}, columnOrder: []
   });
 
+  // State Modal Detail
+  const [projectToView, setProjectToView] = useState<Project | null>(null);
+
   useEffect(() => {
     if (data && columnsConfig) {
       const newTasks: Record<string, Project> = {};
       const newColumns: Record<string, any> = {};
       const newColumnOrder = columnsConfig.map(c => c.id);
 
-      // Setup Columns Structure
       columnsConfig.forEach(col => {
           newColumns[col.id] = { id: col.id, title: col.title, taskIds: [] };
       });
 
-      // Distribute Projects to Columns
       data.forEach((project) => {
         newTasks[project.id] = project;
-        // Fallback: Jika status project tidak dikenali di config halaman ini, masuk ke kolom pertama
         const statusKey = (project.status && newColumns[project.status]) ? project.status : newColumnOrder[0];
         if (newColumns[statusKey]) {
             newColumns[statusKey].taskIds.push(project.id);
@@ -117,6 +114,7 @@ export default function ProjectKanban({ data, columnsConfig, onEdit, onDelete, o
   };
 
   return (
+    <>
     <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex h-full gap-4 overflow-x-auto pb-4 pt-2 px-1">
           {boardData.columnOrder.map((columnId) => {
@@ -125,7 +123,7 @@ export default function ProjectKanban({ data, columnsConfig, onEdit, onDelete, o
             const tasksInColumn = column.taskIds.map((taskId) => boardData.tasks[taskId]);
 
             return (
-              <div key={column.id} className="flex flex-col w-[300px] min-w-[300px] bg-slate-50/80 rounded-xl border h-full max-h-full shadow-sm">
+              <div key={column.id} className="flex flex-col w-[320px] min-w-[320px] bg-slate-50/80 rounded-xl border h-full max-h-full shadow-sm">
                 <div className="p-3 font-semibold text-sm flex items-center justify-between border-b bg-white/50 backdrop-blur-sm rounded-t-xl sticky top-0 z-10">
                     <div className="flex items-center gap-2 text-slate-700">
                         {column.title}
@@ -145,12 +143,19 @@ export default function ProjectKanban({ data, columnsConfig, onEdit, onDelete, o
                     >
                       {tasksInColumn.map((task, index) => {
                          if (!task) return null;
-                         const assignee = task.expand?.assignee;
-                         const clientName = task.expand?.client?.company_name || "Unknown Client"; // Perhatikan expand.client
+                         const assignee = (() => {
+                            if(task.type == 'sipil') return task.meta_data.pic_lapangan;
+                            if(task.type == 'interior') return task.meta_data.pic_interior;
+                            return task.expand?.assignee?.name;
+                        })();
+                         const clientName = task.expand?.client?.company_name || "Unknown Client";
                          
-                         // Logic tampilan khusus per tipe di Card
-                         const showAreaScope = task.type === 'interior' && task.meta_data?.area_scope;
-                         const showLtLb = (task.type === 'arsitektur' || task.type === 'sipil') && task.meta_data?.luas_bangunan;
+                         const meta = task.meta_data || {};
+                         const notes = meta.notes || (task as any).notes; 
+                         
+                         const isInterior = task.type === 'interior';
+                         const isSipil = task.type === 'sipil';
+                         const isArsitektur = task.type === 'arsitektur';
 
                          return (
                             <Draggable key={task.id} draggableId={task.id} index={index}>
@@ -159,15 +164,16 @@ export default function ProjectKanban({ data, columnsConfig, onEdit, onDelete, o
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                className={`cursor-grab active:cursor-grabbing shadow-sm hover:shadow-md transition-all group border-l-4 ${
-                                    task.type === 'interior' ? 'border-l-emerald-400' : 
-                                    task.type === 'sipil' ? 'border-l-amber-400' : 'border-l-blue-400'
+                                className={`cursor-grab active:cursor-grabbing shadow-sm hover:shadow-xl transition-all duration-300 group border-l-4 ${
+                                    isInterior ? 'border-l-emerald-400' : 
+                                    isSipil ? 'border-l-amber-400' : 'border-l-blue-400'
                                 } ${snapshot.isDragging ? "rotate-2 shadow-xl ring-2 ring-primary/20 z-50" : ""}`}
                                 >
-                                <CardContent className="p-3 space-y-3">
+                                <CardContent className="p-3 space-y-2">
+                                    {/* Header */}
                                     <div className="flex justify-between items-start">
-                                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-5 font-normal text-slate-500">
-                                            {task.type.toUpperCase()}
+                                        <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-5 font-normal text-slate-500 uppercase">
+                                            {task.type}
                                         </Badge>
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -176,9 +182,13 @@ export default function ProjectKanban({ data, columnsConfig, onEdit, onDelete, o
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
+                                                <DropdownMenuItem onClick={() => setProjectToView(task)}>
+                                                    <Eye className="mr-2 h-4 w-4" /> Lihat Detail
+                                                </DropdownMenuItem>
                                                 <DropdownMenuItem onClick={() => onEdit(task)}>
                                                     <Pencil className="mr-2 h-4 w-4" /> Edit
                                                 </DropdownMenuItem>
+                                                <DropdownMenuSeparator />
                                                 <DropdownMenuItem onClick={() => onDelete(task)} className="text-red-600 focus:text-red-600 focus:bg-red-50">
                                                     <Trash2 className="mr-2 h-4 w-4" /> Hapus
                                                 </DropdownMenuItem>
@@ -186,42 +196,91 @@ export default function ProjectKanban({ data, columnsConfig, onEdit, onDelete, o
                                         </DropdownMenu>
                                     </div>
                                     
+                                    {/* Client Name */}
                                     <div>
-                                        <h4 className="font-semibold text-sm leading-snug mb-1 text-slate-800">
-                                            {/* Nama Client jadi Judul Utama */}
+                                        <h4 className="font-semibold text-sm leading-snug text-slate-900 line-clamp-2" title={clientName}>
                                             {clientName}
                                         </h4>
-                                        {/* Meta Data Info Display */}
-                                        {showAreaScope && (
-                                            <div className="flex items-center text-xs text-emerald-600 mt-1 font-medium bg-emerald-50 w-fit px-1.5 rounded">
-                                                <MapPin className="h-3 w-3 mr-1" /> {task.meta_data.area_scope}
-                                            </div>
-                                        )}
-                                        {showLtLb && (
-                                            <div className="flex items-center text-[10px] text-slate-500 mt-1">
-                                                <Ruler className="h-3 w-3 mr-1" /> LB: {task.meta_data.luas_bangunan}m²
-                                            </div>
-                                        )}
                                     </div>
 
+                                    {/* --- INFO KHUSUS --- */}
+                                    {isInterior && meta.area_scope && (
+                                        <div className="flex items-start text-xs text-emerald-700 bg-emerald-50 px-2 py-1.5 rounded-md border border-emerald-100">
+                                            <MapPin className="h-3 w-3 mr-1.5 mt-0.5 shrink-0" /> 
+                                            <span className="line-clamp-2 font-medium">{meta.area_scope}</span>
+                                        </div>
+                                    )}
+
+                                    {(isArsitektur || isSipil) && (meta.luas_tanah || meta.luas_bangunan) && (
+                                        <div className="flex gap-2 flex-wrap text-[10px] text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100">
+                                            {meta.luas_tanah && (
+                                                <span className="flex items-center gap-1" title="Luas Tanah">
+                                                    <Maximize2 className="h-3 w-3 text-slate-400" /> 
+                                                    LT: <span className="font-medium">{meta.luas_tanah}m²</span>
+                                                </span>
+                                            )}
+                                            {meta.luas_tanah && meta.luas_bangunan && <span className="text-slate-300">|</span>}
+                                            {meta.luas_bangunan && (
+                                                <span className="flex items-center gap-1" title="Luas Bangunan">
+                                                    <Ruler className="h-3 w-3 text-slate-400" /> 
+                                                    LB: <span className="font-medium">{meta.luas_bangunan}m²</span>
+                                                </span>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {isSipil && task.start_date && task.end_date && (
+                                        <div className="flex items-center text-[10px] text-amber-700 bg-amber-50 px-1.5 py-1 rounded border border-amber-100">
+                                            <CalendarRange className="h-3 w-3 mr-1.5 shrink-0" />
+                                            <span>{formatDateShort(task.start_date)} - {formatDateShort(task.end_date)}</span>
+                                        </div>
+                                    )}
+
+                                    {/* --- NOTES SECTION (SMOOTH EXPAND) --- */}
+                                    {notes && (
+                                        <div className="bg-yellow-50/50 p-2 rounded border border-yellow-100/50 text-[10px] text-slate-500">
+                                            <div className="flex items-start gap-1.5">
+                                                <StickyNote className="h-3 w-3 text-yellow-500 mt-0.5 shrink-0" />
+                                                <div className="max-h-[18px] group-hover:max-h-[200px] overflow-hidden transition-[max-height] duration-500 ease-in-out">
+                                                    <p className="italic leading-relaxed">{notes}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Footer */}
                                     <div className="pt-2 border-t flex items-center justify-between mt-1">
                                         <div className="flex flex-col">
-                                            <div className="flex items-center text-[10px] text-slate-400">
-                                                <CalendarClock className="h-3 w-3 mr-1" />
-                                                {task.deadline ? new Date(task.deadline).toLocaleDateString('id-ID', {day: 'numeric', month: 'short'}) : '-'}
-                                            </div>
+                                            {(!isSipil || !task.end_date) && (
+                                                <div className="flex items-center text-[10px] text-slate-400" title="Deadline">
+                                                    <CalendarClock className="h-3 w-3 mr-1" />
+                                                    {formatDateShort(task.deadline)}
+                                                </div>
+                                            )}
+                                            {isSipil && task.end_date && (
+                                                <div className="flex items-center text-[10px] text-slate-400">
+                                                    <span className="italic">s/d {formatDateShort(task.end_date)}</span>
+                                                </div>
+                                            )}
                                         </div>
                                         <TooltipProvider>
                                             <Tooltip>
                                                 <TooltipTrigger>
                                                     <Avatar className="h-6 w-6 border border-white shadow-sm">
                                                         <AvatarImage src={getAvatarUrl(assignee) || ""} />
-                                                        <AvatarFallback className="text-[9px] bg-slate-100 text-slate-600">
-                                                            {getInitials(assignee?.name)}
+                                                        <AvatarFallback className={`text-[9px] ${
+                                                            isInterior ? 'bg-emerald-100 text-emerald-700' :
+                                                            isSipil ? 'bg-amber-100 text-amber-700' :
+                                                            'bg-blue-100 text-blue-700'
+                                                        }`}>
+                                                            {getInitials(assignee)}
                                                         </AvatarFallback>
                                                     </Avatar>
                                                 </TooltipTrigger>
-                                                <TooltipContent><p>{assignee?.name || "Unassigned"}</p></TooltipContent>
+                                                <TooltipContent>
+                                                    <p>{assignee || "Unassigned"}</p>
+                                                    {meta.pic_lapangan && <p className="text-[10px] text-slate-300">Mandor: {meta.pic_lapangan}</p>}
+                                                </TooltipContent>
                                             </Tooltip>
                                         </TooltipProvider>
                                     </div>
@@ -240,5 +299,13 @@ export default function ProjectKanban({ data, columnsConfig, onEdit, onDelete, o
           })}
         </div>
     </DragDropContext>
+
+    {/* --- RENDER COMPONENT MODAL BARU --- */}
+    <ProjectDetailsModal 
+        project={projectToView} 
+        open={!!projectToView} 
+        onOpenChange={(open) => !open && setProjectToView(null)} 
+    />
+    </>
   )
 }
