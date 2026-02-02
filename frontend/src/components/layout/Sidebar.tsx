@@ -4,7 +4,8 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { 
   LayoutDashboard, FileText, Receipt, Users, Settings, 
-  Menu, LogOut, FolderOpen, ChevronLeft 
+  Menu, LogOut, ChevronLeft, 
+  PencilRuler, HardHat, Sofa // Icon baru untuk proyek
 } from "lucide-react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useState } from "react"
@@ -18,51 +19,10 @@ import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { toast } from "sonner"
+import { NavItem } from "./Sidebar/NavItem"
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
-// --- HELPER COMPONENT: NAV ITEM ---
-const NavItem = ({ 
-  to, icon: Icon, label, collapsed, isActive, onClick 
-}: { 
-  to: string, icon: any, label: string, collapsed: boolean, isActive: boolean, onClick?: () => void 
-}) => {
-  if (collapsed) {
-    return (
-      <Tooltip delayDuration={0}>
-        <TooltipTrigger asChild>
-          <Link to={to} onClick={onClick} className="flex justify-center">
-            <Button 
-              variant={isActive ? "secondary" : "ghost"} 
-              size="icon" 
-              className={cn("h-9 w-9", isActive && "bg-muted")}
-            >
-              <Icon className="h-4 w-4" />
-              <span className="sr-only">{label}</span>
-            </Button>
-          </Link>
-        </TooltipTrigger>
-        <TooltipContent side="right" className="flex items-center gap-4">
-          {label}
-        </TooltipContent>
-      </Tooltip>
-    )
-  }
-
-  return (
-    <Link to={to} onClick={onClick}>
-      <Button 
-        variant={isActive ? "secondary" : "ghost"} 
-        className="w-full justify-start"
-      >
-        <Icon className="mr-2 h-4 w-4" />
-        {label}
-      </Button>
-    </Link>
-  )
-}
-
-// --- SIDEBAR CONTENT ---
 function SidebarContent({ 
   className, setOpen, collapsed = false 
 }: { 
@@ -93,8 +53,7 @@ function SidebarContent({
            </h2>
         ) : (
            // MODE COLLAPSED (Logo "RH")
-           // Saya ubah text-lg jadi text-sm agar 2 huruf "RH" muat rapi di kotak w-8
-           <span className="bg-primary text-primary-foreground w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold shadow-sm tracking-tighter">
+           <span className="bg-primary text-primary-foreground w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold shadow-sm tracking-tighter cursor-default">
              RH
            </span>
         )}
@@ -102,29 +61,38 @@ function SidebarContent({
       
       {/* MENU */}
       <ScrollArea className="flex-1 py-4">
-        <nav className={cn("grid gap-1 px-2", collapsed ? "justify-center" : "")}>
-          <NavItem to="/" icon={LayoutDashboard} label="Dashboard" collapsed={collapsed} isActive={isActive("/")} onClick={handleLinkClick} />
+        <nav className={cn("grid gap-1 px-3", collapsed ? "justify-center px-2" : "")}>
+          <NavItem to="/" icon={LayoutDashboard} label="Dashboard" collapsed={collapsed} isActive={isActive("/") && pathname === "/"} onClick={handleLinkClick} />
           
-          {!collapsed && <div className="mt-4 mb-2 px-2 text-xs font-semibold text-muted-foreground">OPERATIONAL</div>}
+          {/* DIVIDER PROJECTS */}
+          {!collapsed && <div className="mt-6 mb-2 px-2 text-[10px] font-bold text-muted-foreground tracking-wider uppercase">Project Tracker</div>}
           {collapsed && <div className="my-2 border-t w-8 mx-auto" />} 
-          <NavItem to="/projects" icon={FolderOpen} label="Projects" collapsed={collapsed} isActive={isActive("/projects")} onClick={handleLinkClick} />
+          
+          {/* MENU PROJECTS YANG DIPECAH */}
+          <NavItem to="/projects/arsitektur" icon={PencilRuler} label="Arsitektur" collapsed={collapsed} isActive={isActive("/projects/arsitektur")} onClick={handleLinkClick} />
+          <NavItem to="/projects/sipil" icon={HardHat} label="Konstruksi Sipil" collapsed={collapsed} isActive={isActive("/projects/sipil")} onClick={handleLinkClick} />
+          <NavItem to="/projects/interior" icon={Sofa} label="Interior" collapsed={collapsed} isActive={isActive("/projects/interior")} onClick={handleLinkClick} />
 
-          {!collapsed && <div className="mt-4 mb-2 px-2 text-xs font-semibold text-muted-foreground">COMMERCIAL</div>}
+          {/* DIVIDER COMMERCIAL */}
+          {!collapsed && <div className="mt-6 mb-2 px-2 text-[10px] font-bold text-muted-foreground tracking-wider uppercase">Commercial</div>}
           {collapsed && <div className="my-2 border-t w-8 mx-auto" />}
+          
           <NavItem to="/quotations" icon={FileText} label="Quotations" collapsed={collapsed} isActive={isActive("/quotations")} onClick={handleLinkClick} />
           <div className={cn(collapsed ? "opacity-50" : "")}>
-             <NavItem to="/invoices" icon={Receipt} label="Invoices (Soon)" collapsed={collapsed} isActive={isActive("/invoices")} onClick={handleLinkClick} />
+             <NavItem to="/invoices" icon={Receipt} label="Invoices" collapsed={collapsed} isActive={isActive("/invoices")} onClick={handleLinkClick} />
           </div>
 
-          {!collapsed && <div className="mt-4 mb-2 px-2 text-xs font-semibold text-muted-foreground">MANAGEMENT</div>}
+          {/* DIVIDER MANAGEMENT */}
+          {!collapsed && <div className="mt-6 mb-2 px-2 text-[10px] font-bold text-muted-foreground tracking-wider uppercase">Management</div>}
           {collapsed && <div className="my-2 border-t w-8 mx-auto" />}
+          
           <NavItem to="/clients" icon={Users} label="Clients" collapsed={collapsed} isActive={isActive("/clients")} onClick={handleLinkClick} />
           <NavItem to="/settings" icon={Settings} label="Settings" collapsed={collapsed} isActive={isActive("/settings")} onClick={handleLinkClick} />
         </nav>
       </ScrollArea>
 
       {/* FOOTER */}
-      <div className="p-2 border-t mt-auto">
+      <div className="p-3 border-t mt-auto">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             {collapsed ? (
@@ -169,7 +137,7 @@ export function Sidebar({ className }: SidebarProps) {
 
   return (
     <TooltipProvider>
-      <div className={cn("relative border-r bg-white hidden md:block h-screen sticky top-0 transition-all duration-300 ease-in-out", collapsed ? "w-[70px]" : "w-64", className)}>
+      <div className={cn("relative border-r bg-white hidden md:block h-screen sticky top-0 transition-all duration-300 ease-in-out z-20", collapsed ? "w-[70px]" : "w-64", className)}>
         
         {/* ISI SIDEBAR */}
         <SidebarContent collapsed={collapsed} />
@@ -177,7 +145,7 @@ export function Sidebar({ className }: SidebarProps) {
         {/* TOMBOL TOGGLE FLOATING (Di Garis Batas) */}
         <Button
             onClick={toggleCollapse}
-            className="absolute -right-3 top-6 z-40 h-6 w-6 rounded-full border bg-white p-0 shadow-md hover:bg-slate-100 text-slate-500"
+            className="absolute -right-3 top-7 z-50 h-6 w-6 rounded-full border bg-white p-0 shadow-md hover:bg-slate-100 text-slate-500"
             variant="ghost"
         >
             <ChevronLeft className={cn("h-3 w-3 transition-transform", collapsed && "rotate-180")} />

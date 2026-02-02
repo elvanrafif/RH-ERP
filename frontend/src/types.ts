@@ -1,32 +1,44 @@
-// Tambahkan Interface User jika belum ada
 export interface User {
     id: string;
     name: string;
     email: string;
-    avatar?: string; // URL atau filename avatar
+    avatar?: string;
 }
 
 export interface Client {
     id: string;
     company_name: string;
+    contact_person: string;
     email: string;
     phone: string;
-    address: string;
-    created: string;
 }
 
 export interface Project {
     id: string;
-    name: string;
-    status: 'todo' | 'doing' | 'review' | 'done' | 'cancel';
-    type: 'design' | 'sipil' | 'others';
-    value: number;
-    deadline?: string;
-    client_id: string;
-    assignee?: string; // ID User
+    // name: string; // HAPUS, diganti client relation
+    client: string; // Relation ID
+    type: 'arsitektur' | 'sipil' | 'interior';
+    status: string;
+    value: number; // Contract Value
+    deadline: string;
+    start_date?: string;
+    end_date?: string;
+    assignee?: string; // User ID
+
+    // JSON FIELD (Penting!)
+    meta_data: {
+        luas_tanah?: number;
+        luas_bangunan?: number;
+        pic_lapangan?: string; // Untuk Sipil
+        pic_interior?: string; // Untuk Interior
+        area_scope?: string;   // Untuk Interior
+        notes?: string;
+        [key: string]: any;    // Flexible
+    };
+
     expand?: {
-        client_id?: Client;
-        assignee?: User; // Data user lengkap hasil expand
+        client?: Client; // Perhatikan nama field relation di PB (client atau client_id)
+        assignee?: User;
     };
     created: string;
     updated: string;
