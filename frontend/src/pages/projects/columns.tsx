@@ -62,7 +62,7 @@ export const getColumns = (
     accessorKey: "name",
     header: "Nama Project",
     cell: ({ row }) => {
-        const clientName = row.original.expand?.client_id?.company_name || "Unknown Client";
+        const clientName = row.original.expand?.client?.company_name || "Unknown Client";
         return (
             <div className="flex flex-col min-w-[200px]">
                 <span className="font-semibold text-sm">{row.getValue("name")}</span>
