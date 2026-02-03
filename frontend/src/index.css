@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap');
+
 @import "tailwindcss";
 
 @plugin "tailwindcss-animate";
@@ -121,5 +123,35 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Roboto', sans-serif; 
   }
 }
+
+/* @media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #invoice-print-area, 
+  #invoice-print-area * {
+    visibility: visible;
+  }
+  #invoice-print-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20mm !important;
+    background-color: white !important;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  ::-webkit-scrollbar {
+    display: none;
+  }
+} */

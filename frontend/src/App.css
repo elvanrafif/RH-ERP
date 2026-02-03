@@ -5,6 +5,26 @@
   text-align: center;
 }
 
+@media print {
+  @page {
+    margin: 0;
+    size: auto;
+  }
+  body {
+    background: white;
+  }
+  /* Sembunyikan semua elemen kecuali area print */
+  body > * {
+    display: none;
+  }
+  /* Tampilkan area print jika dia di mount point yang berbeda, 
+     atau gunakan class helper Tailwind 'print:hidden' seperti di kode saya 
+  */
+  #root {
+      display: block; /* Pastikan root tetap ada */
+  }
+}
+
 .logo {
   height: 6em;
   padding: 1.5em;

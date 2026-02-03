@@ -78,9 +78,10 @@ function SidebarContent({
           {collapsed && <div className="my-2 border-t w-8 mx-auto" />}
           
           <NavItem to="/quotations" icon={FileText} label="Quotations" collapsed={collapsed} isActive={isActive("/quotations")} onClick={handleLinkClick} />
-          <div className={cn(collapsed ? "opacity-50" : "")}>
              <NavItem to="/invoices" icon={Receipt} label="Invoices" collapsed={collapsed} isActive={isActive("/invoices")} onClick={handleLinkClick} />
-          </div>
+          {/* <div className={cn(collapsed ? "opacity-50" : "")}>
+             <NavItem to="/invoices" icon={Receipt} label="Invoices" collapsed={collapsed} isActive={isActive("/invoices")} onClick={handleLinkClick} />
+          </div> */}
 
           {/* DIVIDER MANAGEMENT */}
           {!collapsed && <div className="mt-6 mb-2 px-2 text-[10px] font-bold text-muted-foreground tracking-wider uppercase">Management</div>}
