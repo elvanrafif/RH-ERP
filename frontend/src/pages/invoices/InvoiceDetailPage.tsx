@@ -1,15 +1,17 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useReactToPrint } from 'react-to-print'
+// HAPUS: import { useReactToPrint } from 'react-to-print' (Tidak dipakai lagi)
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
 import { toast } from 'sonner'
+import { toJpeg } from 'html-to-image'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Printer, Save, Loader2, ArrowLeft, Share2 } from 'lucide-react'
+// GANTI ICON PRINTER JADI DOWNLOAD (Opsional, tapi lebih cocok)
+import { Download, Save, Loader2, ArrowLeft, Share2 } from 'lucide-react'
 import {
   Select,
   SelectContent,
@@ -17,8 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import RHStudioKopImg from '@/assets/rh-studio-kop.png'
-import QRCode from 'react-qr-code'
 import { getTemplateByType } from './template'
 import { InvoicePaper } from './components/InvoicePaper'
 
@@ -80,9 +80,7 @@ export default function InvoiceDetailPage() {
   // LINK GENERATOR
   const qrLink = `${import.meta.env.VITE_FE_LINK_URL}/verify/invoices/${id}`
 
-  // --- 2. LOGIC GRAND TOTAL (CONDITIONAL) ---
-  // Jika Design -> Pakai Rumus (Luas * Harga)
-  // Jika Sipil/Interior -> Pakai Manual Input
+  // --- LOGIC GRAND TOTAL ---
   const grandTotal =
     type === 'design' ? projectArea * pricePerMeter : manualTotal
 
@@ -96,7 +94,6 @@ export default function InvoiceDetailPage() {
         const cleanVal = val.toString().replace('%', '').trim().toLowerCase()
 
         if (cleanVal === 'dp' && type === 'design') {
-          // Khusus Design, DP bisa fix 2.5jt (opsional, bisa di override persen)
           newAmount = 2500000
         } else if (cleanVal === 'pelunasan') {
           newAmount = Math.max(0, currentTotal - runningTotal)
@@ -112,7 +109,7 @@ export default function InvoiceDetailPage() {
         return { ...item, amount: newAmount }
       })
     },
-    [type] // recalculate depend on type now
+    [type]
   )
 
   // --- EFFECT: INITIAL LOAD ---
@@ -139,14 +136,12 @@ export default function InvoiceDetailPage() {
         setSelectedClientData(invoice.expand?.client_id)
       }
 
-      // Load Data
       const area = invoice.project_area || 0
       const price = invoice.price_per_meter || 200000
       setProjectArea(area)
       setPricePerMeter(price)
-      setManualTotal(invoice.total_amount || 0) // Load manual total
+      setManualTotal(invoice.total_amount || 0)
 
-      // Determine initial calculation base
       const total =
         currentType === 'design' ? area * price : invoice.total_amount || 0
 
@@ -162,11 +157,10 @@ export default function InvoiceDetailPage() {
 
   // --- EFFECT: AUTO-CALC ON CHANGE ---
   useEffect(() => {
-    // Trigger kalkulasi ulang jika faktor penentu harga berubah
     if (grandTotal > 0 && items.length > 0) {
       setItems((prevItems) => recalculateAllItems(prevItems, grandTotal))
     }
-  }, [grandTotal, recalculateAllItems]) // Depend on grandTotal (which depends on projectArea/manualTotal)
+  }, [grandTotal, recalculateAllItems])
 
   // --- HANDLERS ---
   const markAsDirty = () => setHasUnsavedChanges(true)
@@ -220,41 +214,89 @@ export default function InvoiceDetailPage() {
     window.open(waUrl, '_blank')
   }
 
-  const remainingPayment =
-    grandTotal -
-    items
-      .filter((i) => i.status === 'Success')
-      .reduce((sum, i) => sum + (Number(i.amount) || 0), 0)
-
   // SAVE
   const saveMutation = useMutation({
     mutationFn: async () => {
-      return await pb.collection('invoices').update(id as string, {
-        client_id: selectedClientId,
-        date: new Date(date),
-        status,
-        items: items,
-        bank_details: bankDetails,
-        notes: notes,
-        total_amount: grandTotal, // Save calculated or manual total
-        project_area: type === 'design' ? projectArea : 0,
-        price_per_meter: type === 'design' ? pricePerMeter : 0,
-        active_termin: activeTermin,
-      })
+      const formData = new FormData()
+
+      formData.append('client_id', selectedClientId)
+      formData.append('date', new Date(date).toISOString())
+      formData.append('status', status)
+      formData.append('items', JSON.stringify(items))
+      formData.append('bank_details', bankDetails)
+      formData.append('notes', notes)
+      formData.append('total_amount', String(grandTotal))
+      formData.append(
+        'project_area',
+        String(type === 'design' ? projectArea : 0)
+      )
+      formData.append(
+        'price_per_meter',
+        String(type === 'design' ? pricePerMeter : 0)
+      )
+      formData.append('active_termin', activeTermin)
+
+      if (componentRef.current) {
+        try {
+          // Gunakan JPEG dengan kualitas 0.8 (80%)
+          // Ini akan membuat file di Database jauh lebih kecil
+          const dataUrl = await toJpeg(componentRef.current, {
+            quality: 0.8, // 80% Quality (Masih sangat tajam tapi ringan)
+            pixelRatio: 2,
+            backgroundColor: '#ffffff',
+            cacheBust: false,
+          })
+
+          // Convert DataURL ke Blob untuk upload
+          const res = await fetch(dataUrl)
+          const blob = await res.blob()
+
+          if (blob) {
+            // Ubah ekstensi jadi .jpg
+            const fileName = `Invoice-${invoice?.invoice_number || 'Update'}.jpg`
+            formData.append('document_file', blob, fileName)
+          }
+        } catch (err) {
+          console.error('Gagal membuat gambar invoice:', err)
+        }
+      }
+
+      return await pb.collection('invoices').update(id as string, formData)
     },
     onSuccess: () => {
-      toast.success('Invoice tersimpan')
+      toast.success('Invoice & Dokumen Resmi tersimpan')
       setHasUnsavedChanges(false)
+      // Invalidasi query agar data invoice terbaru (termasuk filename baru) ter-fetch ulang
       queryClient.invalidateQueries({ queryKey: ['invoice', id] })
       queryClient.invalidateQueries({ queryKey: ['invoices'] })
     },
     onError: () => toast.error('Gagal menyimpan'),
   })
 
-  const handlePrint = useReactToPrint({
-    contentRef: componentRef,
-    documentTitle: `Invoice-${invoice?.invoice_number || 'Draft'}`,
-  })
+  // --- NEW LOGIC: DOWNLOAD OFFICIAL FILE (REPLACES PRINT) ---
+  const handleDownloadOfficial = () => {
+    // 1. Cek apakah ada file di database
+    const fileName = invoice?.document_file
+
+    if (!fileName) {
+      toast.error(
+        "Dokumen belum tersedia. Silakan klik tombol 'Simpan' terlebih dahulu untuk men-generate dokumen."
+      )
+      return
+    }
+
+    // 2. Jika ada, download langsung dari PocketBase
+    const fileUrl = pb.files.getUrl(invoice, fileName, { download: true })
+
+    const link = document.createElement('a')
+    link.href = fileUrl
+    link.download = `Invoice-${invoice.invoice_number}.png`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+
+    toast.success('Mendownload Dokumen Resmi...')
+  }
 
   if (isLoading)
     return (
@@ -305,7 +347,12 @@ export default function InvoiceDetailPage() {
             disabled={saveMutation.isPending}
             className={hasUnsavedChanges ? 'border-blue-500 text-blue-600' : ''}
           >
-            <Save className="mr-2 h-4 w-4" /> Simpan
+            {saveMutation.isPending ? (
+              <Loader2 className="animate-spin mr-2 h-4 w-4" />
+            ) : (
+              <Save className="mr-2 h-4 w-4" />
+            )}
+            {saveMutation.isPending ? 'Menyimpan...' : 'Simpan'}
           </Button>
 
           <Button
@@ -317,8 +364,9 @@ export default function InvoiceDetailPage() {
             <Share2 className="mr-2 h-4 w-4" /> Share WA
           </Button>
 
-          <Button size="sm" onClick={() => handlePrint()}>
-            <Printer className="mr-2 h-4 w-4" /> Print PDF
+          {/* TOMBOL PRINT DIGANTI JADI DOWNLOAD OFFICIAL */}
+          <Button size="sm" onClick={handleDownloadOfficial}>
+            <Download className="mr-2 h-4 w-4" /> Download Dokumen
           </Button>
         </div>
       </div>
@@ -602,7 +650,7 @@ export default function InvoiceDetailPage() {
           <div className="scale-[0.85] origin-top print:scale-100">
             {/* PANGGIL COMPONENT MODULAR */}
             <InvoicePaper
-              ref={componentRef} // Ref untuk print
+              ref={componentRef} // Ref untuk generate image
               // Pass Data State (Realtime Editing)
               type={type}
               invoiceNumber={invoice?.invoice_number}

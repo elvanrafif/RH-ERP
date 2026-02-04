@@ -36,12 +36,10 @@ interface InvoicePaperProps {
   items: any[]
   bankDetails: string
   qrLink: string
-
-  // NEW PROP: Mode Publik
   isPublicView?: boolean
 }
 
-// --- COMPONENT (FORWARD REF AGAR BISA DIPRINT) ---
+// --- COMPONENT ---
 export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
   (props, ref) => {
     const {
@@ -53,21 +51,17 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
       projectArea,
       pricePerMeter,
       grandTotal,
-      items,
+      items = [], // Default empty array biar gak crash
       bankDetails,
       qrLink,
-      isPublicView = false, // Default False (Mode Admin)
+      isPublicView = false,
     } = props
 
-    // Hitung sisa pembayaran
     const paidAmount = items
       .filter((i) => i.status === 'Success')
       .reduce((sum, i) => sum + (Number(i.amount) || 0), 0)
     const remainingPayment = grandTotal - paidAmount
 
-    // CSS Class untuk mode publik (Anti Tamper)
-    // pointer-events-none: Gak bisa diklik
-    // user-select-none: Gak bisa di-blok teksnya
     const securityClass = isPublicView
       ? 'pointer-events-none user-select-none'
       : ''
@@ -78,9 +72,9 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
         className={`bg-white shadow-xl mx-auto p-[15mm] print:shadow-none relative text-black font-sans ${securityClass}`}
         style={{ width: '210mm', minHeight: '297mm' }}
       >
-        {/* --- WATERMARK (Hanya muncul jika isPublicView = true) --- */}
+        {/* WATERMARK (Diberi class 'watermark-layer' agar bisa dihapus script) */}
         {isPublicView && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50 overflow-hidden print:hidden">
+          <div className="watermark-layer absolute inset-0 flex items-center justify-center pointer-events-none z-50 overflow-hidden print:hidden">
             <div className="opacity-15 transform -rotate-45 border-[10px] border-emerald-600 px-12 py-4 rounded-xl">
               <span className="text-9xl font-black text-emerald-600 tracking-widest whitespace-nowrap uppercase">
                 VERIFIED
@@ -89,9 +83,10 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
           </div>
         )}
 
-        {/* HEADER KOP */}
-        <div className="flex justify-between items-start relative z-10">
-          <div>
+        {/* --- HEADER KOP (LAYOUT FIX: FLEXBOX) --- */}
+        {/* Menggunakan Flexbox menjamin logo dirender di Mobile (bukan Absolute) */}
+        <div className="flex justify-between items-start mb-10 relative z-10">
+          <div className="w-2/3">
             <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
               RH STUDIO ARSITEK
             </h1>
@@ -103,17 +98,21 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
               (+62) 858 1005 5005
             </p>
           </div>
-          <div className="absolute right-[-20px] top-[-20px]">
+
+          {/* Logo container dengan negative margin agar posisi mirip absolute */}
+          <div className="w-1/3 flex justify-end absolute top-[-36px] right-[-20px]">
             <img
               src={RHStudioKopImg}
               alt="RH Studio Kop"
-              className="w-40 h-40 object-contain"
+              className="w-48 h-48 object-contain"
+              crossOrigin="anonymous" // Penting untuk CORS
+              loading="eager" // Force eager loading
             />
           </div>
         </div>
 
         {/* JUDUL & NO INVOICE */}
-        <div className="grid grid-cols-2 gap-4 mt-4 relative z-10">
+        <div className="grid grid-cols-2 gap-4 relative z-10">
           <div className="py-2 bg-black text-center mb-1">
             <h2 className="text-[#f1c232] text-2xl font-bold uppercase">
               INVOICE {type}
@@ -128,7 +127,7 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
               Termin {activeTermin}
             </p>
             <p className="text-yellow-600 font-bold">
-              Invoice Date: {formatDate(date)}
+              Invoice Date: {formatDate(date)} <br />
             </p>
           </div>
         </div>
@@ -201,7 +200,6 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
               const isFuture = i > activeIndex
               const isActiveRow = String(i + 1) === activeTermin
 
-              // Style Logic
               const textColor = isFuture ? 'text-gray-300' : 'text-slate-900'
               const fontWeight = isActiveRow ? 'font-bold' : 'font-normal'
               const displayPrice = isFuture
