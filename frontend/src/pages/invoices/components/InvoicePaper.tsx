@@ -1,152 +1,284 @@
-import { format } from "date-fns"
-import { id } from "date-fns/locale"
-import { Building2 } from "lucide-react"
+import React from 'react'
+import QRCode from 'react-qr-code'
+import RHStudioKopImg from '@/assets/rh-studio-kop.png'
 
-// Helper Rupiah
-const formatRupiah = (val: number) => 
-  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
+// --- HELPER FORMATTER ---
+const formatRupiah = (val: number) =>
+  new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    maximumFractionDigits: 0,
+  }).format(val)
 
+const formatDate = (dateString: string | Date) => {
+  if (!dateString) return '-'
+  return new Date(dateString).toLocaleDateString('id-ID', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+}
+
+// --- TYPE DEFINITION ---
 interface InvoicePaperProps {
-    data: any; // Data Invoice Lengkap
-    client: any; // Data Client
+  type: string
+  invoiceNumber?: string
+  date: string | Date
+  activeTermin: string
+  client: {
+    company_name?: string
+    address?: string
+    phone?: string
+  } | null
+  projectArea: number
+  pricePerMeter: number
+  grandTotal: number
+  items: any[]
+  bankDetails: string
+  qrLink: string
+
+  // NEW PROP: Mode Publik
+  isPublicView?: boolean
 }
 
-export function InvoicePaper({ data, client }: InvoicePaperProps) {
-    if (!data) return null;
+// --- COMPONENT (FORWARD REF AGAR BISA DIPRINT) ---
+export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
+  (props, ref) => {
+    const {
+      type,
+      invoiceNumber,
+      date,
+      activeTermin,
+      client,
+      projectArea,
+      pricePerMeter,
+      grandTotal,
+      items,
+      bankDetails,
+      qrLink,
+      isPublicView = false, // Default False (Mode Admin)
+    } = props
 
-    // Hitung Grand Total
-    const subtotal = data.items?.reduce((acc: number, item: any) => acc + (Number(item.amount) || 0), 0) || 0;
-    
+    // Hitung sisa pembayaran
+    const paidAmount = items
+      .filter((i) => i.status === 'Success')
+      .reduce((sum, i) => sum + (Number(i.amount) || 0), 0)
+    const remainingPayment = grandTotal - paidAmount
+
+    // CSS Class untuk mode publik (Anti Tamper)
+    // pointer-events-none: Gak bisa diklik
+    // user-select-none: Gak bisa di-blok teksnya
+    const securityClass = isPublicView
+      ? 'pointer-events-none user-select-none'
+      : ''
+
     return (
-        <div 
-            id="invoice-print-area"
-            className="bg-white w-[210mm] min-h-[297mm] p-[20mm] shadow-lg text-sm text-slate-900 relative mx-auto"
-            style={{ fontFamily: 'Roboto, sans-serif' }}
-        >
-            {/* --- HEADER --- */}
-            <div className="flex justify-between items-start border-b-2 border-slate-800 pb-6 mb-8">
-                <div>
-                    {/* Ganti dengan Logo Perusahaan Anda */}
-                    <div className="flex items-center gap-2 mb-2">
-                        <div className="h-10 w-10 bg-slate-900 text-white flex items-center justify-center rounded">
-                            <Building2 size={24} />
-                        </div>
-                        <h1 className="text-2xl font-bold tracking-tight text-slate-900">RH STUDIO</h1>
-                    </div>
-                    <p className="text-slate-500 text-xs max-w-[200px]">
-                        Jalan Arsitektur No. 88<br/>
-                        Jakarta Selatan, 12345<br/>
-                        +62 812 3456 7890
-                    </p>
-                </div>
-                <div className="text-right">
-                    <h2 className="text-4xl font-light text-slate-300 tracking-widest uppercase mb-1">Invoice</h2>
-                    <p className="font-mono font-bold text-lg text-slate-700">{data.invoice_number}</p>
-                    
-                    {/* Status Badge (Hanya tampil di layar, tidak di print jika css print diatur) */}
-                    <div className="mt-2 print:hidden">
-                        <span className={`px-2 py-1 rounded text-xs font-bold uppercase ${
-                            data.status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                        }`}>
-                            {data.status}
-                        </span>
-                    </div>
-                </div>
+      <div
+        ref={ref}
+        className={`bg-white shadow-xl mx-auto p-[15mm] print:shadow-none relative text-black font-sans ${securityClass}`}
+        style={{ width: '210mm', minHeight: '297mm' }}
+      >
+        {/* --- WATERMARK (Hanya muncul jika isPublicView = true) --- */}
+        {isPublicView && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50 overflow-hidden print:hidden">
+            <div className="opacity-15 transform -rotate-45 border-[10px] border-emerald-600 px-12 py-4 rounded-xl">
+              <span className="text-9xl font-black text-emerald-600 tracking-widest whitespace-nowrap uppercase">
+                VERIFIED
+              </span>
             </div>
+          </div>
+        )}
 
-            {/* --- INFO CLIENT & PROYEK --- */}
-            <div className="flex justify-between mb-8">
-                <div className="w-1/2">
-                    <h3 className="text-slate-500 text-xs uppercase tracking-wider font-bold mb-1">Bill To:</h3>
-                    <p className="font-bold text-lg">{client?.company_name || "Nama Klien"}</p>
-                    <p className="text-slate-600 whitespace-pre-line">{client?.address || "Alamat belum diisi"}</p>
-                    <p className="text-slate-600 mt-1">{client?.phone}</p>
-                </div>
-                <div className="w-1/2 text-right">
-                    <div className="space-y-1">
-                        <div className="flex justify-end gap-4">
-                            <span className="text-slate-500">Invoice Date:</span>
-                            <span className="font-medium">{data.date ? format(new Date(data.date), "dd MMMM yyyy", { locale: id }) : "-"}</span>
-                        </div>
-                        <div className="flex justify-end gap-4">
-                            <span className="text-slate-500">Due Date:</span>
-                            <span className="font-medium">{data.due_date ? format(new Date(data.due_date), "dd MMMM yyyy", { locale: id }) : "-"}</span>
-                        </div>
-                        
-                        {/* Jika Design, Tampilkan Luas */}
-                        {data.type === 'design' && data.project_area > 0 && (
-                             <div className="flex justify-end gap-4 mt-2 pt-2 border-t border-dashed">
-                                <span className="text-slate-500">Project Area:</span>
-                                <span className="font-bold">{data.project_area} m²</span>
-                            </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {/* --- PROJECT TITLE --- */}
-            <div className="mb-6">
-                <h3 className="text-lg font-bold text-slate-800">{data.title}</h3>
-            </div>
-
-            {/* --- TABLE ITEMS --- */}
-            <table className="w-full mb-8">
-                <thead>
-                    <tr className="border-b-2 border-slate-800">
-                        <th className="text-left py-3 font-bold uppercase text-xs w-[60%]">Description</th>
-                        <th className="text-right py-3 font-bold uppercase text-xs">Amount (IDR)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {data.items?.map((item: any, idx: number) => (
-                        <tr key={idx} className="border-b border-slate-200">
-                            <td className="py-4">
-                                <p className="font-bold text-slate-800">{item.name}</p>
-                                {item.note && <p className="text-xs text-slate-500 mt-0.5">{item.note}</p>}
-                            </td>
-                            <td className="text-right py-4 font-medium text-slate-700">
-                                {formatRupiah(item.amount)}
-                            </td>
-                        </tr>
-                    ))}
-                    {(!data.items || data.items.length === 0) && (
-                        <tr>
-                            <td colSpan={2} className="py-8 text-center text-slate-400 italic">Belum ada item detail</td>
-                        </tr>
-                    )}
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td className="pt-4 text-right font-bold text-slate-500 pr-8">TOTAL</td>
-                        <td className="pt-4 text-right font-bold text-2xl text-slate-900">
-                            {formatRupiah(subtotal)}
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
-
-            {/* --- FOOTER (BANK & SIGNATURE) --- */}
-            <div className="grid grid-cols-2 gap-8 mt-12 break-inside-avoid">
-                <div>
-                    <h3 className="text-xs font-bold uppercase text-slate-500 mb-2">Payment Details</h3>
-                    <div className="bg-slate-50 p-4 rounded border border-slate-200">
-                        <p className="whitespace-pre-line text-slate-700 font-medium">{data.bank_details || "Belum ada info bank"}</p>
-                    </div>
-                    <p className="text-[10px] text-slate-400 mt-2 italic">
-                        * Mohon cantumkan No. Invoice saat melakukan pembayaran.
-                    </p>
-                </div>
-                <div className="text-center mt-4">
-                    <p className="text-slate-500 mb-16">Regards,</p>
-                    <p className="font-bold underline">Elvan Rafif</p>
-                    <p className="text-xs text-slate-500">Principal Architect</p>
-                </div>
-            </div>
-
-            {/* PRINT FOOTER */}
-            <div className="absolute bottom-12 left-0 w-full text-center print:block hidden">
-                <p className="text-[10px] text-slate-400">Thank you for your business.</p>
-            </div>
+        {/* HEADER KOP */}
+        <div className="flex justify-between items-start relative z-10">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
+              RH STUDIO ARSITEK
+            </h1>
+            <p className="text-sm text-gray-600 mt-1">
+              Ruko Puri Aster,
+              <br />
+              Jl. Boulevard Grand Depok City
+              <br />
+              (+62) 858 1005 5005
+            </p>
+          </div>
+          <div className="absolute right-[-20px] top-[-20px]">
+            <img
+              src={RHStudioKopImg}
+              alt="RH Studio Kop"
+              className="w-40 h-40 object-contain"
+            />
+          </div>
         </div>
+
+        {/* JUDUL & NO INVOICE */}
+        <div className="grid grid-cols-2 gap-4 mt-4 relative z-10">
+          <div className="py-2 bg-black text-center mb-1">
+            <h2 className="text-[#f1c232] text-2xl font-bold uppercase">
+              INVOICE {type}
+            </h2>
+          </div>
+        </div>
+
+        {/* INFO TANGGAL */}
+        <div className="grid grid-cols-2 mb-6 relative z-10">
+          <div className="flex flex-col items-center justify-center">
+            <p className="text-yellow-600 font-bold text-lg">
+              Termin {activeTermin}
+            </p>
+            <p className="text-yellow-600 font-bold">
+              Invoice Date: {formatDate(date)}
+            </p>
+          </div>
+        </div>
+
+        {/* INFO KLIEN & PROJECT */}
+        <div className="w-full mb-10 relative z-10">
+          <div className="w-1/2 mb-6">
+            <h3 className="text-md font-bold">Invoice to:</h3>
+            <p className="text-slate-600 text-sm font-bold">
+              {client?.company_name || 'Nama Klien'}
+            </p>
+            <p className="text-slate-600 text-sm whitespace-pre-line">
+              {client?.address || '-'}
+            </p>
+            <p className="text-slate-600 text-sm">{client?.phone || '-'}</p>
+          </div>
+
+          <div className="flex items-center justify-between mb-4 py-3">
+            {type === 'design' ? (
+              <>
+                <div className="text-center">
+                  <h3 className="text-md font-bold">Design Project:</h3>
+                  <p className="text-slate-600 text-sm pl-0">
+                    {projectArea} m²
+                  </p>
+                </div>
+                <div className="text-center pr-10">
+                  <h3 className="text-md font-bold">Price per m²:</h3>
+                  <p className="text-slate-600 text-sm">
+                    {formatRupiah(pricePerMeter)}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="w-full"></div>
+            )}
+          </div>
+
+          <div>
+            <h2 className="text-yellow-600 text-lg font-bold">
+              NILAI KONTRAK : {formatRupiah(grandTotal)}
+            </h2>
+          </div>
+        </div>
+
+        {/* TABEL ITEM */}
+        <table className="w-full text-sm mb-8 border-1 relative z-10">
+          <thead>
+            <tr className="bg-black">
+              <th className="font-bold text-md py-2 text-yellow-500 border-r-0 text-center w-[25%]">
+                DESCRIPTION
+              </th>
+              <th className="font-bold text-md py-2 text-yellow-500 text-center w-[15%]">
+                %
+              </th>
+              <th className="font-bold text-md py-2 text-yellow-500 text-center w-[25%]">
+                PRICE
+              </th>
+              <th className="font-bold text-md py-2 text-yellow-500 text-center w-[15%]">
+                STATUS
+              </th>
+              <th className="font-bold text-md py-2 text-yellow-500 text-center w-[20%]">
+                PAYMENT DATE
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item, i) => {
+              const activeIndex = parseInt(activeTermin) - 1
+              const isFuture = i > activeIndex
+              const isActiveRow = String(i + 1) === activeTermin
+
+              // Style Logic
+              const textColor = isFuture ? 'text-gray-300' : 'text-slate-900'
+              const fontWeight = isActiveRow ? 'font-bold' : 'font-normal'
+              const displayPrice = isFuture
+                ? '-'
+                : formatRupiah(Number(item.amount) || 0)
+              const displayDate = item.paymentDate
+                ? new Date(item.paymentDate).toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: '2-digit',
+                  })
+                : ''
+
+              return (
+                <tr
+                  key={i}
+                  className={`border-b last:border-0 ${i % 2 === 0 ? 'bg-slate-50' : 'bg-white'}`}
+                >
+                  <td className={`py-4 text-center ${textColor} ${fontWeight}`}>
+                    {item.name}
+                  </td>
+                  <td className={`py-4 text-center ${textColor} ${fontWeight}`}>
+                    {item.percent}
+                  </td>
+                  <td className={`py-4 text-center ${textColor} ${fontWeight}`}>
+                    {displayPrice}
+                  </td>
+                  <td className={`py-4 text-center ${textColor} ${fontWeight}`}>
+                    {item.status}
+                  </td>
+                  <td className={`py-4 text-center ${textColor} ${fontWeight}`}>
+                    {displayDate}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+
+        {/* REMAINING */}
+        <div className="mb-10 mr-18 relative z-10">
+          <div className="flex justify-end gap-10">
+            <span className="text-xl font-bold">Remaining Payment</span>
+            <span className="text-xl font-bold">
+              {formatRupiah(remainingPayment)}
+            </span>
+          </div>
+        </div>
+
+        {/* FOOTER */}
+        <div className="absolute bottom-12 left-0 w-full px-[15mm] z-10">
+          <div className="flex justify-between items-end">
+            <div className="w-2/3 pr-10">
+              <h2 className="font-bold uppercase text-md">
+                INFORMASI PEMBAYARAN
+              </h2>
+              <div className="text-gray-700">
+                <p className="whitespace-pre-line font-medium text-md">
+                  {bankDetails || 'Belum ada info rekening.'}
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col items-center">
+              <div className="bg-white p-1 border-2 border-yellow-400 rounded">
+                <QRCode
+                  value={qrLink}
+                  size={72}
+                  style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
+                  viewBox={`0 0 256 256`}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     )
-}
+  }
+)
+
+InvoicePaper.displayName = 'InvoicePaper'

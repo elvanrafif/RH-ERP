@@ -20,6 +20,7 @@ import {
 import RHStudioKopImg from '@/assets/rh-studio-kop.png'
 import QRCode from 'react-qr-code'
 import { getTemplateByType } from './template'
+import { InvoicePaper } from './components/InvoicePaper'
 
 // Helper Format Rupiah
 const formatRupiah = (val: number) =>
@@ -77,8 +78,7 @@ export default function InvoiceDetailPage() {
   const [manualTotal, setManualTotal] = useState(0)
 
   // LINK GENERATOR
-  const appUrl = window.location.origin
-  const qrLink = `${appUrl}/invoice/${id}`
+  const qrLink = `${import.meta.env.VITE_FE_LINK_URL}/verify/invoices/${id}`
 
   // --- 2. LOGIC GRAND TOTAL (CONDITIONAL) ---
   // Jika Design -> Pakai Rumus (Luas * Harga)
@@ -600,243 +600,22 @@ export default function InvoiceDetailPage() {
         {/* KANAN: PREVIEW A4 */}
         <div className="flex-1 overflow-y-auto bg-slate-200/50 p-8 flex justify-center print:p-0 print:bg-white print:overflow-visible">
           <div className="scale-[0.85] origin-top print:scale-100">
-            <div
-              ref={componentRef}
-              id="invoice-print-area"
-              className="bg-white shadow-xl mx-auto p-[15mm] print:shadow-none relative"
-              style={{
-                width: '210mm',
-                minHeight: '297mm',
-                color: 'black',
-                fontFamily: 'Roboto, sans-serif',
-              }}
-            >
-              <div>
-                {/* HEADER */}
-                <div className="flex justify-between items-start relative">
-                  <div>
-                    <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
-                      RH STUDIO ARSITEK
-                    </h1>
-                    <p className="text-sm text-gray-600 mt-1">
-                      Ruko Puri Aster,
-                      <br />
-                      Jl. Boulevard Grand Depok City
-                      <br />
-                      (+62) 858 1005 5005
-                    </p>
-                  </div>
-                  <div className="absolute right-[-20px] top-[-20px]">
-                    <img
-                      src={RHStudioKopImg}
-                      alt="RH Studio Kop"
-                      className="w-40 h-40 object-contain"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 mt-4">
-                  <div className="py-2 bg-black text-center mb-1">
-                    <h2 className="text-[#f1c232] text-2xl font-bold uppercase">
-                      INVOICE {type}
-                    </h2>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 mb-6">
-                  <div className="flex flex-col items-center justify-center">
-                    <p className="text-yellow-600 font-bold text-lg">
-                      Termin {activeTermin}
-                    </p>
-                    <p className="text-yellow-600 font-bold">
-                      Invoice Date:{' '}
-                      {date
-                        ? new Date(date).toLocaleDateString('id-ID', {
-                            day: '2-digit',
-                            month: '2-digit',
-                            year: 'numeric',
-                          })
-                        : '-'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="w-full mb-10">
-                  <div className="w-1/2 mb-6">
-                    <h3 className="text-md font-bold">Invoice to:</h3>
-                    <p className="text-slate-600 text-sm font-bold">
-                      {selectedClientData?.company_name || 'Nama Klien'}
-                    </p>
-                    <p className="text-slate-600 text-sm whitespace-pre-line">
-                      {selectedClientData?.address || '-'}
-                    </p>
-                    <p className="text-slate-600 text-sm">
-                      {selectedClientData?.phone || '-'}
-                    </p>
-                  </div>
-                  <div className="flex items-center justify-between mb-4 py-3">
-                    {/* 4. CONDITIONAL RENDER PREVIEW */}
-                    {type === 'design' ? (
-                      <>
-                        <div className="text-center">
-                          <h3 className="text-md font-bold">Design Project:</h3>
-                          <p className="text-slate-600 text-sm pl-0">
-                            {projectArea} m²
-                          </p>
-                        </div>
-                        <div className="text-center pr-10">
-                          <h3 className="text-md font-bold">Price per m²:</h3>
-                          <p className="text-slate-600 text-sm">
-                            {formatRupiah(pricePerMeter)}
-                          </p>
-                        </div>
-                      </>
-                    ) : (
-                      // Jika Sipil/Interior, kosongkan bagian kiri agar bersih
-                      <div className="text-center w-full">
-                        {/* <p className="text-slate-400 text-sm italic">
-                          (
-                          {type === 'sipil'
-                            ? 'Project Konstruksi Sipil'
-                            : 'Project Interior Design'}
-                          )
-                        </p> */}
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    {/* 2. GANTI LABEL "TOTAL PAYMENT" -> "NILAI KONTRAK" */}
-                    <h2 className="text-yellow-600 text-lg font-bold">
-                      NILAI KONTRAK : {formatRupiah(grandTotal)}
-                    </h2>
-                  </div>
-                </div>
-
-                {/* TABEL TERMIN */}
-                <table className="w-full text-sm mb-8 border-1">
-                  <thead>
-                    <tr className="bg-black">
-                      <th className="font-bold text-md py-2 text-yellow-500 border-r-0 text-center w-[25%]">
-                        DESCRIPTION
-                      </th>
-                      <th className="font-bold text-md py-2 text-yellow-500 text-center w-[15%]">
-                        %
-                      </th>
-                      <th className="font-bold text-md py-2 text-yellow-500 text-center w-[25%]">
-                        PRICE
-                      </th>
-                      <th className="font-bold text-md py-2 text-yellow-500 text-center w-[15%]">
-                        STATUS
-                      </th>
-                      <th className="font-bold text-md py-2 text-yellow-500 text-center w-[20%]">
-                        PAYMENT DATE
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {items.map((item, i) => {
-                      const activeIndex = parseInt(activeTermin) - 1
-                      const isFuture = i > activeIndex
-                      const isActiveRow = String(i + 1) === activeTermin
-
-                      const textColor = isFuture
-                        ? 'text-gray-300'
-                        : 'text-slate-900'
-                      const fontWeight = isActiveRow
-                        ? 'font-bold'
-                        : 'font-normal'
-
-                      const displayPrice = isFuture
-                        ? '-'
-                        : formatRupiah(Number(item.amount) || 0)
-
-                      return (
-                        <tr
-                          key={i}
-                          className={`border-b last:border-0 ${i % 2 === 0 ? 'bg-slate-50' : 'bg-white'}`}
-                        >
-                          <td
-                            className={`py-4 text-center ${textColor} ${fontWeight}`}
-                          >
-                            {item.name}
-                          </td>
-                          <td
-                            className={`py-4 text-center ${textColor} ${fontWeight}`}
-                          >
-                            {item.percent}
-                          </td>
-                          <td
-                            className={`py-4 text-center ${textColor} ${fontWeight}`}
-                          >
-                            {displayPrice}
-                          </td>
-                          <td
-                            className={`py-4 text-center ${textColor} ${fontWeight}`}
-                          >
-                            {item.status}
-                          </td>
-                          <td
-                            className={`py-4 text-center ${textColor} ${fontWeight}`}
-                          >
-                            {item.paymentDate
-                              ? new Date(item.paymentDate).toLocaleDateString(
-                                  'en-GB',
-                                  {
-                                    day: '2-digit',
-                                    month: 'short',
-                                    year: '2-digit',
-                                  }
-                                )
-                              : ''}
-                          </td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-
-                <div className="mb-10 mr-18">
-                  <div className="flex justify-end gap-10">
-                    <span className="text-xl font-bold">Remaining Payment</span>
-                    <span className="text-xl font-bold">
-                      {formatRupiah(remainingPayment)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* FOOTER */}
-              <div className="absolute bottom-12 left-0 w-full px-[15mm]">
-                <div className="flex justify-between items-end">
-                  {/* Left: Bank Info */}
-                  <div className="w-2/3 pr-10">
-                    <h2 className="font-bold uppercase text-md">
-                      INFORMASI PEMBAYARAN
-                    </h2>
-                    <div className="text-gray-700">
-                      <p className="whitespace-pre-line font-medium text-md">
-                        {bankDetails || 'Belum ada info rekening.'}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Right: QR Code */}
-                  <div className="flex flex-col items-center">
-                    <div className="bg-white p-1 border-2 border-yellow-400 rounded">
-                      <QRCode
-                        value={qrLink}
-                        size={72}
-                        style={{
-                          height: 'auto',
-                          maxWidth: '100%',
-                          width: '100%',
-                        }}
-                        viewBox={`0 0 256 256`}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            {/* PANGGIL COMPONENT MODULAR */}
+            <InvoicePaper
+              ref={componentRef} // Ref untuk print
+              // Pass Data State (Realtime Editing)
+              type={type}
+              invoiceNumber={invoice?.invoice_number}
+              date={date}
+              activeTermin={activeTermin}
+              client={selectedClientData}
+              projectArea={projectArea}
+              pricePerMeter={pricePerMeter}
+              grandTotal={grandTotal}
+              items={items}
+              bankDetails={bankDetails}
+              qrLink={qrLink}
+            />
           </div>
         </div>
       </div>
