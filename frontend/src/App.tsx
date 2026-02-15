@@ -25,9 +25,15 @@ import QuotationEditor from './pages/quotations/QuotationEditor'
 import { useSessionTimeout } from '@/hooks/useSessionTimeout'
 import UserManagementPage from './pages/settings/users/UserManagement'
 import ProfilePage from './pages/settings/profile/ProfilePage'
+
+// --- IMPORT ROLE MANAGEMENT PAGE ---
+import RoleManagementPage from './pages/settings/roleManagement/roleManagement'
+// Catatan: Sesuaikan path ini jika Bapak menaruhnya di dalam folder 'settings/roles'
+
 import InvoicesPage from './pages/invoices/InvoicesPage'
 import InvoiceDetailPage from './pages/invoices/InvoiceDetailPage'
 import PublicVerificationPage from './pages/verification/PublicVerificationPage'
+import { AuthProvider } from './contexts/AuthContext'
 
 const queryClient = new QueryClient()
 
@@ -73,7 +79,6 @@ function AppRoutes() {
         }
       >
         <Route index element={<Dashboard />} />
-
         {/* --- PROJECTS ROUTING BARU --- */}
         <Route path="projects">
           {/* Redirect default ke Arsitektur jika buka /projects */}
@@ -83,12 +88,14 @@ function AppRoutes() {
           <Route path="sipil" element={<SipilPage />} />
           <Route path="interior" element={<InteriorPage />} />
         </Route>
-
         <Route path="quotations" element={<QuotationsPage />} />
         <Route path="quotations/:id" element={<QuotationEditor />} />
         {/* <Route path="invoices" element={<ComingSoon title="Invoice Generator" />} /> */}
         <Route path="clients" element={<ClientsPage />} />
+        {/* --- SETTINGS ROUTES --- */}
         <Route path="settings/users" element={<UserManagementPage />} />
+        <Route path="settings/roles" element={<RoleManagementPage />} />{' '}
+        {/* <-- RUTE BARU DITAMBAHKAN DI SINI */}
         <Route path="settings/profile" element={<ProfilePage />} />
         <Route path="invoices" element={<InvoicesPage />} />
         <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
@@ -107,9 +114,11 @@ function App() {
           {isLoading ? (
             <SplashScreen key="splash" onComplete={() => setIsLoading(false)} />
           ) : (
-            <BrowserRouter>
-              <AppRoutes />
-            </BrowserRouter>
+            <AuthProvider>
+              <BrowserRouter>
+                <AppRoutes />
+              </BrowserRouter>
+            </AuthProvider>
           )}
         </AnimatePresence>
 
@@ -118,5 +127,4 @@ function App() {
     </QueryClientProvider>
   )
 }
-
 export default App

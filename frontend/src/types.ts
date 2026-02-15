@@ -6,6 +6,7 @@ export interface User {
     division?: string;
     role: string;
     phone?: string;
+    isSuperAdmin?: boolean;
 }
 
 export interface Client {
