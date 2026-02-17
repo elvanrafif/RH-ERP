@@ -13,7 +13,7 @@ function logActivity(e, action) {
     if (collectionName === 'invoices') {
         description = `${action} invoice #${record.get("invoice_number")}`;
     } else if (collectionName === 'quotations') {
-        description = `${action} quotation: ${record.get("quotation_number")}`;
+        description = `${action} quotation: ${record.get("title")}`; 
     } else if (collectionName === 'projects') {
         description = `${action} project: ${record.get("type")}`;
     }
