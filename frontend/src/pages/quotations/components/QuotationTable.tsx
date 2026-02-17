@@ -15,13 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react'
-
-const formatRupiah = (val: number) =>
-  new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  }).format(val)
+import { formatRupiah } from '@/lib/helpers'
 
 interface QuotationTableProps {
   quotations: any[]

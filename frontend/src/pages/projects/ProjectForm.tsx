@@ -42,6 +42,8 @@ import {
 import { Loader2, Check, ChevronsUpDown } from 'lucide-react'
 import { formatRupiahDisplay } from '@/lib/helpers'
 import { SipilPic } from '@/lib/constant'
+import { TypeProjectsBoolean } from '@/lib/booleans'
+import { useRole } from '@/hooks/useRole'
 
 // --- SCHEMA ---
 const projectSchema = z.object({
@@ -79,12 +81,8 @@ export function ProjectForm({
   statusOptions,
 }: ProjectFormProps) {
   const queryClient = useQueryClient()
-  const user = pb.authStore.model
-  const isSuperAdmin =
-    user?.isSuperAdmin || user?.email === 'elvanrafif@gmail.com'
-  const isArchitecture = fixedType === 'architecture'
-  const isCivil = fixedType === 'civil'
-  const isInterior = fixedType === 'interior'
+  const { isSuperAdmin, user } = useRole()
+  const { isArchitecture, isCivil, isInterior } = TypeProjectsBoolean(fixedType)
 
   // FETCH RELATIONS
   const { data: clients } = useQuery({

@@ -6,7 +6,7 @@ export const formatRupiah = (val: number) => {
     }).format(val);
 }
 
-export const formatDate = (dateStr?: string) => {
+export const formatDate = (dateStr?: string | Date) => {
     if (!dateStr) return "-";
     return new Date(dateStr).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: '2-digit' });
 }

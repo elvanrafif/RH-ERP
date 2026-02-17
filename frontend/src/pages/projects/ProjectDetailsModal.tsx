@@ -33,6 +33,7 @@ import {
   getRemainingTime,
 } from '@/lib/helpers'
 import { TypeProjectsBoolean } from '@/lib/booleans'
+import { useRole } from '@/hooks/useRole'
 
 // --- PROPS ---
 interface ProjectDetailsModalProps {
@@ -47,6 +48,8 @@ export function ProjectDetailsModal({
   onOpenChange,
 }: ProjectDetailsModalProps) {
   if (!project) return null
+
+  const { isSuperAdmin } = useRole()
 
   const meta = project.meta_data || {}
   const notes = meta.notes || (project as any).notes
@@ -221,12 +224,16 @@ export function ProjectDetailsModal({
                 <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center">
                   <Ruler className="h-3 w-3 mr-1.5" /> Specifications & Details
                 </h4>
-                <div className="flex items-center gap-2 text-xs">
-                  <span className="text-muted-foreground">Contract Value:</span>
-                  <span className="font-bold text-slate-800 bg-white px-2 py-0.5 rounded border shadow-sm">
-                    {formatRupiah(project.contract_value || 0)}
-                  </span>
-                </div>
+                {isSuperAdmin && (
+                  <div className="flex items-center gap-2 text-xs">
+                    <span className="text-muted-foreground">
+                      Contract Value:
+                    </span>
+                    <span className="font-bold text-slate-800 bg-white px-2 py-0.5 rounded border shadow-sm">
+                      {formatRupiah(project.contract_value || 0)}
+                    </span>
+                  </div>
+                )}
               </div>
 
               <div className="p-4 grid grid-cols-1 md:grid-cols-12 gap-6">

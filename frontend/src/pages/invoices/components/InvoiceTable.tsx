@@ -18,14 +18,7 @@ import {
 } from 'lucide-react'
 import { MaskingTextByInvoiceType } from '@/lib/masking'
 import { cn } from '@/lib/utils'
-
-// Helper internal
-const formatRupiah = (val: number) =>
-  new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  }).format(val)
+import { formatRupiah } from '@/lib/helpers'
 
 const getTypeBadge = (type: string) => {
   const text = MaskingTextByInvoiceType(type)

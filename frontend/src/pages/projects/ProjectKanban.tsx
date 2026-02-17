@@ -43,6 +43,7 @@ import {
   getRemainingTime,
 } from '@/lib/helpers'
 import { TypeProjectsBoolean } from '@/lib/booleans'
+import { useRole } from '@/hooks/useRole'
 
 // --- TYPES & INTERFACES ---
 export type KanbanColumnDefinition = {
@@ -74,9 +75,7 @@ export default function ProjectKanban({
   onStatusChange,
 }: KanbanProps) {
   // --- AUTH CHECK ---
-  const user = pb.authStore.model
-  const isSuperAdmin =
-    user?.isSuperAdmin || user?.email === 'elvanrafif@gmail.com'
+  const { isSuperAdmin, user } = useRole()
 
   const [boardData, setBoardData] = useState<KanbanState>({
     tasks: {},

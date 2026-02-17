@@ -55,14 +55,8 @@ import { TypeProjectsBoolean } from '@/lib/booleans'
 
 // TAMBAHAN RBAC: Import useAuth
 import { useAuth } from '@/contexts/AuthContext'
-
-// Currency formatter
-const formatRupiah = (val: number) =>
-  new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  }).format(val)
+import { useRole } from '@/hooks/useRole'
+import { formatRupiah } from '@/lib/helpers'
 
 interface TemplateProps {
   pageTitle: string
@@ -80,11 +74,8 @@ export default function ProjectPageTemplate({
   enableKanban = true,
 }: TemplateProps) {
   const queryClient = useQueryClient()
-  const user = pb.authStore.model
-  const isSuperAdmin =
-    user?.isSuperAdmin || user?.email === 'elvanrafif@gmail.com'
-  const { isCivil, isArchitecture, isInterior } =
-    TypeProjectsBoolean(projectType)
+  const { isSuperAdmin } = useRole()
+  const { isCivil } = TypeProjectsBoolean(projectType)
 
   // TAMBAHAN RBAC: Panggil hook useAuth
   const { can } = useAuth()

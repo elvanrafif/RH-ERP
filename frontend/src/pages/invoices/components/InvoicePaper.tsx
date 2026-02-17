@@ -1,23 +1,7 @@
 import React from 'react'
 import QRCode from 'react-qr-code'
 import RHStudioKopImg from '@/assets/rh-studio-kop.png'
-
-// --- HELPER FORMATTER ---
-const formatRupiah = (val: number) =>
-  new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  }).format(val)
-
-const formatDate = (dateString: string | Date) => {
-  if (!dateString) return '-'
-  return new Date(dateString).toLocaleDateString('id-ID', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  })
-}
+import { formatDate, formatRupiah } from '@/lib/helpers'
 
 // --- TYPE DEFINITION ---
 interface InvoicePaperProps {

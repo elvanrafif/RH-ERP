@@ -41,6 +41,7 @@ import { NavItem } from './Sidebar/NavItem'
 
 // --- IMPORT GUARD RBAC ---
 import { Guard } from '@/components/ui/guard'
+import { useRole } from '@/hooks/useRole'
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -56,8 +57,7 @@ function SidebarContent({
   const navigate = useNavigate()
   const location = useLocation()
   const pathname = location.pathname
-  const user = pb.authStore.model
-  const isSuperAdmin = user?.isSuperAdmin
+  const { isSuperAdmin } = useRole()
 
   const isActive = (path: string) => {
     if (path === '/' && pathname !== '/') return false
