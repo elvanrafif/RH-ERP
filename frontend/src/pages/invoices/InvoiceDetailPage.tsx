@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-// HAPUS: import { useReactToPrint } from 'react-to-print' (Tidak dipakai lagi)
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
 import { toast } from 'sonner'
@@ -10,7 +9,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-// GANTI ICON PRINTER JADI DOWNLOAD (Opsional, tapi lebih cocok)
 import { Download, Save, Loader2, ArrowLeft, Share2 } from 'lucide-react'
 import {
   Select,
@@ -35,6 +33,10 @@ export default function InvoiceDetailPage() {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const componentRef = useRef<HTMLDivElement>(null)
+
+  // --- NEW: REF & STATE UNTUK DYNAMIC SCALING ---
+  const previewContainerRef = useRef<HTMLDivElement>(null)
+  const [previewScale, setPreviewScale] = useState(1)
 
   // FETCH CLIENTS
   const { data: clientsList } = useQuery({
@@ -74,7 +76,7 @@ export default function InvoiceDetailPage() {
   const [projectArea, setProjectArea] = useState(0)
   const [pricePerMeter, setPricePerMeter] = useState(200000)
 
-  // New State: Manual Total (untuk Sipil & Interior)
+  // New State: Manual Total (for Civil & Interior)
   const [manualTotal, setManualTotal] = useState(0)
 
   // LINK GENERATOR
@@ -95,7 +97,7 @@ export default function InvoiceDetailPage() {
 
         if (cleanVal === 'dp' && type === 'design') {
           newAmount = 2500000
-        } else if (cleanVal === 'pelunasan') {
+        } else if (cleanVal === 'pelunasan' || cleanVal === 'settlement') {
           newAmount = Math.max(0, currentTotal - runningTotal)
         } else {
           const numericVal = parseFloat(cleanVal)
@@ -162,6 +164,30 @@ export default function InvoiceDetailPage() {
     }
   }, [grandTotal, recalculateAllItems])
 
+  // --- EFFECT: DYNAMIC PREVIEW SCALING ---
+  useEffect(() => {
+    const container = previewContainerRef.current
+    if (!container) return
+
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        // Ambil lebar container yang tersedia (content box)
+        const availableWidth = entry.contentRect.width
+
+        // Lebar standar A4 di layar sekitar 794px (210mm).
+        // Kita jadikan base width 800px agar ada sedikit ruang bernafas.
+        const baseWidth = 800
+
+        // Hitung skala (maksimal 1 agar tidak pecah/kebesaran di layar lebar)
+        const newScale = Math.min(availableWidth / baseWidth, 1)
+        setPreviewScale(newScale)
+      }
+    })
+
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [])
+
   // --- HANDLERS ---
   const markAsDirty = () => setHasUnsavedChanges(true)
 
@@ -190,7 +216,7 @@ export default function InvoiceDetailPage() {
   const handleBack = () => {
     if (hasUnsavedChanges) {
       const confirmLeave = window.confirm(
-        'Anda memiliki perubahan yang belum disimpan. Yakin ingin keluar?'
+        'You have unsaved changes. Are you sure you want to leave?'
       )
       if (!confirmLeave) return
     }
@@ -199,7 +225,7 @@ export default function InvoiceDetailPage() {
 
   const handleShareWA = () => {
     if (!selectedClientData?.phone) {
-      toast.error('Nomor HP Klien belum diisi di database klien ini.')
+      toast.error('Client phone number is missing in the database.')
       return
     }
     let rawPhone = selectedClientData.phone.toString()
@@ -209,7 +235,7 @@ export default function InvoiceDetailPage() {
     } else if (cleanPhone.startsWith('8')) {
       cleanPhone = '62' + cleanPhone
     }
-    const message = `Halo ${selectedClientData.company_name},\n\nBerikut link Invoice Anda:\n${qrLink}\n\nTerima kasih.`
+    const message = `Hello ${selectedClientData.company_name},\n\nHere is the link to your Invoice:\n${qrLink}\n\nThank you.`
     const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
     window.open(waUrl, '_blank')
   }
@@ -238,153 +264,154 @@ export default function InvoiceDetailPage() {
 
       if (componentRef.current) {
         try {
-          // Gunakan JPEG dengan kualitas 0.8 (80%)
-          // Ini akan membuat file di Database jauh lebih kecil
           const dataUrl = await toJpeg(componentRef.current, {
-            quality: 0.8, // 80% Quality (Masih sangat tajam tapi ringan)
+            quality: 0.8,
             pixelRatio: 2,
             backgroundColor: '#ffffff',
             cacheBust: false,
           })
 
-          // Convert DataURL ke Blob untuk upload
           const res = await fetch(dataUrl)
           const blob = await res.blob()
 
           if (blob) {
-            // Ubah ekstensi jadi .jpg
             const fileName = `Invoice-${invoice?.invoice_number || 'Update'}.jpg`
             formData.append('document_file', blob, fileName)
           }
         } catch (err) {
-          console.error('Gagal membuat gambar invoice:', err)
+          console.error('Failed to generate invoice image:', err)
         }
       }
 
       return await pb.collection('invoices').update(id as string, formData)
     },
     onSuccess: () => {
-      toast.success('Invoice & Dokumen Resmi tersimpan')
+      toast.success('Invoice & Official Document saved')
       setHasUnsavedChanges(false)
-      // Invalidasi query agar data invoice terbaru (termasuk filename baru) ter-fetch ulang
       queryClient.invalidateQueries({ queryKey: ['invoice', id] })
       queryClient.invalidateQueries({ queryKey: ['invoices'] })
     },
-    onError: () => toast.error('Gagal menyimpan'),
+    onError: () => toast.error('Failed to save changes'),
   })
 
-  // --- NEW LOGIC: DOWNLOAD OFFICIAL FILE (REPLACES PRINT) ---
+  // --- DOWNLOAD OFFICIAL FILE ---
   const handleDownloadOfficial = () => {
-    // 1. Cek apakah ada file di database
     const fileName = invoice?.document_file
 
     if (!fileName) {
       toast.error(
-        "Dokumen belum tersedia. Silakan klik tombol 'Simpan' terlebih dahulu untuk men-generate dokumen."
+        "Document not available. Please click 'Save' first to generate the document."
       )
       return
     }
 
-    // 2. Jika ada, download langsung dari PocketBase
     const fileUrl = pb.files.getUrl(invoice, fileName, { download: true })
 
     const link = document.createElement('a')
     link.href = fileUrl
-    link.download = `Invoice-${invoice.invoice_number}.png`
+    link.download = `Invoice-${invoice.invoice_number}.jpg`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
 
-    toast.success('Mendownload Dokumen Resmi...')
+    toast.success('Downloading Official Document...')
   }
 
   if (isLoading)
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="animate-spin" />
+        <Loader2 className="animate-spin text-primary h-8 w-8" />
       </div>
     )
 
   return (
-    <div className="flex h-screen flex-col bg-slate-100 overflow-hidden">
+    <div className="flex flex-col h-screen bg-slate-100 overflow-hidden">
       {/* HEADER BAR */}
-      <div className="h-14 border-b bg-white flex items-center justify-between px-4 shadow-sm z-10 print:hidden">
-        <div className="flex items-center gap-4">
+      <div className="shrink-0 h-auto min-h-14 py-2 lg:py-0 lg:h-14 border-b bg-white flex flex-col lg:flex-row items-center justify-between px-4 shadow-sm z-20 gap-3 lg:gap-0 print:hidden">
+        <div className="flex items-center justify-between w-full lg:w-auto gap-4">
           <Button
             variant="ghost"
             size="sm"
             onClick={handleBack}
-            className={
-              hasUnsavedChanges
-                ? 'text-red-500 hover:text-red-600 hover:bg-red-50'
-                : ''
-            }
+            className={`shrink-0 ${hasUnsavedChanges ? 'text-red-600 hover:text-red-700 hover:bg-red-50' : ''}`}
           >
-            <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
+            <ArrowLeft className="mr-2 h-4 w-4" />{' '}
+            <span className="hidden sm:inline">Back</span>
           </Button>
-          <div className="h-6 w-px bg-slate-200" />
-          <span className="font-semibold text-sm font-mono">
-            {invoice?.invoice_number}
-          </span>
-          {hasUnsavedChanges && (
-            <span className="text-xs text-red-500 italic bg-red-50 px-2 py-1 rounded">
-              (Unsaved)
+          <div className="hidden lg:block h-6 w-px bg-slate-200" />
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-sm font-mono truncate max-w-[150px] sm:max-w-none">
+              {invoice?.invoice_number}
             </span>
-          )}
+            {hasUnsavedChanges && (
+              <span className="text-[10px] sm:text-xs text-red-500 italic bg-red-50 px-2 py-1 rounded">
+                (Unsaved)
+              </span>
+            )}
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="mr-4 text-sm font-medium text-slate-600">
+
+        <div className="flex items-center gap-2 w-full lg:w-auto justify-between lg:justify-end overflow-x-auto pb-1 lg:pb-0 scrollbar-hide">
+          <div className="mr-2 lg:mr-4 text-xs sm:text-sm font-medium text-slate-600 whitespace-nowrap">
             Total:{' '}
             <span className="text-blue-600 font-bold">
               {formatRupiah(grandTotal)}
             </span>
           </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => saveMutation.mutate()}
-            disabled={saveMutation.isPending}
-            className={hasUnsavedChanges ? 'border-blue-500 text-blue-600' : ''}
-          >
-            {saveMutation.isPending ? (
-              <Loader2 className="animate-spin mr-2 h-4 w-4" />
-            ) : (
-              <Save className="mr-2 h-4 w-4" />
-            )}
-            {saveMutation.isPending ? 'Menyimpan...' : 'Simpan'}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => saveMutation.mutate()}
+              disabled={saveMutation.isPending}
+              className={`whitespace-nowrap ${hasUnsavedChanges ? 'border-blue-500 text-blue-600' : ''}`}
+            >
+              {saveMutation.isPending ? (
+                <Loader2 className="animate-spin mr-2 h-4 w-4" />
+              ) : (
+                <Save className="mr-2 h-4 w-4" />
+              )}
+              <span className="hidden sm:inline">
+                {saveMutation.isPending ? 'Saving...' : 'Save'}
+              </span>
+            </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleShareWA}
-            className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
-          >
-            <Share2 className="mr-2 h-4 w-4" /> Share WA
-          </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShareWA}
+              className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700 whitespace-nowrap"
+            >
+              <Share2 className="mr-2 h-4 w-4" />{' '}
+              <span className="hidden sm:inline">Share WA</span>
+            </Button>
 
-          {/* TOMBOL PRINT DIGANTI JADI DOWNLOAD OFFICIAL */}
-          <Button size="sm" onClick={handleDownloadOfficial}>
-            <Download className="mr-2 h-4 w-4" /> Download Dokumen
-          </Button>
+            <Button
+              size="sm"
+              onClick={handleDownloadOfficial}
+              className="whitespace-nowrap"
+            >
+              <Download className="mr-2 h-4 w-4" />{' '}
+              <span className="hidden sm:inline">Download</span>
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* SPLIT VIEW */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* KIRI: EDITOR FORM */}
-        <div className="w-[450px] bg-white border-r flex flex-col h-full overflow-hidden shadow-lg z-0 print:hidden">
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
-            {/* SETTINGS UTAMA */}
+      <div className="flex flex-col md:flex-row flex-1 overflow-y-auto md:overflow-hidden relative z-0">
+        {/* LEFT: EDITOR FORM */}
+        <div className="w-full md:w-[380px] lg:w-[450px] bg-white border-b md:border-b-0 md:border-r flex flex-col md:h-full md:overflow-y-auto shadow-[2px_0_8px_-2px_rgba(0,0,0,0.1)] z-10 print:hidden shrink-0">
+          <div className="p-4 sm:p-6 space-y-6">
+            {/* SETTINGS AREA */}
             <div className="space-y-4 border-b pb-6">
               <div className="flex items-center justify-between">
                 <h3 className="font-semibold text-xs uppercase tracking-wide text-slate-500">
-                  Pengaturan ({type.toUpperCase()})
+                  Settings ({type.toUpperCase()})
                 </h3>
                 <div className="flex items-center gap-2">
-                  <Label className="text-[10px] uppercase font-bold text-yellow-700">
-                    Termin Aktif:
+                  <Label className="text-[10px] sm:text-xs uppercase font-bold text-yellow-700 whitespace-nowrap">
+                    Active Term:
                   </Label>
                   <Select
                     value={activeTermin}
@@ -393,13 +420,13 @@ export default function InvoiceDetailPage() {
                       markAsDirty()
                     }}
                   >
-                    <SelectTrigger className="h-6 w-24 text-xs bg-yellow-50 border-yellow-200 text-yellow-800">
+                    <SelectTrigger className="h-7 w-24 text-xs bg-yellow-50 border-yellow-200 text-yellow-800">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {items.map((_, i) => (
                         <SelectItem key={i} value={String(i + 1)}>
-                          Termin {i + 1}
+                          Term {i + 1}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -407,52 +434,49 @@ export default function InvoiceDetailPage() {
                 </div>
               </div>
 
-              {/* BARIS TANGGAL & CLIENT */}
-              <div className="grid grid-cols-1 gap-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1 col-span-1">
-                    <Label className="text-[10px] text-slate-500">Klien</Label>
-                    <Select
-                      value={selectedClientId}
-                      onValueChange={handleClientChange}
-                    >
-                      <SelectTrigger className="h-8 text-xs bg-white">
-                        <SelectValue placeholder="Pilih Klien" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {clientsList?.map((c: any) => (
-                          <SelectItem key={c.id} value={c.id}>
-                            {c.company_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="space-y-1 col-span-1">
-                    <Label className="text-[10px] text-slate-500">
-                      Tgl Invoice
-                    </Label>
-                    <Input
-                      type="date"
-                      value={date}
-                      onChange={(e) => {
-                        setDate(e.target.value)
-                        markAsDirty()
-                      }}
-                      className="h-8 text-xs"
-                    />
-                  </div>
+              {/* DATE & CLIENT */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label className="text-[10px] text-slate-500">Client</Label>
+                  <Select
+                    value={selectedClientId}
+                    onValueChange={handleClientChange}
+                  >
+                    <SelectTrigger className="h-8 text-xs bg-white">
+                      <SelectValue placeholder="Select Client" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {clientsList?.map((c: any) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.company_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-[10px] text-slate-500">
+                    Invoice Date
+                  </Label>
+                  <Input
+                    type="date"
+                    value={date}
+                    onChange={(e) => {
+                      setDate(e.target.value)
+                      markAsDirty()
+                    }}
+                    className="h-8 text-xs"
+                  />
                 </div>
               </div>
 
-              {/* 3. CALCULATOR AREA (CONDITIONAL) */}
+              {/* CALCULATOR AREA */}
               <div className="bg-slate-50 p-3 rounded border">
                 {type === 'design' ? (
-                  // TAMPILAN KHUSUS DESIGN (Luas x Harga)
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <Label className="text-[10px] text-slate-500">
-                        Luas (m2)
+                        Area (m²)
                       </Label>
                       <Input
                         type="number"
@@ -466,7 +490,7 @@ export default function InvoiceDetailPage() {
                     </div>
                     <div className="space-y-1">
                       <Label className="text-[10px] text-slate-500">
-                        Harga / m2
+                        Price / m²
                       </Label>
                       <Input
                         type="number"
@@ -480,10 +504,9 @@ export default function InvoiceDetailPage() {
                     </div>
                   </div>
                 ) : (
-                  // TAMPILAN SIPIL & INTERIOR (Manual Total Input)
                   <div className="space-y-1">
                     <Label className="text-[10px] text-slate-500 font-bold uppercase text-blue-600">
-                      Nilai Kontrak Total (IDR)
+                      Total Contract Value (IDR)
                     </Label>
                     <Input
                       type="number"
@@ -493,7 +516,7 @@ export default function InvoiceDetailPage() {
                         markAsDirty()
                       }}
                       className="h-8 text-sm font-mono border-blue-200 focus-visible:ring-blue-500"
-                      placeholder="Masukkan total nilai kontrak..."
+                      placeholder="Enter total value..."
                     />
                   </div>
                 )}
@@ -503,8 +526,8 @@ export default function InvoiceDetailPage() {
             {/* NOTES & BANK */}
             <div className="space-y-4 border-b pb-6">
               <div>
-                <Label className="text-xs mb-2 block font-semibold text-slate-500 flex justify-between">
-                  Catatan Internal
+                <Label className="text-xs mb-2 font-semibold text-slate-500 block">
+                  Internal Notes
                 </Label>
                 <Textarea
                   value={notes}
@@ -513,13 +536,13 @@ export default function InvoiceDetailPage() {
                     markAsDirty()
                   }}
                   className="text-xs min-h-[60px]"
-                  placeholder="Contoh: Revisi denah 2x, fee tambahan masuk termin 3..."
+                  placeholder="e.g. Revised twice, additional fees applied..."
                 />
               </div>
 
               <div>
-                <Label className="text-xs mb-2 block font-semibold text-slate-500">
-                  Info Rekening (Footer PDF)
+                <Label className="text-xs mb-2 font-semibold text-slate-500 block">
+                  Bank Details (PDF Footer)
                 </Label>
                 <Textarea
                   value={bankDetails}
@@ -535,34 +558,40 @@ export default function InvoiceDetailPage() {
             {/* ITEMS EDITOR */}
             <div>
               <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide text-slate-500">
-                Detail Termin
+                Payment Terms Details
               </h3>
               <div className="space-y-3">
                 {items.map((item, index) => {
                   const isActive = activeTermin === String(index + 1)
+                  const isPastTerm = index + 1 < Number(activeTermin)
 
                   return (
                     <div
                       key={index}
                       className={`p-3 rounded border text-xs shadow-sm transition-all ${isActive ? 'bg-blue-50/50 border-blue-300 ring-1 ring-blue-100' : 'bg-white border-slate-200 hover:border-slate-300'}`}
                     >
-                      <div className="flex items-center justify-between mb-2 pb-2 border-b border-dashed border-slate-200">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2 pb-2 border-b border-dashed border-slate-200">
                         <div className="flex items-center gap-2">
                           <Input
                             value={item.name}
                             onChange={(e) =>
                               updateItem(index, 'name', e.target.value)
                             }
-                            className={`h-6 w-32 px-1 text-xs font-bold border-none bg-transparent shadow-none focus-visible:ring-0 ${isActive ? 'text-blue-700' : 'text-slate-700'}`}
+                            className={`h-6 w-32 px-1 text-xs font-bold border-none bg-transparent shadow-none focus-visible:ring-0 ${isActive ? 'text-blue-700' : 'text-slate-700'} ${isPastTerm ? 'opacity-70' : ''}`}
                           />
                           {isActive && (
                             <span className="text-[9px] bg-blue-600 text-white px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">
-                              Aktif
+                              Active
+                            </span>
+                          )}
+                          {isPastTerm && (
+                            <span className="text-[9px] text-slate-400 border border-slate-200 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">
+                              Past
                             </span>
                           )}
                         </div>
 
-                        <div className="w-24">
+                        <div className="w-full sm:w-28">
                           <Select
                             value={item.status || 'empty'}
                             onValueChange={(val) =>
@@ -574,19 +603,17 @@ export default function InvoiceDetailPage() {
                             }
                           >
                             <SelectTrigger
-                              className={`h-6 text-[10px] ${item.status === 'Success' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-white'}`}
+                              className={`h-6 text-[10px] w-full ${item.status === 'Success' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-white'}`}
                             >
                               <SelectValue placeholder="Status" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="empty">
-                                <span className="text-slate-400">
-                                  Belum Bayar
-                                </span>
+                                <span className="text-slate-400">Unpaid</span>
                               </SelectItem>
                               <SelectItem value="Success">
                                 <span className="font-bold text-green-600">
-                                  Lunas
+                                  Paid
                                 </span>
                               </SelectItem>
                             </SelectContent>
@@ -594,10 +621,10 @@ export default function InvoiceDetailPage() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-7 gap-2 items-center">
-                        <div className="col-span-2 space-y-0.5">
-                          <Label className="text-[9px] text-slate-400 uppercase">
-                            Keterangan / %
+                      <div className="grid grid-cols-1 sm:grid-cols-7 gap-2 items-center">
+                        <div className="sm:col-span-2 space-y-0.5 flex justify-between sm:block">
+                          <Label className="text-[9px] text-slate-400 uppercase sm:mb-1">
+                            Desc / %
                           </Label>
                           <Input
                             value={item.percent}
@@ -605,36 +632,34 @@ export default function InvoiceDetailPage() {
                               handlePercentChange(index, e.target.value)
                             }
                             placeholder="DP / 50%"
-                            className="h-7 text-xs bg-white"
+                            className="h-7 text-xs bg-white w-24 sm:w-full"
                           />
                         </div>
 
-                        <div className="col-span-3 space-y-0.5">
-                          <Label className="text-[9px] text-slate-400 uppercase">
-                            Nominal (Auto)
+                        <div className="sm:col-span-3 space-y-0.5 flex justify-between sm:block">
+                          <Label className="text-[9px] text-slate-400 uppercase sm:mb-1">
+                            Amount (Auto)
                           </Label>
                           <Input
                             value={formatRupiah(Number(item.amount) || 0)}
                             readOnly
                             disabled
-                            className="h-7 text-xs font-mono bg-slate-100 text-slate-500 border-slate-200 cursor-not-allowed"
+                            className="h-7 text-xs font-mono bg-slate-100 text-slate-500 border-slate-200 cursor-not-allowed w-32 sm:w-full"
                           />
                         </div>
 
-                        <div className="col-span-2 space-y-0.5">
-                          <Label className="text-[9px] text-slate-400 uppercase">
-                            Tgl Bayar
+                        <div className="sm:col-span-2 space-y-0.5 flex justify-between sm:block">
+                          <Label className="text-[9px] text-slate-400 uppercase sm:mb-1">
+                            Pay Date
                           </Label>
-                          <div className="relative">
-                            <Input
-                              type="date"
-                              value={item.paymentDate || ''}
-                              onChange={(e) =>
-                                updateItem(index, 'paymentDate', e.target.value)
-                              }
-                              className="h-7 text-[10px] px-1 bg-white"
-                            />
-                          </div>
+                          <Input
+                            type="date"
+                            value={item.paymentDate || ''}
+                            onChange={(e) =>
+                              updateItem(index, 'paymentDate', e.target.value)
+                            }
+                            className="h-7 text-[10px] px-1 bg-white w-28 sm:w-full"
+                          />
                         </div>
                       </div>
                     </div>
@@ -645,25 +670,42 @@ export default function InvoiceDetailPage() {
           </div>
         </div>
 
-        {/* KANAN: PREVIEW A4 */}
-        <div className="flex-1 overflow-y-auto bg-slate-200/50 p-8 flex justify-center print:p-0 print:bg-white print:overflow-visible">
-          <div className="scale-[0.85] origin-top print:scale-100">
-            {/* PANGGIL COMPONENT MODULAR */}
-            <InvoicePaper
-              ref={componentRef} // Ref untuk generate image
-              // Pass Data State (Realtime Editing)
-              type={type}
-              invoiceNumber={invoice?.invoice_number}
-              date={date}
-              activeTermin={activeTermin}
-              client={selectedClientData}
-              projectArea={projectArea}
-              pricePerMeter={pricePerMeter}
-              grandTotal={grandTotal}
-              items={items}
-              bankDetails={bankDetails}
-              qrLink={qrLink}
-            />
+        {/* RIGHT (Desktop) / BOTTOM (Mobile): PREVIEW A4 WITH DYNAMIC SCALING */}
+        <div
+          ref={previewContainerRef}
+          className="flex-1 bg-slate-200/80 p-4 lg:p-8 flex flex-col items-center md:overflow-y-auto print:p-0 print:bg-white print:overflow-visible"
+        >
+          <div className="mb-4 text-center md:hidden print:hidden mt-4 shrink-0">
+            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest bg-slate-300/50 px-4 py-1.5 rounded-full inline-block">
+              A4 Document Preview
+            </h3>
+          </div>
+
+          {/* Dynamic Scaling Wrapper */}
+          <div
+            className="w-full flex justify-center print:h-auto print:block"
+            // CSS trik agar box bungkusannya ikut menyusut tingginya sesuai dengan elemen A4 yang di-scale
+            style={{ height: `calc(297mm * ${previewScale})` }}
+          >
+            <div
+              className="origin-top transform-gpu print:scale-100"
+              style={{ transform: `scale(${previewScale})` }}
+            >
+              <InvoicePaper
+                ref={componentRef}
+                type={type}
+                invoiceNumber={invoice?.invoice_number}
+                date={date}
+                activeTermin={activeTermin}
+                client={selectedClientData}
+                projectArea={projectArea}
+                pricePerMeter={pricePerMeter}
+                grandTotal={grandTotal}
+                items={items}
+                bankDetails={bankDetails}
+                qrLink={qrLink}
+              />
+            </div>
           </div>
         </div>
       </div>

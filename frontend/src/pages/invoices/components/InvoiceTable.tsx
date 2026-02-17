@@ -16,6 +16,8 @@ import {
   ChevronLeft,
   ChevronRight, // Icon Navigasi
 } from 'lucide-react'
+import { MaskingTextByInvoiceType } from '@/lib/masking'
+import { cn } from '@/lib/utils'
 
 // Helper internal
 const formatRupiah = (val: number) =>
@@ -26,37 +28,19 @@ const formatRupiah = (val: number) =>
   }).format(val)
 
 const getTypeBadge = (type: string) => {
-  switch (type) {
-    case 'design':
-      return (
-        <Badge
-          variant="outline"
-          className="bg-blue-50 text-blue-700 border-blue-200"
-        >
-          Design
-        </Badge>
-      )
-    case 'sipil':
-      return (
-        <Badge
-          variant="outline"
-          className="bg-amber-50 text-amber-700 border-amber-200"
-        >
-          Sipil
-        </Badge>
-      )
-    case 'interior':
-      return (
-        <Badge
-          variant="outline"
-          className="bg-emerald-50 text-emerald-700 border-emerald-200"
-        >
-          Interior
-        </Badge>
-      )
-    default:
-      return <Badge variant="outline">General</Badge>
+  const text = MaskingTextByInvoiceType(type)
+
+  const colorMap: Record<string, string> = {
+    design: 'bg-blue-50 text-blue-700 border-blue-200',
+    sipil: 'bg-amber-50 text-amber-700 border-amber-200',
+    interior: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   }
+
+  return (
+    <Badge variant="outline" className={cn(colorMap[type])}>
+      {text}
+    </Badge>
+  )
 }
 
 // Interface Props Updated
@@ -88,10 +72,10 @@ export function InvoiceTable({
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[150px]">No. Invoice</TableHead>
-                <TableHead className="w-[300px]">Klien</TableHead>
-                <TableHead>Tipe</TableHead>
-                <TableHead>Spesifikasi</TableHead>
-                <TableHead className="text-center">Termin Aktif</TableHead>
+                <TableHead className="w-[300px]">Client</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead>Specification</TableHead>
+                <TableHead className="text-center">Active Termin</TableHead>
                 <TableHead className="text-right">Total</TableHead>
                 <TableHead className="text-right"></TableHead>
               </TableRow>

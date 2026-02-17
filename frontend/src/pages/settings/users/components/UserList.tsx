@@ -11,19 +11,8 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import {
-  Shield,
-  Smartphone,
-  MoreHorizontal,
-  Pencil,
-  UserCog,
-} from 'lucide-react'
+import { Shield, Smartphone, MoreHorizontal } from 'lucide-react'
+import { MaskingTextByDivision } from '@/lib/masking'
 
 interface UserListProps {
   users: User[] | undefined
@@ -39,9 +28,9 @@ export function UserList({ users, onEdit }: UserListProps) {
 
   const getDivisionBadge = (div?: string) => {
     switch (div?.toLowerCase()) {
-      case 'sipil':
+      case 'civil':
         return 'bg-amber-100 text-amber-800 border-amber-200'
-      case 'arsitektur':
+      case 'architecture':
         return 'bg-blue-100 text-blue-800 border-blue-200'
       case 'interior':
         return 'bg-emerald-100 text-emerald-800 border-emerald-200'
@@ -53,15 +42,15 @@ export function UserList({ users, onEdit }: UserListProps) {
   }
 
   return (
-    <div className="bg-white rounded-md border shadow-sm overflow-hidden">
-      <Table>
+    <div className="bg-white rounded-md border shadow-sm overflow-x-auto">
+      <Table className="min-w-[900px]">
         <TableHeader>
-          <TableRow className="bg-slate-50">
+          <TableRow className="bg-slate-50 whitespace-nowrap">
             <TableHead>User</TableHead>
             <TableHead>Contact (Email / Phone)</TableHead>
             <TableHead>Division</TableHead>
             <TableHead>System Role</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead className="text-right"></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -76,7 +65,7 @@ export function UserList({ users, onEdit }: UserListProps) {
             </TableRow>
           ) : (
             users?.map((user) => (
-              <TableRow key={user.id}>
+              <TableRow key={user.id} className="whitespace-nowrap">
                 <TableCell>
                   <div className="flex items-center gap-3">
                     <Avatar>
@@ -106,9 +95,9 @@ export function UserList({ users, onEdit }: UserListProps) {
                 <TableCell>
                   <Badge
                     variant="outline"
-                    className={`uppercase text-[10px] ${getDivisionBadge(user.division)}`}
+                    className={`uppercase text-[10px] ${getDivisionBadge(MaskingTextByDivision(user.division))}`}
                   >
-                    {user.division || 'No Div'}
+                    {MaskingTextByDivision(user.division) || 'No Div'}
                   </Badge>
                 </TableCell>
                 <TableCell>
@@ -137,20 +126,6 @@ export function UserList({ users, onEdit }: UserListProps) {
                     <span className="sr-only">Open menu</span>
                     <MoreHorizontal className="h-4 w-4 text-slate-500" />
                   </Button>
-                  {/* <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-40">
-                      <DropdownMenuItem >
-                        <Pencil className="mr-2 h-4 w-4 text-slate-500" />
-                        Edit Data
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onEdit(user)}>
-                        <UserCog className="mr-2 h-4 w-4 text-slate-500" />
-                        Edit Role
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu> */}
                 </TableCell>
               </TableRow>
             ))

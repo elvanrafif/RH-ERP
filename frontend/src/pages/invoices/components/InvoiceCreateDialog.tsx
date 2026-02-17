@@ -100,13 +100,13 @@ export function InvoiceCreateDialog({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Buat Invoice Baru</DialogTitle>
+          <DialogTitle>Create New Invoice</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           {/* 1. Tipe Invoice */}
           <div className="space-y-2">
-            <Label>Tipe Invoice</Label>
+            <Label>Invoice Type</Label>
             <Select
               value={selectedType}
               onValueChange={(val: any) => setSelectedType(val)}
@@ -124,10 +124,10 @@ export function InvoiceCreateDialog({
 
           {/* 2. Klien */}
           <div className="space-y-2">
-            <Label>Pilih Klien</Label>
+            <Label>Client</Label>
             <Select onValueChange={setSelectedClient} value={selectedClient}>
               <SelectTrigger>
-                <SelectValue placeholder="Cari Klien..." />
+                <SelectValue placeholder="Select Client..." />
               </SelectTrigger>
               <SelectContent>
                 {clients?.map((client: any) => (
@@ -147,7 +147,7 @@ export function InvoiceCreateDialog({
             {createMutation.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            Buat & Buka Editor
+            Create & Open Editor
           </Button>
         </div>
       </DialogContent>

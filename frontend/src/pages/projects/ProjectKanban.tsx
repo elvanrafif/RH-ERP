@@ -42,6 +42,7 @@ import {
   getInitials,
   getRemainingTime,
 } from '@/lib/helpers'
+import { TypeProjectsBoolean } from '@/lib/booleans'
 
 // --- TYPES & INTERFACES ---
 export type KanbanColumnDefinition = {
@@ -72,6 +73,11 @@ export default function ProjectKanban({
   onDelete,
   onStatusChange,
 }: KanbanProps) {
+  // --- AUTH CHECK ---
+  const user = pb.authStore.model
+  const isSuperAdmin =
+    user?.isSuperAdmin || user?.email === 'elvanrafif@gmail.com'
+
   const [boardData, setBoardData] = useState<KanbanState>({
     tasks: {},
     columns: {},
@@ -119,6 +125,25 @@ export default function ProjectKanban({
       destination.index === source.index
     )
       return
+
+    // --- DRAG PERMISSION CHECK ---
+    const draggedTask = boardData.tasks[draggableId]
+    const { isCivil } = TypeProjectsBoolean(draggedTask.type)
+    let canEdit = isSuperAdmin
+    if (!canEdit && draggedTask) {
+      if (isCivil) {
+        canEdit = draggedTask.meta_data?.pic_lapangan === user?.name // For Sipil, comparing names usually (based on your dropdown logic)
+      } else {
+        canEdit = draggedTask.assignee === user?.id // For Arsitektur/Interior, comparing IDs
+      }
+    }
+
+    if (!canEdit) {
+      // You might want to show a toast error here if you have sonner imported
+      // toast.error("You don't have permission to move this card.")
+      return
+    }
+    // -----------------------------
 
     const startCol = boardData.columns[source.droppableId]
     const finishCol = boardData.columns[destination.droppableId]
@@ -189,11 +214,11 @@ export default function ProjectKanban({
                     >
                       {tasksInColumn.map((task, index) => {
                         if (!task) return null
+                        const { isCivil, isInterior, isArchitecture } =
+                          TypeProjectsBoolean(task.type)
                         const assignee = (() => {
-                          if (task.type == 'sipil')
-                            return task.meta_data.pic_lapangan
-                          if (task.type == 'interior')
-                            return task.meta_data.pic_interior
+                          if (isCivil) return task.meta_data.pic_lapangan
+                          if (isInterior) return task.meta_data.pic_interior
                           return task.expand?.assignee?.name
                         })()
                         const clientName =
@@ -202,25 +227,35 @@ export default function ProjectKanban({
                         const meta = task.meta_data || {}
                         const notes = meta.notes || (task as any).notes
 
-                        const isInterior = task.type === 'interior'
-                        const isSipil = task.type === 'sipil'
-                        const isArsitektur = task.type === 'arsitektur'
+                        // --- CARD PERMISSION CHECK ---
+                        let canEdit = isSuperAdmin
+                        if (!canEdit) {
+                          if (isCivil) {
+                            canEdit = meta.pic_lapangan === user?.name
+                          } else {
+                            canEdit = task.assignee === user?.id
+                          }
+                        }
+                        // -----------------------------
 
                         return (
                           <Draggable
                             key={task.id}
                             draggableId={task.id}
                             index={index}
+                            isDragDisabled={!canEdit} // Kunci drag & drop jika tidak ada akses
                           >
                             {(provided, snapshot) => (
                               <Card
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
-                                className={`cursor-grab active:cursor-grabbing shadow-sm hover:shadow-xl transition-all duration-300 group border-l-4 ${
+                                className={`shadow-sm hover:shadow-xl transition-all duration-300 group border-l-4 
+                                ${canEdit ? 'cursor-grab active:cursor-grabbing' : 'cursor-default opacity-90'} 
+                                ${
                                   isInterior
                                     ? 'border-l-emerald-400'
-                                    : isSipil
+                                    : isCivil
                                       ? 'border-l-amber-400'
                                       : 'border-l-blue-400'
                                 } ${snapshot.isDragging ? 'rotate-2 shadow-xl ring-2 ring-primary/20 z-50' : ''}`}
@@ -234,6 +269,8 @@ export default function ProjectKanban({
                                     >
                                       {task.type}
                                     </Badge>
+
+                                    {/* DROPDOWN MENU - VIEW ALWAYS SHOWS, EDIT/DELETE CONDITIONAL */}
                                     <DropdownMenu>
                                       <DropdownMenuTrigger asChild>
                                         <Button
@@ -251,20 +288,26 @@ export default function ProjectKanban({
                                           <Eye className="mr-2 h-4 w-4" /> View
                                           Details
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem
-                                          onClick={() => onEdit(task)}
-                                        >
-                                          <Pencil className="mr-2 h-4 w-4" />{' '}
-                                          Edit
-                                        </DropdownMenuItem>
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem
-                                          onClick={() => onDelete(task)}
-                                          className="text-red-600 focus:text-red-600 focus:bg-red-50"
-                                        >
-                                          <Trash2 className="mr-2 h-4 w-4" />{' '}
-                                          Delete
-                                        </DropdownMenuItem>
+
+                                        {/* HIDE EDIT & DELETE IF NOT AUTHORIZED */}
+                                        {canEdit && (
+                                          <>
+                                            <DropdownMenuItem
+                                              onClick={() => onEdit(task)}
+                                            >
+                                              <Pencil className="mr-2 h-4 w-4" />{' '}
+                                              Edit
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem
+                                              onClick={() => onDelete(task)}
+                                              className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                                            >
+                                              <Trash2 className="mr-2 h-4 w-4" />{' '}
+                                              Delete
+                                            </DropdownMenuItem>
+                                          </>
+                                        )}
                                       </DropdownMenuContent>
                                     </DropdownMenu>
                                   </div>
@@ -289,7 +332,7 @@ export default function ProjectKanban({
                                     </div>
                                   )}
 
-                                  {(isArsitektur || isSipil) &&
+                                  {(isArchitecture || isCivil) &&
                                     (meta.luas_tanah || meta.luas_bangunan) && (
                                       <div className="flex justify-center gap-2 flex-wrap text-[10px] text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100">
                                         {meta.luas_tanah && (
@@ -316,7 +359,7 @@ export default function ProjectKanban({
                                             title="Building Area"
                                           >
                                             <Ruler className="h-3 w-3 text-slate-400" />
-                                            Bldg:{' '}
+                                            Building:{' '}
                                             <span className="font-medium">
                                               {meta.luas_bangunan}m²
                                             </span>
@@ -325,7 +368,7 @@ export default function ProjectKanban({
                                       </div>
                                     )}
 
-                                  {isSipil &&
+                                  {isCivil &&
                                     task.start_date &&
                                     task.end_date && (
                                       <div className="flex items-center text-[10px] text-amber-700 bg-amber-50 px-1.5 py-1 rounded border border-amber-100">
@@ -354,7 +397,7 @@ export default function ProjectKanban({
                                   {/* Footer */}
                                   <div className="pt-2 border-t flex items-center justify-between mt-1">
                                     <div className="flex flex-col gap-1">
-                                      {(!isSipil || !task.end_date) && (
+                                      {(!isCivil || !task.end_date) && (
                                         <div
                                           className="flex items-center gap-1.5 text-[10px] text-slate-400"
                                           title="Deadline"
@@ -370,7 +413,7 @@ export default function ProjectKanban({
                                           )}
                                         </div>
                                       )}
-                                      {isSipil && task.end_date && (
+                                      {isCivil && task.end_date && (
                                         <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
                                           <span className="italic">
                                             Until{' '}
@@ -393,7 +436,7 @@ export default function ProjectKanban({
                                               className={`text-[9px] ${
                                                 isInterior
                                                   ? 'bg-emerald-100 text-emerald-700'
-                                                  : isSipil
+                                                  : isCivil
                                                     ? 'bg-amber-100 text-amber-700'
                                                     : 'bg-blue-100 text-blue-700'
                                               }`}
@@ -429,7 +472,6 @@ export default function ProjectKanban({
         </div>
       </DragDropContext>
 
-      {/* --- RENDER COMPONENT MODAL BARU --- */}
       <ProjectDetailsModal
         project={projectToView}
         open={!!projectToView}

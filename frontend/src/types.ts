@@ -22,7 +22,7 @@ export interface Project {
     id: string;
     // name: string; // HAPUS, diganti client relation
     client: string; // Relation ID
-    type: 'arsitektur' | 'sipil' | 'interior';
+    type: 'architecture' | 'civil' | 'interior';
     status: string;
     value: number; // Contract Value
     contract_value: number; // Contract Value

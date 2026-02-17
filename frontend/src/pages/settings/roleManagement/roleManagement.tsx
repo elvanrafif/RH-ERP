@@ -18,7 +18,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Loader2, Plus, ShieldCheck, Pencil, ShieldAlert } from 'lucide-react'
+import {
+  Loader2,
+  Plus,
+  ShieldCheck,
+  Pencil,
+  ShieldAlert,
+  MoreHorizontal,
+} from 'lucide-react'
 import { RoleForm } from './roleForm'
 
 // Import Sub-Component
@@ -56,7 +63,7 @@ export default function RoleManagementPage() {
     )
 
   return (
-    <div className="p-4 md:p-8 max-w-6xl mx-auto">
+    <div className="p-4 md:p-8 max-w-6xl">
       {/* HEADER */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
@@ -79,7 +86,7 @@ export default function RoleManagementPage() {
             <TableRow className="bg-slate-50">
               <TableHead>Role Name</TableHead>
               <TableHead>Total Permissions</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="text-right"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -115,7 +122,7 @@ export default function RoleManagementPage() {
                       size="icon"
                       onClick={() => handleEdit(role)}
                     >
-                      <Pencil className="h-4 w-4 text-slate-500" />
+                      <MoreHorizontal className="h-4 w-4 text-slate-500" />
                     </Button>
                   </TableCell>
                 </TableRow>

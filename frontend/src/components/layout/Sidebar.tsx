@@ -56,6 +56,8 @@ function SidebarContent({
   const navigate = useNavigate()
   const location = useLocation()
   const pathname = location.pathname
+  const user = pb.authStore.model
+  const isSuperAdmin = user?.isSuperAdmin
 
   const isActive = (path: string) => {
     if (path === '/' && pathname !== '/') return false
@@ -67,8 +69,12 @@ function SidebarContent({
   }
   const handleLogout = () => {
     pb.authStore.clear()
-    toast.info('Logout berhasil.')
-    navigate('/login')
+
+    // Opsi tambahan: kalau mau reset state sidebar ke default saat user lain masuk
+    localStorage.removeItem('sidebar-collapsed')
+
+    // KUNCI UTAMA: Paksa browser membuang semua memory dan pindah ke /login
+    window.location.href = '/login'
   }
 
   return (
@@ -122,32 +128,32 @@ function SidebarContent({
               Project Tracker
             </div>
           )}
-          {collapsed && <div className="my-2 border-t w-8 mx-auto" />}
+          {/* {collapsed && <div className="my-2 border-t w-8 mx-auto" />} */}
 
           {/* MENU PROJECTS YANG DIPECAH DENGAN RBAC */}
-          <Guard require="view_arsitektur">
+          <Guard require="view_index_project_architecture">
             <NavItem
-              to="/projects/arsitektur"
+              to="/projects/architecture"
               icon={PencilRuler}
-              label="Arsitektur"
+              label="Architecture"
               collapsed={collapsed}
-              isActive={isActive('/projects/arsitektur')}
+              isActive={isActive('/projects/architecture')}
               onClick={handleLinkClick}
             />
           </Guard>
 
-          <Guard require="view_sipil">
+          <Guard require="view_index_project_civil">
             <NavItem
-              to="/projects/sipil"
+              to="/projects/civil"
               icon={HardHat}
-              label="Konstruksi Sipil"
+              label="Civil Construction"
               collapsed={collapsed}
-              isActive={isActive('/projects/sipil')}
+              isActive={isActive('/projects/civil')}
               onClick={handleLinkClick}
             />
           </Guard>
 
-          <Guard require="view_interior">
+          <Guard require="view_index_project_interior">
             <NavItem
               to="/projects/interior"
               icon={Sofa}
@@ -159,12 +165,12 @@ function SidebarContent({
           </Guard>
 
           {/* DIVIDER COMMERCIAL */}
-          {!collapsed && (
+          {!collapsed && isSuperAdmin && (
             <div className="mt-6 mb-2 px-2 text-[10px] font-bold text-muted-foreground tracking-wider uppercase">
               Commercial
             </div>
           )}
-          {collapsed && <div className="my-2 border-t w-8 mx-auto" />}
+          {/* {collapsed && <div className="my-2 border-t w-8 mx-auto" />} */}
 
           <Guard require="view_revenue">
             <NavItem
@@ -191,7 +197,7 @@ function SidebarContent({
               Management
             </div>
           )}
-          {collapsed && <div className="my-2 border-t w-8 mx-auto" />}
+          {/* {collapsed && <div className="my-2 border-t w-8 mx-auto" />} */}
 
           <Guard require="view_clients">
             <NavItem
@@ -237,41 +243,42 @@ function SidebarContent({
       </ScrollArea>
 
       {/* FOOTER */}
-      <div className="p-3 border-t mt-auto">
+      <div className="p-4 border-t border-slate-200 mt-auto bg-slate-50/30">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             {collapsed ? (
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-50 mx-auto flex"
+                className="h-10 w-10 text-red-600 hover:text-red-700 hover:bg-red-50 mx-auto flex transition-colors"
+                title="Log out"
               >
                 <LogOut className="h-4 w-4" />
               </Button>
             ) : (
               <Button
                 variant="ghost"
-                className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-50"
+                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
               >
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
+                <LogOut className="mr-3 h-4 w-4" />
+                Log out
               </Button>
             )}
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Keluar dari aplikasi?</AlertDialogTitle>
+              <AlertDialogTitle>Log out of the application?</AlertDialogTitle>
               <AlertDialogDescription>
-                Anda harus login kembali untuk mengakses data.
+                You will need to log in again to access your data.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Batal</AlertDialogCancel>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleLogout}
-                className="bg-red-600 hover:bg-red-700 text-white"
+                className="bg-red-600 hover:bg-red-700 text-white transition-colors"
               >
-                Ya, Keluar
+                Yes, Log out
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

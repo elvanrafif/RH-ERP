@@ -44,7 +44,7 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
   (props, ref) => {
     const {
       type,
-      invoiceNumber,
+      invoiceNumber, // Walaupun tidak dipanggil di template, tetap di-pass sesuai interface
       date,
       activeTermin,
       client,
@@ -196,15 +196,20 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
           </thead>
           <tbody>
             {items.map((item, i) => {
+              // LOGIC UPDATE:
               const activeIndex = parseInt(activeTermin) - 1
               const isFuture = i > activeIndex
-              const isActiveRow = String(i + 1) === activeTermin
 
+              // 1. Bold jika dia adalah termin saat ini ATAU termin sebelumnya (sudah lewat)
+              const isBold = i <= activeIndex
+
+              // 2. Tentukan Warna dan Ketebalan
               const textColor = isFuture ? 'text-gray-300' : 'text-slate-900'
-              const fontWeight = isActiveRow ? 'font-bold' : 'font-normal'
-              const displayPrice = isFuture
-                ? '-'
-                : formatRupiah(Number(item.amount) || 0)
+              const fontWeight = isBold ? 'font-bold' : 'font-normal'
+
+              // 3. Harga selalu dimunculkan (tidak peduli masa lalu/aktif/masa depan)
+              const displayPrice = formatRupiah(Number(item.amount) || 0)
+
               const displayDate = item.paymentDate
                 ? new Date(item.paymentDate).toLocaleDateString('en-GB', {
                     day: '2-digit',

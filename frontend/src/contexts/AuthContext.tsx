@@ -1,4 +1,11 @@
-import { createContext, useContext, type ReactNode, useMemo } from 'react'
+import {
+  createContext,
+  useContext,
+  type ReactNode,
+  useMemo,
+  useState,
+  useEffect,
+} from 'react' // Tambahkan useState & useEffect
 import { useQuery } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
 import { Loader2 } from 'lucide-react'
@@ -13,9 +20,21 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // Ambil data user yang sedang login dari local store PocketBase
-  const authModel = pb.authStore.model
+  // 1. UBAH INI JADI STATE REACT:
+  const [authModel, setAuthModel] = useState(pb.authStore.model)
 
+  // 2. TAMBAHKAN LISTENER INI:
+  // Ini akan otomatis ter-trigger detik itu juga saat user berhasil login
+  useEffect(() => {
+    const unsubscribe = pb.authStore.onChange((token, model) => {
+      setAuthModel(model)
+    })
+    return () => {
+      unsubscribe() // Bersihkan memori saat komponen mati
+    }
+  }, [])
+
+  // 3. QUERY TETAP SAMA
   const { data: userData, isLoading } = useQuery({
     queryKey: ['current-user', authModel?.id],
     queryFn: async () => {
@@ -27,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
     },
     enabled: !!authModel?.id,
-    staleTime: Infinity, // Simpan di cache selamanya selama sesi aktif
+    staleTime: Infinity,
   })
 
   // Ekstrak permissions dari JSON di PocketBase
@@ -37,27 +56,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Fungsi utama pengecekan izin
   const can = (permission: string) => {
-    // 👑 OVERRIDE KHUSUS DEVELOPER / SUPERADMIN
-    // Email Bapak dan role superadmin otomatis bypass semua rule
     if (
       authModel?.email === 'elvanrafif@gmail.com' ||
       authModel?.isSuperAdmin
     ) {
       return true
     }
-
-    // Cek apakah permission yang diminta ada di dalam array milik user
     return permissions.includes(permission)
   }
 
-  // Tampilkan loading screen saat pertama kali sistem mengecek hak akses
-  if (isLoading) {
+  // Tampilkan loading HANYA JIKA sedang mencari data role
+  if (isLoading && authModel) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-slate-50/50 backdrop-blur-sm z-50 fixed inset-0">
         <div className="flex flex-col items-center gap-3 text-slate-500">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
           <p className="text-sm font-medium animate-pulse">
-            {' '}
             Memverifikasi hak akses...
           </p>
         </div>
@@ -74,7 +88,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   )
 }
 
-// Custom hook agar memanggilnya semudah: const { can } = useAuth();
+// Custom hook
 export const useAuth = () => {
   const context = useContext(AuthContext)
   if (!context) throw new Error('useAuth must be used within an AuthProvider')

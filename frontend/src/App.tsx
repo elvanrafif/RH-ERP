@@ -11,6 +11,7 @@ import AppLayout from '@/components/layout/AppLayout'
 import SplashScreen from '@/components/layout/SplashScreen'
 import Login from '@/pages/Login'
 import Dashboard from './pages/Dashboard'
+import { Button } from '@/components/ui/button' // Tambahkan import Button untuk fallback
 
 // --- NEW PAGES IMPORTS ---
 import ArsitekturPage from './pages/projects/ArsitekturPage'
@@ -28,32 +29,19 @@ import ProfilePage from './pages/settings/profile/ProfilePage'
 
 // --- IMPORT ROLE MANAGEMENT PAGE ---
 import RoleManagementPage from './pages/settings/roleManagement/roleManagement'
-// Catatan: Sesuaikan path ini jika Bapak menaruhnya di dalam folder 'settings/roles'
 
 import InvoicesPage from './pages/invoices/InvoicesPage'
 import InvoiceDetailPage from './pages/invoices/InvoiceDetailPage'
 import PublicVerificationPage from './pages/verification/PublicVerificationPage'
 import { AuthProvider } from './contexts/AuthContext'
+import { PermissionGuard } from './components/ui/PermissionGuard'
+import {
+  FallbackDecider,
+  ProtectedRoute,
+  PublicRoute,
+} from './components/auth/route'
 
 const queryClient = new QueryClient()
-
-// Auth Wrappers
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuth = pb.authStore.isValid
-  return isAuth ? children : <Navigate to="/login" />
-}
-
-const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const isAuth = pb.authStore.isValid
-  return isAuth ? <Navigate to="/" /> : children
-}
-
-const ComingSoon = ({ title }: { title: string }) => (
-  <div className="p-10 border-2 border-dashed rounded-lg text-center flex flex-col items-center justify-center h-full">
-    <h2 className="text-2xl font-bold text-slate-400">{title}</h2>
-    <p className="text-muted-foreground mt-2">Sedang dalam pengembangan...</p>
-  </div>
-)
 
 function AppRoutes() {
   useSessionTimeout()
@@ -79,27 +67,56 @@ function AppRoutes() {
         }
       >
         <Route index element={<Dashboard />} />
-        {/* --- PROJECTS ROUTING BARU --- */}
-        <Route path="projects">
-          {/* Redirect default ke Arsitektur jika buka /projects */}
-          <Route index element={<Navigate to="arsitektur" replace />} />
 
-          <Route path="arsitektur" element={<ArsitekturPage />} />
-          <Route path="sipil" element={<SipilPage />} />
-          <Route path="interior" element={<InteriorPage />} />
+        {/* --- PROJECTS ROUTING --- */}
+        <Route path="projects">
+          <Route index element={<Navigate to="architecture" replace />} />
+
+          <Route
+            element={
+              <PermissionGuard require="view_index_project_architecture" />
+            }
+          >
+            <Route path="architecture" element={<ArsitekturPage />} />
+          </Route>
+
+          <Route
+            element={<PermissionGuard require="view_index_project_civil" />}
+          >
+            <Route path="civil" element={<SipilPage />} />
+          </Route>
+
+          <Route
+            element={<PermissionGuard require="view_index_project_interior" />}
+          >
+            <Route path="interior" element={<InteriorPage />} />
+          </Route>
         </Route>
-        <Route path="quotations" element={<QuotationsPage />} />
-        <Route path="quotations/:id" element={<QuotationEditor />} />
-        {/* <Route path="invoices" element={<ComingSoon title="Invoice Generator" />} /> */}
+
+        {/* --- COMMERCIAL (Quotations & Invoices) --- */}
+        <Route element={<PermissionGuard require="view_revenue" />}>
+          <Route path="quotations" element={<QuotationsPage />} />
+          <Route path="quotations/:id" element={<QuotationEditor />} />
+          <Route path="invoices" element={<InvoicesPage />} />
+          <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
+        </Route>
+
         <Route path="clients" element={<ClientsPage />} />
-        {/* --- SETTINGS ROUTES --- */}
-        <Route path="settings/users" element={<UserManagementPage />} />
-        <Route path="settings/roles" element={<RoleManagementPage />} />{' '}
-        {/* <-- RUTE BARU DITAMBAHKAN DI SINI */}
+
+        {/* --- SETTINGS (Only for those who can manage users) --- */}
+        <Route element={<PermissionGuard require="manage_users" />}>
+          <Route path="settings/users" element={<UserManagementPage />} />
+          <Route path="settings/roles" element={<RoleManagementPage />} />
+        </Route>
+
         <Route path="settings/profile" element={<ProfilePage />} />
-        <Route path="invoices" element={<InvoicesPage />} />
-        <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
+
+        {/* FALLBACK LEVEL 1: Jika user mengetik URL ngawur tapi masih di dalam layout Dashboard */}
+        <Route path="*" element={<FallbackDecider />} />
       </Route>
+
+      {/* FALLBACK LEVEL 2: Jika user mengetik URL ngawur di root (di luar AppLayout) */}
+      <Route path="*" element={<FallbackDecider />} />
     </Routes>
   )
 }

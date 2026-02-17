@@ -8,7 +8,7 @@ import type { Client } from '@/types'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea' // 1. Import Textarea
+import { Textarea } from '@/components/ui/textarea'
 import {
   Form,
   FormControl,
@@ -38,7 +38,7 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
     },
   })
 
-  // 2. Efek untuk mereset form jika mode berubah
+  // 2. Effect to reset form if mode changes
   useEffect(() => {
     if (initialData) {
       form.reset({
@@ -72,7 +72,7 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
     },
     onError: (error) => {
       console.error(error)
-      alert('Gagal menyimpan data client.')
+      alert('Failed to save client data.')
     },
   })
 
@@ -88,9 +88,9 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
           name="company_name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nama Perusahaan / Klien</FormLabel>
+              <FormLabel>Company / Client Name</FormLabel>
               <FormControl>
-                <Input placeholder="PT. Maju Mundur" {...field} />
+                <Input placeholder="Acme Corp" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -105,7 +105,7 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="email@contoh.com" {...field} />
+                  <Input placeholder="email@example.com" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -116,7 +116,7 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Telepon / WA</FormLabel>
+                <FormLabel>Phone / WhatsApp</FormLabel>
                 <FormControl>
                   <Input placeholder="0812..." {...field} />
                 </FormControl>
@@ -126,17 +126,17 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
           />
         </div>
 
-        {/* 4. Ganti Input menjadi Textarea disini */}
+        {/* 4. Address Textarea */}
         <FormField
           control={form.control}
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Alamat Lengkap</FormLabel>
+              <FormLabel>Complete Address</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Jl. Raya No. 1..."
-                  className="min-h-[100px] resize-none" // Styling agar agak tinggi
+                  placeholder="123 Main St..."
+                  className="min-h-[100px] resize-none"
                   {...field}
                 />
               </FormControl>
@@ -150,7 +150,7 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
             {mutation.isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            {initialData ? 'Simpan Perubahan' : 'Buat Client Baru'}
+            {initialData ? 'Save Changes' : 'Create New Client'}
           </Button>
         </div>
       </form>

@@ -51,6 +51,10 @@ import { ProjectTable } from './ProjectTable'
 import { ProjectForm } from './ProjectForm'
 import { ProjectDetailsModal } from './ProjectDetailsModal'
 import { SipilPic } from '@/lib/constant'
+import { TypeProjectsBoolean } from '@/lib/booleans'
+
+// TAMBAHAN RBAC: Import useAuth
+import { useAuth } from '@/contexts/AuthContext'
 
 // Currency formatter
 const formatRupiah = (val: number) =>
@@ -62,7 +66,7 @@ const formatRupiah = (val: number) =>
 
 interface TemplateProps {
   pageTitle: string
-  projectType: 'arsitektur' | 'sipil' | 'interior'
+  projectType: 'architecture' | 'civil' | 'interior'
   kanbanColumns: KanbanColumnDefinition[]
   statusOptions: { value: string; label: string }[]
   enableKanban?: boolean
@@ -79,6 +83,11 @@ export default function ProjectPageTemplate({
   const user = pb.authStore.model
   const isSuperAdmin =
     user?.isSuperAdmin || user?.email === 'elvanrafif@gmail.com'
+  const { isCivil, isArchitecture, isInterior } =
+    TypeProjectsBoolean(projectType)
+
+  // TAMBAHAN RBAC: Panggil hook useAuth
+  const { can } = useAuth()
 
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
@@ -130,7 +139,7 @@ export default function ProjectPageTemplate({
 
     // B. Filter by PIC
     if (filterPic !== 'all') {
-      if (projectType === 'sipil') {
+      if (isCivil) {
         // Logika filter untuk Sipil (menggunakan pic_lapangan di meta_data)
         if (filterPic === 'unassigned') {
           result = result.filter((p) => !p.meta_data?.pic_lapangan)
@@ -252,85 +261,78 @@ export default function ProjectPageTemplate({
               Show History
             </Label>
           </div>
-          <Button
-            onClick={handleCreate}
-            className="bg-primary shadow-sm h-9 text-sm"
-          >
-            <Plus className="mr-2 h-4 w-4" /> New
-          </Button>
+
+          {/* TAMBAHAN RBAC: Pengecekan Izin untuk Tombol New */}
+          {can(`manage_${projectType}`) && (
+            <Button
+              onClick={handleCreate}
+              className="bg-primary shadow-sm h-9 text-sm"
+            >
+              <Plus className="mr-2 h-4 w-4" /> New
+            </Button>
+          )}
         </div>
       </div>
 
       {/* COMPACT STATS WIDGETS (Data Dynamic based on Filter) */}
-      <div className="grid gap-3 grid-cols-1 sm:grid-cols-3 mb-4 shrink-0">
-        {/* Widget 1: Revenue */}
-        <Card className="relative overflow-hidden shadow-sm border-l-4 border-l-emerald-500 p-3 flex items-center gap-4 bg-white">
-          <div className="h-10 w-10 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600 shrink-0">
-            <Banknote className="h-5 w-5" />
-          </div>
-          <div className="overflow-hidden">
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider truncate">
-              Potential Revenue (Active Projects)
-            </p>
-            <div className="text-lg font-bold text-slate-800 truncate">
-              {isSuperAdmin ? formatRupiah(stats.totalValue) : 'Confidential'}
+      {/* UNIFIED STATS BAR */}
+      <div className="bg-white border rounded-xl shadow-sm flex flex-col sm:flex-row items-center divide-y sm:divide-y-0 sm:divide-x mb-5 shrink-0 overflow-hidden">
+        {/* Widget 1: Revenue (Hanya Superadmin) */}
+        {isSuperAdmin && (
+          <div className="flex-1 w-full p-4 flex items-center gap-4 hover:bg-slate-50/50 transition-colors">
+            <div className="h-10 w-10 rounded-full bg-emerald-100/80 text-emerald-600 flex items-center justify-center shrink-0">
+              <Banknote className="h-5 w-5" />
+            </div>
+            <div className="overflow-hidden">
+              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">
+                Potential Revenue
+              </p>
+              <h4 className="text-xl font-bold text-slate-800 truncate">
+                {formatRupiah(stats.totalValue)}
+              </h4>
             </div>
           </div>
-        </Card>
+        )}
 
         {/* Widget 2: Active Projects */}
-        <Card className="relative overflow-hidden shadow-sm border-l-4 border-l-blue-500 p-3 flex items-center gap-4 bg-white">
-          <div className="h-10 w-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
+        <div className="flex-1 w-full p-4 flex items-center gap-4 hover:bg-slate-50/50 transition-colors">
+          <div className="h-10 w-10 rounded-full bg-blue-100/80 text-blue-600 flex items-center justify-center shrink-0">
             <Activity className="h-5 w-5" />
           </div>
           <div>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">
               Active Projects
             </p>
-            <div className="text-lg font-bold text-slate-800 flex items-baseline gap-1">
+            <div className="text-xl font-bold text-slate-800 flex items-baseline gap-1">
               {stats.activeCount}{' '}
-              <span className="text-xs font-normal text-muted-foreground">
-                Units
-              </span>
+              <span className="text-sm font-medium text-slate-500">Units</span>
             </div>
           </div>
-        </Card>
+        </div>
 
-        {/* Widget 3: Urgent Deadline (< 7 Days) */}
-        <Card
-          className={`relative overflow-hidden shadow-sm border-l-4 p-3 flex items-center gap-4 transition-colors ${
-            stats.urgentCount > 0
-              ? 'border-l-red-500 bg-red-50/50'
-              : 'border-l-slate-300 bg-white'
-          }`}
+        {/* Widget 3: Urgent Deadline */}
+        <div
+          className={`flex-1 w-full p-4 flex items-center gap-4 transition-colors ${stats.urgentCount > 0 ? 'bg-red-50/30 hover:bg-red-50/60' : 'hover:bg-slate-50/50'}`}
         >
           <div
-            className={`h-10 w-10 rounded-full flex items-center justify-center shrink-0 ${
-              stats.urgentCount > 0
-                ? 'bg-red-100 text-red-600 animate-pulse'
-                : 'bg-slate-100 text-slate-500'
-            }`}
+            className={`h-10 w-10 rounded-full flex items-center justify-center shrink-0 ${stats.urgentCount > 0 ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-slate-100 text-slate-400'}`}
           >
             <AlertCircle className="h-5 w-5" />
           </div>
           <div>
             <p
-              className={`text-[10px] font-bold uppercase tracking-wider ${
-                stats.urgentCount > 0 ? 'text-red-600' : 'text-muted-foreground'
-              }`}
+              className={`text-[11px] font-semibold uppercase tracking-wider mb-0.5 ${stats.urgentCount > 0 ? 'text-red-600' : 'text-slate-500'}`}
             >
               Deadline &lt; 7 Days
             </p>
             <div
-              className={`text-lg font-bold flex items-baseline gap-1 ${
-                stats.urgentCount > 0 ? 'text-red-700' : 'text-slate-800'
-              }`}
+              className={`text-xl font-bold flex items-baseline gap-1 ${stats.urgentCount > 0 ? 'text-red-700' : 'text-slate-800'}`}
             >
               {stats.urgentCount}{' '}
-              <span className="text-xs font-normal opacity-70">Projects</span>
+              <span className="text-sm font-medium opacity-70">Projects</span>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
 
       {/* FILTER & TABS TOOLBAR */}
@@ -357,7 +359,7 @@ export default function ProjectPageTemplate({
               <SelectContent>
                 <SelectItem value="all">All PICs</SelectItem>
                 <SelectItem value="unassigned">-- Unassigned --</SelectItem>
-                {projectType === 'sipil'
+                {isCivil
                   ? SipilPic.map((pic: string) => (
                       <SelectItem key={pic} value={pic}>
                         {pic}
@@ -391,13 +393,6 @@ export default function ProjectPageTemplate({
             </Button>
           )}
         </div>
-
-        {/* <Tabs defaultValue={enableKanban ? "kanban" : "table"} className="w-full sm:w-auto mt-2 sm:mt-0">
-                <TabsList className="grid w-full grid-cols-2 sm:w-[200px]">
-                    {enableKanban && <TabsTrigger value="kanban"><LayoutGrid className="mr-2 h-4 w-4" /> Board</TabsTrigger>}
-                    <TabsTrigger value="table"><TableIcon className="mr-2 h-4 w-4" /> List</TabsTrigger>
-                </TabsList>
-            </Tabs> */}
       </div>
 
       {/* MAIN CONTENT AREA */}

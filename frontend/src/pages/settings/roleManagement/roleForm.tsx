@@ -31,15 +31,15 @@ const PERMISSION_GROUPS = [
     title: 'Architecture Projects',
     permissions: [
       {
-        id: 'view_index_project_arsitektur',
+        id: 'view_index_project_architecture',
         label: 'View Architecture Projects',
       },
       {
-        id: 'view_detail_project_arsitektur',
+        id: 'view_detail_project_architecture',
         label: 'View Architecture Details Project',
       },
       {
-        id: 'manage_arsitektur',
+        id: 'manage_architecture',
         label: 'Create/Edit/Delete Architecture',
       },
     ],
@@ -48,15 +48,15 @@ const PERMISSION_GROUPS = [
     title: 'Civil Projects',
     permissions: [
       {
-        id: 'view_index_project_sipil',
+        id: 'view_index_project_civil',
         label: 'View Civil Projects',
       },
       {
-        id: 'view_detail_project_sipil',
+        id: 'view_detail_project_civil',
         label: 'View Civil Details Project',
       },
       {
-        id: 'manage_sipil',
+        id: 'manage_civil',
         label: 'Create/Edit/Delete Civil',
       },
     ],

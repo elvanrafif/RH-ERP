@@ -13,8 +13,8 @@ const statusOptions = [
 export default function SipilPage() {
   return (
     <ProjectPageTemplate
-      pageTitle="Sipil Construction"
-      projectType="sipil"
+      pageTitle="Civil Construction"
+      projectType="civil"
       kanbanColumns={columns}
       statusOptions={statusOptions}
       enableKanban={false} // Default buka tab Table

@@ -251,8 +251,8 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
                     <SelectItem value="management">
                       Management / Admin
                     </SelectItem>
-                    <SelectItem value="arsitektur">Architecture</SelectItem>
-                    <SelectItem value="sipil">Civil (Field)</SelectItem>
+                    <SelectItem value="architecture">Architecture</SelectItem>
+                    <SelectItem value="civil">Civil (Field)</SelectItem>
                     <SelectItem value="interior">Interior</SelectItem>
                   </SelectContent>
                 </Select>

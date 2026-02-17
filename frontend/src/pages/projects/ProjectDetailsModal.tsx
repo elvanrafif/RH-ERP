@@ -32,6 +32,7 @@ import {
   getInitials,
   getRemainingTime,
 } from '@/lib/helpers'
+import { TypeProjectsBoolean } from '@/lib/booleans'
 
 // --- PROPS ---
 interface ProjectDetailsModalProps {
@@ -45,16 +46,17 @@ export function ProjectDetailsModal({
   open,
   onOpenChange,
 }: ProjectDetailsModalProps) {
-  console.log('🚀 ~ project >>>> ', project)
   if (!project) return null
 
   const meta = project.meta_data || {}
   const notes = meta.notes || (project as any).notes
   const client = project.expand?.client
 
+  const { isCivil, isInterior } = TypeProjectsBoolean(project.type)
+
   const picData = (() => {
-    if (project.type == 'sipil') return project.meta_data.pic_lapangan
-    if (project.type == 'interior') return project.meta_data.pic_interior
+    if (isCivil) return project.meta_data.pic_lapangan
+    if (isInterior) return project.meta_data.pic_interior
     return project.expand?.assignee?.name
   })()
 
@@ -149,7 +151,7 @@ export function ProjectDetailsModal({
 
                 {/* Bottom Section: Timeline (Different Background) */}
                 <div className="bg-indigo-50/40 p-5 border-t border-indigo-100 flex-1 flex flex-col justify-center">
-                  {project.type === 'sipil' ? (
+                  {isCivil ? (
                     // TAMPILAN KHUSUS SIPIL (CONTRACT TIMELINE & COUNTDOWN)
                     <div className="flex flex-col gap-3">
                       <div className="flex justify-between items-center gap-2">
@@ -230,7 +232,7 @@ export function ProjectDetailsModal({
               <div className="p-4 grid grid-cols-1 md:grid-cols-12 gap-6">
                 {/* LEFT COLUMN (1/3): TECHNICAL DATA */}
                 <div className="md:col-span-5 space-y-3 border-r-0 md:border-r border-slate-100 pr-0 md:pr-4 pb-4 md:pb-0 border-b md:border-b-0">
-                  {project.type != 'interior' && (
+                  {!isInterior && (
                     <div className="grid grid-cols-2 gap-2">
                       <div className="bg-slate-50 p-2 rounded text-center border border-slate-100">
                         <span className="flex items-center justify-center text-[10px] text-muted-foreground uppercase mb-1">

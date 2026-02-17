@@ -68,7 +68,7 @@ type ProjectFormValues = z.infer<typeof projectSchema>
 interface ProjectFormProps {
   onSuccess?: () => void
   initialData?: Project | null
-  fixedType: 'arsitektur' | 'sipil' | 'interior'
+  fixedType: 'architecture' | 'civil' | 'interior'
   statusOptions: { value: string; label: string }[]
 }
 
@@ -82,9 +82,9 @@ export function ProjectForm({
   const user = pb.authStore.model
   const isSuperAdmin =
     user?.isSuperAdmin || user?.email === 'elvanrafif@gmail.com'
+  const isArchitecture = fixedType === 'architecture'
+  const isCivil = fixedType === 'civil'
   const isInterior = fixedType === 'interior'
-  const isArsitektur = fixedType === 'arsitektur'
-  const isSipil = fixedType === 'sipil'
 
   // FETCH RELATIONS
   const { data: clients } = useQuery({
@@ -107,9 +107,10 @@ export function ProjectForm({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       client_id: initialData?.client || '',
-      assignee: initialData?.assignee || '',
+      // UPDATE LOGIC: Jika bukan Superadmin dan bukan Sipil, otomatis isi dengan ID dia sendiri
+      assignee:
+        initialData?.assignee || (!isSuperAdmin && !isCivil ? user?.id : ''),
       status: initialData?.status || statusOptions[0]?.value || '',
-      // UPDATE: Mapping to contract_value
       contract_value: initialData?.contract_value || 0,
       deadline: initialData?.deadline
         ? initialData.deadline.substring(0, 10)
@@ -153,7 +154,6 @@ export function ProjectForm({
         assignee: values.assignee || null,
         status: values.status,
         type: fixedType,
-        // UPDATE: Send contract_value to DB
         contract_value: values.contract_value,
         deadline: values.deadline || null,
         start_date: values.start_date || null,
@@ -295,7 +295,7 @@ export function ProjectForm({
         </div>
 
         {/* INPUT KHUSUS: SIPIL (DURASI KONTRAK) */}
-        {isSipil && (
+        {isCivil && (
           <div className="grid grid-cols-2 gap-4 ">
             <FormField
               control={form.control}
@@ -335,7 +335,7 @@ export function ProjectForm({
         )}
 
         {/* INPUT KHUSUS: ARSITEKTUR & SIPIL (LT/LB) */}
-        {(isArsitektur || isSipil) && (
+        {(isArchitecture || isCivil) && (
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -402,13 +402,11 @@ export function ProjectForm({
 
         {/* PIC SELECTION */}
         <div className="grid grid-cols-2 gap-4">
-          {!isSipil && (
+          {!isCivil && (
             <FormField
               control={form.control}
               name="assignee"
               render={({ field }) => {
-                // FILTER DINAMIS: Ambil user yang divisinya sesuai dengan fixedType (arsitektur/interior)
-                // (Menggunakan .toLowerCase() agar lebih aman dari typo kapital)
                 const availableUsers =
                   users?.filter(
                     (u: any) =>
@@ -416,14 +414,24 @@ export function ProjectForm({
                       u.division?.toLowerCase() === fixedType
                   ) || []
 
+                // Pastikan user yang sedang login masuk ke dalam opsi (jika dia dipaksa jadi PIC tapi belum masuk filter)
+                if (
+                  !isSuperAdmin &&
+                  !availableUsers.find((u) => u.id === user?.id) &&
+                  user
+                ) {
+                  availableUsers.push(user as unknown as User)
+                }
+
                 return (
                   <FormItem>
                     <FormLabel>
-                      {isArsitektur ? 'PIC Design / Drafter' : 'Interior PIC'}
+                      {isArchitecture ? 'PIC Design / Drafter' : 'Interior PIC'}
                     </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       value={field.value as string}
+                      disabled={!isSuperAdmin} // UPDATE: Kunci Dropdown jika bukan superadmin
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -431,12 +439,14 @@ export function ProjectForm({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="unassigned">
-                          -- Unassigned --
-                        </SelectItem>
-                        {availableUsers.map((user) => (
-                          <SelectItem key={user.id} value={user.id}>
-                            {user.name || user.email}
+                        {isSuperAdmin && (
+                          <SelectItem value="unassigned">
+                            -- Unassigned --
+                          </SelectItem>
+                        )}
+                        {availableUsers.map((u) => (
+                          <SelectItem key={u.id} value={u.id}>
+                            {u.name || u.email}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -447,7 +457,7 @@ export function ProjectForm({
             />
           )}
 
-          {isSipil && (
+          {isCivil && (
             <FormField
               control={form.control}
               name="pic_lapangan"
@@ -476,7 +486,7 @@ export function ProjectForm({
             />
           )}
 
-          {!isSipil && (
+          {!isCivil && (
             <FormField
               control={form.control}
               name="deadline"
@@ -527,8 +537,6 @@ export function ProjectForm({
             )}
           </div>
         </div>
-
-        {/* CONTRACT VALUE (MONEY & TIME) */}
 
         {/* NOTES */}
         <FormField
