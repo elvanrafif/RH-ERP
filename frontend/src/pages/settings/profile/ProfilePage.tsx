@@ -81,10 +81,10 @@ export default function ProfilePage() {
               {user.name}
             </h2>
 
-            <div className="flex flex-wrap justify-center gap-1.5 mt-3">
+            <div className="flex flex-wrap justify-center gap-1.5 mt-10">
               <Badge
                 variant="outline"
-                className={`uppercase text-[10px] mt-4 ${getDivisionBadge(MaskingTextByDivision(user.division))}`}
+                className={`uppercase text-[10px] ${getDivisionBadge(MaskingTextByDivision(user.division))}`}
               >
                 {MaskingTextByDivision(user.division) || 'General'}
               </Badge>
