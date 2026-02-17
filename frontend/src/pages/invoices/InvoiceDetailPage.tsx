@@ -19,14 +19,7 @@ import {
 } from '@/components/ui/select'
 import { getTemplateByType } from './template'
 import { InvoicePaper } from './components/InvoicePaper'
-
-// Helper Format Rupiah
-const formatRupiah = (val: number) =>
-  new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  }).format(val)
+import { formatRupiah } from '@/lib/helpers'
 
 export default function InvoiceDetailPage() {
   const { id } = useParams()

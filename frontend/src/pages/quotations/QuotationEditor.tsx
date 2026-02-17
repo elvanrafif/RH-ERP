@@ -1,255 +1,470 @@
-import { useState, useRef, useEffect } from "react"
-import { useParams, useNavigate } from "react-router-dom"
-import { useReactToPrint } from "react-to-print"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import { pb } from "@/lib/pocketbase"
-import { toast } from "sonner"
+import { useState, useRef, useEffect } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { pb } from '@/lib/pocketbase'
+import { toast } from 'sonner'
+import { toJpeg } from 'html-to-image'
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Separator } from "@/components/ui/separator"
-import { Trash2, Plus, Printer, Save, Loader2, ArrowLeft } from "lucide-react"
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Download, Save, Loader2, ArrowLeft, Share2 } from 'lucide-react'
 
-// Helper
-const formatRupiah = (val: number) => 
-  new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val);
+// PANGGIL KOMPONEN KERTAS QUOTATION (Nanti kita buat filenya)
+import { QuotationPaper } from './QuotationPaper'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { formatRupiah } from '@/lib/helpers'
 
 export default function QuotationEditor() {
-    const { id } = useParams();
-    const navigate = useNavigate();
-    const componentRef = useRef<HTMLDivElement>(null);
-    
-    // 1. FETCH DATA QUOTATION BY ID
-    const { data: quotation, isLoading } = useQuery({
-        queryKey: ['quotation', id],
-        queryFn: async () => {
-            return await pb.collection('quotations').getOne(id as string, {
-                expand: 'client_id'
-            });
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const componentRef = useRef<HTMLDivElement>(null)
+
+  // --- REF & STATE UNTUK DYNAMIC SCALING ---
+  const previewContainerRef = useRef<HTMLDivElement>(null)
+  const [previewScale, setPreviewScale] = useState(1)
+
+  // FETCH CLIENTS
+  const { data: clientsList } = useQuery({
+    queryKey: ['clients'],
+    queryFn: async () => {
+      return await pb
+        .collection('clients')
+        .getFullList({ sort: 'company_name' })
+    },
+  })
+
+  // FETCH QUOTATION
+  const { data: quotation, isLoading } = useQuery({
+    queryKey: ['quotation', id],
+    queryFn: async () => {
+      return await pb
+        .collection('quotations')
+        .getOne(id as string, { expand: 'client_id' })
+    },
+  })
+
+  // STATE
+  const [quotationNumber, setQuotationNumber] = useState('')
+  const [address, setAddress] = useState('')
+  const [projectArea, setProjectArea] = useState(0)
+  const [pricePerMeter, setPricePerMeter] = useState(180000)
+  const [bankDetails, setBankDetails] = useState(
+    'Name : Ismail Deyrian Anugrah\nAccount Number : BNI 0717571663'
+  )
+
+  const [selectedClientId, setSelectedClientId] = useState('')
+  const [selectedClientData, setSelectedClientData] = useState<any>(null)
+
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+
+  // LINK GENERATOR (Jika Bapak pakai verifikasi public nantinya, pakai ini. Kalau tidak, biarkan saja)
+  const qrLink = `${import.meta.env.VITE_FE_LINK_URL}/verify/quotations/${id}`
+
+  // --- LOGIC GRAND TOTAL ---
+  const grandTotal = projectArea * pricePerMeter
+
+  // --- EFFECT: INITIAL LOAD ---
+  useEffect(() => {
+    if (quotation) {
+      // 1. Set Quotation Number (Auto Gen if Empty)
+      if (!quotation.quotation_number) {
+        const autoNum = `Q-${new Date().toISOString().slice(0, 7).replace('-', '')}-${id?.substring(0, 4).toUpperCase()}`
+        setQuotationNumber(autoNum)
+      } else {
+        setQuotationNumber(quotation.quotation_number)
+      }
+
+      // 2. Set Client & Address
+      const clientObj = quotation.expand?.client_id
+      if (quotation.client_id) {
+        setSelectedClientId(quotation.client_id)
+        setSelectedClientData(clientObj)
+      }
+
+      if (quotation.address) {
+        setAddress(quotation.address)
+      } else if (clientObj?.address) {
+        setAddress(clientObj.address)
+      }
+
+      // 3. Set Area & Price
+      setProjectArea(quotation.project_area || 0)
+      setPricePerMeter(quotation.price_per_meter || 180000)
+
+      // 4. Set Bank Details (Jika ada di DB pakai DB, jika tidak pakai default State)
+      if (quotation.bank_details) {
+        setBankDetails(quotation.bank_details)
+      }
+
+      setHasUnsavedChanges(false)
+    }
+  }, [quotation, id])
+
+  // --- EFFECT: DYNAMIC PREVIEW SCALING ---
+  useEffect(() => {
+    const container = previewContainerRef.current
+    if (!container) return
+
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        const availableWidth = entry.contentRect.width
+        const baseWidth = 800
+        const newScale = Math.min(availableWidth / baseWidth, 1)
+        setPreviewScale(newScale)
+      }
+    })
+
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [])
+
+  // --- HANDLERS ---
+  const markAsDirty = () => setHasUnsavedChanges(true)
+
+  const handleClientChange = (newClientId: string) => {
+    markAsDirty()
+    setSelectedClientId(newClientId)
+    const clientObj = clientsList?.find((c: any) => c.id === newClientId)
+    if (clientObj) {
+      setSelectedClientData(clientObj)
+      if (!address) setAddress(clientObj.address) // Auto-fill alamat jika masih kosong
+    }
+  }
+
+  const handleBack = () => {
+    if (hasUnsavedChanges) {
+      const confirmLeave = window.confirm(
+        'You have unsaved changes. Are you sure you want to leave?'
+      )
+      if (!confirmLeave) return
+    }
+    navigate('/quotations')
+  }
+
+  const handleShareWA = () => {
+    if (!selectedClientData?.phone) {
+      toast.error('Client phone number is missing in the database.')
+      return
+    }
+    let rawPhone = selectedClientData.phone.toString()
+    let cleanPhone = rawPhone.replace(/\D/g, '')
+    if (cleanPhone.startsWith('0')) {
+      cleanPhone = '62' + cleanPhone.substring(1)
+    } else if (cleanPhone.startsWith('8')) {
+      cleanPhone = '62' + cleanPhone
+    }
+    const message = `Hello ${selectedClientData.company_name},\n\nHere is the link to your Quotation:\n${qrLink}\n\nThank you.`
+    const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
+    window.open(waUrl, '_blank')
+  }
+
+  // SAVE
+  const saveMutation = useMutation({
+    mutationFn: async () => {
+      const formData = new FormData()
+
+      formData.append('client_id', selectedClientId)
+      formData.append('quotation_number', quotationNumber)
+      formData.append('address', address)
+      formData.append('project_area', String(projectArea))
+      formData.append('price_per_meter', String(pricePerMeter))
+      formData.append('total_price', String(grandTotal))
+      formData.append('bank_details', bankDetails)
+
+      // Simpan Item Statis sebagai Record
+      formData.append(
+        'items',
+        JSON.stringify([
+          {
+            description: 'Design & Architecture Services',
+            quantity: projectArea,
+            price: pricePerMeter,
+          },
+        ])
+      )
+
+      if (componentRef.current) {
+        try {
+          const dataUrl = await toJpeg(componentRef.current, {
+            quality: 0.8,
+            pixelRatio: 2,
+            backgroundColor: '#ffffff',
+            cacheBust: false,
+          })
+
+          const res = await fetch(dataUrl)
+          const blob = await res.blob()
+
+          if (blob) {
+            const fileName = `Quotation-${quotationNumber || 'Update'}.jpg`
+            formData.append('document_file', blob, fileName)
+          }
+        } catch (err) {
+          console.error('Failed to generate quotation image:', err)
         }
-    });
+      }
 
-    // STATE ITEMS
-    // Kita set state setelah data ter-load (via useEffect)
-    const [items, setItems] = useState<any[]>([{ description: "", quantity: 1, price: 0 }]);
+      return await pb.collection('quotations').update(id as string, formData)
+    },
+    onSuccess: () => {
+      toast.success('Quotation & Official Document saved')
+      setHasUnsavedChanges(false)
+      queryClient.invalidateQueries({ queryKey: ['quotation', id] })
+      queryClient.invalidateQueries({ queryKey: ['quotations'] })
+    },
+    onError: () => toast.error('Failed to save changes'),
+  })
 
-    useEffect(() => {
-        if (quotation?.items && quotation.items.length > 0) {
-            setItems(quotation.items);
-        }
-    }, [quotation]);
+  // --- DOWNLOAD OFFICIAL FILE ---
+  const handleDownloadOfficial = () => {
+    const fileName = quotation?.document_file
 
-    // HITUNG TOTAL
-    const totalAmount = items.reduce((sum, item) => sum + (item.quantity * item.price), 0);
+    if (!fileName) {
+      toast.error(
+        "Document not available. Please click 'Save' first to generate the document."
+      )
+      return
+    }
 
-    // SAVE MUTATION
-    const saveMutation = useMutation({
-        mutationFn: async () => {
-            return await pb.collection('quotations').update(id as string, {
-                items: items,
-                total_amount: totalAmount
-            });
-        },
-        onSuccess: () => toast.success("Perubahan tersimpan"),
-        onError: () => toast.error("Gagal menyimpan")
-    });
+    const fileUrl = pb.files.getUrl(quotation, fileName, { download: true })
 
-    // PRINT HANDLER    
-    const handlePrint = useReactToPrint({
-        contentRef: componentRef,
-        documentTitle: `Quotation-${quotation?.title || 'Draft'}`,
-    });
+    const link = document.createElement('a')
+    link.href = fileUrl
+    link.download = `Quotation-${quotationNumber}.jpg`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
 
-    // ITEM HANDLERS
-    const updateItem = (index: number, field: string, value: any) => {
-        const newItems = [...items];
-        newItems[index] = { ...newItems[index], [field]: value };
-        setItems(newItems);
-    };
-    const addItem = () => setItems([...items, { description: "", quantity: 1, price: 0 }]);
-    const removeItem = (index: number) => {
-        if (items.length > 1) setItems(items.filter((_, i) => i !== index));
-    };
+    toast.success('Downloading Official Document...')
+  }
 
-    if (isLoading) return <div className="flex h-screen items-center justify-center"><Loader2 className="animate-spin" /></div>;
-
-    const client = quotation?.expand?.client_id;
-
+  if (isLoading)
     return (
-        <div className="flex h-screen flex-col bg-slate-100 overflow-hidden">
-            
-            {/* HEADER BAR */}
-            <div className="h-14 border-b bg-white flex items-center justify-between px-4 shadow-sm z-10">
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="sm" onClick={() => navigate('/quotations')}>
-                        <ArrowLeft className="mr-2 h-4 w-4" /> Kembali
-                    </Button>
-                    <div className="h-6 w-px bg-slate-200" />
-                    <span className="font-semibold text-sm">{quotation?.title}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                    <div className="mr-4 text-sm font-medium text-slate-600">
-                        Total: <span className="text-primary">{formatRupiah(totalAmount)}</span>
-                    </div>
-                    <Button variant="outline" size="sm" onClick={() => saveMutation.mutate()} disabled={saveMutation.isPending}>
-                        <Save className="mr-2 h-4 w-4" /> Simpan
-                    </Button>
-                    <Button size="sm" onClick={handlePrint}>
-                        <Printer className="mr-2 h-4 w-4" /> Export PDF
-                    </Button>
-                </div>
-            </div>
-
-            {/* CONTENT AREA (SPLIT VIEW) */}
-            <div className="flex flex-1 overflow-hidden">
-                
-                {/* KIRI: EDITOR FORM */}
-                <div className="w-[450px] bg-white border-r flex flex-col h-full overflow-hidden shadow-lg z-0">
-                    <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                        <div>
-                            <h3 className="font-semibold mb-4 text-sm uppercase tracking-wide text-slate-500">Item Pekerjaan</h3>
-                            <div className="space-y-4">
-                                {items.map((item, index) => (
-                                    <div key={index} className="p-3 rounded-lg border bg-slate-50 space-y-3 relative group hover:border-blue-300 transition-colors">
-                                        <div>
-                                            <Label className="text-xs text-slate-500">Deskripsi</Label>
-                                            <Input 
-                                                value={item.description} 
-                                                onChange={(e) => updateItem(index, 'description', e.target.value)}
-                                                className="bg-white h-8 text-sm"
-                                            />
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <div>
-                                                <Label className="text-xs text-slate-500">Qty</Label>
-                                                <Input 
-                                                    type="number" 
-                                                    value={item.quantity} 
-                                                    onChange={(e) => updateItem(index, 'quantity', Number(e.target.value))}
-                                                    className="bg-white h-8 text-sm"
-                                                />
-                                            </div>
-                                            <div>
-                                                <Label className="text-xs text-slate-500">Harga Satuan</Label>
-                                                <Input 
-                                                    type="number" 
-                                                    value={item.price} 
-                                                    onChange={(e) => updateItem(index, 'price', Number(e.target.value))}
-                                                    className="bg-white h-8 text-sm"
-                                                />
-                                            </div>
-                                        </div>
-                                        <Button 
-                                            variant="ghost" size="icon" 
-                                            className="absolute top-1 right-1 h-6 w-6 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                                            onClick={() => removeItem(index)}
-                                        >
-                                            <Trash2 className="h-3 w-3" />
-                                        </Button>
-                                    </div>
-                                ))}
-                                <Button variant="outline" size="sm" onClick={addItem} className="w-full border-dashed">
-                                    <Plus className="h-4 w-4 mr-2" /> Tambah Baris
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* KANAN: PREVIEW A4 */}
-                <div className="flex-1 overflow-y-auto bg-slate-200/50 p-8 flex justify-center">
-                    <div className="scale-[0.85] origin-top">
-                        <div 
-                            ref={componentRef} 
-                            className="bg-white shadow-xl mx-auto p-[15mm]"
-                            style={{ width: '210mm', minHeight: '297mm', color: 'black' }} 
-                        >
-                            {/* --- ISI KERTAS PDF --- */}
-                            
-                            {/* Header */}
-                            <div className="flex justify-between items-start mb-10 border-b pb-6">
-                                <div>
-                                    <h1 className="text-3xl font-bold text-slate-800 tracking-tight">QUOTATION</h1>
-                                    <p className="text-sm text-slate-500 mt-1">ID: {quotation?.id?.substring(0,8).toUpperCase()}</p>
-                                </div>
-                                <div className="text-right">
-                                    <h2 className="font-bold text-lg">Perusahaan Anda</h2>
-                                    <p className="text-sm text-slate-600">Jl. Teknologi No. 123</p>
-                                    <p className="text-sm text-slate-600">Jakarta Selatan</p>
-                                </div>
-                            </div>
-
-                            {/* Info Klien */}
-                            <div className="flex justify-between mb-12">
-                                <div className="w-1/2">
-                                    <h3 className="text-xs font-bold text-slate-400 uppercase mb-2">Kepada Yth:</h3>
-                                    <p className="font-bold text-lg text-slate-800">{client?.company_name || "Nama Klien"}</p>
-                                    <p className="text-slate-600">{client?.address}</p>
-                                    <p className="text-slate-600">{client?.phone}</p>
-                                </div>
-                                <div className="w-1/3 text-right">
-                                    <h3 className="text-xs font-bold text-slate-400 uppercase mb-2">Detail:</h3>
-                                    <p className="font-bold text-slate-800">{quotation?.title}</p>
-                                    <p className="text-sm text-slate-600">
-                                        Tgl: {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric'})}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Tabel */}
-                            <table className="w-full text-sm mb-8">
-                                <thead>
-                                    <tr className="border-b-2 border-slate-800">
-                                        <th className="text-left py-3 font-bold w-[50%]">DESKRIPSI</th>
-                                        <th className="text-center py-3 font-bold">QTY</th>
-                                        <th className="text-right py-3 font-bold">HARGA</th>
-                                        <th className="text-right py-3 font-bold">TOTAL</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {items.map((item, i) => (
-                                        <tr key={i} className="border-b border-slate-100">
-                                            <td className="py-4 text-slate-700">{item.description}</td>
-                                            <td className="py-4 text-center text-slate-700">{item.quantity}</td>
-                                            <td className="py-4 text-right text-slate-700">{formatRupiah(item.price)}</td>
-                                            <td className="py-4 text-right font-bold text-slate-800">{formatRupiah(item.quantity * item.price)}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-
-                            {/* Total */}
-                            <div className="flex justify-end mb-20">
-                                <div className="w-1/2 border-t pt-4">
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-xl font-bold text-slate-800">Total Tagihan</span>
-                                        <span className="text-xl font-bold text-primary">{formatRupiah(totalAmount)}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Footer */}
-                            <div className="flex justify-between text-sm text-slate-600 mt-auto pt-10 border-t">
-                                <div className="w-2/3 pr-10">
-                                    <p className="font-bold mb-2">Syarat & Ketentuan:</p>
-                                    <ul className="list-disc pl-4 space-y-1 text-xs text-slate-500">
-                                        <li>Harga belum termasuk PPN 11%.</li>
-                                        <li>Penawaran berlaku 14 hari sejak tanggal terbit.</li>
-                                    </ul>
-                                </div>
-                                <div className="text-center w-1/3">
-                                    <p className="mb-16">Hormat Kami,</p>
-                                    <div className="border-b border-slate-300 w-2/3 mx-auto mb-2"></div>
-                                    <p className="font-bold text-slate-800">Elvan Rafif</p>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="animate-spin text-primary h-8 w-8" />
+      </div>
     )
+
+  return (
+    <div className="flex flex-col h-screen bg-slate-100 overflow-hidden">
+      {/* HEADER BAR */}
+      <div className="shrink-0 h-auto min-h-14 py-2 lg:py-0 lg:h-14 border-b bg-white flex flex-col lg:flex-row items-center justify-between px-4 shadow-sm z-20 gap-3 lg:gap-0 print:hidden">
+        <div className="flex items-center justify-between w-full lg:w-auto gap-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleBack}
+            className={`shrink-0 ${hasUnsavedChanges ? 'text-red-600 hover:text-red-700 hover:bg-red-50' : ''}`}
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />{' '}
+            <span className="hidden sm:inline">Back</span>
+          </Button>
+          <div className="hidden lg:block h-6 w-px bg-slate-200" />
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-sm font-mono truncate max-w-[150px] sm:max-w-none">
+              {quotationNumber}
+            </span>
+            {hasUnsavedChanges && (
+              <span className="text-[10px] sm:text-xs text-red-500 italic bg-red-50 px-2 py-1 rounded">
+                (Unsaved)
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 w-full lg:w-auto justify-between lg:justify-end overflow-x-auto pb-1 lg:pb-0 scrollbar-hide">
+          <div className="mr-2 lg:mr-4 text-xs sm:text-sm font-medium text-slate-600 whitespace-nowrap">
+            Grand Total:{' '}
+            <span className="text-blue-600 font-bold">
+              {formatRupiah(grandTotal)}
+            </span>
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => saveMutation.mutate()}
+              disabled={saveMutation.isPending}
+              className={`whitespace-nowrap ${hasUnsavedChanges ? 'border-blue-500 text-blue-600' : ''}`}
+            >
+              {saveMutation.isPending ? (
+                <Loader2 className="animate-spin mr-2 h-4 w-4" />
+              ) : (
+                <Save className="mr-2 h-4 w-4" />
+              )}
+              <span className="hidden sm:inline">
+                {saveMutation.isPending ? 'Saving...' : 'Save'}
+              </span>
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleShareWA}
+              className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700 whitespace-nowrap"
+            >
+              <Share2 className="mr-2 h-4 w-4" />{' '}
+              <span className="hidden sm:inline">Share WA</span>
+            </Button>
+
+            <Button
+              size="sm"
+              onClick={handleDownloadOfficial}
+              className="whitespace-nowrap"
+            >
+              <Download className="mr-2 h-4 w-4" />{' '}
+              <span className="hidden sm:inline">Download</span>
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-col md:flex-row flex-1 overflow-y-auto md:overflow-hidden relative z-0">
+        {/* LEFT: EDITOR FORM */}
+        <div className="w-full md:w-[380px] lg:w-[450px] bg-white border-b md:border-b-0 md:border-r flex flex-col md:h-full md:overflow-y-auto shadow-[2px_0_8px_-2px_rgba(0,0,0,0.1)] z-10 print:hidden shrink-0">
+          <div className="p-4 sm:p-6 space-y-6">
+            {/* SETTINGS AREA */}
+            <div className="space-y-4 pb-6">
+              <h3 className="font-semibold text-xs uppercase tracking-wide text-slate-500 border-b pb-2">
+                Quotation Details
+              </h3>
+
+              {/* CLIENT */}
+              <div className="space-y-1">
+                <Label className="text-[10px] text-slate-500">Client</Label>
+                <Select
+                  value={selectedClientId}
+                  onValueChange={handleClientChange}
+                >
+                  <SelectTrigger className="h-8 text-xs bg-white">
+                    <SelectValue placeholder="Select Client" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {clientsList?.map((c: any) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.company_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* PROJECT ADDRESS */}
+              <div className="space-y-1">
+                <Label className="text-[10px] text-slate-500 block">
+                  Project Address
+                </Label>
+                <Textarea
+                  value={address}
+                  onChange={(e) => {
+                    setAddress(e.target.value)
+                    markAsDirty()
+                  }}
+                  className="text-xs min-h-[60px]"
+                  placeholder="Enter project location address..."
+                />
+              </div>
+
+              {/* CALCULATOR AREA */}
+              <div className="bg-slate-50 p-3 rounded border">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <Label className="text-[10px] text-slate-500">
+                      Area (m²)
+                    </Label>
+                    <Input
+                      type="number"
+                      value={projectArea}
+                      onChange={(e) => {
+                        setProjectArea(Number(e.target.value))
+                        markAsDirty()
+                      }}
+                      className="h-7 text-xs"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label className="text-[10px] text-slate-500">
+                      Price / m²
+                    </Label>
+                    <Input
+                      type="number"
+                      value={pricePerMeter}
+                      onChange={(e) => {
+                        setPricePerMeter(Number(e.target.value))
+                        markAsDirty()
+                      }}
+                      className="h-7 text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* BANK DETAILS */}
+            <div className="space-y-4 border-t pt-6">
+              <div>
+                <Label className="text-xs mb-2 font-semibold text-slate-500 block">
+                  Payment Information (PDF Footer)
+                </Label>
+                <Textarea
+                  value={bankDetails}
+                  onChange={(e) => {
+                    setBankDetails(e.target.value)
+                    markAsDirty()
+                  }}
+                  className="text-xs min-h-[60px] resize-none"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT (Desktop) / BOTTOM (Mobile): PREVIEW A4 WITH DYNAMIC SCALING */}
+        <div
+          ref={previewContainerRef}
+          className="flex-1 bg-slate-200/80 p-4 lg:p-8 flex flex-col items-center md:overflow-y-auto print:p-0 print:bg-white print:overflow-visible"
+        >
+          <div className="mb-4 text-center md:hidden print:hidden mt-4 shrink-0">
+            <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest bg-slate-300/50 px-4 py-1.5 rounded-full inline-block">
+              A4 Document Preview
+            </h3>
+          </div>
+
+          {/* Dynamic Scaling Wrapper */}
+          <div
+            className="w-full flex justify-center print:h-auto print:block"
+            style={{ height: `calc(297mm * ${previewScale})` }}
+          >
+            <div
+              className="origin-top transform-gpu print:scale-100"
+              style={{ transform: `scale(${previewScale})` }}
+            >
+              {/* KOMPONEN KERTAS QUOTATION */}
+              <QuotationPaper
+                qrLink={qrLink}
+                ref={componentRef}
+                quotationNumber={quotationNumber}
+                client={selectedClientData}
+                address={address}
+                projectArea={projectArea}
+                pricePerMeter={pricePerMeter}
+                grandTotal={grandTotal}
+                bankDetails={bankDetails}
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
