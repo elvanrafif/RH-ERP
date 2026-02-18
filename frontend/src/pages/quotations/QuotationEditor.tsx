@@ -54,6 +54,7 @@ export default function QuotationEditor() {
 
   // STATE
   const [quotationNumber, setQuotationNumber] = useState('')
+  const [status, setStatus] = useState('draft') // <-- FITUR BARU: STATE STATUS
   const [address, setAddress] = useState('')
   const [projectArea, setProjectArea] = useState(0)
   const [pricePerMeter, setPricePerMeter] = useState(180000)
@@ -81,6 +82,13 @@ export default function QuotationEditor() {
         setQuotationNumber(autoNum)
       } else {
         setQuotationNumber(quotation.quotation_number)
+      }
+
+      // FITUR BARU: Set Status
+      if (quotation.status) {
+        setStatus(quotation.status)
+      } else {
+        setStatus('draft')
       }
 
       // 2. Set Client & Address
@@ -174,6 +182,7 @@ export default function QuotationEditor() {
 
       formData.append('client_id', selectedClientId)
       formData.append('quotation_number', quotationNumber)
+      formData.append('status', status) // <-- FITUR BARU: PAYLOAD STATUS
       formData.append('address', address)
       formData.append('project_area', String(projectArea))
       formData.append('price_per_meter', String(pricePerMeter))
@@ -355,6 +364,27 @@ export default function QuotationEditor() {
                         {c.company_name}
                       </SelectItem>
                     ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* FITUR BARU: STATUS */}
+              <div className="space-y-1">
+                <Label className="text-[10px] text-slate-500">Status</Label>
+                <Select
+                  value={status}
+                  onValueChange={(val) => {
+                    setStatus(val)
+                    markAsDirty()
+                  }}
+                >
+                  <SelectTrigger className="h-8 text-xs bg-white">
+                    <SelectValue placeholder="Select Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="paid">Paid</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

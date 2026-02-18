@@ -34,7 +34,6 @@ export function QuotationTable({
   totalItems = 0,
   onPageChange,
 }: QuotationTableProps) {
-  console.log('🚀 ~ quotations >>>> ', quotations)
   return (
     <div className="flex flex-col h-full bg-white">
       {/* WRAPPER TABLE */}
@@ -44,8 +43,10 @@ export function QuotationTable({
             <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
               <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
                 <TableHead className="w-[140px]">No. Quotation</TableHead>
-                <TableHead className="w-[600px]">Client</TableHead>
+                <TableHead className="w-[500px]">Client</TableHead>
                 <TableHead>Project Area</TableHead>
+                {/* TAMBAHAN: KOLOM STATUS */}
+                <TableHead>Status</TableHead>
                 <TableHead className="text-right">Total Amount</TableHead>
                 <TableHead className="text-right w-[100px]"></TableHead>
               </TableRow>
@@ -53,13 +54,15 @@ export function QuotationTable({
             <TableBody>
               {isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center h-24">
+                  {/* UBAH: colSpan 5 jadi 6 */}
+                  <TableCell colSpan={6} className="text-center h-24">
                     <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
                   </TableCell>
                 </TableRow>
               ) : quotations?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center h-60">
+                  {/* UBAH: colSpan 5 jadi 6 */}
+                  <TableCell colSpan={6} className="text-center h-60">
                     <div className="flex flex-col items-center justify-center text-muted-foreground">
                       <div className="bg-slate-50 p-4 rounded-full mb-3">
                         <FolderOpen className="h-8 w-8 text-slate-400" />
@@ -79,6 +82,31 @@ export function QuotationTable({
                     </TableCell>
                     <TableCell className="text-slate-600">
                       {q.project_area || '-'} m2
+                    </TableCell>
+                    {/* TAMBAHAN: BADGE STATUS */}
+                    <TableCell>
+                      {(() => {
+                        const status = (q.status || 'draft').toLowerCase()
+                        if (status === 'paid') {
+                          return (
+                            <span className="px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-full bg-emerald-100 text-emerald-700">
+                              Paid
+                            </span>
+                          )
+                        }
+                        if (status === 'rejected') {
+                          return (
+                            <span className="px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-full bg-red-100 text-red-700">
+                              Rejected
+                            </span>
+                          )
+                        }
+                        return (
+                          <span className="px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-full bg-slate-100 text-slate-600">
+                            Draft
+                          </span>
+                        )
+                      })()}
                     </TableCell>
                     <TableCell className="text-right font-bold text-slate-700">
                       {formatRupiah(q.total_price || 0)}

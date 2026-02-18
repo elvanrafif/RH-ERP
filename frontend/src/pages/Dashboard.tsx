@@ -1,27 +1,28 @@
 import { useDashboardStats } from '@/hooks/useDashboard'
 import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Download, Plus } from 'lucide-react'
+
+// Import Tab Components
+import { OverviewTab } from '@/components/dashboard/tabs/OverviewTab'
+import { ResourceMonitoringTab } from '@/components/dashboard/tabs/ResourceMonitoringTab'
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
-  Users,
-  CreditCard,
-  Activity,
-  DollarSign,
-  Download,
-  Plus,
-  FileText,
+  LayoutDashboard,
+  UsersRound,
   Briefcase,
-  TrendingUp,
+  Wallet,
+  Compass,
+  FileText,
+  AlertCircle,
 } from 'lucide-react'
-import { Overview } from '@/components/dashboard/Overview'
-import { RecentSales } from '@/components/dashboard/RecentSales'
-import { formatRupiah } from '@/lib/helpers'
+import { DocumentRevenueTab } from '@/components/dashboard/tabs/DocumentRevenueTab'
 
 export default function Dashboard() {
   const { data, isLoading, error } = useDashboardStats()
@@ -61,141 +62,78 @@ export default function Dashboard() {
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
-        <div className="overflow-x-auto pb-1 scrollbar-hide">
-          <TabsList className="bg-white border shadow-sm w-full md:w-auto flex justify-start">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="projects">Projects Breakdown</TabsTrigger>
-            <TabsTrigger value="finance">Financial Insights</TabsTrigger>
+        <div className="overflow-x-auto pb-4 scrollbar-hide">
+          <TabsList className="bg-slate-200/50 px-1 py-6 border border-slate-200/60 shadow-inner rounded-lg w-max flex items-center gap-1">
+            <TabsTrigger
+              value="overview"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm transition-all text-slate-500 hover:text-slate-900"
+            >
+              <LayoutDashboard className="w-4 h-4" />
+              <span className="font-medium text-sm">Overview</span>
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="resources"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:text-amber-600 data-[state=active]:shadow-sm transition-all text-slate-500 hover:text-slate-900"
+            >
+              <UsersRound className="w-4 h-4" />
+              <span className="font-medium text-sm">Resource Monitoring</span>
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="project-value"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm transition-all text-slate-500 hover:text-slate-900"
+            >
+              <Briefcase className="w-4 h-4" />
+              <span className="font-medium text-sm">Project Value</span>
+            </TabsTrigger>
+
+            <TabsTrigger
+              value="revenue"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:text-purple-600 data-[state=active]:shadow-sm transition-all text-slate-500 hover:text-slate-900"
+            >
+              <Wallet className="w-4 h-4" />
+              <span className="font-medium text-sm">Document Revenue</span>
+            </TabsTrigger>
           </TabsList>
         </div>
 
-        <TabsContent value="overview" className="space-y-6">
-          {/* KPI CARDS GRID */}
-          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Total Revenue */}
-            <Card className="border-slate-200/60 shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-600">
-                  Actual Revenue
-                </CardTitle>
-                <div className="p-2 bg-blue-50 rounded-md">
-                  <DollarSign className="h-4 w-4 text-blue-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {isLoading ? '...' : formatRupiah(data?.totalOmzet || 0)}
-                </div>
-                <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
-                  <TrendingUp className="h-3 w-3 text-emerald-500" /> Total
-                  settled invoices
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Active Projects */}
-            <Card className="border-slate-200/60 shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-600">
-                  Active Projects
-                </CardTitle>
-                <div className="p-2 bg-amber-50 rounded-md">
-                  <Briefcase className="h-4 w-4 text-amber-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {isLoading ? '...' : data?.totalProjects || 0}
-                </div>
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  Ongoing Design, Civil & Interior
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Pending Quotations */}
-            <Card className="border-slate-200/60 shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-600">
-                  Quotations Sent
-                </CardTitle>
-                <div className="p-2 bg-purple-50 rounded-md">
-                  <FileText className="h-4 w-4 text-purple-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {/* Asumsi data tersedia di hooks */}
-                  {isLoading ? '...' : (data as any)?.totalQuotations || 12}
-                </div>
-                <p className="text-[10px] text-muted-foreground mt-1 font-medium text-emerald-600">
-                  Ready for conversion
-                </p>
-              </CardContent>
-            </Card>
-
-            {/* Total Clients */}
-            <Card className="border-slate-200/60 shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-slate-600">
-                  Total Clients
-                </CardTitle>
-                <div className="p-2 bg-emerald-50 rounded-md">
-                  <Users className="h-4 w-4 text-emerald-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {isLoading ? '...' : (data as any)?.totalClients || 57}
-                </div>
-                <p className="text-[10px] text-muted-foreground mt-1">
-                  Registered partner entities
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* CHARTS & RECENT ACTIVITY SECTION */}
-          <div className="grid gap-6 grid-cols-1 lg:grid-cols-7">
-            {/* Revenue Analytics Chart */}
-            <Card className="col-span-1 lg:col-span-4 border-slate-200/60 shadow-sm bg-white">
-              <CardHeader>
-                <CardTitle className="text-base font-semibold">
-                  Revenue Analytics
-                </CardTitle>
-                <CardDescription>
-                  Visual growth of your company's income over time.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="pl-2">
-                <div className="h-[300px] md:h-[350px]">
-                  <Overview />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Recent Sales/Activities */}
-            <Card className="col-span-1 lg:col-span-3 border-slate-200/60 shadow-sm bg-white">
-              <CardHeader>
-                <CardTitle className="text-base font-semibold">
-                  Recent Transactions
-                </CardTitle>
-                <CardDescription>
-                  Latest invoice payments and quotation updates.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <RecentSales />
-              </CardContent>
-            </Card>
-          </div>
+        {/* CONTENT TABS */}
+        <TabsContent
+          value="overview"
+          className="space-y-6 animate-in fade-in-50"
+        >
+          <OverviewTab data={data} isLoading={isLoading} />
         </TabsContent>
 
-        {/* Placeholder untuk Tab lain agar struktur tetap rapi */}
-        <TabsContent value="projects">
-          <div className="p-10 border-2 border-dashed rounded-xl text-center text-slate-400">
-            Projects Detailed Analytics Coming Soon...
-          </div>
+        <TabsContent
+          value="resources"
+          className="space-y-6 animate-in fade-in-50"
+        >
+          <ResourceMonitoringTab />
+        </TabsContent>
+
+        {/* PLACEHOLDER TABS (Belum di-refactor karena logic belum ada) */}
+        <TabsContent value="project-value">
+          <Card className="border-dashed border-2 bg-slate-50">
+            <CardHeader>
+              <CardTitle>Project Value Analytics</CardTitle>
+              <CardDescription>
+                Breakdown: Interior / Sipil / Arsitektur
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="h-[300px] flex flex-col items-center justify-center text-muted-foreground gap-2">
+              <Compass className="h-10 w-10 opacity-20" />
+              <p>Under Development</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent
+          value="revenue"
+          className="space-y-6 animate-in fade-in-50"
+        >
+          <DocumentRevenueTab />
         </TabsContent>
       </Tabs>
     </div>
