@@ -24,22 +24,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Loader2, KeyRound, X } from 'lucide-react'
+import { Loader2, KeyRound, X, Mail } from 'lucide-react'
 
 // --- SCHEMA ---
 const userFormSchema = z
   .object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Invalid email address'),
-    // PHONE VALIDATION: Numeric only, min 10 digits, optional
     phone: z
       .string()
       .refine((val) => val === '' || /^\d+$/.test(val), 'Numbers only')
       .refine((val) => val === '' || val.length >= 10, 'Minimum 10 digits')
       .optional(),
+    oldPassword: z.string().optional(), // <-- TAMBAHAN: Field untuk password lama
     password: z.string().optional(),
     passwordConfirm: z.string().optional(),
-    roleId: z.string().min(1, 'Please select a system role'), // Changed from 'role' to 'roleId' for RBAC
+    roleId: z.string().min(1, 'Please select a system role'),
     division: z.string().optional(),
   })
   .refine(
@@ -73,6 +73,7 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
   const queryClient = useQueryClient()
   const isEdit = !!initialData
   const [showResetPassword, setShowResetPassword] = useState(false)
+  const [isSendingEmail, setIsSendingEmail] = useState(false)
 
   // --- FETCH DYNAMIC ROLES ---
   const { data: roles, isLoading: isLoadingRoles } = useQuery({
@@ -87,12 +88,28 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
       name: initialData?.name || '',
       email: initialData?.email || '',
       phone: initialData?.phone || '',
-      roleId: (initialData as any)?.roleId || '', // Link to 'roles' collection
+      roleId: (initialData as any)?.roleId || '',
       division: initialData?.division || '',
+      oldPassword: '', // <-- TAMBAHAN
       password: '',
       passwordConfirm: '',
     },
   })
+
+  // --- FUNGSI RESET EMAIL ---
+  const handleSendResetEmail = async () => {
+    if (!initialData?.email) return
+    setIsSendingEmail(true)
+    try {
+      await pb.collection('users').requestPasswordReset(initialData.email)
+      toast.success(`Password reset email sent to ${initialData.email}`)
+      setShowResetPassword(false)
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to send reset email')
+    } finally {
+      setIsSendingEmail(false)
+    }
+  }
 
   const mutation = useMutation({
     mutationFn: async (values: UserFormValues) => {
@@ -107,8 +124,16 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
       if (isEdit && initialData) {
         // UPDATE LOGIC
         if (values.password && values.password.length > 0) {
-          if (values.password.length < 8)
+          if (!values.oldPassword) {
+            throw new Error(
+              'Old password is required by PocketBase to change password.'
+            )
+          }
+          if (values.password.length < 8) {
             throw new Error('New password must be at least 8 characters')
+          }
+          // Masukkan oldPassword ke payload
+          payload.oldPassword = values.oldPassword
           payload.password = values.password
           payload.passwordConfirm = values.passwordConfirm
         }
@@ -174,7 +199,6 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
             )}
           />
 
-          {/* GRID: EMAIL & PHONE */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -251,8 +275,8 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
                     <SelectItem value="management">
                       Management / Admin
                     </SelectItem>
-                    <SelectItem value="architecture">Architecture</SelectItem>
-                    <SelectItem value="civil">Civil (Field)</SelectItem>
+                    <SelectItem value="arsitektur">Architecture</SelectItem>
+                    <SelectItem value="sipil">Civil (Field)</SelectItem>
                     <SelectItem value="interior">Interior</SelectItem>
                   </SelectContent>
                 </Select>
@@ -261,7 +285,6 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
             )}
           />
 
-          {/* DYNAMIC ROLE SELECTION */}
           <FormField
             control={form.control}
             name="roleId"
@@ -357,7 +380,7 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
                   className="text-amber-700 border-amber-200 hover:bg-amber-50"
                   onClick={() => setShowResetPassword(true)}
                 >
-                  <KeyRound className="mr-2 h-3.5 w-3.5" /> Reset Password
+                  <KeyRound className="mr-2 h-3.5 w-3.5" /> Manage Password
                 </Button>
               </div>
             </div>
@@ -365,25 +388,29 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
 
           {isEdit && showResetPassword && (
             <div className="space-y-4 bg-amber-50/50 p-4 rounded border border-amber-200 animate-in fade-in slide-in-from-top-2">
-              <div className="flex items-center justify-between mb-2">
-                <p className="text-sm font-semibold text-amber-800 flex items-center gap-2">
-                  <KeyRound className="h-4 w-4" /> Reset User Password
-                </p>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 w-8"
-                  onClick={() => {
-                    setShowResetPassword(false)
-                    form.setValue('password', '')
-                    form.setValue('passwordConfirm', '')
-                  }}
-                >
-                  <X className="h-4 w-4 text-slate-500" />
-                </Button>
-              </div>
+              {/* ACTION: Manual Reset */}
               <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="oldPassword"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <FormLabel className="text-amber-900">
+                        Old Password <span className="text-red-500">*</span>
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="password"
+                          className="bg-white"
+                          placeholder="Required by system to apply changes"
+                          {...field}
+                          value={field.value || ''}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   control={form.control}
                   name="password"

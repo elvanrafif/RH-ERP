@@ -216,8 +216,6 @@ export default function ProjectKanban({
                         const { isCivil, isInterior, isArchitecture } =
                           TypeProjectsBoolean(task.type)
                         const assignee = (() => {
-                          if (isCivil) return task.meta_data.pic_lapangan
-                          if (isInterior) return task.meta_data.pic_interior
                           return task.expand?.assignee?.name
                         })()
                         const clientName =
