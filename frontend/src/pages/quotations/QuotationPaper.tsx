@@ -12,6 +12,7 @@ interface QuotationPaperProps {
   grandTotal: number
   bankDetails: string
   qrLink: string // <-- Tambahkan tipe qrLink
+  isPublicView?: boolean
 }
 
 export const QuotationPaper = React.forwardRef<
@@ -26,6 +27,7 @@ export const QuotationPaper = React.forwardRef<
     grandTotal,
     bankDetails,
     qrLink, // <-- Panggil qrLink dari props
+    isPublicView,
   } = props
 
   return (
@@ -34,6 +36,15 @@ export const QuotationPaper = React.forwardRef<
       className="bg-white p-[15mm] text-black font-sans relative shadow-xl print:shadow-none"
       style={{ width: '210mm', minHeight: '297mm' }}
     >
+      {isPublicView && (
+        <div className="watermark-layer absolute inset-0 flex items-center justify-center pointer-events-none z-50 overflow-hidden print:hidden">
+          <div className="opacity-15 transform -rotate-45 border-[10px] border-emerald-600 px-12 py-4 rounded-xl">
+            <span className="text-9xl font-black text-emerald-600 tracking-widest whitespace-nowrap uppercase">
+              VERIFIED
+            </span>
+          </div>
+        </div>
+      )}
       {/* --- 1. HEADER (LOGO & KOP) --- */}
       <div className="flex justify-between items-start mb-8 relative">
         <div className="mt-8">

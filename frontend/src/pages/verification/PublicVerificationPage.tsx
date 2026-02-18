@@ -17,6 +17,7 @@ import { toBlob } from 'html-to-image'
 import jsPDF from 'jspdf' // IMPORT INI
 
 import { InvoicePaper } from '../invoices/components/InvoicePaper'
+import { QuotationPaper } from '../quotations/QuotationPaper'
 
 export default function PublicVerificationPage() {
   const { docType, id } = useParams()
@@ -26,17 +27,17 @@ export default function PublicVerificationPage() {
   const captureRef = useRef<HTMLDivElement>(null)
 
   // ... (Kode getCollectionName & useQuery SAMA SEPERTI SEBELUMNYA) ...
-  const getCollectionName = (type: string | undefined) => {
-    switch (type) {
-      case 'quotation':
-        return 'quotations'
-      case 'spk':
-        return 'spks'
-      case 'invoice':
-      default:
-        return 'invoices'
-    }
-  }
+  // const getCollectionName = (type: string | undefined) => {
+  //   switch (type) {
+  //     case 'quotation':
+  //       return 'quotations'
+  //     case 'spk':
+  //       return 'spks'
+  //     case 'invoice':
+  //     default:
+  //       return 'invoices'
+  //   }
+  // }
 
   const {
     data: doc,
@@ -45,9 +46,9 @@ export default function PublicVerificationPage() {
   } = useQuery({
     queryKey: ['public-doc', docType, id],
     queryFn: async () => {
-      const collection = getCollectionName(docType)
+      // const collection = getCollectionName(docType)
       return await pb
-        .collection(collection)
+        .collection(docType as string)
         .getOne(id as string, { expand: 'client_id' })
     },
     retry: false,
@@ -103,11 +104,11 @@ export default function PublicVerificationPage() {
         )
 
         // 5. Save PDF
-        const fileName = `RH-STUDIO-${docType?.toUpperCase()}-${doc?.invoice_number}.pdf`
+        const fileName = `RH-STUDIO-${docType?.toUpperCase()}-${doc?.invoice_number || doc?.quotation_number}.pdf`
         pdf.save(fileName)
 
         toast.dismiss(toastId)
-        toast.success('PDF (Compressed) Berhasil didownload')
+        toast.success('PDF Berhasil didownload')
         setIsDownloadingPdf(false)
       }
     } catch (error) {
@@ -183,7 +184,21 @@ export default function PublicVerificationPage() {
   })()
 
   const renderPaper = (forCapture = false) => {
-    /* ... Logic Render Paper SAMA ... */
+    if (docType === 'quotations') {
+      return (
+        <QuotationPaper
+          qrLink={qrLink}
+          quotationNumber={doc?.quotation_number}
+          client={client}
+          address={doc?.expand?.client_id?.address}
+          projectArea={doc?.project_area}
+          pricePerMeter={doc?.price_per_meter}
+          grandTotal={doc?.total_price}
+          bankDetails={doc?.bank_details}
+          isPublicView={!forCapture}
+        />
+      )
+    }
     return (
       <InvoicePaper
         type={doc?.type || 'design'}
