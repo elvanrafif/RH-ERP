@@ -14,13 +14,6 @@ import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent } from '@/components/ui/tabs'
-import { Card } from '@/components/ui/card'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
 import {
   Select,
   SelectContent,
@@ -29,18 +22,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
-import {
   Plus,
-  Loader2,
   Banknote,
   Activity,
   AlertCircle,
@@ -53,6 +35,11 @@ import ProjectKanban from './ProjectKanban'
 import { ProjectTable } from './ProjectTable'
 import { ProjectForm } from './ProjectForm'
 import { ProjectDetailsModal } from './ProjectDetailsModal'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { FormDialog } from '@/components/shared/FormDialog'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog'
+import { StatCard } from '@/components/shared/StatCard'
 
 interface TemplateProps {
   pageTitle: string
@@ -95,7 +82,6 @@ export default function ProjectPageTemplate({
     resetFilters,
   } = useProjectFilters({ projects, projectType })
 
-  // Handlers
   const handleCreate = () => {
     setEditingProject(null)
     setIsDialogOpen(true)
@@ -115,87 +101,66 @@ export default function ProjectPageTemplate({
 
   return (
     <div className="flex-1 h-full p-4 md:p-8 pt-6 flex flex-col overflow-hidden bg-slate-50/30">
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 shrink-0">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
+      <PageHeader
+        title={
+          <>
             {pageTitle}
             <span className="text-xs font-normal text-muted-foreground bg-slate-100 px-2 py-0.5 rounded-full border">
               {filteredProjects.length} Projects
             </span>
-          </h2>
-          <p className="text-sm text-muted-foreground">Monitoring {projectType} projects.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center space-x-2 bg-white p-1.5 rounded-lg border shadow-sm px-3">
-            <Switch id="show-done" checked={showDone} onCheckedChange={setShowDone} />
-            <Label htmlFor="show-done" className="text-xs cursor-pointer">
-              Show History
-            </Label>
+          </>
+        }
+        description={`Monitoring ${projectType} projects.`}
+        action={
+          <div className="flex items-center gap-3">
+            <div className="flex items-center space-x-2 bg-white p-1.5 rounded-lg border shadow-sm px-3">
+              <Switch id="show-done" checked={showDone} onCheckedChange={setShowDone} />
+              <Label htmlFor="show-done" className="text-xs cursor-pointer">
+                Show History
+              </Label>
+            </div>
+            {can(`manage_${projectType}`) && (
+              <Button onClick={handleCreate} className="bg-primary shadow-sm h-9 text-sm">
+                <Plus className="mr-2 h-4 w-4" /> New
+              </Button>
+            )}
           </div>
-          {can(`manage_${projectType}`) && (
-            <Button onClick={handleCreate} className="bg-primary shadow-sm h-9 text-sm">
-              <Plus className="mr-2 h-4 w-4" /> New
-            </Button>
-          )}
-        </div>
-      </div>
+        }
+      />
 
       {/* STATS BAR */}
       <div className="bg-white border rounded-xl shadow-sm flex flex-col sm:flex-row items-center divide-y sm:divide-y-0 sm:divide-x mb-5 shrink-0 overflow-hidden">
         {isSuperAdmin && (
-          <div className="flex-1 w-full p-4 flex items-center gap-4 hover:bg-slate-50/50 transition-colors">
-            <div className="h-10 w-10 rounded-full bg-emerald-100/80 text-emerald-600 flex items-center justify-center shrink-0">
-              <Banknote className="h-5 w-5" />
-            </div>
-            <div className="overflow-hidden">
-              <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">
-                Potential Revenue
-              </p>
-              <h4 className="text-xl font-bold text-slate-800 truncate">
-                {formatRupiah(stats.totalValue)}
-              </h4>
-            </div>
-          </div>
+          <StatCard
+            icon={<Banknote className="h-5 w-5" />}
+            iconBg="bg-emerald-100/80 text-emerald-600"
+            label="Potential Revenue"
+            value={formatRupiah(stats.totalValue)}
+          />
         )}
-
-        <div className="flex-1 w-full p-4 flex items-center gap-4 hover:bg-slate-50/50 transition-colors">
-          <div className="h-10 w-10 rounded-full bg-blue-100/80 text-blue-600 flex items-center justify-center shrink-0">
-            <Activity className="h-5 w-5" />
-          </div>
-          <div>
-            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-0.5">
-              Active Projects
-            </p>
-            <div className="text-xl font-bold text-slate-800 flex items-baseline gap-1">
+        <StatCard
+          icon={<Activity className="h-5 w-5" />}
+          iconBg="bg-blue-100/80 text-blue-600"
+          label="Active Projects"
+          value={
+            <>
               {stats.activeCount}{' '}
               <span className="text-sm font-medium text-slate-500">Units</span>
-            </div>
-          </div>
-        </div>
-
-        <div
-          className={`flex-1 w-full p-4 flex items-center gap-4 transition-colors ${stats.urgentCount > 0 ? 'bg-red-50/30 hover:bg-red-50/60' : 'hover:bg-slate-50/50'}`}
-        >
-          <div
-            className={`h-10 w-10 rounded-full flex items-center justify-center shrink-0 ${stats.urgentCount > 0 ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-slate-100 text-slate-400'}`}
-          >
-            <AlertCircle className="h-5 w-5" />
-          </div>
-          <div>
-            <p
-              className={`text-[11px] font-semibold uppercase tracking-wider mb-0.5 ${stats.urgentCount > 0 ? 'text-red-600' : 'text-slate-500'}`}
-            >
-              Deadline &lt; 7 Days
-            </p>
-            <div
-              className={`text-xl font-bold flex items-baseline gap-1 ${stats.urgentCount > 0 ? 'text-red-700' : 'text-slate-800'}`}
-            >
+            </>
+          }
+        />
+        <StatCard
+          icon={<AlertCircle className="h-5 w-5" />}
+          iconBg={stats.urgentCount > 0 ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-400'}
+          label="Deadline < 7 Days"
+          value={
+            <>
               {stats.urgentCount}{' '}
               <span className="text-sm font-medium opacity-70">Projects</span>
-            </div>
-          </div>
-        </div>
+            </>
+          }
+          urgent={stats.urgentCount > 0}
+        />
       </div>
 
       {/* FILTER TOOLBAR */}
@@ -259,9 +224,7 @@ export default function ProjectPageTemplate({
       <div className="flex-1 overflow-hidden relative bg-white/50 rounded-lg border border-slate-200/60 shadow-inner">
         <Tabs defaultValue={enableKanban ? 'kanban' : 'table'} className="flex flex-col h-full">
           {isLoading ? (
-            <div className="flex h-full items-center justify-center">
-              <Loader2 className="animate-spin text-muted-foreground" />
-            </div>
+            <LoadingSpinner />
           ) : (
             <>
               {enableKanban && (
@@ -296,35 +259,29 @@ export default function ProjectPageTemplate({
         onOpenChange={(open) => !open && setProjectToView(null)}
       />
 
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>{editingProject ? 'Edit Project' : 'Create New Project'}</DialogTitle>
-          </DialogHeader>
-          <ProjectForm
-            key={editingProject ? editingProject.id : 'new'}
-            initialData={editingProject}
-            fixedType={projectType}
-            statusOptions={statusOptions}
-            onSuccess={() => setIsDialogOpen(false)}
-          />
-        </DialogContent>
-      </Dialog>
+      <FormDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        title={editingProject ? 'Edit Project' : 'Create New Project'}
+        maxWidth="sm:max-w-[600px]"
+        scrollable
+      >
+        <ProjectForm
+          key={editingProject ? editingProject.id : 'new'}
+          initialData={editingProject}
+          fixedType={projectType}
+          statusOptions={statusOptions}
+          onSuccess={() => setIsDialogOpen(false)}
+        />
+      </FormDialog>
 
-      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Delete Project?</AlertDialogTitle>
-            <AlertDialogDescription>This action cannot be undone.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600">
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DeleteConfirmDialog
+        open={!!deleteId}
+        onOpenChange={(open) => !open && setDeleteId(null)}
+        title="Delete Project?"
+        description="This action cannot be undone."
+        onConfirm={handleDelete}
+      />
     </div>
   )
 }

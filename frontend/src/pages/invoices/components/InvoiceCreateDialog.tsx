@@ -4,18 +4,13 @@ import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { FormDialog } from '@/components/shared/FormDialog'
 
 type InvoiceType = 'design' | 'sipil' | 'interior'
 
@@ -46,49 +41,48 @@ export function InvoiceCreateDialog({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Create New Invoice</DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label>Invoice Type</Label>
-            <Select value={selectedType} onValueChange={(val: InvoiceType) => setSelectedType(val)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="design">Design Architecture</SelectItem>
-                <SelectItem value="sipil">Sipil / Konstruksi</SelectItem>
-                <SelectItem value="interior">Interior Design</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Client</Label>
-            <Select onValueChange={setSelectedClient} value={selectedClient}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select Client..." />
-              </SelectTrigger>
-              <SelectContent>
-                {clients?.map((client: any) => (
-                  <SelectItem key={client.id} value={client.id}>
-                    {client.company_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Button className="w-full mt-4" onClick={handleSubmit} disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Create & Open Editor
-          </Button>
+    <FormDialog
+      open={isOpen}
+      onOpenChange={onOpenChange}
+      title="Create New Invoice"
+      maxWidth="sm:max-w-[425px]"
+    >
+      <div className="space-y-4 py-4">
+        <div className="space-y-2">
+          <Label>Invoice Type</Label>
+          <Select value={selectedType} onValueChange={(val: InvoiceType) => setSelectedType(val)}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="design">Design Architecture</SelectItem>
+              <SelectItem value="sipil">Sipil / Konstruksi</SelectItem>
+              <SelectItem value="interior">Interior Design</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-      </DialogContent>
-    </Dialog>
+
+        <div className="space-y-2">
+          <Label>Client</Label>
+          <Select onValueChange={setSelectedClient} value={selectedClient}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select Client..." />
+            </SelectTrigger>
+            <SelectContent>
+              {clients?.map((client: any) => (
+                <SelectItem key={client.id} value={client.id}>
+                  {client.company_name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <Button className="w-full mt-4" onClick={handleSubmit} disabled={isSubmitting}>
+          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Create & Open Editor
+        </Button>
+      </div>
+    </FormDialog>
   )
 }
