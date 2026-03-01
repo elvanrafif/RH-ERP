@@ -1,11 +1,7 @@
 import { useState } from 'react'
-import { useMutation } from '@tanstack/react-query'
-import { pb } from '@/lib/pocketbase'
-import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-
+import { Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   Dialog,
@@ -20,48 +16,31 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Loader2 } from 'lucide-react'
+import type { CreateQuotationPayload } from '@/hooks/useQuotations'
 
 interface QuotationCreateDialogProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   clients: any[]
+  onSubmit: (payload: CreateQuotationPayload) => void
+  isSubmitting: boolean
 }
 
 export function QuotationCreateDialog({
   isOpen,
   onOpenChange,
   clients,
+  onSubmit,
+  isSubmitting,
 }: QuotationCreateDialogProps) {
-  const navigate = useNavigate()
-
   const [selectedClient, setSelectedClient] = useState('')
 
-  const createMutation = useMutation({
-    mutationFn: async () => {
-      return await pb.collection('quotations').create({
-        client_id: selectedClient,
-        date: new Date(),
-        status: 'draft',
-        items: [],
-        total_amount: 0,
-      })
-    },
-    onSuccess: (data) => {
-      toast.success('Quotation created!')
-      onOpenChange(false)
-      setSelectedClient('')
-      navigate(`/quotations/${data.id}`)
-    },
-    onError: () => toast.error('Failed to create quotation'),
-  })
-
-  const handleCreateSubmit = () => {
+  const handleSubmit = () => {
     if (!selectedClient) {
-      toast.error('Please enter a title and select a client')
+      toast.error('Please select a client')
       return
     }
-    createMutation.mutate()
+    onSubmit({ clientId: selectedClient })
   }
 
   return (
@@ -86,14 +65,9 @@ export function QuotationCreateDialog({
               </SelectContent>
             </Select>
           </div>
-          <Button
-            className="w-full mt-2"
-            onClick={handleCreateSubmit}
-            disabled={createMutation.isPending}
-          >
-            {createMutation.isPending && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
+
+          <Button className="w-full mt-2" onClick={handleSubmit} disabled={isSubmitting}>
+            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Create & Open Editor
           </Button>
         </div>

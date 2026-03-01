@@ -1,75 +1,38 @@
-import { useState, useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { pb } from '@/lib/pocketbase'
-import { useDebounce } from '@/hooks/useDebounce'
-
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { Receipt, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Plus, Receipt } from 'lucide-react'
-
-// Import Modular Components
+import { useClients } from '@/hooks/useClients'
+import { useInvoices } from '@/hooks/useInvoices'
+import { useInvoiceFilters } from '@/hooks/useInvoiceFilters'
 import { InvoiceToolbar } from './components/InvoiceToolbar'
 import { InvoiceTable } from './components/InvoiceTable'
 import { InvoiceCreateDialog } from './components/InvoiceCreateDialog'
+import type { CreateInvoicePayload } from '@/hooks/useInvoices'
 
 export default function InvoicesPage() {
+  const navigate = useNavigate()
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-  // STATE SEARCH, FILTER & PAGINATION
-  const [searchTerm, setSearchTerm] = useState('')
-  const [filterClient, setFilterClient] = useState('all')
-  const [activeTab, setActiveTab] = useState('all') // Sekarang ini jadi 'filterType'
+  const {
+    searchTerm, setSearchTerm,
+    filterClient, setFilterClient,
+    activeTab, setActiveTab,
+    page, setPage,
+    resetFilters,
+    filters,
+  } = useInvoiceFilters()
 
-  // State Halaman (Default 1)
-  const [page, setPage] = useState(1)
-
-  const debouncedSearch = useDebounce(searchTerm, 500)
-
-  // RESET HALAMAN KE 1 JIKA FILTER BERUBAH
-  useEffect(() => {
-    setPage(1)
-  }, [debouncedSearch, filterClient, activeTab])
-
-  // 1. FETCH CLIENTS
-  const { data: clients } = useQuery({
-    queryKey: ['clients-list'],
-    queryFn: async () =>
-      await pb.collection('clients').getFullList({ sort: 'company_name' }),
+  const { clients } = useClients()
+  const { invoices, isLoading, totalPages, totalItems, createInvoice, isCreating } = useInvoices({
+    filters,
+    page,
   })
 
-  // 2. FETCH INVOICES (WITH PAGINATION)
-  const { data: invoiceData, isLoading } = useQuery({
-    queryKey: ['invoices', page, debouncedSearch, filterClient, activeTab],
-    queryFn: async () => {
-      const filters = []
-
-      if (debouncedSearch) {
-        filters.push(
-          `(title ~ "${debouncedSearch}" || invoice_number ~ "${debouncedSearch}")`
-        )
-      }
-      if (filterClient && filterClient !== 'all') {
-        filters.push(`client_id = "${filterClient}"`)
-      }
-      if (activeTab && activeTab !== 'all') {
-        filters.push(`type = "${activeTab}"`)
-      }
-
-      const filterString = filters.length > 0 ? filters.join(' && ') : ''
-
-      return await pb.collection('invoices').getList(page, 50, {
-        sort: '-created',
-        expand: 'client_id',
-        filter: filterString,
-      })
-    },
-    placeholderData: (previousData) => previousData,
-  })
-
-  const handleResetFilter = () => {
-    setSearchTerm('')
-    setFilterClient('all')
-    setActiveTab('all')
-    setPage(1)
+  const handleCreateInvoice = (payload: CreateInvoicePayload) => {
+    createInvoice(payload, {
+      onSuccess: (data) => navigate(`/invoices/${data.id}`),
+    })
   }
 
   return (
@@ -79,9 +42,7 @@ export default function InvoicesPage() {
         <div>
           <div className="flex gap-2 items-center">
             <Receipt className="w-6 h-6" />
-            <h2 className="text-2xl font-bold tracking-tight text-slate-900">
-              Invoices
-            </h2>
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900">Invoices</h2>
           </div>
           <p className="text-sm text-muted-foreground mt-1">
             Manage billings for Architecture, Civil, and Interior projects.
@@ -101,19 +62,19 @@ export default function InvoicesPage() {
           onSearchChange={setSearchTerm}
           filterClient={filterClient}
           onClientFilterChange={setFilterClient}
-          onResetFilter={handleResetFilter}
-          clients={clients || []}
+          onResetFilter={resetFilters}
+          clients={clients}
         />
       </div>
 
       {/* TABLE LIST */}
       <div className="flex-1 overflow-hidden relative bg-white/50 rounded-lg border border-slate-200/60 shadow-inner">
         <InvoiceTable
-          invoices={invoiceData?.items || []}
+          invoices={invoices}
           isLoading={isLoading}
           page={page}
-          totalPages={invoiceData?.totalPages || 1}
-          totalItems={invoiceData?.totalItems || 0}
+          totalPages={totalPages}
+          totalItems={totalItems}
           onPageChange={setPage}
         />
       </div>
@@ -122,7 +83,9 @@ export default function InvoicesPage() {
       <InvoiceCreateDialog
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        clients={clients || []}
+        clients={clients}
+        onSubmit={handleCreateInvoice}
+        isSubmitting={isCreating}
       />
     </div>
   )
