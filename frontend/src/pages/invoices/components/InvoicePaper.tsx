@@ -2,6 +2,8 @@ import React from 'react'
 import QRCode from 'react-qr-code'
 import RHStudioKopImg from '@/assets/rh-studio-kop.png'
 import { formatDate, formatRupiah } from '@/lib/helpers'
+import { calculatePaidSummary } from '@/lib/invoicing/termCalculation'
+import { COMPANY_INFO } from '@/lib/constant'
 
 // --- TYPE DEFINITION ---
 interface InvoicePaperProps {
@@ -41,10 +43,7 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
       isPublicView = false,
     } = props
 
-    const paidAmount = items
-      .filter((i) => i.status === 'Success')
-      .reduce((sum, i) => sum + (Number(i.amount) || 0), 0)
-    const remainingPayment = grandTotal - paidAmount
+    const { remainingPayment } = calculatePaidSummary(items, grandTotal)
 
     const securityClass = isPublicView
       ? 'pointer-events-none user-select-none'
@@ -72,14 +71,10 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
         <div className="flex justify-between items-start mb-10 relative z-10">
           <div className="w-2/3">
             <h1 className="text-2xl font-bold text-slate-800 tracking-tight">
-              RH STUDIO ARSITEK
+              {COMPANY_INFO.NAME}
             </h1>
-            <p className="text-sm text-gray-600 mt-1">
-              Ruko Puri Aster,
-              <br />
-              Jl. Boulevard Grand Depok City
-              <br />
-              (+62) 858 1005 5005
+            <p className="text-sm text-gray-600 mt-1 whitespace-pre-line">
+              {COMPANY_INFO.ADDRESS}
             </p>
           </div>
 

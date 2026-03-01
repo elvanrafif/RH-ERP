@@ -71,7 +71,7 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
 
   const mutation = useMutation({
     mutationFn: async (values: UserFormValues) => {
-      const payload: any = {
+      const payload: Record<string, unknown> = {
         name: values.name,
         phone: values.phone,
         roleId: values.roleId,
@@ -81,12 +81,6 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
 
       if (isEdit && initialData) {
         if (values.password && values.password.length > 0) {
-          if (!values.oldPassword) {
-            throw new Error('Old password is required by PocketBase to change password.')
-          }
-          if (values.password.length < 8) {
-            throw new Error('New password must be at least 8 characters')
-          }
           payload.oldPassword = values.oldPassword
           payload.password = values.password
           payload.passwordConfirm = values.passwordConfirm
@@ -94,9 +88,6 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
         return await pb.collection('users').update(initialData.id, payload)
       } else {
         payload.email = values.email.trim()
-        if (!values.password || values.password.length < 8) {
-          throw new Error('Password is required (min 8 characters) for new users')
-        }
         payload.password = values.password
         payload.passwordConfirm = values.passwordConfirm
         return await pb.collection('users').create(payload)
@@ -104,14 +95,17 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users-management'] })
-      toast.success(isEdit ? 'User data updated' : 'New user created successfully')
+      toast.success(
+        isEdit ? 'User data updated' : 'New user created successfully'
+      )
       onSuccess()
     },
     onError: (err: any) => {
       let errorMsg = 'Failed to save user.'
       if (err?.data?.data) {
         const firstKey = Object.keys(err.data.data)[0]
-        if (firstKey) errorMsg = `${firstKey}: ${err.data.data[firstKey].message}`
+        if (firstKey)
+          errorMsg = `${firstKey}: ${err.data.data[firstKey].message}`
       } else if (err?.message) {
         errorMsg = err.message
       }
@@ -121,7 +115,10 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
+        className="space-y-4"
+      >
         {/* GENERAL INFORMATION */}
         <div className="space-y-3">
           <FormField
@@ -131,7 +128,11 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
               <FormItem>
                 <FormLabel>Full Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="e.g. John Doe" {...field} value={field.value || ''} />
+                  <Input
+                    placeholder="e.g. John Doe"
+                    {...field}
+                    value={field.value || ''}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -151,7 +152,11 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
                       {...field}
                       value={field.value || ''}
                       disabled={isEdit}
-                      className={isEdit ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : ''}
+                      className={
+                        isEdit
+                          ? 'bg-slate-100 text-slate-500 cursor-not-allowed'
+                          : ''
+                      }
                     />
                   </FormControl>
                   {isEdit && (
@@ -177,7 +182,9 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
                       placeholder="0812xxxxxx"
                       type="text"
                       inputMode="numeric"
-                      onChange={(e) => field.onChange(e.target.value.replace(/\D/g, ''))}
+                      onChange={(e) =>
+                        field.onChange(e.target.value.replace(/\D/g, ''))
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -194,14 +201,19 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Division</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value || ''}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value || ''}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Division" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="management">Management / Admin</SelectItem>
+                    <SelectItem value="management">
+                      Management / Admin
+                    </SelectItem>
                     <SelectItem value="arsitektur">Architecture</SelectItem>
                     <SelectItem value="sipil">Civil (Field)</SelectItem>
                     <SelectItem value="interior">Interior</SelectItem>
@@ -225,7 +237,11 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder={isLoadingRoles ? 'Loading...' : 'Select Role'} />
+                      <SelectValue
+                        placeholder={
+                          isLoadingRoles ? 'Loading...' : 'Select Role'
+                        }
+                      />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
@@ -275,7 +291,11 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
                     <FormItem>
                       <FormLabel>Confirm</FormLabel>
                       <FormControl>
-                        <Input type="password" {...field} value={field.value || ''} />
+                        <Input
+                          type="password"
+                          {...field}
+                          value={field.value || ''}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -289,7 +309,9 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
             <div className="flex flex-col gap-2">
               <p className="text-sm font-medium text-slate-700">Security</p>
               <div className="bg-slate-50 p-3 rounded border flex items-center justify-between">
-                <div className="text-xs text-muted-foreground">Password is hidden for security.</div>
+                <div className="text-xs text-muted-foreground">
+                  Password is hidden for security.
+                </div>
                 <Button
                   type="button"
                   variant="outline"
@@ -332,9 +354,16 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-amber-900">New Password</FormLabel>
+                      <FormLabel className="text-amber-900">
+                        New Password
+                      </FormLabel>
                       <FormControl>
-                        <Input type="password" className="bg-white" {...field} value={field.value || ''} />
+                        <Input
+                          type="password"
+                          className="bg-white"
+                          {...field}
+                          value={field.value || ''}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -347,7 +376,12 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
                     <FormItem>
                       <FormLabel className="text-amber-900">Confirm</FormLabel>
                       <FormControl>
-                        <Input type="password" className="bg-white" {...field} value={field.value || ''} />
+                        <Input
+                          type="password"
+                          className="bg-white"
+                          {...field}
+                          value={field.value || ''}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -378,7 +412,9 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
 
         <div className="flex justify-end pt-4">
           <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {mutation.isPending && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
             {isEdit ? 'Update User Data' : 'Create New User'}
           </Button>
         </div>

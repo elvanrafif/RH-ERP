@@ -34,3 +34,22 @@ export const QUOTATION_STATUS = {
   PAID: 'paid',
   REJECTED: 'rejected',
 } as const
+
+export const DIVISION = {
+  MANAGEMENT: 'management',
+  ARCHITECTURE: 'arsitektur',
+  CIVIL: 'sipil',
+  INTERIOR: 'interior',
+} as const
+
+export const PAYMENT_ITEM_STATUS = {
+  SUCCESS: 'Success',
+} as const
+
+export const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024 // 5MB
+
+export const COMPANY_INFO = {
+  NAME: 'RH STUDIO ARSITEK',
+  ADDRESS:
+    'Ruko Puri Aster,\nJl. Boulevard Grand Depok City\n(+62) 858 1005 5005',
+} as const

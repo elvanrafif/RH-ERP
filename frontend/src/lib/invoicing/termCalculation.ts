@@ -1,4 +1,4 @@
-import { DEFAULT_DP_AMOUNT } from '@/lib/constant'
+import { DEFAULT_DP_AMOUNT, PAYMENT_ITEM_STATUS } from '@/lib/constant'
 
 export interface TermItem {
   percent: string
@@ -9,6 +9,16 @@ export interface TermItem {
   [key: string]: unknown
 }
 
+export function calculatePaidSummary(
+  items: TermItem[],
+  grandTotal: number
+): { paidAmount: number; remainingPayment: number } {
+  const paidAmount = items
+    .filter((i) => i.status === PAYMENT_ITEM_STATUS.SUCCESS)
+    .reduce((sum, i) => sum + (Number(i.amount) || 0), 0)
+  return { paidAmount, remainingPayment: grandTotal - paidAmount }
+}
+
 export function recalculateTermItems(
   items: TermItem[],
   grandTotal: number,
@@ -17,7 +27,11 @@ export function recalculateTermItems(
   let runningTotal = 0
   return items.map((item) => {
     let newAmount = 0
-    const cleanVal = (item.percent || '').toString().replace('%', '').trim().toLowerCase()
+    const cleanVal = (item.percent || '')
+      .toString()
+      .replace('%', '')
+      .trim()
+      .toLowerCase()
 
     if (cleanVal === 'dp' && type === 'design') {
       newAmount = DEFAULT_DP_AMOUNT

@@ -1,18 +1,12 @@
-import { useState } from 'react'
-import { toast } from 'sonner'
-import { Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { FormDialog } from '@/components/shared/FormDialog'
+import { CreateDocumentDialog } from '@/components/dialogs/CreateDocumentDialog'
 
 type InvoiceType = 'design' | 'sipil' | 'interior'
+
+const INVOICE_TYPE_OPTIONS = [
+  { label: 'Design Architecture', value: 'design' },
+  { label: 'Sipil / Konstruksi', value: 'sipil' },
+  { label: 'Interior Design', value: 'interior' },
+]
 
 interface InvoiceCreateDialogProps {
   isOpen: boolean
@@ -29,60 +23,17 @@ export function InvoiceCreateDialog({
   onSubmit,
   isSubmitting,
 }: InvoiceCreateDialogProps) {
-  const [selectedType, setSelectedType] = useState<InvoiceType>('design')
-  const [selectedClient, setSelectedClient] = useState('')
-
-  const handleSubmit = () => {
-    if (!selectedClient || !selectedType) {
-      toast.error('Mohon pilih tipe dan klien')
-      return
-    }
-    onSubmit({ type: selectedType, clientId: selectedClient })
-  }
-
   return (
-    <FormDialog
-      open={isOpen}
+    <CreateDocumentDialog
+      isOpen={isOpen}
       onOpenChange={onOpenChange}
       title="Create New Invoice"
+      clients={clients}
+      onSubmit={({ clientId, type }) => onSubmit({ type: (type as InvoiceType) || 'design', clientId })}
+      isSubmitting={isSubmitting}
+      typeOptions={INVOICE_TYPE_OPTIONS}
+      defaultType="design"
       maxWidth="sm:max-w-[425px]"
-    >
-      <div className="space-y-4 py-4">
-        <div className="space-y-2">
-          <Label>Invoice Type</Label>
-          <Select value={selectedType} onValueChange={(val: InvoiceType) => setSelectedType(val)}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="design">Design Architecture</SelectItem>
-              <SelectItem value="sipil">Sipil / Konstruksi</SelectItem>
-              <SelectItem value="interior">Interior Design</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Client</Label>
-          <Select onValueChange={setSelectedClient} value={selectedClient}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select Client..." />
-            </SelectTrigger>
-            <SelectContent>
-              {clients?.map((client: any) => (
-                <SelectItem key={client.id} value={client.id}>
-                  {client.company_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <Button className="w-full mt-4" onClick={handleSubmit} disabled={isSubmitting}>
-          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Create & Open Editor
-        </Button>
-      </div>
-    </FormDialog>
+    />
   )
 }

@@ -1,16 +1,4 @@
-import { useState } from 'react'
-import { toast } from 'sonner'
-import { Loader2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { FormDialog } from '@/components/shared/FormDialog'
+import { CreateDocumentDialog } from '@/components/dialogs/CreateDocumentDialog'
 import type { CreateQuotationPayload } from '@/hooks/useQuotations'
 
 interface QuotationCreateDialogProps {
@@ -28,44 +16,14 @@ export function QuotationCreateDialog({
   onSubmit,
   isSubmitting,
 }: QuotationCreateDialogProps) {
-  const [selectedClient, setSelectedClient] = useState('')
-
-  const handleSubmit = () => {
-    if (!selectedClient) {
-      toast.error('Please select a client')
-      return
-    }
-    onSubmit({ clientId: selectedClient })
-  }
-
   return (
-    <FormDialog
-      open={isOpen}
+    <CreateDocumentDialog
+      isOpen={isOpen}
       onOpenChange={onOpenChange}
       title="Create New Quotation"
-    >
-      <div className="space-y-4 py-4">
-        <div className="space-y-2">
-          <Label>Select Client</Label>
-          <Select onValueChange={setSelectedClient} value={selectedClient}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a client..." />
-            </SelectTrigger>
-            <SelectContent>
-              {clients?.map((client: any) => (
-                <SelectItem key={client.id} value={client.id}>
-                  {client.company_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <Button className="w-full mt-2" onClick={handleSubmit} disabled={isSubmitting}>
-          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Create & Open Editor
-        </Button>
-      </div>
-    </FormDialog>
+      clients={clients}
+      onSubmit={({ clientId }) => onSubmit({ clientId })}
+      isSubmitting={isSubmitting}
+    />
   )
 }

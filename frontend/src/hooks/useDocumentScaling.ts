@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-
-const A4_BASE_WIDTH = 800
+import { A4_BASE_WIDTH } from '@/lib/constant'
 
 /**
  * Handles dynamic A4 preview scaling via ResizeObserver.

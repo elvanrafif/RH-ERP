@@ -1,5 +1,9 @@
 import { formatCompactCurrency } from '@/lib/formatting/currency'
-import { WORKLOAD_OVERLOAD_THRESHOLD } from '@/lib/constant'
+import {
+  WORKLOAD_OVERLOAD_THRESHOLD,
+  DIVISION,
+  PROJECT_TYPE,
+} from '@/lib/constant'
 
 interface StatsRecord {
   count: number
@@ -65,16 +69,20 @@ export function buildWorkloadData(users: any[], projects: any[]): WorkloadData {
   let interiorTotal: StatsRecord = { count: 0, value: 0 }
 
   users.forEach((u) => {
-    if (u.division === 'arsitektur' || u.division === 'architecture')
+    if (
+      u.division === DIVISION.ARCHITECTURE ||
+      u.division === PROJECT_TYPE.ARCHITECTURE
+    )
       archStats[u.name] = { count: 0, value: 0 }
-    if (u.division === 'interior') interiorStats[u.name] = { count: 0, value: 0 }
+    if (u.division === DIVISION.INTERIOR)
+      interiorStats[u.name] = { count: 0, value: 0 }
   })
 
   projects.forEach((p) => {
     const type = p.type
     const projectValue = p.contract_value || p.value || p.total_amount || 0
 
-    if (type === 'civil' || type === 'sipil') {
+    if (type === PROJECT_TYPE.CIVIL || type === DIVISION.CIVIL) {
       civilTotal.count++
       civilTotal.value += projectValue
       const meta = p.meta_data || {}
@@ -101,7 +109,10 @@ export function buildWorkloadData(users: any[], projects: any[]): WorkloadData {
       assignees.forEach((userId: string) => {
         const picName = userMap.get(userId)
         if (!picName) return
-        if (type === 'architecture' || type === 'arsitektur') {
+        if (
+          type === PROJECT_TYPE.ARCHITECTURE ||
+          type === DIVISION.ARCHITECTURE
+        ) {
           if (!addedToArch) {
             archTotal.count++
             archTotal.value += projectValue
@@ -111,7 +122,7 @@ export function buildWorkloadData(users: any[], projects: any[]): WorkloadData {
             archStats[picName].count += 1
             archStats[picName].value += projectValue
           }
-        } else if (type === 'interior') {
+        } else if (type === PROJECT_TYPE.INTERIOR) {
           if (!addedToInt) {
             interiorTotal.count++
             interiorTotal.value += projectValue
