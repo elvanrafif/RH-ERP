@@ -10,30 +10,16 @@ import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-// Tambahkan ikon Users di sini
-import { Plus, Search, Loader2, FolderOpen, Users } from 'lucide-react'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog'
+import { Plus, Search, Users } from 'lucide-react'
+import { PageHeader } from '@/components/shared/PageHeader'
+import { FormDialog } from '@/components/shared/FormDialog'
+import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { EmptyState } from '@/components/shared/EmptyState'
+import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog'
 
 export default function ClientsPage() {
   const queryClient = useQueryClient()
 
-  // STATE
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [editingClient, setEditingClient] = useState<Client | null>(null)
@@ -41,7 +27,6 @@ export default function ClientsPage() {
 
   const debouncedSearch = useDebounce(searchTerm, 500)
 
-  // 1. FETCH DATA
   const { data, isLoading, error } = useQuery({
     queryKey: ['clients', debouncedSearch],
     queryFn: async () => {
@@ -56,7 +41,6 @@ export default function ClientsPage() {
     },
   })
 
-  // 2. DELETE MUTATION
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
       return await pb.collection('clients').delete(id)
@@ -69,7 +53,6 @@ export default function ClientsPage() {
     onError: () => toast.error('Failed to delete client data'),
   })
 
-  // HANDLERS
   const handleCreate = () => {
     setEditingClient(null)
     setOpen(true)
@@ -101,46 +84,18 @@ export default function ClientsPage() {
     )
 
   return (
-    // MAIN WRAPPER: Handles Horizontal Scroll
     <div className="w-full overflow-x-auto bg-slate-50/50">
-      {/* FIXED WIDTH CONTAINER */}
       <div className="min-w-[1024px] space-y-4 p-8 pt-6">
-        {/* HEADER */}
-        <div className="flex flex-row items-center justify-between gap-4">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight flex items-center gap-2">
-              <Users className="h-6 w-6 text-slate-800" /> Database Clients
-            </h2>
-            <p className="text-muted-foreground mt-1">
-              Manage customer data and contact information.
-            </p>
-          </div>
-
-          {/* MODAL FORM */}
-          <Dialog open={open} onOpenChange={setOpen}>
+        <PageHeader
+          icon={<Users className="h-6 w-6 text-slate-800" />}
+          title="Database Clients"
+          description="Manage customer data and contact information."
+          action={
             <Button onClick={handleCreate}>
               <Plus className="mr-2 h-4 w-4" /> Add Client
             </Button>
-            <DialogContent className="sm:max-w-[500px]">
-              <DialogHeader>
-                <DialogTitle>
-                  {editingClient ? 'Edit Client Data' : 'Add New Client'}
-                </DialogTitle>
-                <DialogDescription>
-                  {editingClient
-                    ? 'Update the client information below.'
-                    : 'Fill in the complete client details below.'}
-                </DialogDescription>
-              </DialogHeader>
-
-              <ClientForm
-                key={editingClient ? editingClient.id : 'new-client'}
-                initialData={editingClient}
-                onSuccess={() => setOpen(false)}
-              />
-            </DialogContent>
-          </Dialog>
-        </div>
+          }
+        />
 
         {/* SEARCH BAR */}
         <div className="flex items-center space-x-2 bg-white p-1 rounded-md border w-[400px]">
@@ -155,55 +110,45 @@ export default function ClientsPage() {
 
         {/* CONTENT AREA */}
         {isLoading ? (
-          <div className="flex h-60 items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-          </div>
+          <LoadingSpinner className="h-60" />
         ) : data?.length === 0 ? (
-          // EMPTY STATE
-          <div className="flex flex-col items-center justify-center h-60 border rounded-lg bg-slate-50/50 dashed border-2 border-dashed text-center">
-            <div className="bg-white p-4 rounded-full shadow-sm mb-4">
-              <FolderOpen className="h-10 w-10 text-muted-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold">No clients found</h3>
-            <p className="text-muted-foreground max-w-sm mt-2">
-              Try changing your search keywords or add a new client.
-            </p>
+          <div className="flex items-center justify-center h-60 border rounded-lg bg-slate-50/50 border-2 border-dashed">
+            <EmptyState
+              title="No clients found"
+              description="Try changing your search keywords or add a new client."
+            />
           </div>
         ) : (
-          // DATA TABLE
           <div className="bg-white rounded-md border">
             <DataTable columns={columns} data={data || []} />
           </div>
         )}
 
-        {/* ALERT DIALOG DELETE */}
-        <AlertDialog
+        <FormDialog
+          open={open}
+          onOpenChange={setOpen}
+          title={editingClient ? 'Edit Client Data' : 'Add New Client'}
+          description={
+            editingClient
+              ? 'Update the client information below.'
+              : 'Fill in the complete client details below.'
+          }
+        >
+          <ClientForm
+            key={editingClient ? editingClient.id : 'new-client'}
+            initialData={editingClient}
+            onSuccess={() => setOpen(false)}
+          />
+        </FormDialog>
+
+        <DeleteConfirmDialog
           open={!!deleteId}
           onOpenChange={(isOpen) => !isOpen && setDeleteId(null)}
-        >
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete Client Data?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action is permanent. All projects associated with this
-                client may lose their client name reference.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleConfirmDelete}
-                className="bg-red-600 hover:bg-red-700"
-              >
-                {deleteMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  'Yes, Delete'
-                )}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+          title="Delete Client Data?"
+          description="This action is permanent. All projects associated with this client may lose their client name reference."
+          onConfirm={handleConfirmDelete}
+          isLoading={deleteMutation.isPending}
+        />
       </div>
     </div>
   )

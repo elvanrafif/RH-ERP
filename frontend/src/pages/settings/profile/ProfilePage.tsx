@@ -1,7 +1,5 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { pb } from '@/lib/pocketbase'
-import type { User } from '@/types'
+import { useProfile } from '@/hooks/useProfile'
 import {
   Loader2,
   User as UserIcon,
@@ -25,17 +23,7 @@ export default function ProfilePage() {
   // State untuk Custom Vertical Tabs
   const [activeTab, setActiveTab] = useState<'general' | 'security'>('general')
 
-  // Fetch User
-  const { data: user, isLoading } = useQuery({
-    queryKey: ['user-profile'],
-    queryFn: async () => {
-      const currentId = pb.authStore.model?.id
-      if (!currentId) return null
-      return await pb.collection('users').getOne<User>(currentId, {
-        expand: 'roleId', // Ambil nama role juga jika diperlukan
-      })
-    },
-  })
+  const { user, isLoading } = useProfile()
 
   // Badge Helper
   const getDivisionBadge = (div?: string) => {

@@ -47,9 +47,9 @@ export function ProjectDetailsModal({
   open,
   onOpenChange,
 }: ProjectDetailsModalProps) {
-  if (!project) return null
-
   const { isSuperAdmin } = useRole()
+
+  if (!project) return null
 
   const meta = project.meta_data || {}
   const notes = meta.notes || (project as any).notes

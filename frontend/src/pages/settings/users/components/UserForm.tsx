@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
-import { z } from 'zod'
-import type { User } from '@/types'
 import { toast } from 'sonner'
+import type { User } from '@/types'
+import { useRoles } from '@/hooks/useRoles'
+import { userFormSchema } from '@/lib/validations/user'
+import type { UserFormValues } from '@/lib/validations/user'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -24,45 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Loader2, KeyRound, X, Mail } from 'lucide-react'
-
-// --- SCHEMA ---
-const userFormSchema = z
-  .object({
-    name: z.string().min(2, 'Name must be at least 2 characters'),
-    email: z.string().email('Invalid email address'),
-    phone: z
-      .string()
-      .refine((val) => val === '' || /^\d+$/.test(val), 'Numbers only')
-      .refine((val) => val === '' || val.length >= 10, 'Minimum 10 digits')
-      .optional(),
-    oldPassword: z.string().optional(), // <-- TAMBAHAN: Field untuk password lama
-    password: z.string().optional(),
-    passwordConfirm: z.string().optional(),
-    roleId: z.string().min(1, 'Please select a system role'),
-    division: z.string().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.password !== data.passwordConfirm) return false
-      return true
-    },
-    {
-      message: 'Passwords do not match',
-      path: ['passwordConfirm'],
-    }
-  )
-  .superRefine((data, ctx) => {
-    if (data.password && data.password.length > 0 && data.password.length < 8) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Password must be at least 8 characters',
-        path: ['password'],
-      })
-    }
-  })
-
-type UserFormValues = z.infer<typeof userFormSchema>
+import { Loader2, KeyRound, Mail } from 'lucide-react'
 
 interface UserFormProps {
   initialData?: User | null
@@ -75,14 +39,9 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
   const [showResetPassword, setShowResetPassword] = useState(false)
   const [isSendingEmail, setIsSendingEmail] = useState(false)
 
-  // --- FETCH DYNAMIC ROLES ---
-  const { data: roles, isLoading: isLoadingRoles } = useQuery({
-    queryKey: ['roles-list'],
-    queryFn: async () =>
-      await pb.collection('roles').getFullList({ sort: 'name' }),
-  })
+  const { roles, isLoading: isLoadingRoles } = useRoles()
 
-  const form = useForm({
+  const form = useForm<UserFormValues>({
     resolver: zodResolver(userFormSchema),
     defaultValues: {
       name: initialData?.name || '',
@@ -90,13 +49,12 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
       phone: initialData?.phone || '',
       roleId: (initialData as any)?.roleId || '',
       division: initialData?.division || '',
-      oldPassword: '', // <-- TAMBAHAN
+      oldPassword: '',
       password: '',
       passwordConfirm: '',
     },
   })
 
-  // --- FUNGSI RESET EMAIL ---
   const handleSendResetEmail = async () => {
     if (!initialData?.email) return
     setIsSendingEmail(true)
@@ -113,7 +71,7 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
 
   const mutation = useMutation({
     mutationFn: async (values: UserFormValues) => {
-      const payload: any = {
+      const payload: Record<string, unknown> = {
         name: values.name,
         phone: values.phone,
         roleId: values.roleId,
@@ -122,30 +80,14 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
       }
 
       if (isEdit && initialData) {
-        // UPDATE LOGIC
         if (values.password && values.password.length > 0) {
-          if (!values.oldPassword) {
-            throw new Error(
-              'Old password is required by PocketBase to change password.'
-            )
-          }
-          if (values.password.length < 8) {
-            throw new Error('New password must be at least 8 characters')
-          }
-          // Masukkan oldPassword ke payload
           payload.oldPassword = values.oldPassword
           payload.password = values.password
           payload.passwordConfirm = values.passwordConfirm
         }
         return await pb.collection('users').update(initialData.id, payload)
       } else {
-        // CREATE LOGIC
         payload.email = values.email.trim()
-        if (!values.password || values.password.length < 8) {
-          throw new Error(
-            'Password is required (min 8 characters) for new users'
-          )
-        }
         payload.password = values.password
         payload.passwordConfirm = values.passwordConfirm
         return await pb.collection('users').create(payload)
@@ -159,13 +101,11 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
       onSuccess()
     },
     onError: (err: any) => {
-      console.error('PocketBase Error:', err)
       let errorMsg = 'Failed to save user.'
       if (err?.data?.data) {
         const firstKey = Object.keys(err.data.data)[0]
-        if (firstKey) {
+        if (firstKey)
           errorMsg = `${firstKey}: ${err.data.data[firstKey].message}`
-        }
       } else if (err?.message) {
         errorMsg = err.message
       }
@@ -179,7 +119,7 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
         onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
         className="space-y-4"
       >
-        {/* --- GENERAL INFORMATION --- */}
+        {/* GENERAL INFORMATION */}
         <div className="space-y-3">
           <FormField
             control={form.control}
@@ -242,10 +182,9 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
                       placeholder="0812xxxxxx"
                       type="text"
                       inputMode="numeric"
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '')
-                        field.onChange(val)
-                      }}
+                      onChange={(e) =>
+                        field.onChange(e.target.value.replace(/\D/g, ''))
+                      }
                     />
                   </FormControl>
                   <FormMessage />
@@ -306,7 +245,7 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {roles?.map((r) => (
+                    {roles.map((r) => (
                       <SelectItem key={r.id} value={r.id}>
                         {r.name}
                       </SelectItem>
@@ -319,7 +258,7 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
           />
         </div>
 
-        {/* --- PASSWORD SECTION --- */}
+        {/* PASSWORD SECTION */}
         <div className="border-t pt-4 mt-4">
           {!isEdit && (
             <div className="space-y-4">
@@ -388,7 +327,6 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
 
           {isEdit && showResetPassword && (
             <div className="space-y-4 bg-amber-50/50 p-4 rounded border border-amber-200 animate-in fade-in slide-in-from-top-2">
-              {/* ACTION: Manual Reset */}
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -449,6 +387,24 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
                     </FormItem>
                   )}
                 />
+              </div>
+
+              <div className="flex items-center gap-2 pt-2 border-t border-amber-200">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSendResetEmail}
+                  disabled={isSendingEmail}
+                  className="text-blue-700 border-blue-200 hover:bg-blue-50"
+                >
+                  {isSendingEmail ? (
+                    <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Mail className="mr-2 h-3.5 w-3.5" />
+                  )}
+                  Send Reset Email
+                </Button>
               </div>
             </div>
           )}

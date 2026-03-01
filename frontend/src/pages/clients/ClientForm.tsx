@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient, useMutation } from '@tanstack/react-query'
@@ -71,8 +72,9 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
       onSuccess?.()
     },
     onError: (error) => {
-      console.error(error)
-      alert('Failed to save client data.')
+      const message =
+        error instanceof Error ? error.message : 'Failed to save client data.'
+      toast.error(message)
     },
   })
 

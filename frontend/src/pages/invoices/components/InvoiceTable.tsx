@@ -9,16 +9,12 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  Loader2,
-  FolderOpen,
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight, // Icon Navigasi
-} from 'lucide-react'
+import { Loader2, ArrowRight } from 'lucide-react'
 import { MaskingTextByInvoiceType } from '@/lib/masking'
 import { cn } from '@/lib/utils'
 import { formatRupiah } from '@/lib/helpers'
+import { EmptyState } from '@/components/shared/EmptyState'
+import { TablePagination } from '@/components/shared/TablePagination'
 
 const getTypeBadge = (type: string) => {
   const text = MaskingTextByInvoiceType(type)
@@ -36,11 +32,9 @@ const getTypeBadge = (type: string) => {
   )
 }
 
-// Interface Props Updated
 interface InvoiceTableProps {
   invoices: any[]
   isLoading: boolean
-  // Pagination Props
   page?: number
   totalPages?: number
   totalItems?: number
@@ -50,7 +44,6 @@ interface InvoiceTableProps {
 export function InvoiceTable({
   invoices,
   isLoading,
-  // Default values
   page = 1,
   totalPages = 1,
   totalItems = 0,
@@ -58,7 +51,6 @@ export function InvoiceTable({
 }: InvoiceTableProps) {
   return (
     <div className="space-y-4">
-      {/* WRAPPER TABLE */}
       <div className="rounded-md border bg-white w-full overflow-x-auto shadow-sm">
         <div className="min-w-[1000px]">
           <Table>
@@ -82,13 +74,8 @@ export function InvoiceTable({
                 </TableRow>
               ) : invoices?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center h-60">
-                    <div className="flex flex-col items-center justify-center text-muted-foreground">
-                      <div className="bg-slate-50 p-4 rounded-full mb-3">
-                        <FolderOpen className="h-8 w-8 text-slate-400" />
-                      </div>
-                      <p>Tidak ada invoice ditemukan.</p>
-                    </div>
+                  <TableCell colSpan={7} className="h-60">
+                    <EmptyState title="Tidak ada invoice ditemukan." />
                   </TableCell>
                 </TableRow>
               ) : (
@@ -128,7 +115,7 @@ export function InvoiceTable({
                     <TableCell className="text-right">
                       <Button variant="ghost" size="sm" asChild>
                         <Link to={`/invoices/${inv.id}`}>
-                          <ArrowRight className=" h-3 w-3" />
+                          <ArrowRight className="h-3 w-3" />
                         </Link>
                       </Button>
                     </TableCell>
@@ -140,33 +127,15 @@ export function InvoiceTable({
         </div>
       </div>
 
-      {/* FOOTER: PAGINATION CONTROLS */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between px-2 pt-2">
-          <div className="text-sm text-slate-500">
-            Menampilkan <strong>{invoices.length}</strong> dari{' '}
-            <strong>{totalItems}</strong> data. (Halaman {page} dari{' '}
-            {totalPages})
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPageChange?.(page - 1)}
-              disabled={page <= 1 || isLoading}
-            >
-              <ChevronLeft className="h-4 w-4 mr-1" /> Prev
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPageChange?.(page + 1)}
-              disabled={page >= totalPages || isLoading}
-            >
-              Next <ChevronRight className="h-4 w-4 ml-1" />
-            </Button>
-          </div>
-        </div>
+      {onPageChange && (
+        <TablePagination
+          page={page}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          itemCount={invoices.length}
+          isLoading={isLoading}
+          onPageChange={onPageChange}
+        />
       )}
     </div>
   )
