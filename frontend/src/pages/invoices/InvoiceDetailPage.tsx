@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
 import { toast } from 'sonner'
-import { toJpeg } from 'html-to-image'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,35 +19,31 @@ import {
 import { getTemplateByType } from './template'
 import { InvoicePaper } from './components/InvoicePaper'
 import { formatRupiah } from '@/lib/helpers'
+import { useDocumentScaling } from '@/hooks/useDocumentScaling'
+import { useDocumentExport } from '@/hooks/useDocumentExport'
+import { useWhatsAppShare } from '@/hooks/useWhatsAppShare'
+import { useUnsavedChanges } from '@/hooks/useUnsavedChanges'
 
 export default function InvoiceDetailPage() {
   const { id } = useParams()
-  const navigate = useNavigate()
   const queryClient = useQueryClient()
   const componentRef = useRef<HTMLDivElement>(null)
 
-  // --- NEW: REF & STATE UNTUK DYNAMIC SCALING ---
-  const previewContainerRef = useRef<HTMLDivElement>(null)
-  const [previewScale, setPreviewScale] = useState(1)
+  const { containerRef: previewContainerRef, scale: previewScale } = useDocumentScaling()
+  const { generateJpeg } = useDocumentExport(componentRef)
+  const { share: shareViaWhatsApp } = useWhatsAppShare()
+  const { hasUnsavedChanges, markAsDirty, markAsClean, handleBack } = useUnsavedChanges('/invoices')
 
   // FETCH CLIENTS
   const { data: clientsList } = useQuery({
     queryKey: ['clients'],
-    queryFn: async () => {
-      return await pb
-        .collection('clients')
-        .getFullList({ sort: 'company_name' })
-    },
+    queryFn: () => pb.collection('clients').getFullList({ sort: 'company_name' }),
   })
 
   // FETCH INVOICE
   const { data: invoice, isLoading } = useQuery({
     queryKey: ['invoice', id],
-    queryFn: async () => {
-      return await pb
-        .collection('invoices')
-        .getOne(id as string, { expand: 'client_id' })
-    },
+    queryFn: () => pb.collection('invoices').getOne(id as string, { expand: 'client_id' }),
   })
 
   // STATE
@@ -57,36 +52,24 @@ export default function InvoiceDetailPage() {
   const [activeTermin, setActiveTermin] = useState('1')
   const [status, setStatus] = useState('unpaid')
   const [bankDetails, setBankDetails] = useState('')
-  const [type, setType] = useState('design') // Default design
+  const [type, setType] = useState('design')
   const [notes, setNotes] = useState('')
-
   const [selectedClientId, setSelectedClientId] = useState('')
   const [selectedClientData, setSelectedClientData] = useState<any>(null)
-
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
-
-  // Header Data
   const [projectArea, setProjectArea] = useState(0)
   const [pricePerMeter, setPricePerMeter] = useState(200000)
-
-  // New State: Manual Total (for Civil & Interior)
   const [manualTotal, setManualTotal] = useState(0)
 
-  // LINK GENERATOR
   const qrLink = `${import.meta.env.VITE_FE_LINK_URL}/verify/invoices/${id}`
 
-  // --- LOGIC GRAND TOTAL ---
-  const grandTotal =
-    type === 'design' ? projectArea * pricePerMeter : manualTotal
+  const grandTotal = type === 'design' ? projectArea * pricePerMeter : manualTotal
 
-  // --- LOGIC RE-CALCULATE ---
   const recalculateAllItems = useCallback(
     (currentItems: any[], currentTotal: number) => {
       let runningTotal = 0
       return currentItems.map((item) => {
         let newAmount = 0
-        const val = item.percent || ''
-        const cleanVal = val.toString().replace('%', '').trim().toLowerCase()
+        const cleanVal = (item.percent || '').toString().replace('%', '').trim().toLowerCase()
 
         if (cleanVal === 'dp' && type === 'design') {
           newAmount = 2500000
@@ -107,82 +90,43 @@ export default function InvoiceDetailPage() {
     [type]
   )
 
-  // --- EFFECT: INITIAL LOAD ---
   useEffect(() => {
-    if (invoice) {
-      const currentType = invoice.type || 'design'
-      setType(currentType)
+    if (!invoice) return
 
-      let loadedItems = []
-      if (invoice.items && invoice.items.length > 0) {
-        loadedItems = invoice.items
-      } else {
-        loadedItems = getTemplateByType(currentType)
-      }
+    const currentType = invoice.type || 'design'
+    setType(currentType)
 
-      setDate(invoice.date ? invoice.date.substring(0, 10) : '')
-      setActiveTermin(invoice.active_termin || '1')
-      setStatus(invoice.status || 'unpaid')
-      setBankDetails(invoice.bank_details || '')
-      setNotes(invoice.notes || '')
+    const loadedItems =
+      invoice.items?.length > 0 ? invoice.items : getTemplateByType(currentType)
 
-      if (invoice.client_id) {
-        setSelectedClientId(invoice.client_id)
-        setSelectedClientData(invoice.expand?.client_id)
-      }
+    setDate(invoice.date ? invoice.date.substring(0, 10) : '')
+    setActiveTermin(invoice.active_termin || '1')
+    setStatus(invoice.status || 'unpaid')
+    setBankDetails(invoice.bank_details || '')
+    setNotes(invoice.notes || '')
 
-      const area = invoice.project_area || 0
-      const price = invoice.price_per_meter || 200000
-      setProjectArea(area)
-      setPricePerMeter(price)
-      setManualTotal(invoice.total_amount || 0)
-
-      const total =
-        currentType === 'design' ? area * price : invoice.total_amount || 0
-
-      if (total > 0) {
-        setItems((prev) => recalculateAllItems(loadedItems, total))
-      } else {
-        setItems(loadedItems)
-      }
-
-      setHasUnsavedChanges(false)
+    if (invoice.client_id) {
+      setSelectedClientId(invoice.client_id)
+      setSelectedClientData(invoice.expand?.client_id)
     }
+
+    const area = invoice.project_area || 0
+    const price = invoice.price_per_meter || 200000
+    setProjectArea(area)
+    setPricePerMeter(price)
+    setManualTotal(invoice.total_amount || 0)
+
+    const total = currentType === 'design' ? area * price : invoice.total_amount || 0
+    setItems(total > 0 ? recalculateAllItems(loadedItems, total) : loadedItems)
+
+    markAsClean()
   }, [invoice, recalculateAllItems])
 
-  // --- EFFECT: AUTO-CALC ON CHANGE ---
   useEffect(() => {
     if (grandTotal > 0 && items.length > 0) {
-      setItems((prevItems) => recalculateAllItems(prevItems, grandTotal))
+      setItems((prev) => recalculateAllItems(prev, grandTotal))
     }
   }, [grandTotal, recalculateAllItems])
-
-  // --- EFFECT: DYNAMIC PREVIEW SCALING ---
-  useEffect(() => {
-    const container = previewContainerRef.current
-    if (!container) return
-
-    const observer = new ResizeObserver((entries) => {
-      for (let entry of entries) {
-        // Ambil lebar container yang tersedia (content box)
-        const availableWidth = entry.contentRect.width
-
-        // Lebar standar A4 di layar sekitar 794px (210mm).
-        // Kita jadikan base width 800px agar ada sedikit ruang bernafas.
-        const baseWidth = 800
-
-        // Hitung skala (maksimal 1 agar tidak pecah/kebesaran di layar lebar)
-        const newScale = Math.min(availableWidth / baseWidth, 1)
-        setPreviewScale(newScale)
-      }
-    })
-
-    observer.observe(container)
-    return () => observer.disconnect()
-  }, [])
-
-  // --- HANDLERS ---
-  const markAsDirty = () => setHasUnsavedChanges(true)
 
   const handleClientChange = (newClientId: string) => {
     markAsDirty()
@@ -195,8 +139,7 @@ export default function InvoiceDetailPage() {
     markAsDirty()
     const newItems = [...items]
     newItems[index].percent = val
-    const recalculated = recalculateAllItems(newItems, grandTotal)
-    setItems(recalculated)
+    setItems(recalculateAllItems(newItems, grandTotal))
   }
 
   const updateItem = (index: number, field: string, value: any) => {
@@ -206,38 +149,14 @@ export default function InvoiceDetailPage() {
     setItems(newItems)
   }
 
-  const handleBack = () => {
-    if (hasUnsavedChanges) {
-      const confirmLeave = window.confirm(
-        'You have unsaved changes. Are you sure you want to leave?'
-      )
-      if (!confirmLeave) return
-    }
-    navigate('/invoices')
-  }
-
   const handleShareWA = () => {
-    if (!selectedClientData?.phone) {
-      toast.error('Client phone number is missing in the database.')
-      return
-    }
-    let rawPhone = selectedClientData.phone.toString()
-    let cleanPhone = rawPhone.replace(/\D/g, '')
-    if (cleanPhone.startsWith('0')) {
-      cleanPhone = '62' + cleanPhone.substring(1)
-    } else if (cleanPhone.startsWith('8')) {
-      cleanPhone = '62' + cleanPhone
-    }
-    const message = `Hello ${selectedClientData.company_name},\n\nHere is the link to your Invoice:\n${qrLink}\n\nThank you.`
-    const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
-    window.open(waUrl, '_blank')
+    const message = `Hello ${selectedClientData?.company_name},\n\nHere is the link to your Invoice:\n${qrLink}\n\nThank you.`
+    shareViaWhatsApp(selectedClientData?.phone, message)
   }
 
-  // SAVE
   const saveMutation = useMutation({
     mutationFn: async () => {
       const formData = new FormData()
-
       formData.append('client_id', selectedClientId)
       formData.append('date', new Date(date).toISOString())
       formData.append('status', status)
@@ -245,68 +164,43 @@ export default function InvoiceDetailPage() {
       formData.append('bank_details', bankDetails)
       formData.append('notes', notes)
       formData.append('total_amount', String(grandTotal))
-      formData.append(
-        'project_area',
-        String(type === 'design' ? projectArea : 0)
-      )
-      formData.append(
-        'price_per_meter',
-        String(type === 'design' ? pricePerMeter : 0)
-      )
+      formData.append('project_area', String(type === 'design' ? projectArea : 0))
+      formData.append('price_per_meter', String(type === 'design' ? pricePerMeter : 0))
       formData.append('active_termin', activeTermin)
 
-      if (componentRef.current) {
-        try {
-          const dataUrl = await toJpeg(componentRef.current, {
-            quality: 0.8,
-            pixelRatio: 2,
-            backgroundColor: '#ffffff',
-            cacheBust: false,
-          })
-
-          const res = await fetch(dataUrl)
-          const blob = await res.blob()
-
-          if (blob) {
-            const fileName = `Invoice-${invoice?.invoice_number || 'Update'}.jpg`
-            formData.append('document_file', blob, fileName)
-          }
-        } catch (err) {
-          console.error('Failed to generate invoice image:', err)
-        }
+      const blob = await generateJpeg()
+      if (blob) {
+        formData.append(
+          'document_file',
+          blob,
+          `Invoice-${invoice?.invoice_number || 'Update'}.jpg`
+        )
       }
 
       return await pb.collection('invoices').update(id as string, formData)
     },
     onSuccess: () => {
       toast.success('Invoice & Official Document saved')
-      setHasUnsavedChanges(false)
+      markAsClean()
       queryClient.invalidateQueries({ queryKey: ['invoice', id] })
       queryClient.invalidateQueries({ queryKey: ['invoices'] })
     },
     onError: () => toast.error('Failed to save changes'),
   })
 
-  // --- DOWNLOAD OFFICIAL FILE ---
   const handleDownloadOfficial = () => {
     const fileName = invoice?.document_file
-
     if (!fileName) {
-      toast.error(
-        "Document not available. Please click 'Save' first to generate the document."
-      )
+      toast.error("Document not available. Please click 'Save' first to generate the document.")
       return
     }
-
     const fileUrl = pb.files.getUrl(invoice, fileName, { download: true })
-
     const link = document.createElement('a')
     link.href = fileUrl
     link.download = `Invoice-${invoice.invoice_number}.jpg`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
-
     toast.success('Downloading Official Document...')
   }
 
@@ -328,7 +222,7 @@ export default function InvoiceDetailPage() {
             onClick={handleBack}
             className={`shrink-0 ${hasUnsavedChanges ? 'text-red-600 hover:text-red-700 hover:bg-red-50' : ''}`}
           >
-            <ArrowLeft className="mr-2 h-4 w-4" />{' '}
+            <ArrowLeft className="mr-2 h-4 w-4" />
             <span className="hidden sm:inline">Back</span>
           </Button>
           <div className="hidden lg:block h-6 w-px bg-slate-200" />
@@ -347,9 +241,7 @@ export default function InvoiceDetailPage() {
         <div className="flex items-center gap-2 w-full lg:w-auto justify-between lg:justify-end overflow-x-auto pb-1 lg:pb-0 scrollbar-hide">
           <div className="mr-2 lg:mr-4 text-xs sm:text-sm font-medium text-slate-600 whitespace-nowrap">
             Total:{' '}
-            <span className="text-blue-600 font-bold">
-              {formatRupiah(grandTotal)}
-            </span>
+            <span className="text-blue-600 font-bold">{formatRupiah(grandTotal)}</span>
           </div>
 
           <div className="flex gap-2">
@@ -376,16 +268,12 @@ export default function InvoiceDetailPage() {
               onClick={handleShareWA}
               className="text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700 whitespace-nowrap"
             >
-              <Share2 className="mr-2 h-4 w-4" />{' '}
+              <Share2 className="mr-2 h-4 w-4" />
               <span className="hidden sm:inline">Share WA</span>
             </Button>
 
-            <Button
-              size="sm"
-              onClick={handleDownloadOfficial}
-              className="whitespace-nowrap"
-            >
-              <Download className="mr-2 h-4 w-4" />{' '}
+            <Button size="sm" onClick={handleDownloadOfficial} className="whitespace-nowrap">
+              <Download className="mr-2 h-4 w-4" />
               <span className="hidden sm:inline">Download</span>
             </Button>
           </div>
@@ -431,10 +319,7 @@ export default function InvoiceDetailPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-[10px] text-slate-500">Client</Label>
-                  <Select
-                    value={selectedClientId}
-                    onValueChange={handleClientChange}
-                  >
+                  <Select value={selectedClientId} onValueChange={handleClientChange}>
                     <SelectTrigger className="h-8 text-xs bg-white">
                       <SelectValue placeholder="Select Client" />
                     </SelectTrigger>
@@ -448,9 +333,7 @@ export default function InvoiceDetailPage() {
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-[10px] text-slate-500">
-                    Invoice Date
-                  </Label>
+                  <Label className="text-[10px] text-slate-500">Invoice Date</Label>
                   <Input
                     type="date"
                     value={date}
@@ -468,9 +351,7 @@ export default function InvoiceDetailPage() {
                 {type === 'design' ? (
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
-                      <Label className="text-[10px] text-slate-500">
-                        Area (m²)
-                      </Label>
+                      <Label className="text-[10px] text-slate-500">Area (m²)</Label>
                       <Input
                         type="number"
                         value={projectArea}
@@ -482,9 +363,7 @@ export default function InvoiceDetailPage() {
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-[10px] text-slate-500">
-                        Price / m²
-                      </Label>
+                      <Label className="text-[10px] text-slate-500">Price / m²</Label>
                       <Input
                         type="number"
                         value={pricePerMeter}
@@ -567,9 +446,7 @@ export default function InvoiceDetailPage() {
                         <div className="flex items-center gap-2">
                           <Input
                             value={item.name}
-                            onChange={(e) =>
-                              updateItem(index, 'name', e.target.value)
-                            }
+                            onChange={(e) => updateItem(index, 'name', e.target.value)}
                             className={`h-6 w-32 px-1 text-xs font-bold border-none bg-transparent shadow-none focus-visible:ring-0 ${isActive ? 'text-blue-700' : 'text-slate-700'} ${isPastTerm ? 'opacity-70' : ''}`}
                           />
                           {isActive && (
@@ -588,11 +465,7 @@ export default function InvoiceDetailPage() {
                           <Select
                             value={item.status || 'empty'}
                             onValueChange={(val) =>
-                              updateItem(
-                                index,
-                                'status',
-                                val === 'empty' ? '' : val
-                              )
+                              updateItem(index, 'status', val === 'empty' ? '' : val)
                             }
                           >
                             <SelectTrigger
@@ -605,9 +478,7 @@ export default function InvoiceDetailPage() {
                                 <span className="text-slate-400">Unpaid</span>
                               </SelectItem>
                               <SelectItem value="Success">
-                                <span className="font-bold text-green-600">
-                                  Paid
-                                </span>
+                                <span className="font-bold text-green-600">Paid</span>
                               </SelectItem>
                             </SelectContent>
                           </Select>
@@ -621,9 +492,7 @@ export default function InvoiceDetailPage() {
                           </Label>
                           <Input
                             value={item.percent}
-                            onChange={(e) =>
-                              handlePercentChange(index, e.target.value)
-                            }
+                            onChange={(e) => handlePercentChange(index, e.target.value)}
                             placeholder="DP / 50%"
                             className="h-7 text-xs bg-white w-24 sm:w-full"
                           />
@@ -648,9 +517,7 @@ export default function InvoiceDetailPage() {
                           <Input
                             type="date"
                             value={item.paymentDate || ''}
-                            onChange={(e) =>
-                              updateItem(index, 'paymentDate', e.target.value)
-                            }
+                            onChange={(e) => updateItem(index, 'paymentDate', e.target.value)}
                             className="h-7 text-[10px] px-1 bg-white w-28 sm:w-full"
                           />
                         </div>
@@ -674,10 +541,8 @@ export default function InvoiceDetailPage() {
             </h3>
           </div>
 
-          {/* Dynamic Scaling Wrapper */}
           <div
             className="w-full flex justify-center print:h-auto print:block"
-            // CSS trik agar box bungkusannya ikut menyusut tingginya sesuai dengan elemen A4 yang di-scale
             style={{ height: `calc(297mm * ${previewScale})` }}
           >
             <div
