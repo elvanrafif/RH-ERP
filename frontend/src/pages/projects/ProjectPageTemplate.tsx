@@ -74,8 +74,10 @@ export default function ProjectPageTemplate({
     showDone,
   })
   const {
-    searchQuery, setSearchQuery,
-    filterPic, setFilterPic,
+    searchQuery,
+    setSearchQuery,
+    filterPic,
+    setFilterPic,
     filteredProjects,
     stats,
     hasActiveFilters,
@@ -114,13 +116,20 @@ export default function ProjectPageTemplate({
         action={
           <div className="flex items-center gap-3">
             <div className="flex items-center space-x-2 bg-white p-1.5 rounded-lg border shadow-sm px-3">
-              <Switch id="show-done" checked={showDone} onCheckedChange={setShowDone} />
+              <Switch
+                id="show-done"
+                checked={showDone}
+                onCheckedChange={setShowDone}
+              />
               <Label htmlFor="show-done" className="text-xs cursor-pointer">
                 Show History
               </Label>
             </div>
             {can(`manage_${projectType}`) && (
-              <Button onClick={handleCreate} className="bg-primary shadow-sm h-9 text-sm">
+              <Button
+                onClick={handleCreate}
+                className="bg-primary shadow-sm h-9 text-sm"
+              >
                 <Plus className="mr-2 h-4 w-4" /> New
               </Button>
             )}
@@ -151,7 +160,11 @@ export default function ProjectPageTemplate({
         />
         <StatCard
           icon={<AlertCircle className="h-5 w-5" />}
-          iconBg={stats.urgentCount > 0 ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-400'}
+          iconBg={
+            stats.urgentCount > 0
+              ? 'bg-red-100 text-red-600'
+              : 'bg-slate-100 text-slate-400'
+          }
           label="Deadline < 7 Days"
           value={
             <>
@@ -192,11 +205,7 @@ export default function ProjectPageTemplate({
                       </SelectItem>
                     ))
                   : users
-                      .filter(
-                        (u) =>
-                          u.divisi?.toLowerCase() === projectType ||
-                          u.division?.toLowerCase() === projectType
-                      )
+                      .filter((u) => u.division?.toLowerCase() === projectType)
                       .map((u) => (
                         <SelectItem key={u.id} value={u.id}>
                           {u.name || u.email}
@@ -222,23 +231,34 @@ export default function ProjectPageTemplate({
 
       {/* MAIN CONTENT */}
       <div className="flex-1 overflow-hidden relative bg-white/50 rounded-lg border border-slate-200/60 shadow-inner">
-        <Tabs defaultValue={enableKanban ? 'kanban' : 'table'} className="flex flex-col h-full">
+        <Tabs
+          defaultValue={enableKanban ? 'kanban' : 'table'}
+          className="flex flex-col h-full"
+        >
           {isLoading ? (
             <LoadingSpinner />
           ) : (
             <>
               {enableKanban && (
-                <TabsContent value="kanban" className="flex-1 overflow-hidden mt-0 h-full p-2">
+                <TabsContent
+                  value="kanban"
+                  className="flex-1 overflow-hidden mt-0 h-full p-2"
+                >
                   <ProjectKanban
                     data={filteredProjects}
                     columnsConfig={kanbanColumns}
                     onEdit={handleEdit}
                     onDelete={(p) => setDeleteId(p.id)}
-                    onStatusChange={(id, status) => updateStatus({ id, status })}
+                    onStatusChange={(id, status) =>
+                      updateStatus({ id, status })
+                    }
                   />
                 </TabsContent>
               )}
-              <TabsContent value="table" className="flex-1 overflow-auto mt-0 h-full p-0">
+              <TabsContent
+                value="table"
+                className="flex-1 overflow-auto mt-0 h-full p-0"
+              >
                 <ProjectTable
                   projectType={projectType}
                   onView={(project) => setProjectToView(project)}
