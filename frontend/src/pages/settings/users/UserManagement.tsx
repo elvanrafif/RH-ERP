@@ -1,9 +1,6 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { pb } from '@/lib/pocketbase'
 import type { User } from '@/types'
-
-// UI Components
+import { useUserManagement } from '@/hooks/useUserManagement'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -12,8 +9,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Loader2, Plus, UserCog } from 'lucide-react'
-
-// Import Sub-Components
 import { UserForm } from './components/UserForm'
 import { UserList } from './components/UserList'
 
@@ -21,15 +16,7 @@ export default function UserManagementPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingUser, setEditingUser] = useState<User | null>(null)
 
-  // Fetch Data - Penting: Menggunakan expand roleId untuk dapet nama role di tabel
-  const { data: users, isLoading } = useQuery({
-    queryKey: ['users-management'],
-    queryFn: async () =>
-      await pb.collection('users').getFullList<User>({
-        sort: 'created',
-        expand: 'roleId',
-      }),
-  })
+  const { users, isLoading } = useUserManagement()
 
   const handleCreate = () => {
     setEditingUser(null)
@@ -69,9 +56,7 @@ export default function UserManagementPage() {
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>
-              {editingUser ? 'Edit User' : 'Add New User'}
-            </DialogTitle>
+            <DialogTitle>{editingUser ? 'Edit User' : 'Add New User'}</DialogTitle>
           </DialogHeader>
           <UserForm
             initialData={editingUser}

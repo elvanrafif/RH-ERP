@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { pb } from '@/lib/pocketbase'
+import { useRoles } from '@/hooks/useRoles'
 
 // UI Components
 import { Button } from '@/components/ui/button'
@@ -31,18 +30,10 @@ import { RoleForm } from './roleForm'
 // Import Sub-Component
 
 export default function RoleManagementPage() {
-  const queryClient = useQueryClient()
-
-  // States
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingRole, setEditingRole] = useState<any | null>(null)
 
-  // Fetch Roles
-  const { data: roles, isLoading } = useQuery({
-    queryKey: ['roles-management'],
-    queryFn: async () =>
-      await pb.collection('roles').getFullList({ sort: 'name' }),
-  })
+  const { roles, isLoading } = useRoles()
 
   // Handlers
   const handleCreate = () => {
@@ -143,10 +134,7 @@ export default function RoleManagementPage() {
           <RoleForm
             key={editingRole ? editingRole.id : 'new'}
             initialData={editingRole}
-            onSuccess={() => {
-              setIsDialogOpen(false)
-              queryClient.invalidateQueries({ queryKey: ['roles-management'] })
-            }}
+            onSuccess={() => setIsDialogOpen(false)}
           />
         </DialogContent>
       </Dialog>

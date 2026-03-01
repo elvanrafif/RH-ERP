@@ -1,9 +1,10 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
-import { z } from 'zod'
 import { toast } from 'sonner'
+import { roleFormSchema } from '@/lib/validations/role'
+import type { RoleFormValues } from '@/lib/validations/role'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -88,24 +89,13 @@ const PERMISSION_GROUPS = [
   },
 ]
 
-// --- SCHEMA FORM ---
-const roleFormSchema = z.object({
-  name: z.string().min(2, 'Role name must be at least 2 characters'),
-  permissions: z
-    .array(z.string())
-    .refine((value) => value.some((item) => item), {
-      message: 'You have to select at least one permission.',
-    }),
-})
-
-type RoleFormValues = z.infer<typeof roleFormSchema>
-
 interface RoleFormProps {
   initialData?: any
   onSuccess: () => void
 }
 
 export function RoleForm({ initialData, onSuccess }: RoleFormProps) {
+  const queryClient = useQueryClient()
   const form = useForm<RoleFormValues>({
     resolver: zodResolver(roleFormSchema),
     defaultValues: {
@@ -123,6 +113,7 @@ export function RoleForm({ initialData, onSuccess }: RoleFormProps) {
       }
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['roles-list'] })
       toast.success(
         initialData ? 'Role updated successfully' : 'Role created successfully'
       )
