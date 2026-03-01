@@ -28,16 +28,8 @@ import {
   PencilRuler,
 } from 'lucide-react'
 import { formatRupiah } from '@/lib/helpers'
-
-// Batas maksimal proyek per orang sebelum dianggap OVERLOAD
-const OVERLOAD_THRESHOLD = 4
-
-// Fungsi Helper untuk meringkas angka uang (contoh: 1.500.000.000 -> 1.5 M)
-const formatCompactCurrency = (value: number) => {
-  if (value >= 1000000000) return `Rp ${(value / 1000000000).toFixed(1)} M`
-  if (value >= 1000000) return `Rp ${(value / 1000000).toFixed(0)} Jt`
-  return `Rp ${value}`
-}
+import { formatCompactCurrency } from '@/lib/formatting/currency'
+import { WORKLOAD_OVERLOAD_THRESHOLD } from '@/lib/constant'
 
 // --- KOMPONEN REUSABLE CHART ---
 const CustomTooltip = ({ active, payload, label, viewMode }: any) => {
@@ -277,7 +269,7 @@ export function ResourceMonitoringTab() {
                 viewMode === 'count' ? countPercentage : valuePercentage, // Untuk tooltip
               displayLabelCount: `${data.count} (${countPercentage}%)`,
               displayLabelValue: `${formatCompactCurrency(data.value)}`,
-              isOverload: data.count >= OVERLOAD_THRESHOLD,
+              isOverload: data.count >= WORKLOAD_OVERLOAD_THRESHOLD,
             }
           })
           .sort((a, b) => b.count - a.count)
@@ -367,7 +359,8 @@ export function ResourceMonitoringTab() {
             Capacity & Value Distribution
           </h3>
           <p className="text-xs text-slate-500 mt-1">
-            Red indicator means overload (≥ {OVERLOAD_THRESHOLD} projects).
+            Red indicator means overload (≥ {WORKLOAD_OVERLOAD_THRESHOLD}{' '}
+            projects).
           </p>
         </div>
         <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">

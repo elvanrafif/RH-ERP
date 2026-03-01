@@ -21,37 +21,7 @@ import {
 } from 'recharts'
 import { Loader2, Wallet, CheckCircle2, CalendarDays } from 'lucide-react'
 import { formatRupiah } from '@/lib/helpers'
-
-const isWithinFilter = (
-  dateStr: string,
-  filter: string,
-  start: string,
-  end: string
-) => {
-  if (!dateStr) return false
-  if (filter === 'all') return true
-
-  const d = new Date(dateStr)
-  const now = new Date()
-
-  if (filter === 'this_month') {
-    return (
-      d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
-    )
-  }
-  if (filter === 'this_year') {
-    return d.getFullYear() === now.getFullYear()
-  }
-  if (filter === 'custom') {
-    if (!start || !end) return true
-    const startDate = new Date(start)
-    startDate.setHours(0, 0, 0, 0)
-    const endDate = new Date(end)
-    endDate.setHours(23, 59, 59, 999)
-    return d >= startDate && d <= endDate
-  }
-  return true
-}
+import { isWithinDateFilter } from '@/lib/invoicing/dateFilter'
 
 const CustomPieTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
@@ -132,7 +102,7 @@ export function InvoiceRevenue() {
         if (!lastSuccessItem) return false
 
         const paymentDate = lastSuccessItem.paymentDate || inv.updated
-        return isWithinFilter(paymentDate, filter, appliedStart, appliedEnd)
+        return isWithinDateFilter(paymentDate, filter, appliedStart, appliedEnd)
       })
 
       validInvoices.forEach((inv) => {
