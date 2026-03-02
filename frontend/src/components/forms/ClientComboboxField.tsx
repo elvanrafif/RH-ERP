@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Control } from 'react-hook-form'
+import type { Control, FieldValues } from 'react-hook-form'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -17,17 +17,25 @@ import {
   CommandItem,
   CommandList,
 } from '@/components/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import { Check, ChevronsUpDown } from 'lucide-react'
 import type { Client } from '@/types'
 
-interface ClientComboboxFieldProps {
-  control: Control<any>
+interface ClientComboboxFieldProps<T extends FieldValues = FieldValues> {
+  control: Control<T>
   clients: Client[] | undefined
   onSelect?: (clientId: string) => void
 }
 
-export function ClientComboboxField({ control, clients, onSelect }: ClientComboboxFieldProps) {
+export function ClientComboboxField<T extends FieldValues = FieldValues>({
+  control,
+  clients,
+  onSelect,
+}: ClientComboboxFieldProps<T>) {
   const [open, setOpen] = useState(false)
 
   return (
@@ -44,7 +52,10 @@ export function ClientComboboxField({ control, clients, onSelect }: ClientCombob
                   variant="outline"
                   role="combobox"
                   aria-expanded={open}
-                  className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
+                  className={cn(
+                    'w-full justify-between',
+                    !field.value && 'text-muted-foreground'
+                  )}
                 >
                   {field.value
                     ? clients?.find((c) => c.id === field.value)?.company_name
@@ -72,7 +83,9 @@ export function ClientComboboxField({ control, clients, onSelect }: ClientCombob
                         <Check
                           className={cn(
                             'mr-2 h-4 w-4',
-                            client.id === field.value ? 'opacity-100' : 'opacity-0'
+                            client.id === field.value
+                              ? 'opacity-100'
+                              : 'opacity-0'
                           )}
                         />
                         {client.company_name}

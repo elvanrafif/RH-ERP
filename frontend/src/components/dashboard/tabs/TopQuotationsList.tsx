@@ -1,10 +1,25 @@
 import { formatRupiah } from '@/lib/helpers'
 
-interface TopQuotationsListProps {
-  quotations: any[]
+interface ExpandedClient {
+  company_name?: string
+  name?: string
 }
 
-function getClientName(q: any): string {
+interface QuotationListItem {
+  id: string
+  quotation_number?: string
+  total_price?: number
+  expand?: {
+    project_id?: { expand?: { client_id?: ExpandedClient } }
+    client_id?: ExpandedClient
+  }
+}
+
+interface TopQuotationsListProps {
+  quotations: QuotationListItem[]
+}
+
+function getClientName(q: QuotationListItem): string {
   const nested = q.expand?.project_id?.expand?.client_id
   const direct = q.expand?.client_id
   return (

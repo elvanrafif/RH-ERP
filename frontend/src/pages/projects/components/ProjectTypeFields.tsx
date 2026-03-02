@@ -138,9 +138,15 @@ export function ProjectTypeFields({
             name="area_scope"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Area / Scope (e.g. Kitchen Set & Master Bed)</FormLabel>
+                <FormLabel>
+                  Area / Scope (e.g. Kitchen Set & Master Bed)
+                </FormLabel>
                 <FormControl>
-                  <Input placeholder="Type work scope..." {...field} value={field.value || ''} />
+                  <Input
+                    placeholder="Type work scope..."
+                    {...field}
+                    value={field.value || ''}
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -156,17 +162,20 @@ export function ProjectTypeFields({
             name="assignee"
             render={({ field }) => {
               const availableUsers =
-                users?.filter(
-                  (u: any) =>
-                    u.divisi?.toLowerCase() === fixedType ||
-                    u.division?.toLowerCase() === fixedType
-                ) || []
-              if (!isSuperAdmin && !availableUsers.find((u) => u.id === user?.id) && user) {
-                availableUsers.push(user as unknown as User)
+                users?.filter((u) => u.division?.toLowerCase() === fixedType) ||
+                []
+              if (
+                !isSuperAdmin &&
+                !availableUsers.find((u) => u.id === user?.id) &&
+                user
+              ) {
+                availableUsers.push(user)
               }
               return (
                 <FormItem>
-                  <FormLabel>{isArchitecture ? 'PIC Design / Drafter' : 'Interior PIC'}</FormLabel>
+                  <FormLabel>
+                    {isArchitecture ? 'PIC Design / Drafter' : 'Interior PIC'}
+                  </FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     value={field.value as string}
@@ -179,7 +188,9 @@ export function ProjectTypeFields({
                     </FormControl>
                     <SelectContent>
                       {isSuperAdmin && (
-                        <SelectItem value="unassigned">-- Unassigned --</SelectItem>
+                        <SelectItem value="unassigned">
+                          -- Unassigned --
+                        </SelectItem>
                       )}
                       {availableUsers.map((u) => (
                         <SelectItem key={u.id} value={u.id}>
@@ -201,7 +212,10 @@ export function ProjectTypeFields({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Field PIC</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value as string}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value as string}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Supervisor" />

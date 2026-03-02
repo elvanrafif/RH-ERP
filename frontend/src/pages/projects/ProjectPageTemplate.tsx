@@ -6,30 +6,14 @@ import { useUsers } from '@/hooks/useUsers'
 import { useProjects } from '@/hooks/useProjects'
 import { useProjectFilters } from '@/hooks/useProjectFilters'
 import { TypeProjectsBoolean } from '@/lib/booleans'
-import { SipilPic } from '@/lib/constant'
 import { formatRupiah } from '@/lib/helpers'
 
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent } from '@/components/ui/tabs'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import {
-  Plus,
-  Banknote,
-  Activity,
-  AlertCircle,
-  Search,
-  X,
-  Filter,
-} from 'lucide-react'
+import { Plus, Banknote, Activity, AlertCircle } from 'lucide-react'
+import { ProjectFilterBar } from '@/components/projects/ProjectFilterBar'
 import type { KanbanColumnDefinition } from './ProjectKanban'
 import ProjectKanban from './ProjectKanban'
 import { ProjectTable } from './ProjectTable'
@@ -177,57 +161,17 @@ export default function ProjectPageTemplate({
       </div>
 
       {/* FILTER TOOLBAR */}
-      <div className="flex flex-col sm:flex-row gap-3 mb-3 items-start sm:items-center justify-between shrink-0">
-        <div className="flex flex-1 gap-2 w-full sm:w-auto">
-          <div className="relative flex-1 sm:max-w-xs">
-            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search client"
-              className="pl-8 h-9 bg-white"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          <div className="w-[180px]">
-            <Select value={filterPic} onValueChange={setFilterPic}>
-              <SelectTrigger className="h-9 bg-white">
-                <Filter className="w-3.5 h-3.5 mr-2 text-muted-foreground" />
-                <SelectValue placeholder="Filter PIC" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All PICs</SelectItem>
-                <SelectItem value="unassigned">-- Unassigned --</SelectItem>
-                {isCivil
-                  ? SipilPic.map((pic: string) => (
-                      <SelectItem key={pic} value={pic}>
-                        {pic}
-                      </SelectItem>
-                    ))
-                  : users
-                      .filter((u) => u.division?.toLowerCase() === projectType)
-                      .map((u) => (
-                        <SelectItem key={u.id} value={u.id}>
-                          {u.name || u.email}
-                        </SelectItem>
-                      ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {hasActiveFilters && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9"
-              onClick={resetFilters}
-              title="Reset Filter"
-            >
-              <X className="h-4 w-4 text-muted-foreground" />
-            </Button>
-          )}
-        </div>
-      </div>
+      <ProjectFilterBar
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        filterPic={filterPic}
+        onFilterPicChange={setFilterPic}
+        hasActiveFilters={hasActiveFilters}
+        onResetFilters={resetFilters}
+        isCivil={isCivil}
+        users={users}
+        projectType={projectType}
+      />
 
       {/* MAIN CONTENT */}
       <div className="flex-1 overflow-hidden relative bg-white/50 rounded-lg border border-slate-200/60 shadow-inner">

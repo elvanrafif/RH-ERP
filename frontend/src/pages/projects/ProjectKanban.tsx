@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
-import type { DropResult } from '@hello-pangea/dnd'
+import type {
+  DropResult,
+  DraggableProvidedDraggableProps,
+  DraggableProvidedDragHandleProps,
+} from '@hello-pangea/dnd'
 import type { Project } from '@/types'
 
 import { Card, CardContent } from '@/components/ui/card'
@@ -34,7 +38,12 @@ import {
 } from 'lucide-react'
 
 import { ProjectDetailsModal } from './ProjectDetailsModal'
-import { formatDateShort, getAvatarUrl, getInitials, getRemainingTime } from '@/lib/helpers'
+import {
+  formatDateShort,
+  getAvatarUrl,
+  getInitials,
+  getRemainingTime,
+} from '@/lib/helpers'
 import { TypeProjectsBoolean } from '@/lib/booleans'
 import { useRole } from '@/hooks/useRole'
 import { canEditProject } from '@/lib/projects/permissions'
@@ -61,9 +70,15 @@ interface KanbanState {
 }
 
 // --- HELPERS ---
-function buildKanbanState(data: Project[], columnsConfig: KanbanColumnDefinition[]): KanbanState {
+function buildKanbanState(
+  data: Project[],
+  columnsConfig: KanbanColumnDefinition[]
+): KanbanState {
   const tasks: Record<string, Project> = {}
-  const columns: Record<string, { id: string; title: string; taskIds: string[] }> = {}
+  const columns: Record<
+    string,
+    { id: string; title: string; taskIds: string[] }
+  > = {}
   const columnOrder = columnsConfig.map((c) => c.id)
 
   columnsConfig.forEach((col) => {
@@ -72,7 +87,10 @@ function buildKanbanState(data: Project[], columnsConfig: KanbanColumnDefinition
 
   data.forEach((project) => {
     tasks[project.id] = project
-    const statusKey = project.status && columns[project.status] ? project.status : columnOrder[0]
+    const statusKey =
+      project.status && columns[project.status]
+        ? project.status
+        : columnOrder[0]
     if (columns[statusKey]) columns[statusKey].taskIds.push(project.id)
   })
 
@@ -88,17 +106,26 @@ export default function ProjectKanban({
   onStatusChange,
 }: KanbanProps) {
   const { isSuperAdmin, user } = useRole()
-  const [boardData, setBoardData] = useState<KanbanState>({ tasks: {}, columns: {}, columnOrder: [] })
+  const [boardData, setBoardData] = useState<KanbanState>({
+    tasks: {},
+    columns: {},
+    columnOrder: [],
+  })
   const [projectToView, setProjectToView] = useState<Project | null>(null)
 
   useEffect(() => {
-    if (data && columnsConfig) setBoardData(buildKanbanState(data, columnsConfig))
+    if (data && columnsConfig)
+      setBoardData(buildKanbanState(data, columnsConfig))
   }, [data, columnsConfig])
 
   const onDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result
     if (!destination) return
-    if (destination.droppableId === source.droppableId && destination.index === source.index) return
+    if (
+      destination.droppableId === source.droppableId &&
+      destination.index === source.index
+    )
+      return
 
     const draggedTask = boardData.tasks[draggableId]
     if (!canEditProject(draggedTask, user, isSuperAdmin)) return
@@ -110,7 +137,13 @@ export default function ProjectKanban({
       const newTaskIds = Array.from(startCol.taskIds)
       newTaskIds.splice(source.index, 1)
       newTaskIds.splice(destination.index, 0, draggableId)
-      setBoardData((prev) => ({ ...prev, columns: { ...prev.columns, [startCol.id]: { ...startCol, taskIds: newTaskIds } } }))
+      setBoardData((prev) => ({
+        ...prev,
+        columns: {
+          ...prev.columns,
+          [startCol.id]: { ...startCol, taskIds: newTaskIds },
+        },
+      }))
     } else {
       const startTaskIds = Array.from(startCol.taskIds)
       startTaskIds.splice(source.index, 1)
@@ -118,7 +151,11 @@ export default function ProjectKanban({
       finishTaskIds.splice(destination.index, 0, draggableId)
       setBoardData((prev) => ({
         ...prev,
-        columns: { ...prev.columns, [startCol.id]: { ...startCol, taskIds: startTaskIds }, [finishCol.id]: { ...finishCol, taskIds: finishTaskIds } },
+        columns: {
+          ...prev.columns,
+          [startCol.id]: { ...startCol, taskIds: startTaskIds },
+          [finishCol.id]: { ...finishCol, taskIds: finishTaskIds },
+        },
       }))
       onStatusChange(draggableId, destination.droppableId)
     }
@@ -131,10 +168,15 @@ export default function ProjectKanban({
           {boardData.columnOrder.map((columnId) => {
             const column = boardData.columns[columnId]
             if (!column) return null
-            const tasksInColumn = column.taskIds.map((id) => boardData.tasks[id])
+            const tasksInColumn = column.taskIds.map(
+              (id) => boardData.tasks[id]
+            )
 
             return (
-              <div key={column.id} className="flex flex-col w-[320px] min-w-[320px] bg-slate-50/80 rounded-xl border h-full max-h-full shadow-sm">
+              <div
+                key={column.id}
+                className="flex flex-col w-[320px] min-w-[320px] bg-slate-50/80 rounded-xl border h-full max-h-full shadow-sm"
+              >
                 <div className="p-3 font-semibold text-sm flex items-center justify-between border-b bg-white/50 backdrop-blur-sm rounded-t-xl sticky top-0 z-10">
                   <div className="flex items-center gap-2 text-slate-700">
                     {column.title}
@@ -154,7 +196,12 @@ export default function ProjectKanban({
                         if (!task) return null
                         const canEdit = canEditProject(task, user, isSuperAdmin)
                         return (
-                          <Draggable key={task.id} draggableId={task.id} index={index} isDragDisabled={!canEdit}>
+                          <Draggable
+                            key={task.id}
+                            draggableId={task.id}
+                            index={index}
+                            isDragDisabled={!canEdit}
+                          >
                             {(provided, snapshot) => (
                               <KanbanCard
                                 task={task}
@@ -195,15 +242,25 @@ interface KanbanCardProps {
   task: Project
   canEdit: boolean
   isDragging: boolean
-  draggableProps: any
-  dragHandleProps: any
+  draggableProps: DraggableProvidedDraggableProps
+  dragHandleProps: DraggableProvidedDragHandleProps | null
   innerRef: (el: HTMLElement | null) => void
   onView: () => void
   onEdit: () => void
   onDelete: () => void
 }
 
-function KanbanCard({ task, canEdit, isDragging, draggableProps, dragHandleProps, innerRef, onView, onEdit, onDelete }: KanbanCardProps) {
+function KanbanCard({
+  task,
+  canEdit,
+  isDragging,
+  draggableProps,
+  dragHandleProps,
+  innerRef,
+  onView,
+  onEdit,
+  onDelete,
+}: KanbanCardProps) {
   const { isCivil, isInterior, isArchitecture } = TypeProjectsBoolean(task.type)
   const assignee = task.expand?.assignee?.name
   const clientName = task.expand?.client?.company_name || 'Unknown Client'
@@ -222,12 +279,19 @@ function KanbanCard({ task, canEdit, isDragging, draggableProps, dragHandleProps
     >
       <CardContent className="p-3 space-y-2">
         <div className="flex justify-between items-start">
-          <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-5 font-normal text-slate-500 uppercase">
+          <Badge
+            variant="secondary"
+            className="text-[10px] px-1.5 py-0 h-5 font-normal text-slate-500 uppercase"
+          >
             {task.type}
           </Badge>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-6 w-6 -mr-2 -mt-1 text-slate-300 hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 -mr-2 -mt-1 text-slate-300 hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -241,7 +305,10 @@ function KanbanCard({ task, canEdit, isDragging, draggableProps, dragHandleProps
                     <Pencil className="mr-2 h-4 w-4" /> Edit
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={onDelete} className="text-red-600 focus:text-red-600 focus:bg-red-50">
+                  <DropdownMenuItem
+                    onClick={onDelete}
+                    className="text-red-600 focus:text-red-600 focus:bg-red-50"
+                  >
                     <Trash2 className="mr-2 h-4 w-4" /> Delete
                   </DropdownMenuItem>
                 </>
@@ -250,7 +317,10 @@ function KanbanCard({ task, canEdit, isDragging, draggableProps, dragHandleProps
           </DropdownMenu>
         </div>
 
-        <h4 className="font-semibold text-sm leading-snug text-slate-900 line-clamp-2" title={clientName}>
+        <h4
+          className="font-semibold text-sm leading-snug text-slate-900 line-clamp-2"
+          title={clientName}
+        >
           {clientName}
         </h4>
 
@@ -261,28 +331,35 @@ function KanbanCard({ task, canEdit, isDragging, draggableProps, dragHandleProps
           </div>
         )}
 
-        {(isArchitecture || isCivil) && (meta.luas_tanah || meta.luas_bangunan) && (
-          <div className="flex justify-center gap-2 flex-wrap text-[10px] text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100">
-            {meta.luas_tanah && (
-              <span className="flex items-center gap-1" title="Land Area">
-                <Maximize2 className="h-3 w-3 text-slate-400" />
-                Land: <span className="font-medium">{meta.luas_tanah}m²</span>
-              </span>
-            )}
-            {meta.luas_tanah && meta.luas_bangunan && <span className="text-slate-300">|</span>}
-            {meta.luas_bangunan && (
-              <span className="flex items-center gap-1" title="Building Area">
-                <Ruler className="h-3 w-3 text-slate-400" />
-                Building: <span className="font-medium">{meta.luas_bangunan}m²</span>
-              </span>
-            )}
-          </div>
-        )}
+        {(isArchitecture || isCivil) &&
+          (meta.luas_tanah || meta.luas_bangunan) && (
+            <div className="flex justify-center gap-2 flex-wrap text-[10px] text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100">
+              {meta.luas_tanah && (
+                <span className="flex items-center gap-1" title="Land Area">
+                  <Maximize2 className="h-3 w-3 text-slate-400" />
+                  Land: <span className="font-medium">{meta.luas_tanah}m²</span>
+                </span>
+              )}
+              {meta.luas_tanah && meta.luas_bangunan && (
+                <span className="text-slate-300">|</span>
+              )}
+              {meta.luas_bangunan && (
+                <span className="flex items-center gap-1" title="Building Area">
+                  <Ruler className="h-3 w-3 text-slate-400" />
+                  Building:{' '}
+                  <span className="font-medium">{meta.luas_bangunan}m²</span>
+                </span>
+              )}
+            </div>
+          )}
 
         {isCivil && task.start_date && task.end_date && (
           <div className="flex items-center text-[10px] text-amber-700 bg-amber-50 px-1.5 py-1 rounded border border-amber-100">
             <CalendarRange className="h-3 w-3 mr-1.5 shrink-0" />
-            <span>{formatDateShort(task.start_date)} - {formatDateShort(task.end_date)}</span>
+            <span>
+              {formatDateShort(task.start_date)} -{' '}
+              {formatDateShort(task.end_date)}
+            </span>
           </div>
         )}
 
@@ -300,7 +377,10 @@ function KanbanCard({ task, canEdit, isDragging, draggableProps, dragHandleProps
         <div className="pt-2 border-t flex items-center justify-between mt-1">
           <div className="flex flex-col gap-1">
             {(!isCivil || !task.end_date) && (
-              <div className="flex items-center gap-1.5 text-[10px] text-slate-400" title="Deadline">
+              <div
+                className="flex items-center gap-1.5 text-[10px] text-slate-400"
+                title="Deadline"
+              >
                 <div className="flex items-center">
                   <CalendarClock className="h-3 w-3 mr-1" />
                   {formatDateShort(task.deadline)}
@@ -314,7 +394,9 @@ function KanbanCard({ task, canEdit, isDragging, draggableProps, dragHandleProps
             )}
             {isCivil && task.end_date && (
               <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-                <span className="italic">Until {formatDateShort(task.end_date)}</span>
+                <span className="italic">
+                  Until {formatDateShort(task.end_date)}
+                </span>
                 <span className="text-[8px] font-bold text-amber-600 bg-amber-50 px-1 py-0.5 rounded uppercase leading-none">
                   {getRemainingTime(task.end_date)}
                 </span>
@@ -326,7 +408,9 @@ function KanbanCard({ task, canEdit, isDragging, draggableProps, dragHandleProps
               <TooltipTrigger>
                 <Avatar className="h-6 w-6 border border-white shadow-sm">
                   <AvatarImage src={getAvatarUrl(assignee) || ''} />
-                  <AvatarFallback className={`text-[9px] ${isInterior ? 'bg-emerald-100 text-emerald-700' : isCivil ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>
+                  <AvatarFallback
+                    className={`text-[9px] ${isInterior ? 'bg-emerald-100 text-emerald-700' : isCivil ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}
+                  >
                     {getInitials(assignee)}
                   </AvatarFallback>
                 </Avatar>
@@ -334,7 +418,9 @@ function KanbanCard({ task, canEdit, isDragging, draggableProps, dragHandleProps
               <TooltipContent>
                 <p>{assignee || 'Unassigned'}</p>
                 {meta.pic_lapangan && (
-                  <p className="text-[10px] text-slate-300">Supervisor: {meta.pic_lapangan}</p>
+                  <p className="text-[10px] text-slate-300">
+                    Supervisor: {meta.pic_lapangan}
+                  </p>
                 )}
               </TooltipContent>
             </Tooltip>

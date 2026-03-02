@@ -5,6 +5,21 @@ import {
   PROJECT_TYPE,
 } from '@/lib/constant'
 
+interface StatUser {
+  id: string
+  name: string
+  division?: string
+}
+
+interface StatProject {
+  type: string
+  contract_value?: number
+  value?: number
+  total_amount?: number
+  meta_data?: { pic_lapangan?: string | string[] }
+  assignee?: string | string[]
+}
+
 interface StatsRecord {
   count: number
   value: number
@@ -57,7 +72,10 @@ function toChartData(
     .sort((a, b) => b.count - a.count)
 }
 
-export function buildWorkloadData(users: any[], projects: any[]): WorkloadData {
+export function buildWorkloadData(
+  users: StatUser[],
+  projects: StatProject[]
+): WorkloadData {
   const userMap = new Map<string, string>()
   users.forEach((u) => userMap.set(u.id, u.name))
 

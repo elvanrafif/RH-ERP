@@ -1,10 +1,29 @@
 import { formatRupiah } from '@/lib/helpers'
 
-interface TopInvoicesListProps {
-  invoices: any[]
+interface ExpandedClient {
+  company_name?: string
+  name?: string
 }
 
-function getClientName(inv: any): string {
+interface InvoiceListItem {
+  id: string
+  invoice_number?: string
+  type?: string
+  category?: string
+  division?: string
+  total_amount?: number
+  amount?: number
+  expand?: {
+    project_id?: { expand?: { client_id?: ExpandedClient } }
+    client_id?: ExpandedClient
+  }
+}
+
+interface TopInvoicesListProps {
+  invoices: InvoiceListItem[]
+}
+
+function getClientName(inv: InvoiceListItem): string {
   const nested = inv.expand?.project_id?.expand?.client_id
   const direct = inv.expand?.client_id
   return (

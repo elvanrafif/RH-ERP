@@ -2,21 +2,8 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import {
-  LayoutDashboard,
-  FileText,
-  Receipt,
-  Users,
-  Settings,
-  Menu,
-  LogOut,
-  ChevronLeft,
-  PencilRuler,
-  HardHat,
-  Sofa,
-  ShieldCheck, // Icon baru untuk proyek & RBAC
-} from 'lucide-react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Menu, LogOut, ChevronLeft } from 'lucide-react'
+import { useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { pb } from '@/lib/pocketbase'
 import {
@@ -30,18 +17,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { toast } from 'sonner'
-import { NavItem } from './Sidebar/NavItem'
-
-// --- IMPORT GUARD RBAC ---
-import { Guard } from '@/components/ui/guard'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { useRole } from '@/hooks/useRole'
+import { SidebarNav } from './Sidebar/SidebarNav'
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -54,7 +32,6 @@ function SidebarContent({
   setOpen?: (open: boolean) => void
   collapsed?: boolean
 }) {
-  const navigate = useNavigate()
   const location = useLocation()
   const pathname = location.pathname
   const { isSuperAdmin } = useRole()
@@ -67,13 +44,10 @@ function SidebarContent({
   const handleLinkClick = () => {
     if (setOpen) setOpen(false)
   }
+
   const handleLogout = () => {
     pb.authStore.clear()
-
-    // Opsi tambahan: kalau mau reset state sidebar ke default saat user lain masuk
     localStorage.removeItem('sidebar-collapsed')
-
-    // KUNCI UTAMA: Paksa browser membuang semua memory dan pindah ke /login
     window.location.href = '/login'
   }
 
@@ -87,7 +61,6 @@ function SidebarContent({
         )}
       >
         {!collapsed ? (
-          // MODE EXPANDED (Full Logo)
           <h2 className="text-xl font-bold tracking-tight text-primary flex items-center gap-2">
             <span className="bg-primary text-primary-foreground w-8 h-8 flex items-center justify-center rounded-lg text-sm shadow-sm">
               RH
@@ -95,7 +68,6 @@ function SidebarContent({
             <span className="truncate">RH STUDIO</span>
           </h2>
         ) : (
-          // MODE COLLAPSED (Logo "RH")
           <span className="bg-primary text-primary-foreground w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold shadow-sm tracking-tighter cursor-default">
             RH
           </span>
@@ -104,142 +76,13 @@ function SidebarContent({
 
       {/* MENU */}
       <ScrollArea className="flex-1 py-4">
-        <nav
-          className={cn(
-            'grid gap-1 px-3',
-            collapsed ? 'justify-center px-2' : ''
-          )}
-        >
-          <Guard require="view_dashboard">
-            <NavItem
-              to="/"
-              icon={LayoutDashboard}
-              label="Dashboard"
-              collapsed={collapsed}
-              isActive={isActive('/') && pathname === '/'}
-              onClick={handleLinkClick}
-            />
-          </Guard>
-
-          {/* DIVIDER PROJECTS */}
-          {/* Opsional: Divider ini bisa dibungkus Guard juga kalau mau hilang total jika user tidak punya 3 akses di bawahnya */}
-          {!collapsed && (
-            <div className="mt-6 mb-2 px-2 text-[10px] font-bold text-muted-foreground tracking-wider uppercase">
-              Project Tracker
-            </div>
-          )}
-          {/* {collapsed && <div className="my-2 border-t w-8 mx-auto" />} */}
-
-          {/* MENU PROJECTS YANG DIPECAH DENGAN RBAC */}
-          <Guard require="view_index_project_architecture">
-            <NavItem
-              to="/projects/architecture"
-              icon={PencilRuler}
-              label="Architecture"
-              collapsed={collapsed}
-              isActive={isActive('/projects/architecture')}
-              onClick={handleLinkClick}
-            />
-          </Guard>
-
-          <Guard require="view_index_project_civil">
-            <NavItem
-              to="/projects/civil"
-              icon={HardHat}
-              label="Civil Construction"
-              collapsed={collapsed}
-              isActive={isActive('/projects/civil')}
-              onClick={handleLinkClick}
-            />
-          </Guard>
-
-          <Guard require="view_index_project_interior">
-            <NavItem
-              to="/projects/interior"
-              icon={Sofa}
-              label="Interior"
-              collapsed={collapsed}
-              isActive={isActive('/projects/interior')}
-              onClick={handleLinkClick}
-            />
-          </Guard>
-
-          {/* DIVIDER COMMERCIAL */}
-          {!collapsed && isSuperAdmin && (
-            <div className="mt-6 mb-2 px-2 text-[10px] font-bold text-muted-foreground tracking-wider uppercase">
-              Commercial
-            </div>
-          )}
-          {/* {collapsed && <div className="my-2 border-t w-8 mx-auto" />} */}
-
-          <Guard require="view_revenue">
-            <NavItem
-              to="/quotations"
-              icon={FileText}
-              label="Quotations"
-              collapsed={collapsed}
-              isActive={isActive('/quotations')}
-              onClick={handleLinkClick}
-            />
-            <NavItem
-              to="/invoices"
-              icon={Receipt}
-              label="Invoices"
-              collapsed={collapsed}
-              isActive={isActive('/invoices')}
-              onClick={handleLinkClick}
-            />
-          </Guard>
-
-          {/* DIVIDER MANAGEMENT */}
-          {!collapsed && (
-            <div className="mt-6 mb-2 px-2 text-[10px] font-bold text-muted-foreground tracking-wider uppercase">
-              Management
-            </div>
-          )}
-          {/* {collapsed && <div className="my-2 border-t w-8 mx-auto" />} */}
-
-          <Guard require="view_clients">
-            <NavItem
-              to="/clients"
-              icon={Users}
-              label="Clients"
-              collapsed={collapsed}
-              isActive={isActive('/clients')}
-              onClick={handleLinkClick}
-            />
-          </Guard>
-
-          <Guard require="manage_users">
-            <NavItem
-              to="/settings/users"
-              icon={Users}
-              label="User Management"
-              collapsed={collapsed}
-              isActive={isActive('/settings/users')}
-              onClick={handleLinkClick}
-            />
-            {/* TAMBAHAN MENU ROLE MANAGEMENT (Hanya untuk Superadmin/Pemegang Izin) */}
-            <NavItem
-              to="/settings/roles"
-              icon={ShieldCheck}
-              label="Role Management"
-              collapsed={collapsed}
-              isActive={isActive('/settings/roles')}
-              onClick={handleLinkClick}
-            />
-          </Guard>
-
-          {/* Profile dibiarkan tanpa Guard karena semua user butuh akses profil */}
-          <NavItem
-            to="/settings/profile"
-            icon={Settings}
-            label="Profile"
-            collapsed={collapsed}
-            isActive={isActive('/settings/profile')}
-            onClick={handleLinkClick}
-          />
-        </nav>
+        <SidebarNav
+          collapsed={collapsed}
+          isSuperAdmin={isSuperAdmin}
+          pathname={pathname}
+          isActive={isActive}
+          onLinkClick={handleLinkClick}
+        />
       </ScrollArea>
 
       {/* FOOTER */}
@@ -288,7 +131,7 @@ function SidebarContent({
   )
 }
 
-// --- DESKTOP SIDEBAR (Floating Toggle) ---
+// --- DESKTOP SIDEBAR ---
 export function Sidebar({ className }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(() => {
     const saved = localStorage.getItem('sidebar-collapsed')
@@ -310,10 +153,7 @@ export function Sidebar({ className }: SidebarProps) {
           className
         )}
       >
-        {/* ISI SIDEBAR */}
         <SidebarContent collapsed={collapsed} />
-
-        {/* TOMBOL TOGGLE FLOATING (Di Garis Batas) */}
         <Button
           onClick={toggleCollapse}
           className="absolute -right-3 top-7 z-50 h-6 w-6 rounded-full border bg-white p-0 shadow-md hover:bg-slate-100 text-slate-500"
