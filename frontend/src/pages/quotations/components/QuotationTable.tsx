@@ -8,10 +8,11 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
-import { Loader2, ArrowRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { formatRupiah } from '@/lib/helpers'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { TablePagination } from '@/components/shared/TablePagination'
+import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
 
 interface QuotationTableProps {
   quotations: any[]
@@ -47,11 +48,7 @@ export function QuotationTable({
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={6} className="text-center h-24">
-                    <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                  </TableCell>
-                </TableRow>
+                <TableRowsSkeleton rows={5} columns={6} />
               ) : quotations?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="h-60">

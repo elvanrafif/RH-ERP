@@ -9,12 +9,13 @@ import {
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Loader2, ArrowRight } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 import { MaskingTextByInvoiceType } from '@/lib/masking'
 import { cn } from '@/lib/utils'
 import { formatRupiah } from '@/lib/helpers'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { TablePagination } from '@/components/shared/TablePagination'
+import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
 
 const getTypeBadge = (type: string) => {
   const text = MaskingTextByInvoiceType(type)
@@ -67,11 +68,7 @@ export function InvoiceTable({
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center h-24">
-                    <Loader2 className="mx-auto h-6 w-6 animate-spin text-muted-foreground" />
-                  </TableCell>
-                </TableRow>
+                <TableRowsSkeleton rows={5} columns={7} />
               ) : invoices?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="h-60">

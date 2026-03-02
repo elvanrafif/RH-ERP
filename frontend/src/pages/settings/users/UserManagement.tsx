@@ -7,7 +7,7 @@ import { UserForm } from './components/UserForm'
 import { UserList } from './components/UserList'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { PageTableSkeleton } from '@/components/shared/TableSkeleton'
 
 export default function UserManagementPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -25,8 +25,6 @@ export default function UserManagementPage() {
     setIsDialogOpen(true)
   }
 
-  if (isLoading) return <LoadingSpinner />
-
   return (
     <div className="p-4 md:p-8 max-w-6xl">
       <PageHeader
@@ -40,7 +38,11 @@ export default function UserManagementPage() {
         }
       />
 
-      <UserList users={users} onEdit={handleEdit} />
+      {isLoading ? (
+        <PageTableSkeleton />
+      ) : (
+        <UserList users={users} onEdit={handleEdit} />
+      )}
 
       <FormDialog
         open={isDialogOpen}

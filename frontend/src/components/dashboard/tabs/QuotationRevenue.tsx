@@ -8,11 +8,12 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Loader2, FileCheck, Award, CalendarDays } from 'lucide-react'
+import { FileCheck, Award, CalendarDays } from 'lucide-react'
 import { formatRupiah } from '@/lib/helpers'
 import { useQuotationRevenue } from '@/hooks/useQuotationRevenue'
 import { useDateRangeFilter } from '@/hooks/useDateRangeFilter'
 import { TopQuotationsList } from './TopQuotationsList'
+import { ChartSkeleton } from '@/components/shared/ChartSkeleton'
 
 export function QuotationRevenue() {
   const {
@@ -29,15 +30,14 @@ export function QuotationRevenue() {
     applyCustomDates,
   } = useDateRangeFilter()
 
-  const { data: quotationData, isLoading } = useQuotationRevenue(filter, appliedStart, appliedEnd)
+  const { data: quotationData, isLoading } = useQuotationRevenue(
+    filter,
+    appliedStart,
+    appliedEnd
+  )
 
   if (isLoading) {
-    return (
-      <div className="flex h-[400px] items-center justify-center flex-col gap-3 text-slate-500">
-        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
-        <p className="text-sm font-medium">Fetching realized deals...</p>
-      </div>
-    )
+    return <ChartSkeleton />
   }
 
   return (
@@ -47,7 +47,9 @@ export function QuotationRevenue() {
           <div className="p-1.5 bg-purple-100 rounded-md text-purple-700">
             <FileCheck className="h-4 w-4" />
           </div>
-          <h2 className="text-lg font-bold text-slate-800">Realized Quotations</h2>
+          <h2 className="text-lg font-bold text-slate-800">
+            Realized Quotations
+          </h2>
         </div>
 
         <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full lg:w-auto">
@@ -70,7 +72,9 @@ export function QuotationRevenue() {
               className="h-8 text-xs bg-white text-slate-600 w-full sm:w-auto"
               onClick={() => {}}
             >
-              {appliedStart && appliedEnd ? `${appliedStart} - ${appliedEnd}` : 'Set Dates'}
+              {appliedStart && appliedEnd
+                ? `${appliedStart} - ${appliedEnd}`
+                : 'Set Dates'}
             </Button>
           )}
 
@@ -79,7 +83,9 @@ export function QuotationRevenue() {
               ref={modalRef}
               className="absolute top-10 right-0 z-50 w-[240px] p-3 bg-white border border-slate-200 rounded-lg shadow-xl animate-in fade-in zoom-in-95"
             >
-              <p className="text-xs font-semibold text-slate-700 mb-2">Select Date Range</p>
+              <p className="text-xs font-semibold text-slate-700 mb-2">
+                Select Date Range
+              </p>
               <div className="flex flex-col gap-2">
                 <Input
                   type="date"
@@ -109,7 +115,9 @@ export function QuotationRevenue() {
       <Card className="bg-gradient-to-br from-purple-500 to-purple-700 text-white border-none shadow-md">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-medium">Total Approved Deals</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Approved Deals
+            </CardTitle>
             <Award className="h-4 w-4" />
           </div>
         </CardHeader>
@@ -122,7 +130,9 @@ export function QuotationRevenue() {
 
       <Card className="border-slate-200/60 shadow-sm overflow-hidden">
         <CardHeader className="bg-slate-50/50 border-b border-slate-100 pb-3">
-          <CardTitle className="text-sm font-bold text-slate-800">Top 5 Paid Quotations</CardTitle>
+          <CardTitle className="text-sm font-bold text-slate-800">
+            Top 5 Paid Quotations
+          </CardTitle>
         </CardHeader>
         <CardContent className="p-4">
           <TopQuotationsList quotations={quotationData?.topQuotations || []} />

@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Plus, Search, Users } from 'lucide-react'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { PageTableSkeleton } from '@/components/shared/TableSkeleton'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog'
 
@@ -110,7 +110,7 @@ export default function ClientsPage() {
 
         {/* CONTENT AREA */}
         {isLoading ? (
-          <LoadingSpinner className="h-60" />
+          <PageTableSkeleton />
         ) : data?.length === 0 ? (
           <div className="flex items-center justify-center h-60 border rounded-lg bg-slate-50/50 border-2 border-dashed">
             <EmptyState

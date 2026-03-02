@@ -7,11 +7,12 @@ import {
   CardDescription,
 } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Loader2, HardHat, Sofa, PencilRuler } from 'lucide-react'
+import { HardHat, Sofa, PencilRuler } from 'lucide-react'
 import { formatCompactCurrency } from '@/lib/formatting/currency'
 import { WORKLOAD_OVERLOAD_THRESHOLD } from '@/lib/constant'
 import { useWorkloadData } from '@/hooks/useWorkloadData'
 import { WorkloadChart } from './WorkloadChart'
+import { ChartSkeleton } from '@/components/shared/ChartSkeleton'
 
 const DIVISION_CARDS = [
   {
@@ -60,21 +61,19 @@ export function ResourceMonitoringTab() {
   const { data: workloadData, isLoading } = useWorkloadData()
 
   if (isLoading) {
-    return (
-      <div className="flex h-[400px] items-center justify-center flex-col gap-3 text-slate-500">
-        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
-        <p className="text-sm font-medium">Analyzing team workload and values...</p>
-      </div>
-    )
+    return <ChartSkeleton />
   }
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm">
         <div>
-          <h3 className="text-lg font-bold text-slate-800">Capacity & Value Distribution</h3>
+          <h3 className="text-lg font-bold text-slate-800">
+            Capacity & Value Distribution
+          </h3>
           <p className="text-xs text-slate-500 mt-1">
-            Red indicator means overload (≥ {WORKLOAD_OVERLOAD_THRESHOLD} projects).
+            Red indicator means overload (≥ {WORKLOAD_OVERLOAD_THRESHOLD}{' '}
+            projects).
           </p>
         </div>
         <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200">
@@ -101,8 +100,13 @@ export function ResourceMonitoringTab() {
         {DIVISION_CARDS.map((card) => {
           const dataRef = workloadData?.[card.id]
           return (
-            <Card key={card.id} className="shadow-sm border-slate-200/60 overflow-hidden">
-              <CardHeader className={`${card.theme.bgHeader} pb-4 border-b ${card.theme.border}`}>
+            <Card
+              key={card.id}
+              className="shadow-sm border-slate-200/60 overflow-hidden"
+            >
+              <CardHeader
+                className={`${card.theme.bgHeader} pb-4 border-b ${card.theme.border}`}
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div
@@ -114,7 +118,9 @@ export function ResourceMonitoringTab() {
                       <CardTitle className="text-base font-bold text-slate-800">
                         {card.title}
                       </CardTitle>
-                      <CardDescription className="text-xs">{card.description}</CardDescription>
+                      <CardDescription className="text-xs">
+                        {card.description}
+                      </CardDescription>
                     </div>
                   </div>
                   <div className="text-right">

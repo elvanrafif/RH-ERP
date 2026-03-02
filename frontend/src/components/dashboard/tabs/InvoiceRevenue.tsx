@@ -8,12 +8,13 @@ import {
 } from '@/components/ui/select'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { Loader2, Wallet, CheckCircle2, CalendarDays } from 'lucide-react'
+import { Wallet, CheckCircle2, CalendarDays } from 'lucide-react'
 import { formatRupiah } from '@/lib/helpers'
 import { useInvoiceRevenue } from '@/hooks/useInvoiceRevenue'
 import { useDateRangeFilter } from '@/hooks/useDateRangeFilter'
 import { RevenuePieChart } from './RevenuePieChart'
 import { TopInvoicesList } from './TopInvoicesList'
+import { ChartSkeleton } from '@/components/shared/ChartSkeleton'
 
 export function InvoiceRevenue() {
   const {
@@ -30,15 +31,14 @@ export function InvoiceRevenue() {
     applyCustomDates,
   } = useDateRangeFilter()
 
-  const { data: invoiceData, isLoading } = useInvoiceRevenue(filter, appliedStart, appliedEnd)
+  const { data: invoiceData, isLoading } = useInvoiceRevenue(
+    filter,
+    appliedStart,
+    appliedEnd
+  )
 
   if (isLoading) {
-    return (
-      <div className="flex h-[400px] items-center justify-center flex-col gap-3 text-slate-500">
-        <Loader2 className="h-8 w-8 animate-spin text-slate-400" />
-        <p className="text-sm font-medium">Fetching invoice data...</p>
-      </div>
-    )
+    return <ChartSkeleton />
   }
 
   return (
@@ -48,7 +48,9 @@ export function InvoiceRevenue() {
           <div className="p-1.5 bg-emerald-100 rounded-md text-emerald-700">
             <Wallet className="h-4 w-4" />
           </div>
-          <h2 className="text-lg font-bold text-slate-800">Realized Invoices</h2>
+          <h2 className="text-lg font-bold text-slate-800">
+            Realized Invoices
+          </h2>
         </div>
 
         <div className="relative flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full lg:w-auto">
@@ -71,7 +73,9 @@ export function InvoiceRevenue() {
               className="h-8 text-xs bg-white text-slate-600 w-full sm:w-auto"
               onClick={() => {}}
             >
-              {appliedStart && appliedEnd ? `${appliedStart} - ${appliedEnd}` : 'Set Dates'}
+              {appliedStart && appliedEnd
+                ? `${appliedStart} - ${appliedEnd}`
+                : 'Set Dates'}
             </Button>
           )}
 
@@ -80,7 +84,9 @@ export function InvoiceRevenue() {
               ref={modalRef}
               className="absolute top-10 right-0 z-50 w-[240px] p-3 bg-white border border-slate-200 rounded-lg shadow-xl animate-in fade-in zoom-in-95"
             >
-              <p className="text-xs font-semibold text-slate-700 mb-2">Select Date Range</p>
+              <p className="text-xs font-semibold text-slate-700 mb-2">
+                Select Date Range
+              </p>
               <div className="flex flex-col gap-2">
                 <Input
                   type="date"
@@ -110,7 +116,9 @@ export function InvoiceRevenue() {
       <Card className="bg-gradient-to-br from-emerald-500 to-emerald-700 text-white border-none shadow-md">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm font-medium text-emerald-50">Total Paid Invoices</CardTitle>
+            <CardTitle className="text-sm font-medium text-emerald-50">
+              Total Paid Invoices
+            </CardTitle>
             <CheckCircle2 className="h-4 w-4 text-emerald-200/50" />
           </div>
         </CardHeader>
