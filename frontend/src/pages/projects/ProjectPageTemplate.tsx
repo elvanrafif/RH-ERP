@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useAutoOpenProject } from '@/hooks/useAutoOpenProject'
 import type { Project } from '@/types'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRole } from '@/hooks/useRole'
@@ -49,8 +50,6 @@ export default function ProjectPageTemplate({
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
-  const [projectToView, setProjectToView] = useState<Project | null>(null)
-
   // Data hooks
   const { users } = useUsers()
   const { projects, isLoading, updateStatus, deleteProject } = useProjects({
@@ -67,6 +66,11 @@ export default function ProjectPageTemplate({
     hasActiveFilters,
     resetFilters,
   } = useProjectFilters({ projects, projectType })
+
+  const { projectToView, setProjectToView } = useAutoOpenProject(
+    projects,
+    isLoading
+  )
 
   const handleCreate = () => {
     setEditingProject(null)

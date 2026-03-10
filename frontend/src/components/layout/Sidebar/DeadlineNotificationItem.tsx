@@ -34,7 +34,7 @@ export function DeadlineNotificationItem({
       : `${project.daysRemaining}d left`
 
   const handleClick = () => {
-    navigate(TYPE_ROUTE[project.type])
+    navigate(`${TYPE_ROUTE[project.type]}?open=${project.id}`)
     onNavigate()
   }
 
