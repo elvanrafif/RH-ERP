@@ -34,7 +34,7 @@ export default function QuotationsPage() {
   }
 
   return (
-    <div className="flex-1 h-full p-4 md:p-8 pt-6 flex flex-col overflow-hidden bg-slate-50/30">
+    <div className="flex-1 h-full p-4 md:p-8 pt-6 flex flex-col overflow-hidden bg-background/50">
       <PageHeader
         icon={<FileText className="w-6 h-6" />}
         title="Quotations"
@@ -59,7 +59,7 @@ export default function QuotationsPage() {
       </div>
 
       {/* TABLE LIST */}
-      <div className="flex-1 overflow-hidden relative bg-white/50 rounded-lg border border-slate-200/60 shadow-inner">
+      <div className="flex-1 overflow-hidden relative bg-card/50 rounded-lg border border-border shadow-inner">
         <QuotationTable
           quotations={quotations}
           isLoading={isLoading}

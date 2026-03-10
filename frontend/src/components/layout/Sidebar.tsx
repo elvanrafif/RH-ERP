@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Menu, LogOut, ChevronLeft } from 'lucide-react'
+import { Menu, LogOut, ChevronLeft, Moon, Sun } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { pb } from '@/lib/pocketbase'
@@ -17,8 +17,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { TooltipProvider } from '@/components/ui/tooltip'
+import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useRole } from '@/hooks/useRole'
+import { useDarkMode } from '@/hooks/useDarkMode'
 import { SidebarNav } from './Sidebar/SidebarNav'
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
@@ -35,6 +36,7 @@ function SidebarContent({
   const location = useLocation()
   const pathname = location.pathname
   const { isSuperAdmin } = useRole()
+  const { isDark, toggle } = useDarkMode()
 
   const isActive = (path: string) => {
     if (path === '/' && pathname !== '/') return false
@@ -52,17 +54,17 @@ function SidebarContent({
   }
 
   return (
-    <div className={cn('flex flex-col h-full', className)}>
+    <div className={cn('flex flex-col h-full bg-sidebar', className)}>
       {/* HEADER LOGO */}
       <div
         className={cn(
-          'flex items-center h-[60px] border-b transition-all',
+          'flex items-center h-[60px] border-b border-sidebar-border transition-all',
           collapsed ? 'justify-center px-0' : 'px-6'
         )}
       >
         {!collapsed ? (
-          <h2 className="text-xl font-bold tracking-tight text-primary flex items-center gap-2">
-            <span className="bg-primary text-primary-foreground w-8 h-8 flex items-center justify-center rounded-lg text-sm shadow-sm">
+          <h2 className="text-xl font-bold tracking-tight text-sidebar-foreground flex items-center gap-2">
+            <span className="bg-primary text-primary-foreground w-8 h-8 flex items-center justify-center rounded-lg text-sm shadow-sm font-bold">
               RH
             </span>
             <span className="truncate">RH STUDIO</span>
@@ -86,22 +88,60 @@ function SidebarContent({
       </ScrollArea>
 
       {/* FOOTER */}
-      <div className="p-4 border-t border-slate-200 mt-auto bg-slate-50/30">
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            {collapsed ? (
+      <div className={cn(
+        'border-t border-sidebar-border mt-auto',
+        collapsed ? 'p-2 flex flex-col items-center gap-2' : 'p-3 space-y-1'
+      )}>
+        {/* Dark Mode Toggle */}
+        {collapsed ? (
+          <Tooltip delayDuration={0}>
+            <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 text-red-600 hover:text-red-700 hover:bg-red-50 mx-auto flex transition-colors"
-                title="Log out"
+                onClick={toggle}
+                className="h-9 w-9 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+                title={isDark ? 'Light mode' : 'Dark mode'}
               >
-                <LogOut className="h-4 w-4" />
+                {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              {isDark ? 'Light mode' : 'Dark mode'}
+            </TooltipContent>
+          </Tooltip>
+        ) : (
+          <Button
+            variant="ghost"
+            onClick={toggle}
+            className="w-full justify-start text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+          >
+            {isDark ? <Sun className="mr-3 h-4 w-4" /> : <Moon className="mr-3 h-4 w-4" />}
+            {isDark ? 'Light mode' : 'Dark mode'}
+          </Button>
+        )}
+
+        {/* Logout */}
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            {collapsed ? (
+              <Tooltip delayDuration={0}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors"
+                    title="Log out"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Log out</TooltipContent>
+              </Tooltip>
             ) : (
               <Button
                 variant="ghost"
-                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+                className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors"
               >
                 <LogOut className="mr-3 h-4 w-4" />
                 Log out
@@ -148,7 +188,7 @@ export function Sidebar({ className }: SidebarProps) {
     <TooltipProvider>
       <div
         className={cn(
-          'relative border-r bg-white hidden md:block h-screen sticky top-0 transition-all duration-300 ease-in-out z-20',
+          'relative border-r border-sidebar-border bg-sidebar hidden md:block h-screen sticky top-0 transition-all duration-300 ease-in-out z-20',
           collapsed ? 'w-[70px]' : 'w-64',
           className
         )}
@@ -156,7 +196,7 @@ export function Sidebar({ className }: SidebarProps) {
         <SidebarContent collapsed={collapsed} />
         <Button
           onClick={toggleCollapse}
-          className="absolute -right-3 top-7 z-50 h-6 w-6 rounded-full border bg-white p-0 shadow-md hover:bg-slate-100 text-slate-500"
+          className="absolute -right-3 top-7 z-50 h-6 w-6 rounded-full border border-border bg-background p-0 shadow-md hover:bg-muted text-muted-foreground"
           variant="ghost"
         >
           <ChevronLeft

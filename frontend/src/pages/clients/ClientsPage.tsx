@@ -84,7 +84,7 @@ export default function ClientsPage() {
     )
 
   return (
-    <div className="w-full overflow-x-auto bg-slate-50/50">
+    <div className="w-full overflow-x-auto bg-muted/40">
       <div className="min-w-[1024px] space-y-4 p-8 pt-6">
         <PageHeader
           icon={<Users className="h-6 w-6 text-slate-800" />}
@@ -112,14 +112,14 @@ export default function ClientsPage() {
         {isLoading ? (
           <PageTableSkeleton />
         ) : data?.length === 0 ? (
-          <div className="flex items-center justify-center h-60 border rounded-lg bg-white/50">
+          <div className="flex items-center justify-center h-60 border rounded-lg bg-card/50">
             <EmptyState
               title="No clients found"
               description="Try changing your search keywords or add a new client."
             />
           </div>
         ) : (
-          <div className="bg-white rounded-md border">
+          <div className="bg-card rounded-md border">
             <DataTable columns={columns} data={data || []} />
           </div>
         )}
