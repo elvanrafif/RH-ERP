@@ -20,21 +20,25 @@ export function ProjectSpecsCard({
       {hasAreaData && (
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-center">
-            <div className="flex items-center justify-center gap-1 text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+            <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground font-medium mb-1">
               <Maximize2 className="h-3 w-3" /> Land Area
             </div>
             <p className="text-xl font-bold text-foreground">
               {meta.luas_tanah || '—'}
-              <span className="text-sm font-normal text-muted-foreground ml-1">m²</span>
+              <span className="text-sm font-normal text-muted-foreground ml-1">
+                m²
+              </span>
             </p>
           </div>
           <div className="rounded-lg border border-border bg-muted/30 px-4 py-3 text-center">
-            <div className="flex items-center justify-center gap-1 text-[10px] text-muted-foreground uppercase tracking-wider mb-1">
+            <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground font-medium mb-1">
               <Building2 className="h-3 w-3" /> Building Area
             </div>
             <p className="text-xl font-bold text-foreground">
               {meta.luas_bangunan || '—'}
-              <span className="text-sm font-normal text-muted-foreground ml-1">m²</span>
+              <span className="text-sm font-normal text-muted-foreground ml-1">
+                m²
+              </span>
             </p>
           </div>
         </div>
@@ -43,18 +47,18 @@ export function ProjectSpecsCard({
       {/* Scope area — Interior only */}
       {meta.area_scope && (
         <div className="rounded-lg border border-border bg-muted/30 px-4 py-3">
-          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">
+          <p className="text-xs font-semibold text-foreground mb-1">
             Scope Area
           </p>
-          <p className="text-sm text-foreground leading-relaxed">{meta.area_scope}</p>
+          <p className="text-sm text-foreground leading-relaxed">
+            {meta.area_scope}
+          </p>
         </div>
       )}
 
       {/* Notes */}
       <div>
-        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
-          Notes
-        </p>
+        <p className="text-xs font-semibold text-foreground mb-2">Notes</p>
         <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
           {notes || 'No notes for this project.'}
         </p>

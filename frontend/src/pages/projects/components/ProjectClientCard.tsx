@@ -8,9 +8,7 @@ interface ProjectClientCardProps {
 export function ProjectClientCard({ client }: ProjectClientCardProps) {
   return (
     <div className="space-y-2.5">
-      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-        Contact Info
-      </p>
+      <p className="text-xs font-semibold text-foreground">Contact Info</p>
       <div className="space-y-1.5">
         <div className="flex items-start gap-2 text-sm text-muted-foreground">
           <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />

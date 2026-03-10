@@ -19,7 +19,7 @@ export function ProjectPicTimelineCard({
     <div className="space-y-3">
       {/* PIC */}
       <div>
-        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
+        <p className="text-xs font-semibold text-foreground mb-2">
           Person In Charge
         </p>
         <div className="flex items-center gap-2.5">
@@ -36,7 +36,7 @@ export function ProjectPicTimelineCard({
 
       {/* Timeline */}
       <div>
-        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
+        <p className="text-xs font-semibold text-foreground mb-2">
           {isCivil ? 'Contract Timeline' : 'Target Deadline'}
         </p>
 

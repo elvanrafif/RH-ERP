@@ -54,7 +54,6 @@ export function ProjectDetailsModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="w-[95vw] sm:max-w-[700px] max-h-[90vh] flex flex-col p-0 gap-0">
-
         {/* ── HERO ─────────────────────────────────────── */}
         <div className="px-6 pt-6 pb-5 shrink-0">
           <div className="flex items-center gap-2 mb-3">
@@ -109,7 +108,7 @@ export function ProjectDetailsModal({
 
           {/* Specs + Notes */}
           <div className="px-6 py-5">
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-4">
+            <p className="text-xs font-semibold text-foreground mb-4">
               Specifications & Notes
             </p>
             <ProjectSpecsCard
@@ -124,11 +123,14 @@ export function ProjectDetailsModal({
 
         {/* ── FOOTER ───────────────────────────────────── */}
         <div className="px-6 py-4 shrink-0 flex justify-end">
-          <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => onOpenChange(false)}
+          >
             Close
           </Button>
         </div>
-
       </DialogContent>
     </Dialog>
   )
