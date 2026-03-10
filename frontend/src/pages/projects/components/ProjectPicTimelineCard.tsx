@@ -41,7 +41,7 @@ export function ProjectPicTimelineCard({
         </p>
 
         {isCivil ? (
-          <div className="rounded-lg border border-border bg-muted/30 px-3 py-2.5 space-y-1.5">
+          <div className="rounded-lg border border-border bg-muted/30 px-3 py-2.5 flex flex-col items-center gap-1.5">
             <div className="flex items-center gap-2 text-xs text-foreground">
               <CalendarRange className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
               <span>{formatDateLong(project.start_date)}</span>
