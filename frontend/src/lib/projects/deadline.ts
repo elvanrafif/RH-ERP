@@ -6,6 +6,7 @@ export type DeadlineStatus = 'overdue' | 'warning'
 export interface DeadlineProject {
   id: string
   clientName: string
+  picName: string
   type: Project['type']
   daysRemaining: number
   deadlineStatus: DeadlineStatus
@@ -63,6 +64,7 @@ export function toDeadlineProjects(
       acc.push({
         id: project.id,
         clientName: project.expand?.client?.company_name ?? 'Unknown Client',
+        picName: project.expand?.assignee?.name ?? '-',
         type: project.type,
         daysRemaining,
         deadlineStatus,
