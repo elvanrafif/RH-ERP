@@ -6,7 +6,7 @@ interface DateRangeFilter {
   setFilter: (val: string) => void
   showCustomModal: boolean
   setShowCustomModal: (val: boolean) => void
-  modalRef: RefObject<HTMLDivElement>
+  modalRef: RefObject<HTMLDivElement | null>
   tempStart: string
   setTempStart: (val: string) => void
   tempEnd: string
@@ -16,7 +16,9 @@ interface DateRangeFilter {
   applyCustomDates: () => void
 }
 
-export function useDateRangeFilter(initialFilter = 'this_month'): DateRangeFilter {
+export function useDateRangeFilter(
+  initialFilter = 'this_month'
+): DateRangeFilter {
   const [filter, setFilterState] = useState(initialFilter)
   const [showCustomModal, setShowCustomModal] = useState(false)
   const modalRef = useRef<HTMLDivElement>(null)
@@ -27,7 +29,10 @@ export function useDateRangeFilter(initialFilter = 'this_month'): DateRangeFilte
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
         setShowCustomModal(false)
       }
     }

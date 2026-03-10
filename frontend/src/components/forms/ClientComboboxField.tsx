@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { Control, FieldValues } from 'react-hook-form'
+import type { Control, FieldValues, Path } from 'react-hook-form'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -41,7 +41,7 @@ export function ClientComboboxField<T extends FieldValues = FieldValues>({
   return (
     <FormField
       control={control}
-      name="client_id"
+      name={'client_id' as Path<T>}
       render={({ field }) => (
         <FormItem className="flex flex-col">
           <FormLabel>Client / Project Name</FormLabel>

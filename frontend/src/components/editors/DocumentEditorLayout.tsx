@@ -13,7 +13,7 @@ interface DocumentEditorLayoutProps {
   onSave: () => void
   onShareWA: () => void
   onDownload: () => void
-  previewContainerRef: RefObject<HTMLDivElement>
+  previewContainerRef: RefObject<HTMLDivElement | null>
   previewScale: number
   leftPanel: ReactNode
   preview: ReactNode
@@ -64,7 +64,9 @@ export function DocumentEditorLayout({
         <div className="flex items-center gap-2 w-full lg:w-auto justify-between lg:justify-end overflow-x-auto pb-1 lg:pb-0 scrollbar-hide">
           <div className="mr-2 lg:mr-4 text-xs sm:text-sm font-medium text-slate-600 whitespace-nowrap">
             {totalLabel}:{' '}
-            <span className="text-blue-600 font-bold">{formatRupiah(total)}</span>
+            <span className="text-blue-600 font-bold">
+              {formatRupiah(total)}
+            </span>
           </div>
 
           <div className="flex gap-2">
@@ -80,7 +82,9 @@ export function DocumentEditorLayout({
               ) : (
                 <Save className="mr-2 h-4 w-4" />
               )}
-              <span className="hidden sm:inline">{isSaving ? 'Saving...' : 'Save'}</span>
+              <span className="hidden sm:inline">
+                {isSaving ? 'Saving...' : 'Save'}
+              </span>
             </Button>
 
             <Button
@@ -93,7 +97,11 @@ export function DocumentEditorLayout({
               <span className="hidden sm:inline">Share WA</span>
             </Button>
 
-            <Button size="sm" onClick={onDownload} className="whitespace-nowrap">
+            <Button
+              size="sm"
+              onClick={onDownload}
+              className="whitespace-nowrap"
+            >
               <Download className="mr-2 h-4 w-4" />
               <span className="hidden sm:inline">Download</span>
             </Button>

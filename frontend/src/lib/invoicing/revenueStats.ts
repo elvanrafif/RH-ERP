@@ -5,6 +5,7 @@ interface ChartEntry {
   name: string
   value: number
   color: string
+  [key: string]: unknown
 }
 
 export interface InvoiceRevenueData {

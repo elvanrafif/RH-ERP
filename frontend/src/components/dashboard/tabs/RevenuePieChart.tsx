@@ -1,10 +1,18 @@
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts'
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts'
 import { formatRupiah } from '@/lib/helpers'
 
 interface ChartEntry {
   name: string
   value: number
   color: string
+  [key: string]: unknown
 }
 
 const CustomPieTooltip = ({ active, payload }: any) => {
@@ -13,7 +21,9 @@ const CustomPieTooltip = ({ active, payload }: any) => {
   return (
     <div className="bg-white border border-slate-200 shadow-md p-2 rounded-md z-50">
       <p className="font-semibold text-slate-800 text-xs mb-1">{data.name}</p>
-      <p className="font-bold text-emerald-600 text-sm">{formatRupiah(data.value)}</p>
+      <p className="font-bold text-emerald-600 text-sm">
+        {formatRupiah(data.value)}
+      </p>
     </div>
   )
 }
