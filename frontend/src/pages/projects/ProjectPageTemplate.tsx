@@ -21,7 +21,7 @@ import { ProjectForm } from './ProjectForm'
 import { ProjectDetailsModal } from './ProjectDetailsModal'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { PageTableSkeleton } from '@/components/shared/TableSkeleton'
 import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog'
 import { StatCard } from '@/components/shared/StatCard'
 
@@ -180,7 +180,9 @@ export default function ProjectPageTemplate({
           className="flex flex-col h-full"
         >
           {isLoading ? (
-            <LoadingSpinner />
+            <div className="p-4">
+              <PageTableSkeleton rows={6} />
+            </div>
           ) : (
             <>
               {enableKanban && (

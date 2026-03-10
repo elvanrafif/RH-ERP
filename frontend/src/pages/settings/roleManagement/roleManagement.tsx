@@ -9,16 +9,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import {
-  Plus,
-  ShieldCheck,
-  ShieldAlert,
-  MoreHorizontal,
-} from 'lucide-react'
+import { Plus, ShieldCheck, ShieldAlert, MoreHorizontal } from 'lucide-react'
 import { RoleForm } from './roleForm'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
-import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
+import { EmptyState } from '@/components/shared/EmptyState'
+import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
 
 export default function RoleManagementPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -35,8 +31,6 @@ export default function RoleManagementPage() {
     setEditingRole(role)
     setIsDialogOpen(true)
   }
-
-  if (isLoading) return <LoadingSpinner />
 
   return (
     <div className="p-4 md:p-8 max-w-6xl">
@@ -62,10 +56,15 @@ export default function RoleManagementPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {roles?.length === 0 ? (
+            {isLoading ? (
+              <TableRowsSkeleton rows={3} columns={3} />
+            ) : roles?.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={3} className="text-center h-24 text-muted-foreground">
-                  No roles found.
+                <TableCell colSpan={3} className="h-40">
+                  <EmptyState
+                    title="No roles found."
+                    description="Create your first role to manage access permissions."
+                  />
                 </TableCell>
               </TableRow>
             ) : (
@@ -79,11 +78,18 @@ export default function RoleManagementPage() {
                   </TableCell>
                   <TableCell>
                     <span className="bg-slate-100 text-slate-600 px-2.5 py-0.5 rounded-full text-xs border font-medium">
-                      {Array.isArray(role.permissions) ? role.permissions.length : 0} Access Granted
+                      {Array.isArray(role.permissions)
+                        ? role.permissions.length
+                        : 0}{' '}
+                      Access Granted
                     </span>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button variant="ghost" size="icon" onClick={() => handleEdit(role)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEdit(role)}
+                    >
                       <MoreHorizontal className="h-4 w-4 text-slate-500" />
                     </Button>
                   </TableCell>

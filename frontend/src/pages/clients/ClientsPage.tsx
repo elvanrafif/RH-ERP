@@ -112,7 +112,7 @@ export default function ClientsPage() {
         {isLoading ? (
           <PageTableSkeleton />
         ) : data?.length === 0 ? (
-          <div className="flex items-center justify-center h-60 border rounded-lg bg-slate-50/50 border-2 border-dashed">
+          <div className="flex items-center justify-center h-60 border rounded-lg bg-white/50">
             <EmptyState
               title="No clients found"
               description="Try changing your search keywords or add a new client."
