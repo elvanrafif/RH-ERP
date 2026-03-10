@@ -52,17 +52,17 @@ function SidebarContent({
   }
 
   return (
-    <div className={cn('flex flex-col h-full', className)}>
+    <div className={cn('flex flex-col h-full bg-sidebar', className)}>
       {/* HEADER LOGO */}
       <div
         className={cn(
-          'flex items-center h-[60px] border-b transition-all',
+          'flex items-center h-[60px] border-b border-sidebar-border transition-all',
           collapsed ? 'justify-center px-0' : 'px-6'
         )}
       >
         {!collapsed ? (
-          <h2 className="text-xl font-bold tracking-tight text-primary flex items-center gap-2">
-            <span className="bg-primary text-primary-foreground w-8 h-8 flex items-center justify-center rounded-lg text-sm shadow-sm">
+          <h2 className="text-xl font-bold tracking-tight text-sidebar-foreground flex items-center gap-2">
+            <span className="bg-primary text-primary-foreground w-8 h-8 flex items-center justify-center rounded-lg text-sm shadow-sm font-bold">
               RH
             </span>
             <span className="truncate">RH STUDIO</span>
@@ -86,14 +86,14 @@ function SidebarContent({
       </ScrollArea>
 
       {/* FOOTER */}
-      <div className="p-4 border-t border-slate-200 mt-auto bg-slate-50/30">
+      <div className="p-3 border-t border-sidebar-border mt-auto">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             {collapsed ? (
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 text-red-600 hover:text-red-700 hover:bg-red-50 mx-auto flex transition-colors"
+                className="h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-500/10 mx-auto flex transition-colors"
                 title="Log out"
               >
                 <LogOut className="h-4 w-4" />
@@ -101,7 +101,7 @@ function SidebarContent({
             ) : (
               <Button
                 variant="ghost"
-                className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
+                className="w-full justify-start text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors"
               >
                 <LogOut className="mr-3 h-4 w-4" />
                 Log out
@@ -148,7 +148,7 @@ export function Sidebar({ className }: SidebarProps) {
     <TooltipProvider>
       <div
         className={cn(
-          'relative border-r bg-white hidden md:block h-screen sticky top-0 transition-all duration-300 ease-in-out z-20',
+          'relative border-r border-sidebar-border bg-sidebar hidden md:block h-screen sticky top-0 transition-all duration-300 ease-in-out z-20',
           collapsed ? 'w-[70px]' : 'w-64',
           className
         )}
@@ -156,7 +156,7 @@ export function Sidebar({ className }: SidebarProps) {
         <SidebarContent collapsed={collapsed} />
         <Button
           onClick={toggleCollapse}
-          className="absolute -right-3 top-7 z-50 h-6 w-6 rounded-full border bg-white p-0 shadow-md hover:bg-slate-100 text-slate-500"
+          className="absolute -right-3 top-7 z-50 h-6 w-6 rounded-full border border-border bg-background p-0 shadow-md hover:bg-muted text-muted-foreground"
           variant="ghost"
         >
           <ChevronLeft
