@@ -1,12 +1,27 @@
 import type { Project } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog'
+import { Separator } from '@/components/ui/separator'
+import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Banknote } from 'lucide-react'
 import { TypeProjectsBoolean } from '@/lib/booleans'
 import { useRole } from '@/hooks/useRole'
+import { formatRupiah } from '@/lib/helpers'
 import { ProjectClientCard } from './components/ProjectClientCard'
 import { ProjectPicTimelineCard } from './components/ProjectPicTimelineCard'
 import { ProjectSpecsCard } from './components/ProjectSpecsCard'
+
+const TYPE_LABEL: Record<Project['type'], string> = {
+  architecture: 'Architecture',
+  civil: 'Civil Construction',
+  interior: 'Interior',
+}
+
+const STATUS_COLORS: Record<string, string> = {
+  finish: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  done: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  cancelled: 'bg-red-100 text-red-700 border-red-200',
+}
 
 interface ProjectDetailsModalProps {
   project: Project | null
@@ -26,65 +41,94 @@ export function ProjectDetailsModal({
   const meta = project.meta_data || {}
   const notes = meta.notes || (project as any).notes
   const client = project.expand?.client
-
   const { isCivil, isInterior } = TypeProjectsBoolean(project.type)
 
-  const picData = (() => {
-    if (isCivil) return project.meta_data.pic_lapangan
-    return project.expand?.assignee?.name // architecture & interior both use assignee
-  })()
+  const picData = isCivil
+    ? project.meta_data?.pic_lapangan
+    : project.expand?.assignee?.name
+
+  const statusColor =
+    STATUS_COLORS[project.status] ??
+    'bg-secondary text-secondary-foreground border-border'
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] sm:max-w-[750px] max-h-[90vh] flex flex-col p-0 bg-white gap-0">
-        {/* HEADER */}
-        <div className="p-6 pb-2 shrink-0">
-          <DialogHeader>
-            <div className="flex items-center gap-2 mb-2">
-              <Badge
-                variant="outline"
-                className="uppercase bg-white border-primary/20 text-primary shadow-sm tracking-wide text-[10px] h-6 px-3"
-              >
-                {project.type}
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="uppercase text-[10px] h-6 px-3 bg-slate-200 text-slate-700 hover:bg-slate-300"
-              >
-                {project.status.replace('_', ' ')}
-              </Badge>
+      <DialogContent className="w-[95vw] sm:max-w-[700px] max-h-[90vh] flex flex-col p-0 gap-0">
+
+        {/* ── HERO ─────────────────────────────────────── */}
+        <div className="px-6 pt-6 pb-5 shrink-0">
+          <div className="flex items-center gap-2 mb-3">
+            <Badge
+              variant="outline"
+              className="text-[10px] uppercase tracking-wide font-semibold h-5 px-2"
+            >
+              {TYPE_LABEL[project.type]}
+            </Badge>
+            <Badge
+              variant="outline"
+              className={`text-[10px] uppercase tracking-wide font-semibold h-5 px-2 ${statusColor}`}
+            >
+              {project.status.replace(/_/g, ' ')}
+            </Badge>
+          </div>
+
+          <h2 className="text-xl font-bold text-foreground leading-tight">
+            {client?.company_name || 'Unknown Client'}
+          </h2>
+
+          {isSuperAdmin && (
+            <div className="flex items-center gap-1.5 mt-2 text-sm text-muted-foreground">
+              <Banknote className="h-3.5 w-3.5 shrink-0" />
+              <span>Contract value:</span>
+              <span className="font-semibold text-foreground">
+                {formatRupiah(project.contract_value || 0)}
+              </span>
             </div>
-          </DialogHeader>
+          )}
         </div>
 
-        {/* SCROLLABLE BODY */}
-        <div className="flex-1 overflow-y-auto p-6 pt-2">
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Separator />
+
+        {/* ── BODY ─────────────────────────────────────── */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Contact + PIC */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border">
+            <div className="px-6 py-5">
               <ProjectClientCard client={client} />
+            </div>
+            <div className="px-6 py-5">
               <ProjectPicTimelineCard
                 picData={picData}
                 isCivil={isCivil}
                 project={project}
               />
             </div>
+          </div>
 
+          <Separator />
+
+          {/* Specs + Notes */}
+          <div className="px-6 py-5">
+            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-4">
+              Specifications & Notes
+            </p>
             <ProjectSpecsCard
               meta={meta}
               notes={notes}
-              isSuperAdmin={isSuperAdmin}
-              contractValue={project.contract_value || 0}
               isInterior={isInterior}
             />
           </div>
         </div>
 
-        {/* FOOTER */}
-        <div className="p-6 shrink-0 flex justify-end bg-white/50 backdrop-blur-sm mt-auto">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Close Details
+        <Separator />
+
+        {/* ── FOOTER ───────────────────────────────────── */}
+        <div className="px-6 py-4 shrink-0 flex justify-end">
+          <Button variant="outline" size="sm" onClick={() => onOpenChange(false)}>
+            Close
           </Button>
         </div>
+
       </DialogContent>
     </Dialog>
   )
