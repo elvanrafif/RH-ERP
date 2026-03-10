@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
-import { Menu, LogOut, ChevronLeft, Moon, Sun } from 'lucide-react'
+import { Menu, LogOut, ChevronLeft } from 'lucide-react'
 import { useLocation } from 'react-router-dom'
 import { useState } from 'react'
 import { pb } from '@/lib/pocketbase'
@@ -17,9 +17,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { useRole } from '@/hooks/useRole'
-import { useDarkMode } from '@/hooks/useDarkMode'
 import { SidebarNav } from './Sidebar/SidebarNav'
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
@@ -36,7 +35,6 @@ function SidebarContent({
   const location = useLocation()
   const pathname = location.pathname
   const { isSuperAdmin } = useRole()
-  const { isDark, toggle } = useDarkMode()
 
   const isActive = (path: string) => {
     if (path === '/' && pathname !== '/') return false
@@ -88,56 +86,18 @@ function SidebarContent({
       </ScrollArea>
 
       {/* FOOTER */}
-      <div className={cn(
-        'border-t border-sidebar-border mt-auto',
-        collapsed ? 'p-2 flex flex-col items-center gap-2' : 'p-3 space-y-1'
-      )}>
-        {/* Dark Mode Toggle */}
-        {collapsed ? (
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggle}
-                className="h-9 w-9 text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
-                title={isDark ? 'Light mode' : 'Dark mode'}
-              >
-                {isDark ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="right">
-              {isDark ? 'Light mode' : 'Dark mode'}
-            </TooltipContent>
-          </Tooltip>
-        ) : (
-          <Button
-            variant="ghost"
-            onClick={toggle}
-            className="w-full justify-start text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
-          >
-            {isDark ? <Sun className="mr-3 h-4 w-4" /> : <Moon className="mr-3 h-4 w-4" />}
-            {isDark ? 'Light mode' : 'Dark mode'}
-          </Button>
-        )}
-
-        {/* Logout */}
+      <div className="p-3 border-t border-sidebar-border mt-auto">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             {collapsed ? (
-              <Tooltip delayDuration={0}>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-500/10 transition-colors"
-                    title="Log out"
-                  >
-                    <LogOut className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="right">Log out</TooltipContent>
-              </Tooltip>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 text-red-500 hover:text-red-600 hover:bg-red-500/10 mx-auto flex transition-colors"
+                title="Log out"
+              >
+                <LogOut className="h-4 w-4" />
+              </Button>
             ) : (
               <Button
                 variant="ghost"
