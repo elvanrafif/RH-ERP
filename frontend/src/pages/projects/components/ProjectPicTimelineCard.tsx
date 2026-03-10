@@ -41,21 +41,19 @@ export function ProjectPicTimelineCard({
         </p>
 
         {isCivil ? (
-          <div className="space-y-2">
-            <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-3 py-2">
-              <div className="flex items-center gap-2 text-xs text-foreground">
-                <CalendarRange className="h-3.5 w-3.5 text-muted-foreground" />
-                <span>{formatDateLong(project.start_date)}</span>
-                <ArrowRight className="h-3 w-3 text-muted-foreground" />
-                <span>{formatDateLong(project.end_date)}</span>
-              </div>
-              <Badge
-                variant="secondary"
-                className="text-[9px] font-bold uppercase bg-red-100 text-red-700 border-red-200"
-              >
-                {getRemainingTime(project.end_date)}
-              </Badge>
+          <div className="rounded-lg border border-border bg-muted/30 px-3 py-2.5 space-y-1.5">
+            <div className="flex items-center gap-2 text-xs text-foreground">
+              <CalendarRange className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+              <span>{formatDateLong(project.start_date)}</span>
+              <ArrowRight className="h-3 w-3 text-muted-foreground shrink-0" />
+              <span>{formatDateLong(project.end_date)}</span>
             </div>
+            <Badge
+              variant="secondary"
+              className="text-[9px] font-bold uppercase bg-red-100 text-red-700 border-red-200"
+            >
+              {getRemainingTime(project.end_date)}
+            </Badge>
           </div>
         ) : (
           <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-3 py-2">
