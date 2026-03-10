@@ -20,6 +20,7 @@ import {
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { useRole } from '@/hooks/useRole'
 import { SidebarNav } from './Sidebar/SidebarNav'
+import { DeadlineNotificationBell } from './Sidebar/DeadlineNotificationBell'
 
 interface SidebarProps extends React.HTMLAttributes<HTMLDivElement> {}
 
@@ -72,6 +73,16 @@ function SidebarContent({
             RH
           </span>
         )}
+      </div>
+
+      {/* DEADLINE NOTIFICATION BELL */}
+      <div
+        className={cn(
+          'px-3 py-2 border-b border-sidebar-border',
+          collapsed && 'px-2'
+        )}
+      >
+        <DeadlineNotificationBell collapsed={collapsed} />
       </div>
 
       {/* MENU */}
