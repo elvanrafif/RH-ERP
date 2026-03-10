@@ -48,6 +48,10 @@ export const PAYMENT_ITEM_STATUS = {
 
 export const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024 // 5MB
 
+// Deadline notification
+export const DEADLINE_WARNING_DAYS = 7
+export const DONE_STATUSES = ['finish', 'done', 'cancelled'] as const
+
 export const COMPANY_INFO = {
   NAME: 'RH STUDIO ARSITEK',
   ADDRESS:

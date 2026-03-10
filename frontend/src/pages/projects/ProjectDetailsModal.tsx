@@ -1,11 +1,7 @@
 import type { Project } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader } from '@/components/ui/dialog'
 import { TypeProjectsBoolean } from '@/lib/booleans'
 import { useRole } from '@/hooks/useRole'
 import { ProjectClientCard } from './components/ProjectClientCard'
@@ -35,8 +31,7 @@ export function ProjectDetailsModal({
 
   const picData = (() => {
     if (isCivil) return project.meta_data.pic_lapangan
-    if (isInterior) return project.meta_data.pic_interior
-    return project.expand?.assignee?.name
+    return project.expand?.assignee?.name // architecture & interior both use assignee
   })()
 
   return (
