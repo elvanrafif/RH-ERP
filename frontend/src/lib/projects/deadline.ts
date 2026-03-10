@@ -41,6 +41,15 @@ export function isProjectActive(status: string): boolean {
   return !(DONE_STATUSES as readonly string[]).includes(status)
 }
 
+/** Resolves PIC name based on project type. Civil uses meta_data.pic_lapangan;
+ *  architecture and interior use the assignee user relation. */
+function getPicName(project: Project): string {
+  if (project.type === 'civil') {
+    return project.meta_data?.pic_lapangan ?? '-'
+  }
+  return project.expand?.assignee?.name ?? '-'
+}
+
 /** Converts raw projects into a sorted list of deadline-relevant projects. */
 export function toDeadlineProjects(
   projects: Project[],
@@ -64,7 +73,7 @@ export function toDeadlineProjects(
       acc.push({
         id: project.id,
         clientName: project.expand?.client?.company_name ?? 'Unknown Client',
-        picName: project.expand?.assignee?.name ?? '-',
+        picName: getPicName(project),
         type: project.type,
         daysRemaining,
         deadlineStatus,

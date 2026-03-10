@@ -28,10 +28,10 @@ export function DeadlineNotificationItem({
   const isOverdue = project.deadlineStatus === 'overdue'
 
   const daysLabel = isOverdue
-    ? `${Math.abs(project.daysRemaining)}h lalu`
+    ? `${Math.abs(project.daysRemaining)}d ago`
     : project.daysRemaining === 0
-      ? 'Hari ini'
-      : `${project.daysRemaining}h lagi`
+      ? 'Today'
+      : `${project.daysRemaining}d left`
 
   const handleClick = () => {
     navigate(TYPE_ROUTE[project.type])

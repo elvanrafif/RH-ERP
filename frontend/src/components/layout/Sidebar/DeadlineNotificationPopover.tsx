@@ -1,6 +1,10 @@
+import { useState } from 'react'
 import { Bell } from 'lucide-react'
+import { cn } from '@/lib/utils'
 import type { DeadlineProject } from '@/lib/projects/deadline'
 import { DeadlineNotificationItem } from './DeadlineNotificationItem'
+
+type ActiveTab = 'overdue' | 'upcoming'
 
 interface DeadlineNotificationPopoverProps {
   deadlineProjects: DeadlineProject[]
@@ -15,59 +19,90 @@ export function DeadlineNotificationPopover({
   warningCount,
   onClose,
 }: DeadlineNotificationPopoverProps) {
+  const [activeTab, setActiveTab] = useState<ActiveTab>('overdue')
+
+  const overdue = deadlineProjects.filter((p) => p.deadlineStatus === 'overdue')
+  const upcoming = deadlineProjects.filter((p) => p.deadlineStatus === 'warning')
+  const visibleItems = activeTab === 'overdue' ? overdue : upcoming
+
   if (deadlineProjects.length === 0) {
     return (
-      <div className="px-4 py-8 flex flex-col items-center gap-2 text-muted-foreground">
-        <Bell className="h-8 w-8 opacity-30" />
-        <p className="text-sm">Tidak ada deadline mendekat</p>
+      <div className="px-4 py-10 flex flex-col items-center gap-2 text-muted-foreground">
+        <Bell className="h-7 w-7 opacity-25" />
+        <p className="text-sm font-medium">No upcoming deadlines</p>
+        <p className="text-xs text-muted-foreground/60">All projects are on track</p>
       </div>
     )
   }
 
-  const overdue = deadlineProjects.filter((p) => p.deadlineStatus === 'overdue')
-  const warning = deadlineProjects.filter((p) => p.deadlineStatus === 'warning')
-
   return (
     <div>
-      {/* Summary bar */}
-      <div className="px-4 py-2.5 border-b border-border flex items-center gap-3 text-xs text-muted-foreground">
-        {overdueCount > 0 && (
-          <span className="flex items-center gap-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-red-500 inline-block" />
-            <span className="text-red-500 font-semibold">{overdueCount} overdue</span>
-          </span>
-        )}
-        {warningCount > 0 && (
-          <span className="flex items-center gap-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-400 inline-block" />
-            <span className="text-amber-500 font-semibold">{warningCount} segera</span>
-          </span>
-        )}
+      {/* Tab toggle */}
+      <div className="flex border-b border-border">
+        <button
+          onClick={() => setActiveTab('overdue')}
+          className={cn(
+            'flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold transition-colors cursor-pointer',
+            activeTab === 'overdue'
+              ? 'text-red-600 border-b-2 border-red-500 bg-red-50/50'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+          )}
+        >
+          Overdue
+          {overdueCount > 0 && (
+            <span className={cn(
+              'rounded-full px-1.5 py-0.5 text-[10px] leading-none font-bold',
+              activeTab === 'overdue'
+                ? 'bg-red-500 text-white'
+                : 'bg-muted text-muted-foreground'
+            )}>
+              {overdueCount}
+            </span>
+          )}
+        </button>
+
+        <button
+          onClick={() => setActiveTab('upcoming')}
+          className={cn(
+            'flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-semibold transition-colors cursor-pointer',
+            activeTab === 'upcoming'
+              ? 'text-amber-600 border-b-2 border-amber-400 bg-amber-50/50'
+              : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'
+          )}
+        >
+          Upcoming
+          {warningCount > 0 && (
+            <span className={cn(
+              'rounded-full px-1.5 py-0.5 text-[10px] leading-none font-bold',
+              activeTab === 'upcoming'
+                ? 'bg-amber-400 text-white'
+                : 'bg-muted text-muted-foreground'
+            )}>
+              {warningCount}
+            </span>
+          )}
+        </button>
       </div>
 
-      {/* Overdue section */}
-      {overdue.length > 0 && (
-        <div>
-          <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-red-500">
-            Overdue
-          </p>
-          {overdue.map((p) => (
+      {/* Scrollable list */}
+      <div className="max-h-[320px] overflow-y-auto overscroll-contain">
+        {visibleItems.length === 0 ? (
+          <div className="py-8 flex flex-col items-center gap-1.5 text-muted-foreground">
+            <p className="text-sm font-medium">
+              {activeTab === 'overdue' ? 'No overdue projects' : 'No upcoming deadlines'}
+            </p>
+            <p className="text-xs text-muted-foreground/60">
+              {activeTab === 'overdue'
+                ? 'All projects are within their deadline'
+                : 'No projects due within 7 days'}
+            </p>
+          </div>
+        ) : (
+          visibleItems.map((p) => (
             <DeadlineNotificationItem key={p.id} project={p} onNavigate={onClose} />
-          ))}
-        </div>
-      )}
-
-      {/* Warning section */}
-      {warning.length > 0 && (
-        <div>
-          <p className="px-4 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-amber-500">
-            Segera Deadline
-          </p>
-          {warning.map((p) => (
-            <DeadlineNotificationItem key={p.id} project={p} onNavigate={onClose} />
-          ))}
-        </div>
-      )}
+          ))
+        )}
+      </div>
     </div>
   )
 }

@@ -13,7 +13,9 @@ interface DeadlineNotificationBellProps {
   collapsed: boolean
 }
 
-export function DeadlineNotificationBell({ collapsed }: DeadlineNotificationBellProps) {
+export function DeadlineNotificationBell({
+  collapsed,
+}: DeadlineNotificationBellProps) {
   const [open, setOpen] = useState(false)
   const { deadlineProjects, overdueCount, warningCount, totalCount } =
     useDeadlineProjects()
@@ -32,10 +34,10 @@ export function DeadlineNotificationBell({ collapsed }: DeadlineNotificationBell
               ? 'justify-center h-9 w-9 mx-auto'
               : 'w-full px-3 py-2 text-sm font-medium'
           )}
-          title="Deadline Notifications"
+          title="Deadline Alerts"
         >
           <Bell className="h-4 w-4 shrink-0" />
-          {!collapsed && <span>Notifikasi</span>}
+          {!collapsed && <span>Notifications</span>}
 
           {/* Badge */}
           {totalCount > 0 && (
@@ -63,9 +65,16 @@ export function DeadlineNotificationBell({ collapsed }: DeadlineNotificationBell
         {/* Popover header */}
         <div className="flex items-center gap-2 px-4 py-3 border-b border-border bg-muted/40">
           <Bell className="h-4 w-4 text-foreground" />
-          <h3 className="text-sm font-semibold text-foreground">Deadline Alert</h3>
+          <h3 className="text-sm font-semibold text-foreground">
+            Deadline Alert
+          </h3>
           {totalCount > 0 && (
-            <span className={cn('ml-auto text-xs font-bold text-white rounded-full px-1.5 py-0.5', badgeColor)}>
+            <span
+              className={cn(
+                'ml-auto text-xs font-bold text-white rounded-full px-1.5 py-0.5',
+                badgeColor
+              )}
+            >
               {totalCount}
             </span>
           )}
