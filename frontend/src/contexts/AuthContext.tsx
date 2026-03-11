@@ -56,10 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Fungsi utama pengecekan izin
   const can = (permission: string) => {
-    if (
-      authModel?.email === 'elvanrafif@gmail.com' ||
-      authModel?.isSuperAdmin
-    ) {
+    if (authModel?.isSuperAdmin) {
       return true
     }
     return permissions.includes(permission)
