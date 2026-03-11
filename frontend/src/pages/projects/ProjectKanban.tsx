@@ -32,14 +32,16 @@ import {
   MapPin,
   Ruler,
   Maximize2,
-  CalendarRange,
   StickyNote,
-  Eye,
+  ChevronDown,
+  ChevronUp,
+  FolderOpen,
 } from 'lucide-react'
 
 import { ProjectDetailsModal } from './ProjectDetailsModal'
 import {
   formatDateShort,
+  formatRupiah,
   getAvatarUrl,
   getInitials,
   getRemainingTime,
@@ -192,6 +194,13 @@ export default function ProjectKanban({
                       ref={provided.innerRef}
                       className={`flex-1 p-2 space-y-3 overflow-y-auto min-h-[100px] transition-colors ${snapshot.isDraggingOver ? 'bg-blue-50/50' : ''}`}
                     >
+                      {tasksInColumn.length === 0 &&
+                        !snapshot.isDraggingOver && (
+                          <div className="flex flex-col items-center justify-center h-24 gap-2 text-slate-300 border-2 border-dashed border-slate-200 rounded-lg mx-0.5">
+                            <FolderOpen className="h-5 w-5" />
+                            <p className="text-xs">No projects</p>
+                          </div>
+                        )}
                       {tasksInColumn.map((task, index) => {
                         if (!task) return null
                         const canEdit = canEditProject(task, user, isSuperAdmin)
@@ -206,6 +215,7 @@ export default function ProjectKanban({
                               <KanbanCard
                                 task={task}
                                 canEdit={canEdit}
+                                isSuperAdmin={isSuperAdmin ?? false}
                                 isDragging={snapshot.isDragging}
                                 draggableProps={provided.draggableProps}
                                 dragHandleProps={provided.dragHandleProps}
@@ -241,6 +251,7 @@ export default function ProjectKanban({
 interface KanbanCardProps {
   task: Project
   canEdit: boolean
+  isSuperAdmin: boolean
   isDragging: boolean
   draggableProps: DraggableProvidedDraggableProps
   dragHandleProps: DraggableProvidedDragHandleProps | null
@@ -253,6 +264,7 @@ interface KanbanCardProps {
 function KanbanCard({
   task,
   canEdit,
+  isSuperAdmin,
   isDragging,
   draggableProps,
   dragHandleProps,
@@ -261,44 +273,50 @@ function KanbanCard({
   onEdit,
   onDelete,
 }: KanbanCardProps) {
-  const { isCivil, isInterior, isArchitecture } = TypeProjectsBoolean(task.type)
-  const assignee = task.expand?.assignee?.name
+  const [showNotes, setShowNotes] = useState(false)
+  const { isInterior, isArchitecture } = TypeProjectsBoolean(task.type)
+  const assignee = task.expand?.assignee
   const clientName = task.expand?.client?.company_name || 'Unknown Client'
+  const contractValue = task.contract_value || task.value
   const meta = task.meta_data || {}
-  const notes = meta.notes || (task as any).notes
+  const notes = meta.notes
 
   return (
     <Card
       ref={innerRef}
       {...draggableProps}
       {...dragHandleProps}
-      className={`shadow-sm hover:shadow-xl transition-all duration-300 group border-l-4
-        ${canEdit ? 'cursor-grab active:cursor-grabbing' : 'cursor-default opacity-90'}
-        ${isInterior ? 'border-l-emerald-400' : isCivil ? 'border-l-amber-400' : 'border-l-blue-400'}
+      onClick={onView}
+      className={`shadow-sm hover:shadow-md transition-all duration-200 group border-l-4
+        ${canEdit ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer opacity-90'}
+        ${isInterior ? 'border-l-violet-400' : 'border-l-blue-400'}
         ${isDragging ? 'rotate-2 shadow-xl ring-2 ring-primary/20 z-50' : ''}`}
     >
-      <CardContent className="p-3 space-y-2">
-        <div className="flex justify-between items-start">
+      <CardContent className="p-3 space-y-2.5">
+        {/* Header: badge tipe + menu */}
+        <div className="flex justify-between items-center">
           <Badge
             variant="secondary"
-            className="text-[10px] px-1.5 py-0 h-5 font-normal text-slate-500 uppercase"
+            className={`text-[10px] px-1.5 py-0 h-5 font-medium uppercase border
+              ${
+                isInterior
+                  ? 'bg-violet-50 text-violet-700 border-violet-200'
+                  : 'bg-blue-50 text-blue-700 border-blue-200'
+              }`}
           >
             {task.type}
           </Badge>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 -mr-2 -mt-1 text-slate-300 hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="h-6 w-6 -mr-1 text-slate-400 hover:text-slate-700 opacity-30 hover:opacity-100 transition-opacity cursor-pointer"
               >
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={onView}>
-                <Eye className="mr-2 h-4 w-4" /> View Details
-              </DropdownMenuItem>
               {canEdit && (
                 <>
                   <DropdownMenuItem onClick={onEdit}>
@@ -317,109 +335,112 @@ function KanbanCard({
           </DropdownMenu>
         </div>
 
-        <h4
-          className="font-semibold text-sm leading-snug text-slate-900 line-clamp-2"
-          title={clientName}
-        >
-          {clientName}
-        </h4>
+        {/* Identitas proyek */}
+        <div>
+          <h4
+            className="font-semibold text-sm leading-snug text-slate-900 line-clamp-2"
+            title={clientName}
+          >
+            {clientName}
+          </h4>
+          {isSuperAdmin && contractValue > 0 && (
+            <p className="text-xs text-slate-400 mt-0.5 font-normal">
+              {formatRupiah(contractValue)}
+            </p>
+          )}
+        </div>
 
+        {/* Interior: area scope */}
         {isInterior && meta.area_scope && (
-          <div className="flex items-start text-xs text-emerald-700 bg-emerald-50 px-2 py-1.5 rounded-md border border-emerald-100">
+          <div className="flex items-start text-xs text-violet-700 bg-violet-50 px-2 py-1.5 rounded-md border border-violet-100">
             <MapPin className="h-3 w-3 mr-1.5 mt-0.5 shrink-0" />
             <span className="line-clamp-2 font-medium">{meta.area_scope}</span>
           </div>
         )}
 
-        {(isArchitecture || isCivil) &&
-          (meta.luas_tanah || meta.luas_bangunan) && (
-            <div className="flex justify-center gap-2 flex-wrap text-[10px] text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100">
-              {meta.luas_tanah && (
-                <span className="flex items-center gap-1" title="Land Area">
-                  <Maximize2 className="h-3 w-3 text-slate-400" />
-                  Land: <span className="font-medium">{meta.luas_tanah}m²</span>
-                </span>
-              )}
-              {meta.luas_tanah && meta.luas_bangunan && (
-                <span className="text-slate-300">|</span>
-              )}
-              {meta.luas_bangunan && (
-                <span className="flex items-center gap-1" title="Building Area">
-                  <Ruler className="h-3 w-3 text-slate-400" />
-                  Building:{' '}
-                  <span className="font-medium">{meta.luas_bangunan}m²</span>
-                </span>
-              )}
-            </div>
-          )}
-
-        {isCivil && task.start_date && task.end_date && (
-          <div className="flex items-center text-[10px] text-amber-700 bg-amber-50 px-1.5 py-1 rounded border border-amber-100">
-            <CalendarRange className="h-3 w-3 mr-1.5 shrink-0" />
-            <span>
-              {formatDateShort(task.start_date)} -{' '}
-              {formatDateShort(task.end_date)}
-            </span>
-          </div>
-        )}
-
-        {notes && (
-          <div className="bg-yellow-50/50 p-2 rounded border border-yellow-100/50 text-[10px] text-slate-500">
-            <div className="flex items-start gap-1.5">
-              <StickyNote className="h-3 w-3 text-yellow-500 mt-0.5 shrink-0" />
-              <div className="max-h-[18px] group-hover:max-h-[200px] overflow-hidden transition-[max-height] duration-500 ease-in-out">
-                <p className="italic leading-relaxed">{notes}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="pt-2 border-t flex items-center justify-between mt-1">
-          <div className="flex flex-col gap-1">
-            {(!isCivil || !task.end_date) && (
-              <div
-                className="flex items-center gap-1.5 text-[10px] text-slate-400"
-                title="Deadline"
-              >
-                <div className="flex items-center">
-                  <CalendarClock className="h-3 w-3 mr-1" />
-                  {formatDateShort(task.deadline)}
-                </div>
-                {task.deadline && (
-                  <span className="text-[8px] font-bold text-amber-600 bg-amber-50 px-1 py-0.5 rounded uppercase leading-none">
-                    {getRemainingTime(task.deadline)}
-                  </span>
-                )}
-              </div>
+        {/* Arsitektur: luas tanah & bangunan */}
+        {isArchitecture && (meta.luas_tanah || meta.luas_bangunan) && (
+          <div className="flex justify-center gap-2 flex-wrap text-xs text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100">
+            {meta.luas_tanah && (
+              <span className="flex items-center gap-1" title="Land Area">
+                <Maximize2 className="h-3 w-3 text-slate-400" />
+                Land: <span className="font-medium">{meta.luas_tanah}m²</span>
+              </span>
             )}
-            {isCivil && task.end_date && (
-              <div className="flex items-center gap-1.5 text-[10px] text-slate-400">
-                <span className="italic">
-                  Until {formatDateShort(task.end_date)}
-                </span>
-                <span className="text-[8px] font-bold text-amber-600 bg-amber-50 px-1 py-0.5 rounded uppercase leading-none">
-                  {getRemainingTime(task.end_date)}
+            {meta.luas_tanah && meta.luas_bangunan && (
+              <span className="text-slate-300">|</span>
+            )}
+            {meta.luas_bangunan && (
+              <span className="flex items-center gap-1" title="Building Area">
+                <Ruler className="h-3 w-3 text-slate-400" />
+                Building:{' '}
+                <span className="font-medium">{meta.luas_bangunan}m²</span>
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Notes: toggle eksplisit */}
+        {notes && (
+          <div className="rounded border border-yellow-100 overflow-hidden bg-yellow-50/40">
+            <button
+              onClick={(e) => {
+                e.stopPropagation()
+                setShowNotes((v) => !v)
+              }}
+              className="flex items-center justify-between w-full px-2 py-1.5 text-left cursor-pointer hover:bg-yellow-50 transition-colors"
+            >
+              <div className="flex items-center gap-1.5">
+                <StickyNote className="h-3 w-3 text-yellow-500 shrink-0" />
+                <span className="text-xs text-yellow-600 font-medium">
+                  Notes
                 </span>
               </div>
+              {showNotes ? (
+                <ChevronUp className="h-3 w-3 text-yellow-500" />
+              ) : (
+                <ChevronDown className="h-3 w-3 text-yellow-500" />
+              )}
+            </button>
+            {showNotes && (
+              <p className="px-2 pb-2 text-xs text-slate-500 italic leading-relaxed">
+                {notes}
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Footer: deadline + assignee */}
+        <div className="pt-2 border-t flex items-center justify-between">
+          <div
+            className="flex items-center gap-1.5 text-xs text-slate-400"
+            title="Deadline"
+          >
+            <CalendarClock className="h-3 w-3 shrink-0" />
+            <span>{formatDateShort(task.deadline)}</span>
+            {task.deadline && (
+              <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1 py-0.5 rounded uppercase leading-none">
+                {getRemainingTime(task.deadline)}
+              </span>
             )}
           </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger>
-                <Avatar className="h-6 w-6 border border-white shadow-sm">
+                <Avatar className="h-6 w-6 border border-white shadow-sm cursor-pointer">
                   <AvatarImage src={getAvatarUrl(assignee) || ''} />
                   <AvatarFallback
-                    className={`text-[9px] ${isInterior ? 'bg-emerald-100 text-emerald-700' : isCivil ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}
+                    className={`text-[10px] ${isInterior ? 'bg-violet-100 text-violet-700' : 'bg-blue-100 text-blue-700'}`}
                   >
-                    {getInitials(assignee)}
+                    {getInitials(assignee?.name)}
                   </AvatarFallback>
                 </Avatar>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{assignee || 'Unassigned'}</p>
-                {meta.pic_lapangan && (
+                <p>{assignee?.name || 'Unassigned'}</p>
+                {isInterior && meta.pic_interior && (
                   <p className="text-[10px] text-slate-300">
-                    Supervisor: {meta.pic_lapangan}
+                    PIC: {meta.pic_interior}
                   </p>
                 )}
               </TooltipContent>

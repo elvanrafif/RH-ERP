@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/select'
 import { Search, X, Filter } from 'lucide-react'
 import { SipilPic } from '@/lib/constant'
+import { cn } from '@/lib/utils'
 
 interface ProjectFilterBarProps {
   searchQuery: string
@@ -21,6 +22,7 @@ interface ProjectFilterBarProps {
   isCivil: boolean
   users: User[]
   projectType: string
+  className?: string
 }
 
 export function ProjectFilterBar({
@@ -33,11 +35,17 @@ export function ProjectFilterBar({
   isCivil,
   users,
   projectType,
+  className,
 }: ProjectFilterBarProps) {
   return (
-    <div className="flex flex-col sm:flex-row gap-3 mb-3 items-start sm:items-center justify-between shrink-0">
-      <div className="flex flex-1 gap-2 w-full sm:w-auto">
-        <div className="relative flex-1 sm:max-w-xs">
+    <div
+      className={
+        className ??
+        'flex flex-col sm:flex-row gap-3 mb-3 items-start sm:items-center justify-between shrink-0'
+      }
+    >
+      <div className="flex flex-1 gap-2 w-full min-w-0">
+        <div className="relative flex-1 min-w-0 md:max-w-xs">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search client"
@@ -47,10 +55,27 @@ export function ProjectFilterBar({
           />
         </div>
 
-        <div className="w-[180px]">
+        <div className="w-[140px] md:w-[180px] relative shrink-0">
+          {filterPic && filterPic !== 'all' && (
+            <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />
+          )}
           <Select value={filterPic} onValueChange={onFilterPicChange}>
-            <SelectTrigger className="h-9 bg-white">
-              <Filter className="w-3.5 h-3.5 mr-2 text-muted-foreground" />
+            <SelectTrigger
+              className={cn(
+                'h-9 bg-white transition-colors',
+                filterPic && filterPic !== 'all'
+                  ? 'border-primary/50 ring-1 ring-primary/30 text-primary'
+                  : ''
+              )}
+            >
+              <Filter
+                className={cn(
+                  'w-3.5 h-3.5 mr-2',
+                  filterPic && filterPic !== 'all'
+                    ? 'text-primary'
+                    : 'text-muted-foreground'
+                )}
+              />
               <SelectValue placeholder="Filter PIC" />
             </SelectTrigger>
             <SelectContent>

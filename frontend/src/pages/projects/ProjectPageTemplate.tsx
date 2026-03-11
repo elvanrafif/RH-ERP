@@ -12,7 +12,6 @@ import { formatRupiah } from '@/lib/helpers'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Label } from '@/components/ui/label'
-import { Tabs, TabsContent } from '@/components/ui/tabs'
 import { Plus, Banknote, Activity, AlertCircle } from 'lucide-react'
 import { ProjectFilterBar } from '@/components/projects/ProjectFilterBar'
 import type { KanbanColumnDefinition } from './ProjectKanban'
@@ -24,7 +23,7 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
 import { PageTableSkeleton } from '@/components/shared/TableSkeleton'
 import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog'
-import { StatCard } from '@/components/shared/StatCard'
+import { cn } from '@/lib/utils'
 
 interface TemplateProps {
   pageTitle: string
@@ -102,124 +101,136 @@ export default function ProjectPageTemplate({
         }
         description={`Monitoring ${projectType} projects.`}
         action={
-          <div className="flex items-center gap-3">
-            <div className="flex items-center space-x-2 bg-white p-1.5 rounded-lg border shadow-sm px-3">
-              <Switch
-                id="show-done"
-                checked={showDone}
-                onCheckedChange={setShowDone}
-              />
-              <Label htmlFor="show-done" className="text-xs cursor-pointer">
-                Show History
-              </Label>
-            </div>
-            {can(`manage_${projectType}`) && (
-              <Button
-                onClick={handleCreate}
-                className="bg-primary shadow-sm h-9 text-sm"
-              >
-                <Plus className="mr-2 h-4 w-4" /> New
-              </Button>
-            )}
-          </div>
+          can(`manage_${projectType}`) ? (
+            <Button
+              onClick={handleCreate}
+              className="bg-primary shadow-sm h-9 text-sm"
+            >
+              <Plus className="mr-2 h-4 w-4" /> New
+            </Button>
+          ) : undefined
         }
       />
 
       {/* STATS BAR */}
-      <div className="bg-white border rounded-xl shadow-sm flex flex-col sm:flex-row items-center divide-y sm:divide-y-0 sm:divide-x mb-5 shrink-0 overflow-hidden">
+      <div className="flex flex-col md:flex-row bg-white border rounded-xl shadow-sm mb-4 shrink-0 overflow-hidden divide-y md:divide-y-0 md:divide-x text-sm">
         {isSuperAdmin && (
-          <StatCard
-            icon={<Banknote className="h-5 w-5" />}
-            iconBg="bg-emerald-100/80 text-emerald-600"
-            label="Potential Revenue"
-            value={formatRupiah(stats.totalValue)}
-          />
+          <div className="flex items-center gap-2.5 px-4 py-2.5 flex-1">
+            <Banknote className="h-4 w-4 text-emerald-500 shrink-0" />
+            <span className="text-slate-400 text-xs whitespace-nowrap">
+              Potential Revenue
+            </span>
+            <span className="font-semibold text-slate-800 ml-auto">
+              {formatRupiah(stats.totalValue)}
+            </span>
+          </div>
         )}
-        <StatCard
-          icon={<Activity className="h-5 w-5" />}
-          iconBg="bg-blue-100/80 text-blue-600"
-          label="Active Projects"
-          value={
-            <>
-              {stats.activeCount}{' '}
-              <span className="text-sm font-medium text-slate-500">Units</span>
-            </>
-          }
-        />
-        <StatCard
-          icon={<AlertCircle className="h-5 w-5" />}
-          iconBg={
-            stats.urgentCount > 0
-              ? 'bg-red-100 text-red-600'
-              : 'bg-slate-100 text-slate-400'
-          }
-          label="Deadline < 7 Days"
-          value={
-            <>
-              {stats.urgentCount}{' '}
-              <span className="text-sm font-medium opacity-70">Projects</span>
-            </>
-          }
-          urgent={stats.urgentCount > 0}
-        />
+        <div className="flex items-center gap-2.5 px-4 py-2.5 flex-1">
+          <Activity className="h-4 w-4 text-blue-500 shrink-0" />
+          <span className="text-slate-400 text-xs whitespace-nowrap">
+            Active Projects
+          </span>
+          <span className="font-semibold text-slate-800 ml-auto">
+            {stats.activeCount}{' '}
+            <span className="font-normal text-slate-400 text-xs">units</span>
+          </span>
+        </div>
+        <div
+          className={cn(
+            'flex items-center gap-2.5 px-4 py-2.5 flex-1',
+            stats.urgentCount > 0 ? 'bg-red-50/40' : ''
+          )}
+        >
+          <AlertCircle
+            className={cn(
+              'h-4 w-4 shrink-0',
+              stats.urgentCount > 0 ? 'text-red-500' : 'text-slate-300'
+            )}
+          />
+          <span
+            className={cn(
+              'text-xs whitespace-nowrap',
+              stats.urgentCount > 0 ? 'text-red-400' : 'text-slate-400'
+            )}
+          >
+            Deadline &lt; 7 days
+          </span>
+          <span
+            className={cn(
+              'font-semibold ml-auto',
+              stats.urgentCount > 0 ? 'text-red-600' : 'text-slate-800'
+            )}
+          >
+            {stats.urgentCount}{' '}
+            <span
+              className={cn(
+                'font-normal text-xs',
+                stats.urgentCount > 0 ? 'text-red-400' : 'text-slate-400'
+              )}
+            >
+              projects
+            </span>
+          </span>
+        </div>
       </div>
 
-      {/* FILTER TOOLBAR */}
-      <ProjectFilterBar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        filterPic={filterPic}
-        onFilterPicChange={setFilterPic}
-        hasActiveFilters={hasActiveFilters}
-        onResetFilters={resetFilters}
-        isCivil={isCivil}
-        users={users}
-        projectType={projectType}
-      />
-
       {/* MAIN CONTENT */}
-      <div className="flex-1 overflow-hidden relative bg-card/50 rounded-lg border border-border shadow-inner">
-        <Tabs
-          defaultValue={enableKanban ? 'kanban' : 'table'}
-          className="flex flex-col h-full"
-        >
-          {isLoading ? (
-            <div className="p-4">
-              <PageTableSkeleton rows={6} />
-            </div>
-          ) : (
-            <>
-              {enableKanban && (
-                <TabsContent
-                  value="kanban"
-                  className="flex-1 overflow-hidden mt-0 h-full p-2"
-                >
-                  <ProjectKanban
-                    data={filteredProjects}
-                    columnsConfig={kanbanColumns}
-                    onEdit={handleEdit}
-                    onDelete={(p) => setDeleteId(p.id)}
-                    onStatusChange={(id, status) =>
-                      updateStatus({ id, status })
-                    }
-                  />
-                </TabsContent>
-              )}
-              <TabsContent
-                value="table"
-                className="flex-1 overflow-auto mt-0 h-full p-0"
-              >
-                <ProjectTable
-                  projectType={projectType}
-                  onView={(project) => setProjectToView(project)}
-                  data={filteredProjects}
-                  onEdit={handleEdit}
-                  onDelete={(p) => setDeleteId(p.id)}
-                />
-              </TabsContent>
-            </>
-          )}
-        </Tabs>
+      <div className="flex-1 overflow-hidden relative bg-card/50 rounded-lg border border-border shadow-inner flex flex-col">
+        {/* INTEGRATED TOOLBAR */}
+        <div className="flex flex-col md:flex-row md:items-center gap-2 px-3 py-2 border-b bg-white/80 backdrop-blur-sm shrink-0">
+          <ProjectFilterBar
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            filterPic={filterPic}
+            onFilterPicChange={setFilterPic}
+            hasActiveFilters={hasActiveFilters}
+            onResetFilters={resetFilters}
+            isCivil={isCivil}
+            users={users}
+            projectType={projectType}
+            className="flex flex-1 gap-2 items-center"
+          />
+          <div className="flex items-center gap-2 md:border-l md:pl-3 shrink-0">
+            <Switch
+              id="show-done"
+              checked={showDone}
+              onCheckedChange={setShowDone}
+              className="scale-90"
+            />
+            <Label
+              htmlFor="show-done"
+              className="text-xs cursor-pointer text-slate-500 whitespace-nowrap"
+            >
+              Show History
+            </Label>
+          </div>
+        </div>
+
+        {isLoading ? (
+          <div className="p-4">
+            <PageTableSkeleton rows={6} />
+          </div>
+        ) : enableKanban ? (
+          <div className="flex-1 overflow-hidden h-full p-2">
+            <ProjectKanban
+              data={filteredProjects}
+              columnsConfig={kanbanColumns}
+              onEdit={handleEdit}
+              onDelete={(p) => setDeleteId(p.id)}
+              onStatusChange={(id, status) => updateStatus({ id, status })}
+            />
+          </div>
+        ) : (
+          <div className="flex-1 overflow-auto h-full">
+            <ProjectTable
+              projectType={projectType}
+              onView={(project) => setProjectToView(project)}
+              data={filteredProjects}
+              onEdit={handleEdit}
+              onDelete={(p) => setDeleteId(p.id)}
+            />
+          </div>
+        )}
       </div>
 
       {/* MODALS */}
