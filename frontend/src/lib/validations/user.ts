@@ -20,12 +20,21 @@ export const userFormSchema = z
     path: ['passwordConfirm'],
   })
   .superRefine((data, ctx) => {
-    if (data.password && data.password.length > 0 && data.password.length < 8) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: 'Password must be at least 8 characters',
-        path: ['password'],
-      })
+    if (data.password && data.password.length > 0) {
+      if (data.password.length < 8) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Password must be 8–16 characters',
+          path: ['password'],
+        })
+      }
+      if (data.password.length > 16) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: 'Password must be 8–16 characters',
+          path: ['password'],
+        })
+      }
     }
   })
 

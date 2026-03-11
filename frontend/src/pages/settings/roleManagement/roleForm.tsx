@@ -120,7 +120,7 @@ export function RoleForm({ initialData, onSuccess }: RoleFormProps) {
       onSuccess()
     },
     onError: (err) => {
-      console.error(err)
+      console.error(err?.message ?? err)
       toast.error('Failed to save role')
     },
   })

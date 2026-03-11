@@ -22,7 +22,10 @@ import { Loader2, KeyRound } from 'lucide-react'
 const passwordSchema = z
   .object({
     oldPassword: z.string().min(1, 'Old password is required'),
-    password: z.string().min(8, 'New password must be at least 8 characters'),
+    password: z
+      .string()
+      .min(8, 'Password must be 8–16 characters')
+      .max(16, 'Password must be 8–16 characters'),
     passwordConfirm: z.string().min(1, 'Confirm password is required'),
   })
   .refine((data) => data.password === data.passwordConfirm, {
@@ -56,7 +59,7 @@ export function SecurityForm({ user }: { user: User }) {
       form.reset() // Clear input setelah sukses agar aman
     },
     onError: (err: any) => {
-      console.error(err)
+      console.error(err?.message ?? err)
       // Handle error spesifik "Invalid old password"
       const errorData = err?.data?.data
       if (errorData?.oldPassword) {
@@ -103,10 +106,13 @@ export function SecurityForm({ user }: { user: User }) {
                 <FormControl>
                   <Input
                     type="password"
-                    placeholder="Min 8 characters"
+                    placeholder="8–16 characters"
                     {...field}
                   />
                 </FormControl>
+                <p className="text-[10px] text-muted-foreground">
+                  8–16 characters
+                </p>
                 <FormMessage />
               </FormItem>
             )}
