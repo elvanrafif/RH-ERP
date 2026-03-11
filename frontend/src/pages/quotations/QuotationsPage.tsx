@@ -16,16 +16,25 @@ export default function QuotationsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const {
-    searchTerm, setSearchTerm,
-    filterClient, setFilterClient,
-    page, setPage,
+    searchTerm,
+    setSearchTerm,
+    filterClient,
+    setFilterClient,
+    page,
+    setPage,
     resetFilters,
     filters,
   } = useQuotationFilters()
 
   const { clients } = useClients()
-  const { quotations, isLoading, totalPages, totalItems, createQuotation, isCreating } =
-    useQuotations({ filters, page })
+  const {
+    quotations,
+    isLoading,
+    totalPages,
+    totalItems,
+    createQuotation,
+    isCreating,
+  } = useQuotations({ filters, page })
 
   const handleCreateQuotation = (payload: CreateQuotationPayload) => {
     createQuotation(payload, {
@@ -46,20 +55,19 @@ export default function QuotationsPage() {
         }
       />
 
-      {/* FILTER & TOOLBAR */}
-      <div className="mb-4 shrink-0">
-        <QuotationToolbar
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          filterClient={filterClient}
-          onClientFilterChange={setFilterClient}
-          onResetFilter={resetFilters}
-          clients={clients}
-        />
-      </div>
-
       {/* TABLE LIST */}
-      <div className="flex-1 overflow-hidden relative bg-card/50 rounded-lg border border-border shadow-inner">
+      <div className="flex-1 overflow-hidden relative bg-card/50 rounded-lg border border-border shadow-inner flex flex-col">
+        {/* INTEGRATED TOOLBAR */}
+        <div className="px-3 py-2 border-b bg-white/80 backdrop-blur-sm shrink-0">
+          <QuotationToolbar
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            filterClient={filterClient}
+            onClientFilterChange={setFilterClient}
+            onResetFilter={resetFilters}
+            clients={clients}
+          />
+        </div>
         <QuotationTable
           quotations={quotations}
           isLoading={isLoading}

@@ -44,8 +44,8 @@ export function DocumentToolbar({
   typeFilter,
 }: DocumentToolbarProps) {
   return (
-    <div className="flex flex-col sm:flex-row gap-3 w-full items-start sm:items-center">
-      <div className="relative w-full sm:max-w-[280px] md:max-w-xs shrink-0">
+    <div className="flex flex-col md:flex-row gap-3 w-full items-start md:items-center">
+      <div className="relative w-full md:max-w-xs shrink-0">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder={searchPlaceholder}
@@ -55,12 +55,15 @@ export function DocumentToolbar({
         />
       </div>
 
-      <div className="flex items-center gap-2 w-full sm:w-auto">
+      <div className="flex items-center gap-2 w-full md:w-auto">
         {typeFilter && (
-          <div className="flex-1 sm:w-[150px] sm:flex-none">
-            <Select value={typeFilter.value} onValueChange={typeFilter.onChange}>
+          <div className="flex-1 md:w-[150px] md:flex-none">
+            <Select
+              value={typeFilter.value}
+              onValueChange={typeFilter.onChange}
+            >
               <SelectTrigger className="h-9 bg-white shadow-sm w-full">
-                <Filter className="w-3.5 h-3.5 mr-2 text-muted-foreground hidden sm:block" />
+                <Filter className="w-3.5 h-3.5 mr-2 text-muted-foreground hidden md:block" />
                 <SelectValue placeholder="All Types" />
               </SelectTrigger>
               <SelectContent>
@@ -74,7 +77,7 @@ export function DocumentToolbar({
           </div>
         )}
 
-        <div className="flex-1 sm:w-[180px] sm:flex-none">
+        <div className="flex-1 md:w-[180px] md:flex-none">
           <Select value={filterClient} onValueChange={onClientFilterChange}>
             <SelectTrigger className="h-9 bg-white shadow-sm w-full">
               <SelectValue placeholder="All Clients" />

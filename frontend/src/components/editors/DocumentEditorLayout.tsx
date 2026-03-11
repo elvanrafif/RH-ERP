@@ -109,18 +109,18 @@ export function DocumentEditorLayout({
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row flex-1 overflow-y-auto md:overflow-hidden relative z-0">
+      <div className="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden relative z-0">
         {/* LEFT: EDITOR FORM */}
-        <div className="w-full md:w-[380px] lg:w-[450px] bg-white border-b md:border-b-0 md:border-r flex flex-col md:h-full md:overflow-y-auto shadow-[2px_0_8px_-2px_rgba(0,0,0,0.1)] z-10 print:hidden shrink-0">
+        <div className="w-full lg:w-[420px] xl:w-[450px] bg-white border-b lg:border-b-0 lg:border-r flex flex-col lg:h-full lg:overflow-y-auto shadow-[2px_0_8px_-2px_rgba(0,0,0,0.1)] z-10 print:hidden shrink-0">
           {leftPanel}
         </div>
 
         {/* RIGHT: A4 PREVIEW */}
         <div
           ref={previewContainerRef}
-          className="flex-1 bg-slate-200/80 p-4 lg:p-8 flex flex-col items-center md:overflow-y-auto print:p-0 print:bg-white print:overflow-visible"
+          className="flex-1 bg-slate-200/80 p-4 lg:p-8 flex flex-col items-center lg:overflow-y-auto print:p-0 print:bg-white print:overflow-visible"
         >
-          <div className="mb-4 text-center md:hidden print:hidden mt-4 shrink-0">
+          <div className="mb-4 text-center lg:hidden print:hidden mt-4 shrink-0">
             <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest bg-slate-300/50 px-4 py-1.5 rounded-full inline-block">
               A4 Document Preview
             </h3>

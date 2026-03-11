@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import {
   Table,
   TableBody,
@@ -8,7 +8,6 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
 import { MaskingTextByInvoiceType } from '@/lib/masking'
 import { cn } from '@/lib/utils'
@@ -23,7 +22,7 @@ const getTypeBadge = (type: string) => {
   const colorMap: Record<string, string> = {
     design: 'bg-blue-50 text-blue-700 border-blue-200',
     sipil: 'bg-amber-50 text-amber-700 border-amber-200',
-    interior: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    interior: 'bg-violet-50 text-violet-700 border-violet-200',
   }
 
   return (
@@ -50,20 +49,22 @@ export function InvoiceTable({
   totalItems = 0,
   onPageChange,
 }: InvoiceTableProps) {
+  const navigate = useNavigate()
+
   return (
-    <div className="space-y-4">
-      <div className="rounded-md border bg-white w-full overflow-x-auto shadow-sm">
+    <div className="flex flex-col h-full bg-white">
+      <div className="flex-1 overflow-auto">
         <div className="min-w-[1000px]">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[150px]">No. Invoice</TableHead>
+            <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
+              <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                <TableHead className="w-[150px]">Invoice No.</TableHead>
                 <TableHead className="w-[300px]">Client</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Specification</TableHead>
                 <TableHead className="text-center">Active Termin</TableHead>
                 <TableHead className="text-right">Total</TableHead>
-                <TableHead className="text-right"></TableHead>
+                <TableHead className="text-right w-[60px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -72,12 +73,16 @@ export function InvoiceTable({
               ) : invoices?.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={7} className="h-60">
-                    <EmptyState title="Tidak ada invoice ditemukan." />
+                    <EmptyState title="No invoices found." />
                   </TableCell>
                 </TableRow>
               ) : (
                 invoices?.map((inv: any) => (
-                  <TableRow key={inv.id}>
+                  <TableRow
+                    key={inv.id}
+                    className="cursor-pointer hover:bg-slate-50 transition-colors h-14"
+                    onClick={() => navigate(`/invoices/${inv.id}`)}
+                  >
                     <TableCell className="font-mono text-xs text-slate-500">
                       {inv.invoice_number}
                     </TableCell>
@@ -86,21 +91,15 @@ export function InvoiceTable({
                     </TableCell>
                     <TableCell>{getTypeBadge(inv.type)}</TableCell>
                     <TableCell className="font-medium">
-                      {inv.project_area ? (
-                        <div className="flex flex-col gap-1.5">
-                          <div className="flex items-center gap-2 text-xs">
-                            {inv.type === 'design' && inv.project_area > 0 && (
-                              <Badge
-                                variant="outline"
-                                className="bg-slate-50 font-normal text-slate-600 px-1.5 h-5"
-                              >
-                                {inv.project_area}m²
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
+                      {inv.type === 'design' && inv.project_area > 0 ? (
+                        <Badge
+                          variant="outline"
+                          className="bg-slate-50 font-normal text-slate-600 px-1.5 h-5"
+                        >
+                          {inv.project_area}m²
+                        </Badge>
                       ) : (
-                        '-'
+                        <span className="text-slate-400">—</span>
                       )}
                     </TableCell>
                     <TableCell className="text-center">
@@ -110,11 +109,7 @@ export function InvoiceTable({
                       {formatRupiah(inv.total_amount || 0)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link to={`/invoices/${inv.id}`}>
-                          <ArrowRight className="h-3 w-3" />
-                        </Link>
-                      </Button>
+                      <ArrowRight className="h-3.5 w-3.5 text-slate-300 ml-auto" />
                     </TableCell>
                   </TableRow>
                 ))

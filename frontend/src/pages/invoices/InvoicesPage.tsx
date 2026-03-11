@@ -60,22 +60,21 @@ export default function InvoicesPage() {
         }
       />
 
-      {/* FILTER & TOOLBAR */}
-      <div className="mb-4 shrink-0">
-        <InvoiceToolbar
-          activeTab={activeTab}
-          onTabChange={setActiveTab}
-          searchTerm={searchTerm}
-          onSearchChange={setSearchTerm}
-          filterClient={filterClient}
-          onClientFilterChange={setFilterClient}
-          onResetFilter={resetFilters}
-          clients={clients}
-        />
-      </div>
-
       {/* TABLE LIST */}
-      <div className="flex-1 overflow-hidden relative bg-card/50 rounded-lg border border-border shadow-inner">
+      <div className="flex-1 overflow-hidden relative bg-card/50 rounded-lg border border-border shadow-inner flex flex-col">
+        {/* INTEGRATED TOOLBAR */}
+        <div className="px-3 py-2 border-b bg-white/80 backdrop-blur-sm shrink-0">
+          <InvoiceToolbar
+            activeTab={activeTab}
+            onTabChange={setActiveTab}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            filterClient={filterClient}
+            onClientFilterChange={setFilterClient}
+            onResetFilter={resetFilters}
+            clients={clients}
+          />
+        </div>
         <InvoiceTable
           invoices={invoices}
           isLoading={isLoading}

@@ -22,13 +22,15 @@ import { useDocumentExport } from '@/hooks/useDocumentExport'
 import { useWhatsAppShare } from '@/hooks/useWhatsAppShare'
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges'
 import { DEFAULT_QUOTATION_PRICE_PER_METER } from '@/lib/constant'
+import { cn } from '@/lib/utils'
 
 export default function QuotationEditor() {
   const { id } = useParams()
   const queryClient = useQueryClient()
   const componentRef = useRef<HTMLDivElement>(null)
 
-  const { containerRef: previewContainerRef, scale: previewScale } = useDocumentScaling()
+  const { containerRef: previewContainerRef, scale: previewScale } =
+    useDocumentScaling()
   const { generateJpeg } = useDocumentExport(componentRef)
   const { share: shareViaWhatsApp } = useWhatsAppShare()
   const { hasUnsavedChanges, markAsDirty, markAsClean, handleBack } =
@@ -36,19 +38,23 @@ export default function QuotationEditor() {
 
   const { data: clientsList } = useQuery({
     queryKey: ['clients'],
-    queryFn: () => pb.collection('clients').getFullList({ sort: 'company_name' }),
+    queryFn: () =>
+      pb.collection('clients').getFullList({ sort: 'company_name' }),
   })
 
   const { data: quotation, isLoading } = useQuery({
     queryKey: ['quotation', id],
-    queryFn: () => pb.collection('quotations').getOne(id as string, { expand: 'client_id' }),
+    queryFn: () =>
+      pb.collection('quotations').getOne(id as string, { expand: 'client_id' }),
   })
 
   const [quotationNumber, setQuotationNumber] = useState('')
   const [status, setStatus] = useState('draft')
   const [address, setAddress] = useState('')
   const [projectArea, setProjectArea] = useState(0)
-  const [pricePerMeter, setPricePerMeter] = useState(DEFAULT_QUOTATION_PRICE_PER_METER)
+  const [pricePerMeter, setPricePerMeter] = useState(
+    DEFAULT_QUOTATION_PRICE_PER_METER
+  )
   const [bankDetails, setBankDetails] = useState(
     'Name : Ismail Deyrian Anugrah\nAccount Number : BNI 0717571663'
   )
@@ -74,7 +80,9 @@ export default function QuotationEditor() {
     }
     setAddress(quotation.address || clientObj?.address || '')
     setProjectArea(quotation.project_area || 0)
-    setPricePerMeter(quotation.price_per_meter || DEFAULT_QUOTATION_PRICE_PER_METER)
+    setPricePerMeter(
+      quotation.price_per_meter || DEFAULT_QUOTATION_PRICE_PER_METER
+    )
     if (quotation.bank_details) setBankDetails(quotation.bank_details)
     markAsClean()
   }, [quotation, id])
@@ -97,7 +105,9 @@ export default function QuotationEditor() {
   const handleDownloadOfficial = () => {
     const fileName = quotation?.document_file
     if (!fileName) {
-      toast.error("Document not available. Please click 'Save' first to generate the document.")
+      toast.error(
+        "Document not available. Please click 'Save' first to generate the document."
+      )
       return
     }
     const fileUrl = pb.files.getUrl(quotation, fileName, { download: true })
@@ -124,12 +134,20 @@ export default function QuotationEditor() {
       formData.append(
         'items',
         JSON.stringify([
-          { description: 'Design & Architecture Services', quantity: projectArea, price: pricePerMeter },
+          {
+            description: 'Design & Architecture Services',
+            quantity: projectArea,
+            price: pricePerMeter,
+          },
         ])
       )
       const blob = await generateJpeg()
       if (blob) {
-        formData.append('document_file', blob, `Quotation-${quotationNumber || 'Update'}.jpg`)
+        formData.append(
+          'document_file',
+          blob,
+          `Quotation-${quotationNumber || 'Update'}.jpg`
+        )
       }
       return await pb.collection('quotations').update(id as string, formData)
     },
@@ -171,7 +189,10 @@ export default function QuotationEditor() {
 
             <div className="space-y-1">
               <Label className="text-[10px] text-slate-500">Client</Label>
-              <Select value={selectedClientId} onValueChange={handleClientChange}>
+              <Select
+                value={selectedClientId}
+                onValueChange={handleClientChange}
+              >
                 <SelectTrigger className="h-8 text-xs bg-white">
                   <SelectValue placeholder="Select Client" />
                 </SelectTrigger>
@@ -186,8 +207,28 @@ export default function QuotationEditor() {
             </div>
 
             <div className="space-y-1">
-              <Label className="text-[10px] text-slate-500">Status</Label>
-              <Select value={status} onValueChange={(val) => { setStatus(val); markAsDirty() }}>
+              <div className="flex items-center justify-between mb-1">
+                <Label className="text-[10px] text-slate-500">Status</Label>
+                <span
+                  className={cn(
+                    'px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-full',
+                    status === 'paid'
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : status === 'rejected'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-slate-100 text-slate-600'
+                  )}
+                >
+                  {status}
+                </span>
+              </div>
+              <Select
+                value={status}
+                onValueChange={(val) => {
+                  setStatus(val)
+                  markAsDirty()
+                }}
+              >
                 <SelectTrigger className="h-8 text-xs bg-white">
                   <SelectValue placeholder="Select Status" />
                 </SelectTrigger>
@@ -200,10 +241,15 @@ export default function QuotationEditor() {
             </div>
 
             <div className="space-y-1">
-              <Label className="text-[10px] text-slate-500 block">Project Address</Label>
+              <Label className="text-[10px] text-slate-500 block">
+                Project Address
+              </Label>
               <Textarea
                 value={address}
-                onChange={(e) => { setAddress(e.target.value); markAsDirty() }}
+                onChange={(e) => {
+                  setAddress(e.target.value)
+                  markAsDirty()
+                }}
                 className="text-xs min-h-[60px]"
                 placeholder="Enter project location address..."
               />
@@ -212,20 +258,30 @@ export default function QuotationEditor() {
             <div className="bg-slate-50 p-3 rounded border">
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label className="text-[10px] text-slate-500">Area (m²)</Label>
+                  <Label className="text-[10px] text-slate-500">
+                    Area (m²)
+                  </Label>
                   <Input
                     type="number"
                     value={projectArea}
-                    onChange={(e) => { setProjectArea(Number(e.target.value)); markAsDirty() }}
+                    onChange={(e) => {
+                      setProjectArea(Number(e.target.value))
+                      markAsDirty()
+                    }}
                     className="h-7 text-xs"
                   />
                 </div>
                 <div className="space-y-1">
-                  <Label className="text-[10px] text-slate-500">Price / m²</Label>
+                  <Label className="text-[10px] text-slate-500">
+                    Price / m²
+                  </Label>
                   <Input
                     type="number"
                     value={pricePerMeter}
-                    onChange={(e) => { setPricePerMeter(Number(e.target.value)); markAsDirty() }}
+                    onChange={(e) => {
+                      setPricePerMeter(Number(e.target.value))
+                      markAsDirty()
+                    }}
                     className="h-7 text-xs"
                   />
                 </div>
@@ -240,7 +296,10 @@ export default function QuotationEditor() {
               </Label>
               <Textarea
                 value={bankDetails}
-                onChange={(e) => { setBankDetails(e.target.value); markAsDirty() }}
+                onChange={(e) => {
+                  setBankDetails(e.target.value)
+                  markAsDirty()
+                }}
                 className="text-xs min-h-[60px] resize-none"
               />
             </div>

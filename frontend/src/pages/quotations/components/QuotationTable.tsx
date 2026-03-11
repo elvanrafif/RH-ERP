@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import {
   Table,
   TableBody,
@@ -7,7 +7,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
 import { ArrowRight } from 'lucide-react'
 import { formatRupiah } from '@/lib/helpers'
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -31,6 +30,8 @@ export function QuotationTable({
   totalItems = 0,
   onPageChange,
 }: QuotationTableProps) {
+  const navigate = useNavigate()
+
   return (
     <div className="flex flex-col h-full bg-white">
       <div className="flex-1 overflow-auto">
@@ -57,7 +58,11 @@ export function QuotationTable({
                 </TableRow>
               ) : (
                 quotations?.map((q: any) => (
-                  <TableRow key={q.id}>
+                  <TableRow
+                    key={q.id}
+                    className="cursor-pointer hover:bg-slate-50 transition-colors h-14"
+                    onClick={() => navigate(`/quotations/${q.id}`)}
+                  >
                     <TableCell className="font-mono text-xs text-slate-500">
                       {q.quotation_number}
                     </TableCell>
@@ -95,11 +100,7 @@ export function QuotationTable({
                       {formatRupiah(q.total_price || 0)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" asChild>
-                        <Link to={`/quotations/${q.id}`}>
-                          <ArrowRight className="h-4 w-4 text-slate-400" />
-                        </Link>
-                      </Button>
+                      <ArrowRight className="h-3.5 w-3.5 text-slate-300 ml-auto" />
                     </TableCell>
                   </TableRow>
                 ))
