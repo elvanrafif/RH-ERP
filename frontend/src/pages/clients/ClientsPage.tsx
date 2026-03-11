@@ -1,9 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
 import type { Client } from '@/types'
-import { getColumns } from './columns'
-import { DataTable } from '@/components/ui/data-table'
+import { ClientTable } from './ClientTable'
 import { ClientForm } from './ClientForm'
 import { useDebounce } from '@/hooks/useDebounce'
 import { toast } from 'sonner'
@@ -13,8 +12,6 @@ import { Input } from '@/components/ui/input'
 import { Plus, Search, Users } from 'lucide-react'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
-import { PageTableSkeleton } from '@/components/shared/TableSkeleton'
-import { EmptyState } from '@/components/shared/EmptyState'
 import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog'
 
 export default function ClientsPage() {
@@ -27,13 +24,12 @@ export default function ClientsPage() {
 
   const debouncedSearch = useDebounce(searchTerm, 500)
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['clients', debouncedSearch],
     queryFn: async () => {
       const filterRule = debouncedSearch
         ? `company_name ~ "${debouncedSearch}" || email ~ "${debouncedSearch}" || phone ~ "${debouncedSearch}" || address ~ "${debouncedSearch}"`
         : ''
-
       return await pb.collection('clients').getFullList<Client>({
         sort: '-created',
         filter: filterRule,
@@ -42,15 +38,13 @@ export default function ClientsPage() {
   })
 
   const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      return await pb.collection('clients').delete(id)
-    },
+    mutationFn: (id: string) => pb.collection('clients').delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['clients'] })
-      toast.success('Client data successfully deleted')
+      toast.success('Client deleted successfully')
       setDeleteId(null)
     },
-    onError: () => toast.error('Failed to delete client data'),
+    onError: () => toast.error('Failed to delete client'),
   })
 
   const handleCreate = () => {
@@ -63,93 +57,69 @@ export default function ClientsPage() {
     setOpen(true)
   }
 
-  const handleDeleteClick = (client: Client) => {
-    setDeleteId(client.id)
-  }
-
-  const handleConfirmDelete = () => {
-    if (deleteId) deleteMutation.mutate(deleteId)
-  }
-
-  const columns = useMemo(
-    () => getColumns(handleEdit, handleDeleteClick),
-    [handleEdit, handleDeleteClick]
-  )
-
-  if (error)
-    return (
-      <div className="p-8 text-red-500">
-        Error loading data: {error.message}
-      </div>
-    )
+  const handleDeleteClick = (client: Client) => setDeleteId(client.id)
 
   return (
-    <div className="w-full overflow-x-auto bg-muted/40">
-      <div className="min-w-[1024px] space-y-4 p-8 pt-6">
-        <PageHeader
-          icon={<Users className="h-6 w-6 text-slate-800" />}
-          title="Database Clients"
-          description="Manage customer data and contact information."
-          action={
-            <Button onClick={handleCreate}>
-              <Plus className="mr-2 h-4 w-4" /> Add Client
-            </Button>
-          }
-        />
+    <div className="flex-1 h-full p-4 md:p-8 pt-6 flex flex-col overflow-hidden bg-background/50">
+      <PageHeader
+        icon={<Users className="h-6 w-6 text-slate-800" />}
+        title="Clients"
+        description="Manage customer data and contact information."
+        action={
+          <Button onClick={handleCreate}>
+            <Plus className="mr-2 h-4 w-4" /> Add Client
+          </Button>
+        }
+      />
 
-        {/* SEARCH BAR */}
-        <div className="flex items-center space-x-2 bg-white p-1 rounded-md border w-[400px]">
-          <Search className="h-4 w-4 ml-2 text-gray-500" />
-          <Input
-            placeholder="Search name, email, or phone..."
-            className="border-none focus-visible:ring-0 shadow-none"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-
-        {/* CONTENT AREA */}
-        {isLoading ? (
-          <PageTableSkeleton />
-        ) : data?.length === 0 ? (
-          <div className="flex items-center justify-center h-60 border rounded-lg bg-card/50">
-            <EmptyState
-              title="No clients found"
-              description="Try changing your search keywords or add a new client."
+      {/* CONTENT CARD */}
+      <div className="flex-1 overflow-hidden relative bg-card/50 rounded-lg border border-border shadow-inner flex flex-col">
+        {/* INTEGRATED TOOLBAR */}
+        <div className="flex items-center gap-2 px-3 py-2 border-b bg-white/80 backdrop-blur-sm shrink-0">
+          <div className="relative flex-1 md:max-w-xs">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search name, email, or phone..."
+              className="pl-9 h-9 bg-white"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-        ) : (
-          <div className="bg-card rounded-md border">
-            <DataTable columns={columns} data={data || []} />
-          </div>
-        )}
+        </div>
 
-        <FormDialog
-          open={open}
-          onOpenChange={setOpen}
-          title={editingClient ? 'Edit Client Data' : 'Add New Client'}
-          description={
-            editingClient
-              ? 'Update the client information below.'
-              : 'Fill in the complete client details below.'
-          }
-        >
-          <ClientForm
-            key={editingClient ? editingClient.id : 'new-client'}
-            initialData={editingClient}
-            onSuccess={() => setOpen(false)}
-          />
-        </FormDialog>
-
-        <DeleteConfirmDialog
-          open={!!deleteId}
-          onOpenChange={(isOpen) => !isOpen && setDeleteId(null)}
-          title="Delete Client Data?"
-          description="This action is permanent. All projects associated with this client may lose their client name reference."
-          onConfirm={handleConfirmDelete}
-          isLoading={deleteMutation.isPending}
+        <ClientTable
+          clients={data || []}
+          isLoading={isLoading}
+          onEdit={handleEdit}
+          onDelete={handleDeleteClick}
         />
       </div>
+
+      <FormDialog
+        open={open}
+        onOpenChange={setOpen}
+        title={editingClient ? 'Edit Client' : 'Add New Client'}
+        description={
+          editingClient
+            ? 'Update the client information below.'
+            : 'Fill in the complete client details below.'
+        }
+      >
+        <ClientForm
+          key={editingClient ? editingClient.id : 'new-client'}
+          initialData={editingClient}
+          onSuccess={() => setOpen(false)}
+        />
+      </FormDialog>
+
+      <DeleteConfirmDialog
+        open={!!deleteId}
+        onOpenChange={(isOpen) => !isOpen && setDeleteId(null)}
+        title="Delete Client?"
+        description="This action is permanent. Projects linked to this client may lose their reference."
+        onConfirm={() => deleteId && deleteMutation.mutate(deleteId)}
+        isLoading={deleteMutation.isPending}
+      />
     </div>
   )
 }
