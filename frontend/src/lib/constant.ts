@@ -48,6 +48,10 @@ export const PAYMENT_ITEM_STATUS = {
 
 export const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024 // 5MB
 
+// Session timeout — ubah di sini untuk semua behaviour (idle + tab closed)
+export const SESSION_TIMEOUT_MS = 1000 * 60 * 60 // 1 jam
+export const SESSION_LAST_ACTIVITY_KEY = 'rh_last_activity'
+
 // Deadline notification
 export const DEADLINE_WARNING_DAYS = 7
 export const DONE_STATUSES = ['finish', 'done', 'cancelled'] as const

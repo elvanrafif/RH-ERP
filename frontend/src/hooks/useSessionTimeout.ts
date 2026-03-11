@@ -1,43 +1,84 @@
-import { useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
-import { pb } from "@/lib/pocketbase";
-import { toast } from "sonner";
+import { useEffect, useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { pb } from '@/lib/pocketbase'
+import { toast } from 'sonner'
+import { SESSION_TIMEOUT_MS, SESSION_LAST_ACTIVITY_KEY } from '@/lib/constant'
 
-// 1 Jam (3.6 Juta ms)
-const TIMEOUT_DURATION = 1000 * 60 * 60;
-// const TIMEOUT_DURATION = 10000;
+const ACTIVITY_EVENTS = ['click', 'mousemove', 'keydown', 'scroll', 'touchstart']
+const CHANNEL_NAME = 'rh_session'
+
+type SessionMessage = { type: 'activity' } | { type: 'logout' }
 
 export function useSessionTimeout() {
-    const navigate = useNavigate();
+  const navigate = useNavigate()
 
-    const handleLogout = useCallback(() => {
-        if (pb.authStore.isValid) {
-            pb.authStore.clear();
-            toast.warning("Sesi berakhir karena tidak aktif. Silakan login kembali.");
-            navigate("/login");
-        }
-    }, [navigate]);
+  const logout = useCallback((broadcast = true) => {
+    if (!pb.authStore.isValid) return
+    if (broadcast) {
+      const ch = new BroadcastChannel(CHANNEL_NAME)
+      ch.postMessage({ type: 'logout' } satisfies SessionMessage)
+      ch.close()
+    }
+    pb.authStore.clear()
+    localStorage.removeItem(SESSION_LAST_ACTIVITY_KEY)
+    toast.warning('Session expired due to inactivity. Please log in again.')
+    navigate('/login')
+  }, [navigate])
 
-    useEffect(() => {
-        if (!pb.authStore.isValid) return;
+  useEffect(() => {
+    if (!pb.authStore.isValid) return
 
-        // --- PERBAIKAN DI SINI (Ganti NodeJS.Timeout jadi any) ---
-        let timeoutId: any;
+    // Cek apakah sesi sudah expire saat tab ditutup
+    const stored = localStorage.getItem(SESSION_LAST_ACTIVITY_KEY)
+    if (stored) {
+      const elapsed = Date.now() - parseInt(stored, 10)
+      if (elapsed >= SESSION_TIMEOUT_MS) {
+        logout()
+        return
+      }
+    }
 
-        const resetTimer = () => {
-            if (timeoutId) clearTimeout(timeoutId);
-            timeoutId = setTimeout(handleLogout, TIMEOUT_DURATION);
-        };
+    const channel = new BroadcastChannel(CHANNEL_NAME)
+    let timeoutId: ReturnType<typeof setTimeout>
+    let lastWritten = 0
+    let lastBroadcast = 0
 
-        const events = ["click", "mousemove", "keydown", "scroll", "touchstart"];
+    // Reset timer lokal tanpa broadcast (dipanggil saat terima pesan dari tab lain)
+    const resetLocalTimer = () => {
+      clearTimeout(timeoutId)
+      timeoutId = setTimeout(() => logout(), SESSION_TIMEOUT_MS)
+    }
 
-        events.forEach((event) => window.addEventListener(event, resetTimer));
+    // Reset timer + update localStorage + broadcast ke tab lain
+    const resetTimer = () => {
+      const now = Date.now()
 
-        resetTimer();
+      if (now - lastWritten > 10_000) {
+        localStorage.setItem(SESSION_LAST_ACTIVITY_KEY, String(now))
+        lastWritten = now
+      }
 
-        return () => {
-            if (timeoutId) clearTimeout(timeoutId);
-            events.forEach((event) => window.removeEventListener(event, resetTimer));
-        };
-    }, [handleLogout]);
+      if (now - lastBroadcast > 10_000) {
+        channel.postMessage({ type: 'activity' } satisfies SessionMessage)
+        lastBroadcast = now
+      }
+
+      resetLocalTimer()
+    }
+
+    // Terima pesan dari tab lain
+    channel.onmessage = (e: MessageEvent<SessionMessage>) => {
+      if (e.data.type === 'activity') resetLocalTimer()
+      if (e.data.type === 'logout') logout(false)
+    }
+
+    ACTIVITY_EVENTS.forEach((ev) => window.addEventListener(ev, resetTimer))
+    resetTimer()
+
+    return () => {
+      clearTimeout(timeoutId)
+      ACTIVITY_EVENTS.forEach((ev) => window.removeEventListener(ev, resetTimer))
+      channel.close()
+    }
+  }, [logout])
 }
