@@ -1,14 +1,40 @@
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '@/components/ui/card'
-import { Users, DollarSign, TrendingUp, HardHat, FileText } from 'lucide-react'
+import { DollarSign, HardHat, Users, FileText, TrendingUp } from 'lucide-react'
 import { Overview } from '@/components/dashboard/Overview'
 import { RecentSales } from '@/components/dashboard/RecentSales'
+import { DeadlineWidget } from '@/components/dashboard/tabs/DeadlineWidget'
+import { ProjectStatusChart } from '@/components/dashboard/tabs/ProjectStatusChart'
 import { formatRupiah } from '@/lib/helpers'
+
+interface KpiCardProps {
+  label: string
+  value: string | number
+  sub: string
+  icon: React.ReactNode
+  accent: string
+}
+
+function KpiCard({ label, value, sub, icon, accent }: KpiCardProps) {
+  return (
+    <div
+      className={`bg-white rounded-xl border border-slate-200 shadow-sm p-3 md:p-4 flex items-start gap-3 border-l-4 ${accent}`}
+    >
+      <div className="flex-1 min-w-0">
+        <p className="text-[10px] md:text-xs font-medium text-slate-500 uppercase tracking-wider leading-tight">
+          {label}
+        </p>
+        <p className="text-lg md:text-2xl font-bold text-slate-900 mt-1 truncate">
+          {value}
+        </p>
+        <p className="text-[10px] text-slate-400 mt-0.5 leading-tight hidden sm:block">
+          {sub}
+        </p>
+      </div>
+      <div className="text-slate-300 mt-0.5 shrink-0 hidden sm:block">
+        {icon}
+      </div>
+    </div>
+  )
+}
 
 interface OverviewTabProps {
   data: any
@@ -16,122 +42,86 @@ interface OverviewTabProps {
 }
 
 export function OverviewTab({ data, isLoading }: OverviewTabProps) {
+  const loading = '—'
+
   return (
-    <div className="space-y-6">
-      {/* KPI CARDS GRID */}
-      <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Actual Revenue */}
-        <Card className="border-slate-200/60 shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">
-              Actual Revenue
-            </CardTitle>
-            <div className="p-2 bg-blue-50 rounded-md">
-              <DollarSign className="h-4 w-4 text-blue-600" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {isLoading ? '...' : formatRupiah(data?.totalOmzet || 0)}
-            </div>
-            <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
-              <TrendingUp className="h-3 w-3 text-emerald-500" /> Settled
-              Invoices (Term 4 + Paid)
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Active Projects */}
-        <Card className="border-slate-200/60 shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">
-              Active Projects
-            </CardTitle>
-            <div className="p-2 bg-amber-50 rounded-md">
-              <HardHat className="h-4 w-4 text-amber-600" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {isLoading ? '...' : data?.totalProjects || 0}
-            </div>
-            <p className="text-[10px] text-muted-foreground mt-1">
-              Ongoing Design, Civil & Interior
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Total Clients */}
-        <Card className="border-slate-200/60 shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">
-              Total Clients
-            </CardTitle>
-            <div className="p-2 bg-emerald-50 rounded-md">
-              <Users className="h-4 w-4 text-emerald-600" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {isLoading ? '...' : data?.totalClients || 0}
-            </div>
-            <p className="text-[10px] text-muted-foreground mt-1">
-              Registered partner entities
-            </p>
-          </CardContent>
-        </Card>
-
-        {/* Quotations Sent */}
-        <Card className="border-slate-200/60 shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-slate-600">
-              Quotations Sent
-            </CardTitle>
-            <div className="p-2 bg-purple-50 rounded-md">
-              <FileText className="h-4 w-4 text-purple-600" />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {isLoading ? '...' : data?.totalQuotations || 0}
-            </div>
-            <p className="text-[10px] text-muted-foreground mt-1">
-              Ready for conversion
-            </p>
-          </CardContent>
-        </Card>
+    <div className="space-y-5">
+      {/* KPI ROW */}
+      <div className="grid gap-3 md:gap-4 grid-cols-2 xl:grid-cols-4">
+        <KpiCard
+          label="Actual Revenue"
+          value={isLoading ? loading : formatRupiah(data?.totalOmzet || 0)}
+          sub="Settled invoices (Term 4 + Paid)"
+          icon={<DollarSign className="h-5 w-5" />}
+          accent="border-l-blue-500"
+        />
+        <KpiCard
+          label="Active Projects"
+          value={isLoading ? loading : (data?.totalProjects ?? 0)}
+          sub="Design, Civil & Interior ongoing"
+          icon={<HardHat className="h-5 w-5" />}
+          accent="border-l-amber-500"
+        />
+        <KpiCard
+          label="Total Clients"
+          value={isLoading ? loading : (data?.totalClients ?? 0)}
+          sub="Registered partner entities"
+          icon={<Users className="h-5 w-5" />}
+          accent="border-l-emerald-500"
+        />
+        <KpiCard
+          label="Quotations Sent"
+          value={isLoading ? loading : (data?.totalQuotations ?? 0)}
+          sub="Ready for conversion"
+          icon={<FileText className="h-5 w-5" />}
+          accent="border-l-purple-500"
+        />
       </div>
 
-      {/* CHARTS SECTION */}
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-7">
-        <Card className="col-span-1 lg:col-span-4 border-slate-200/60 shadow-sm bg-white">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">
-              Revenue Analytics
-            </CardTitle>
-            <CardDescription>
-              Visual growth of your company's income over time.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pl-2">
-            <div className="h-[300px] md:h-[350px]">
+      {/* REVENUE CHART + RECENT TRANSACTIONS */}
+      <div className="grid gap-3 md:gap-4 grid-cols-1 lg:grid-cols-5">
+        <div className="lg:col-span-3 bg-white rounded-xl border border-slate-200 shadow-sm">
+          <div className="px-4 md:px-5 pt-4 pb-2 border-b border-slate-100 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-slate-900">
+                Revenue Analytics
+              </p>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Monthly income from settled invoices this year
+              </p>
+            </div>
+            <TrendingUp className="h-4 w-4 text-slate-300 shrink-0" />
+          </div>
+          <div className="p-3 md:p-4">
+            <div className="h-[220px] md:h-[280px]">
               <Overview />
             </div>
-          </CardContent>
-        </Card>
-        <Card className="col-span-1 lg:col-span-3 border-slate-200/60 shadow-sm bg-white">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">
+          </div>
+        </div>
+
+        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col">
+          <div className="px-4 md:px-5 pt-4 pb-2 border-b border-slate-100">
+            <p className="text-sm font-semibold text-slate-900">
               Recent Transactions
-            </CardTitle>
-            <CardDescription>
-              Latest invoice payments and quotation updates.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+            </p>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Latest paid invoices & quotations
+            </p>
+          </div>
+          <div className="p-4 md:p-5 flex-1">
             <RecentSales />
-          </CardContent>
-        </Card>
+          </div>
+        </div>
+      </div>
+
+      {/* DEADLINE + STATUS ROW */}
+      <div className="grid gap-3 md:gap-4 grid-cols-1 lg:grid-cols-5">
+        <div className="lg:col-span-3">
+          <DeadlineWidget />
+        </div>
+        <div className="lg:col-span-2">
+          <ProjectStatusChart />
+        </div>
       </div>
     </div>
   )

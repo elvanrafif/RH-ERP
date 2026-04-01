@@ -1,26 +1,30 @@
-import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
-
-const data = [
-  { name: "Jan", total: Math.floor(Math.random() * 50) + 10 },
-  { name: "Feb", total: Math.floor(Math.random() * 50) + 10 },
-  { name: "Mar", total: Math.floor(Math.random() * 50) + 10 },
-  { name: "Apr", total: Math.floor(Math.random() * 50) + 10 },
-  { name: "Mei", total: Math.floor(Math.random() * 50) + 10 },
-  { name: "Jun", total: Math.floor(Math.random() * 50) + 10 },
-  { name: "Jul", total: Math.floor(Math.random() * 50) + 10 },
-  { name: "Agu", total: Math.floor(Math.random() * 50) + 10 },
-  { name: "Sep", total: Math.floor(Math.random() * 50) + 10 },
-  { name: "Okt", total: Math.floor(Math.random() * 50) + 10 },
-  { name: "Nov", total: Math.floor(Math.random() * 50) + 10 },
-  { name: "Des", total: Math.floor(Math.random() * 50) + 10 },
-]
+import {
+  Bar,
+  BarChart,
+  ResponsiveContainer,
+  XAxis,
+  YAxis,
+  Tooltip,
+} from 'recharts'
+import { useMonthlyRevenue } from '@/hooks/useMonthlyRevenue'
+import { formatRupiah } from '@/lib/helpers'
 
 export function Overview() {
+  const { data = [], isLoading } = useMonthlyRevenue()
+
+  if (isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center text-muted-foreground text-sm">
+        Loading...
+      </div>
+    )
+  }
+
   return (
-    <ResponsiveContainer width="100%" height={350}>
-      <BarChart data={data}>
+    <ResponsiveContainer width="100%" height="100%">
+      <BarChart data={data} margin={{ top: 5, right: 10, bottom: 0, left: 0 }}>
         <XAxis
-          dataKey="name"
+          dataKey="month"
           stroke="#888888"
           fontSize={12}
           tickLine={false}
@@ -31,7 +35,15 @@ export function Overview() {
           fontSize={12}
           tickLine={false}
           axisLine={false}
-          tickFormatter={(value) => `Rp${value}jt`}
+          tickFormatter={(value) =>
+            value >= 1_000_000
+              ? `${(value / 1_000_000).toFixed(0)}M`
+              : `${value}`
+          }
+        />
+        <Tooltip
+          formatter={(value) => [formatRupiah(Number(value) || 0), 'Revenue']}
+          cursor={{ fill: 'rgba(0,0,0,0.04)' }}
         />
         <Bar
           dataKey="total"
