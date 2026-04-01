@@ -7,6 +7,8 @@ import { toast } from 'sonner'
 import { toBlob } from 'html-to-image'
 import jsPDF from 'jspdf'
 import { usePublicDocument } from '@/hooks/usePublicDocument'
+import { useDocumentScaling } from '@/hooks/useDocumentScaling'
+import { A4_BASE_WIDTH } from '@/lib/constant'
 
 import { InvoicePaper } from '../invoices/components/InvoicePaper'
 import { QuotationPaper } from '../quotations/QuotationPaper'
@@ -18,6 +20,7 @@ export default function PublicVerificationPage() {
   const captureRef = useRef<HTMLDivElement>(null)
 
   const { data: doc, isLoading, isError } = usePublicDocument(docType, id)
+  const { containerRef, scale } = useDocumentScaling()
 
   const hasDbFile = !!doc?.document_file
 
@@ -144,8 +147,8 @@ export default function PublicVerificationPage() {
         <div className="flex items-center gap-3 bg-slate-800 text-white px-6 py-3 rounded-lg shadow-lg w-full md:w-auto">
           <CheckCircle2 className="h-6 w-6" />
           <div>
-            <h2 className="font-bold text-sm">DOKUMEN RESMI</h2>
-            <p className="text-[10px]">Valid & Terverifikasi</p>
+            <h2 className="font-bold text-sm text-white">DOKUMEN RESMI</h2>
+            <p className="text-[10px] text-slate-300">Valid & Terverifikasi</p>
           </div>
         </div>
 
@@ -158,14 +161,14 @@ export default function PublicVerificationPage() {
             }
           }}
           disabled={isCapturing || isDownloadingPdf}
-          className="bg-slate-800 hover:bg-slate-900 shadow-lg w-full md:w-auto"
+          className="bg-slate-800 hover:bg-slate-900 shadow-lg w-full md:w-auto text-white"
         >
           {isCapturing || isDownloadingPdf ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <Loader2 className="mr-2 h-4 w-4 animate-spin text-white" />
           ) : hasDbFile ? (
-            <Download className="mr-2 h-4 w-4" />
+            <Download className="mr-2 h-4 w-4 text-white" />
           ) : (
-            <Share2 className="mr-2 h-4 w-4" />
+            <Share2 className="mr-2 h-4 w-4 text-white" />
           )}
           {isCapturing || isDownloadingPdf
             ? 'Memproses...'
@@ -175,8 +178,17 @@ export default function PublicVerificationPage() {
         </Button>
       </div>
 
-      <div className="w-full flex justify-center overflow-hidden pb-10 relative z-10">
-        <div className="relative shadow-2xl bg-white transition-transform origin-top transform scale-[0.45] mb-[-160mm] xs:scale-[0.55] xs:mb-[-130mm] sm:scale-[0.75] sm:mb-[-75mm] md:scale-100 md:mb-0">
+      <div 
+        ref={containerRef}
+        className="w-full flex-1 flex flex-col justify-center items-center overflow-hidden pb-10 relative z-10 px-4 md:px-0 min-h-[50vh] max-h-[75vh] md:max-h-none"
+      >
+        <div 
+          className="relative shadow-2xl bg-white shrink-0 origin-center transform-gpu transition-all duration-500 mx-auto"
+          style={{
+            width: A4_BASE_WIDTH * scale,
+            height: (297 / 210) * A4_BASE_WIDTH * scale,
+          }}
+        >
           <div
             className="absolute inset-0 z-50 w-full h-full bg-transparent"
             onContextMenu={(e) => {
@@ -184,7 +196,12 @@ export default function PublicVerificationPage() {
               return false
             }}
           />
-          {renderPaper(false)}
+          <div 
+            className="origin-top-left transform-gpu"
+            style={{ transform: `scale(${scale})` }}
+          >
+            {renderPaper(false)}
+          </div>
         </div>
       </div>
 

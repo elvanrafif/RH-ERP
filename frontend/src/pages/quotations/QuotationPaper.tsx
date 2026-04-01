@@ -33,8 +33,8 @@ export const QuotationPaper = React.forwardRef<
   return (
     <div
       ref={ref}
-      className="bg-white p-[15mm] text-black font-sans relative shadow-xl print:shadow-none"
-      style={{ width: '210mm', minHeight: '297mm' }}
+      className="bg-white p-[15mm] text-black font-sans relative shadow-xl print:shadow-none print:w-[210mm] print:min-h-[297mm]"
+      style={{ width: '800px', minHeight: '1131px' }}
     >
       {isPublicView && (
         <div className="watermark-layer absolute inset-0 flex items-center justify-center pointer-events-none z-50 overflow-hidden print:hidden">

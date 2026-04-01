@@ -52,8 +52,8 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
     return (
       <div
         ref={ref}
-        className={`bg-white shadow-xl mx-auto p-[15mm] print:shadow-none relative text-black font-sans ${securityClass}`}
-        style={{ width: '210mm', minHeight: '297mm' }}
+        className={`bg-white shadow-xl mx-auto p-[15mm] print:shadow-none relative text-black font-sans print:w-[210mm] print:min-h-[297mm] ${securityClass}`}
+        style={{ width: '800px', minHeight: '1131px' }}
       >
         {/* WATERMARK (Diberi class 'watermark-layer' agar bisa dihapus script) */}
         {isPublicView && (
@@ -104,9 +104,6 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
           <div className="flex flex-col items-center justify-center">
             <p className="text-yellow-600 font-bold text-lg">
               Termin {activeTermin}
-            </p>
-            <p className="text-yellow-600 font-bold">
-              Invoice Date: {formatDate(date)} <br />
             </p>
           </div>
         </div>
