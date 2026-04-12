@@ -1,26 +1,26 @@
 import { useState } from 'react'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
 import type { Client } from '@/types'
 import { ClientTable } from './ClientTable'
 import { ClientForm } from './ClientForm'
+import { ClientDetailDialog } from './ClientDetailDialog'
 import { useDebounce } from '@/hooks/useDebounce'
-import { toast } from 'sonner'
+import { useAuth } from '@/contexts/AuthContext'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Plus, Search, Users } from 'lucide-react'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
-import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog'
 
 export default function ClientsPage() {
-  const queryClient = useQueryClient()
+  const { can } = useAuth()
 
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [editingClient, setEditingClient] = useState<Client | null>(null)
-  const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [viewingClient, setViewingClient] = useState<Client | null>(null)
 
   const debouncedSearch = useDebounce(searchTerm, 500)
 
@@ -37,16 +37,6 @@ export default function ClientsPage() {
     },
   })
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => pb.collection('clients').delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['clients'] })
-      toast.success('Client deleted successfully')
-      setDeleteId(null)
-    },
-    onError: () => toast.error('Failed to delete client'),
-  })
-
   const handleCreate = () => {
     setEditingClient(null)
     setOpen(true)
@@ -57,7 +47,9 @@ export default function ClientsPage() {
     setOpen(true)
   }
 
-  const handleDeleteClick = (client: Client) => setDeleteId(client.id)
+  const handleView = (client: Client) => {
+    setViewingClient(client)
+  }
 
   return (
     <div className="flex-1 h-full p-4 md:p-8 pt-6 flex flex-col overflow-hidden bg-background/50">
@@ -90,8 +82,8 @@ export default function ClientsPage() {
         <ClientTable
           clients={data || []}
           isLoading={isLoading}
-          onEdit={handleEdit}
-          onDelete={handleDeleteClick}
+          onView={handleView}
+          onEdit={can('manage_clients') ? handleEdit : undefined}
         />
       </div>
 
@@ -112,13 +104,10 @@ export default function ClientsPage() {
         />
       </FormDialog>
 
-      <DeleteConfirmDialog
-        open={!!deleteId}
-        onOpenChange={(isOpen) => !isOpen && setDeleteId(null)}
-        title="Delete Client?"
-        description="This action is permanent. Projects linked to this client may lose their reference."
-        onConfirm={() => deleteId && deleteMutation.mutate(deleteId)}
-        isLoading={deleteMutation.isPending}
+      <ClientDetailDialog
+        client={viewingClient}
+        open={!!viewingClient}
+        onOpenChange={(isOpen) => !isOpen && setViewingClient(null)}
       />
     </div>
   )
