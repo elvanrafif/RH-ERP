@@ -30,10 +30,7 @@ export function SidebarNav({
 }: SidebarNavProps) {
   return (
     <nav
-      className={cn(
-        'grid gap-1 px-3',
-        collapsed ? 'justify-center px-2' : ''
-      )}
+      className={cn('grid gap-1 px-3', collapsed ? 'justify-center px-2' : '')}
     >
       <Guard require="view_dashboard">
         <NavItem
@@ -116,16 +113,14 @@ export function SidebarNav({
         </div>
       )}
 
-      <Guard require="view_clients">
-        <NavItem
-          to="/clients"
-          icon={Users}
-          label="Clients"
-          collapsed={collapsed}
-          isActive={isActive('/clients')}
-          onClick={onLinkClick}
-        />
-      </Guard>
+      <NavItem
+        to="/clients"
+        icon={Users}
+        label="Clients"
+        collapsed={collapsed}
+        isActive={isActive('/clients')}
+        onClick={onLinkClick}
+      />
 
       <Guard require="manage_users">
         <NavItem
