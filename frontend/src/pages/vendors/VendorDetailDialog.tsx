@@ -12,7 +12,7 @@ import { Phone, FileText, HardHat, Sofa } from 'lucide-react'
 import { getInitials } from '@/lib/helpers'
 
 const PROJECT_TYPE_LABEL: Record<Vendor['project_type'], string> = {
-  civil: 'Sipil',
+  civil: 'Civil',
   interior: 'Interior',
 }
 
@@ -32,7 +32,11 @@ interface VendorDetailDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-export function VendorDetailDialog({ vendor, open, onOpenChange }: VendorDetailDialogProps) {
+export function VendorDetailDialog({
+  vendor,
+  open,
+  onOpenChange,
+}: VendorDetailDialogProps) {
   if (!vendor) return null
 
   const TypeIcon = PROJECT_TYPE_ICON[vendor.project_type]
@@ -64,7 +68,9 @@ export function VendorDetailDialog({ vendor, open, onOpenChange }: VendorDetailD
           </div>
           <div className="flex items-start gap-3 text-sm">
             <FileText className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-            <span className="text-slate-700 whitespace-pre-wrap">{vendor.notes || '—'}</span>
+            <span className="text-slate-700 whitespace-pre-wrap">
+              {vendor.notes || '—'}
+            </span>
           </div>
         </div>
       </DialogContent>
