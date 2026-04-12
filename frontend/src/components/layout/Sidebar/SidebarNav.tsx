@@ -3,6 +3,7 @@ import {
   FileText,
   Receipt,
   Users,
+  Users2,
   Settings,
   PencilRuler,
   HardHat,
@@ -121,6 +122,17 @@ export function SidebarNav({
         isActive={isActive('/clients')}
         onClick={onLinkClick}
       />
+
+      {isSuperAdmin && (
+        <NavItem
+          to="/vendors"
+          icon={Users2}
+          label="Vendors & Rekanan"
+          collapsed={collapsed}
+          isActive={isActive('/vendors')}
+          onClick={onLinkClick}
+        />
+      )}
 
       <Guard require="manage_users">
         <NavItem

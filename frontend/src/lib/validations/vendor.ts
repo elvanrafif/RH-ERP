@@ -8,7 +8,7 @@ export const vendorSchema = z.object({
     message: 'Nomor telepon minimal 10 digit.',
   }),
   project_type: z.enum(['civil', 'interior'], {
-    required_error: 'Project type wajib dipilih.',
+    error: 'Project type wajib dipilih.',
   }),
   notes: z.string().optional(),
 })
