@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { pb } from '@/lib/pocketbase'
 import type { Client } from '@/types'
 import { ClientTable } from './ClientTable'
 import { ClientForm } from './ClientForm'
 import { ClientDetailDialog } from './ClientDetailDialog'
 import { useDebounce } from '@/hooks/useDebounce'
+import { useClients } from '@/hooks/useClients'
 import { useAuth } from '@/contexts/AuthContext'
 
 import { Button } from '@/components/ui/button'
@@ -24,18 +23,7 @@ export default function ClientsPage() {
 
   const debouncedSearch = useDebounce(searchTerm, 500)
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['clients', debouncedSearch],
-    queryFn: async () => {
-      const filterRule = debouncedSearch
-        ? `company_name ~ "${debouncedSearch}" || email ~ "${debouncedSearch}" || phone ~ "${debouncedSearch}" || address ~ "${debouncedSearch}"`
-        : ''
-      return await pb.collection('clients').getFullList<Client>({
-        sort: '-created',
-        filter: filterRule,
-      })
-    },
-  })
+  const { clients: data, isLoading } = useClients(debouncedSearch)
 
   const handleCreate = () => {
     setEditingClient(null)
