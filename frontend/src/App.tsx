@@ -35,6 +35,8 @@ import InvoiceDetailPage from './pages/invoices/InvoiceDetailPage'
 import PublicVerificationPage from './pages/verification/PublicVerificationPage'
 import { AuthProvider } from './contexts/AuthContext'
 import { PermissionGuard } from './components/ui/PermissionGuard'
+import { SuperAdminGuard } from './components/ui/SuperAdminGuard'
+import VendorsPage from './pages/vendors/VendorsPage'
 import {
   FallbackDecider,
   ProtectedRoute,
@@ -102,6 +104,10 @@ function AppRoutes() {
         </Route>
 
         <Route path="clients" element={<ClientsPage />} />
+
+        <Route element={<SuperAdminGuard />}>
+          <Route path="vendors" element={<VendorsPage />} />
+        </Route>
 
         {/* --- SETTINGS (Only for those who can manage users) --- */}
         <Route element={<PermissionGuard require="manage_users" />}>
