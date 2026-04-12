@@ -7,20 +7,12 @@ import {
 } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { Mail, Phone, MapPin } from 'lucide-react'
+import { getInitials } from '@/lib/helpers'
 
 interface ClientDetailDialogProps {
   client: Client | null
   open: boolean
   onOpenChange: (open: boolean) => void
-}
-
-function getInitials(name: string) {
-  return name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .substring(0, 2)
 }
 
 export function ClientDetailDialog({
