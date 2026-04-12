@@ -319,12 +319,20 @@ function KanbanCard({
             <DropdownMenuContent align="end">
               {canEdit && (
                 <>
-                  <DropdownMenuItem onClick={onEdit}>
+                  <DropdownMenuItem
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onEdit()
+                    }}
+                  >
                     <Pencil className="mr-2 h-4 w-4" /> Edit
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={onDelete}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      onDelete()
+                    }}
                     className="text-red-600 focus:text-red-600 focus:bg-red-50"
                   >
                     <Trash2 className="mr-2 h-4 w-4" /> Delete

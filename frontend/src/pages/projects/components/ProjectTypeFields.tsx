@@ -133,26 +133,24 @@ export function ProjectTypeFields({
 
       {/* INTERIOR: work scope */}
       {isInterior && (
-        <div className="bg-emerald-50 p-3 rounded border border-emerald-100">
-          <FormField
-            control={control}
-            name="area_scope"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Area / Scope (e.g. Kitchen Set & Master Bed)
-                </FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Type work scope..."
-                    {...field}
-                    value={field.value || ''}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={control}
+          name="area_scope"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Area / Scope (e.g. Kitchen Set & Master Bed)
+              </FormLabel>
+              <FormControl>
+                <Input
+                  placeholder="Type work scope..."
+                  {...field}
+                  value={field.value || ''}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
       )}
 
       {/* PIC + DEADLINE + CONTRACT VALUE */}
