@@ -19,6 +19,16 @@ export interface Client {
   address?: string
 }
 
+export interface Vendor {
+  id: string
+  name: string
+  phone: string
+  project_type: 'civil' | 'interior'
+  notes?: string
+  created: string
+  updated: string
+}
+
 export interface Project {
   id: string
   // name: string; // HAPUS, diganti client relation
