@@ -21,30 +21,23 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { MoreHorizontal, Pencil, Eye } from 'lucide-react'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
-
-const getInitials = (name: string) =>
-  name
-    .split(' ')
-    .map((n) => n[0])
-    .join('')
-    .toUpperCase()
-    .substring(0, 2)
+import { getInitials } from '@/lib/helpers'
 
 interface ClientTableProps {
   clients: Client[]
   isLoading: boolean
-  onEdit: (client: Client) => void
-  onDelete: (client: Client) => void
+  onView: (client: Client) => void
+  onEdit?: (client: Client) => void
 }
 
 export function ClientTable({
   clients,
   isLoading,
+  onView,
   onEdit,
-  onDelete,
 }: ClientTableProps) {
   return (
     <div className="flex flex-col h-full bg-white">
@@ -53,6 +46,7 @@ export function ClientTable({
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
               <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                <TableHead className="w-[40px]">#</TableHead>
                 <TableHead className="w-[280px]">Client / Company</TableHead>
                 <TableHead>Email</TableHead>
                 <TableHead>Phone</TableHead>
@@ -62,10 +56,10 @@ export function ClientTable({
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRowsSkeleton rows={5} columns={5} />
+                <TableRowsSkeleton rows={5} columns={6} />
               ) : clients.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-60">
+                  <TableCell colSpan={6} className="h-60">
                     <EmptyState
                       title="No clients found"
                       description="Try changing your search keywords or add a new client."
@@ -73,8 +67,11 @@ export function ClientTable({
                   </TableCell>
                 </TableRow>
               ) : (
-                clients.map((client) => (
+                clients.map((client, index) => (
                   <TableRow key={client.id} className="h-14">
+                    <TableCell className="text-slate-400 text-xs tabular-nums">
+                      {index + 1}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs shrink-0">
@@ -123,16 +120,17 @@ export function ClientTable({
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onEdit(client)}>
-                            <Pencil className="mr-2 h-4 w-4" /> Edit
+                          <DropdownMenuItem onClick={() => onView(client)}>
+                            <Eye className="mr-2 h-4 w-4" /> View Details
                           </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => onDelete(client)}
-                            className="text-red-600 focus:text-red-600 focus:bg-red-50"
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" /> Delete
-                          </DropdownMenuItem>
+                          {onEdit && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => onEdit(client)}>
+                                <Pencil className="mr-2 h-4 w-4" /> Edit
+                              </DropdownMenuItem>
+                            </>
+                          )}
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </TableCell>
