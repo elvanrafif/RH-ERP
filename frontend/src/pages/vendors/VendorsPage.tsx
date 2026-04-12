@@ -25,7 +25,9 @@ const PAGE_SIZE = 15
 export default function VendorsPage() {
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
-  const [projectTypeFilter, setProjectTypeFilter] = useState<'civil' | 'interior' | ''>('')
+  const [projectTypeFilter, setProjectTypeFilter] = useState<
+    'civil' | 'interior' | ''
+  >('')
   const [page, setPage] = useState(1)
   const [editingVendor, setEditingVendor] = useState<Vendor | null>(null)
   const [viewingVendor, setViewingVendor] = useState<Vendor | null>(null)
@@ -84,14 +86,18 @@ export default function VendorsPage() {
             />
           </div>
           <Select
-            value={projectTypeFilter}
-            onValueChange={(val) => setProjectTypeFilter(val as typeof projectTypeFilter)}
+            value={projectTypeFilter || 'all'}
+            onValueChange={(val) =>
+              setProjectTypeFilter(
+                val === 'all' ? '' : (val as 'civil' | 'interior')
+              )
+            }
           >
             <SelectTrigger className="w-[160px] h-9 bg-white">
               <SelectValue placeholder="Semua Project" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Semua Project</SelectItem>
+              <SelectItem value="all">Semua Project</SelectItem>
               <SelectItem value="civil">Sipil</SelectItem>
               <SelectItem value="interior">Interior</SelectItem>
             </SelectContent>
