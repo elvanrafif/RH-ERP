@@ -14,6 +14,7 @@ interface AuthContextType {
   user: any
   permissions: string[]
   can: (permission: string) => boolean
+  isSuperAdmin: boolean
   isLoading: boolean
 }
 
@@ -22,6 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   // 1. UBAH INI JADI STATE REACT:
   const [authModel, setAuthModel] = useState(pb.authStore.model)
+  const isSuperAdmin = !!authModel?.isSuperAdmin
 
   // 2. TAMBAHKAN LISTENER INI:
   // Ini akan otomatis ter-trigger detik itu juga saat user berhasil login
@@ -78,7 +80,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user: userData, permissions, can, isLoading }}
+      value={{ user: userData, permissions, can, isSuperAdmin, isLoading }}
     >
       {children}
     </AuthContext.Provider>
