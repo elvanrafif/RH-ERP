@@ -26,6 +26,7 @@ interface ProjectTypeFieldsProps {
   user: User | null | undefined
   users: User[] | undefined
   civilVendors: Vendor[]
+  interiorVendors: Vendor[]
   fixedType: string
   displayValue: string
   onRupiahChange: (
@@ -43,6 +44,7 @@ export function ProjectTypeFields({
   user,
   users,
   civilVendors,
+  interiorVendors,
   fixedType,
   displayValue,
   onRupiahChange,
@@ -131,26 +133,54 @@ export function ProjectTypeFields({
         </div>
       )}
 
-      {/* INTERIOR: work scope */}
+      {/* INTERIOR: work scope + vendor */}
       {isInterior && (
-        <FormField
-          control={control}
-          name="area_scope"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>
-                Area / Scope (e.g. Kitchen Set & Master Bed)
-              </FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Type work scope..."
-                  {...field}
-                  value={field.value || ''}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={control}
+            name="area_scope"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Area / Scope (e.g. Kitchen Set & Master Bed)
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Type work scope..."
+                    {...field}
+                    value={field.value || ''}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="pic_interior"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Interior Vendor / Contractor</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value as string}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select vendor..." />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {interiorVendors.map((v) => (
+                      <SelectItem key={v.id} value={v.name}>
+                        {v.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+        </div>
       )}
 
       {/* PIC + DEADLINE + CONTRACT VALUE */}

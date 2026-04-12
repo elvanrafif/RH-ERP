@@ -64,6 +64,9 @@ export function ProjectForm({
   const { vendors: civilVendors } = useVendors(
     isCivil ? { projectType: 'civil' } : {}
   )
+  const { vendors: interiorVendors } = useVendors(
+    isInterior ? { projectType: 'interior' } : {}
+  )
 
   const [displayValue, setDisplayValue] = useState('')
 
@@ -192,6 +195,7 @@ export function ProjectForm({
           user={user}
           users={users}
           civilVendors={civilVendors}
+          interiorVendors={interiorVendors}
           fixedType={fixedType}
           displayValue={displayValue}
           onRupiahChange={handleRupiahChange}
