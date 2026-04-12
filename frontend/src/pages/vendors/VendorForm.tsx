@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -38,25 +37,12 @@ export function VendorForm({ onSuccess, initialData }: VendorFormProps) {
   const form = useForm<VendorFormValues>({
     resolver: zodResolver(vendorSchema),
     defaultValues: {
-      name: '',
-      phone: '',
-      project_type: undefined,
-      notes: '',
+      name: initialData?.name ?? '',
+      phone: initialData?.phone ?? '',
+      project_type: initialData?.project_type,
+      notes: initialData?.notes ?? '',
     },
   })
-
-  useEffect(() => {
-    if (initialData) {
-      form.reset({
-        name: initialData.name,
-        phone: initialData.phone,
-        project_type: initialData.project_type,
-        notes: initialData.notes ?? '',
-      })
-    } else {
-      form.reset({ name: '', phone: '', project_type: undefined, notes: '' })
-    }
-  }, [initialData, form])
 
   const mutation = useMutation({
     mutationFn: async (values: VendorFormValues) => {
