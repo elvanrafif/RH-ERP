@@ -445,10 +445,10 @@ function KanbanCard({
                 </Avatar>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{assignee?.name || 'Unassigned'}</p>
+                <p>PIC: {assignee?.name || 'Unassigned'}</p>
                 {isInterior && meta.pic_interior && (
                   <p className="text-[10px] text-slate-300">
-                    PIC: {meta.pic_interior}
+                    Vendor: {meta.pic_interior}
                   </p>
                 )}
               </TooltipContent>
