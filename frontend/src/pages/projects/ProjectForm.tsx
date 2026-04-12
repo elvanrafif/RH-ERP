@@ -30,6 +30,7 @@ import { projectSchema } from '@/lib/validations/project'
 import type { ProjectFormValues } from '@/lib/validations/project'
 import { ClientComboboxField } from '@/components/forms/ClientComboboxField'
 import { ProjectTypeFields } from './components/ProjectTypeFields'
+import { useVendors } from '@/hooks/useVendors'
 
 interface ProjectFormProps {
   onSuccess?: () => void
@@ -38,19 +39,31 @@ interface ProjectFormProps {
   statusOptions: { value: string; label: string }[]
 }
 
-export function ProjectForm({ onSuccess, initialData, fixedType, statusOptions }: ProjectFormProps) {
+export function ProjectForm({
+  onSuccess,
+  initialData,
+  fixedType,
+  statusOptions,
+}: ProjectFormProps) {
   const queryClient = useQueryClient()
   const { isSuperAdmin, user } = useRole()
   const { isArchitecture, isCivil, isInterior } = TypeProjectsBoolean(fixedType)
 
   const { data: clients } = useQuery({
     queryKey: ['clients-list'],
-    queryFn: async () => await pb.collection('clients').getFullList<Client>({ sort: 'company_name' }),
+    queryFn: async () =>
+      await pb
+        .collection('clients')
+        .getFullList<Client>({ sort: 'company_name' }),
   })
   const { data: users } = useQuery({
     queryKey: ['users-list'],
     queryFn: async () => await pb.collection('users').getFullList<User>(),
   })
+
+  const { vendors: civilVendors } = useVendors(
+    isCivil ? { projectType: 'civil' } : {}
+  )
 
   const [displayValue, setDisplayValue] = useState('')
 
@@ -58,12 +71,19 @@ export function ProjectForm({ onSuccess, initialData, fixedType, statusOptions }
     resolver: zodResolver(projectSchema),
     defaultValues: {
       client_id: initialData?.client || '',
-      assignee: initialData?.assignee || (!isSuperAdmin && !isCivil ? user?.id : ''),
+      assignee:
+        initialData?.assignee || (!isSuperAdmin && !isCivil ? user?.id : ''),
       status: initialData?.status || statusOptions[0]?.value || '',
       contract_value: initialData?.contract_value || 0,
-      deadline: initialData?.deadline ? initialData.deadline.substring(0, 10) : '',
-      start_date: initialData?.start_date ? initialData.start_date.substring(0, 10) : '',
-      end_date: initialData?.end_date ? initialData.end_date.substring(0, 10) : '',
+      deadline: initialData?.deadline
+        ? initialData.deadline.substring(0, 10)
+        : '',
+      start_date: initialData?.start_date
+        ? initialData.start_date.substring(0, 10)
+        : '',
+      end_date: initialData?.end_date
+        ? initialData.end_date.substring(0, 10)
+        : '',
       luas_tanah: initialData?.meta_data?.luas_tanah || 0,
       luas_bangunan: initialData?.meta_data?.luas_bangunan || 0,
       pic_lapangan: initialData?.meta_data?.pic_lapangan || '',
@@ -113,7 +133,11 @@ export function ProjectForm({ onSuccess, initialData, fixedType, statusOptions }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] })
-      toast.success(initialData ? 'Project updated successfully' : 'Project created successfully')
+      toast.success(
+        initialData
+          ? 'Project updated successfully'
+          : 'Project created successfully'
+      )
       onSuccess?.()
     },
     onError: (err) => {
@@ -124,7 +148,10 @@ export function ProjectForm({ onSuccess, initialData, fixedType, statusOptions }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit((data) => mutation.mutate(data))} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
+        className="space-y-4"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ClientComboboxField control={form.control} clients={clients} />
 
@@ -134,7 +161,10 @@ export function ProjectForm({ onSuccess, initialData, fixedType, statusOptions }
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Status / Stage</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value as string}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value as string}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue />
@@ -161,6 +191,7 @@ export function ProjectForm({ onSuccess, initialData, fixedType, statusOptions }
           isSuperAdmin={isSuperAdmin}
           user={user}
           users={users}
+          civilVendors={civilVendors}
           fixedType={fixedType}
           displayValue={displayValue}
           onRupiahChange={handleRupiahChange}
@@ -181,7 +212,9 @@ export function ProjectForm({ onSuccess, initialData, fixedType, statusOptions }
 
         <div className="flex justify-end pt-4">
           <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {mutation.isPending && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
             Save Project
           </Button>
         </div>

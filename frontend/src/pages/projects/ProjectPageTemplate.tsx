@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useRole } from '@/hooks/useRole'
 import { useUsers } from '@/hooks/useUsers'
 import { useProjects } from '@/hooks/useProjects'
+import { useVendors } from '@/hooks/useVendors'
 import type { ProjectStatusFilter } from '@/hooks/useProjects'
 import { useProjectFilters } from '@/hooks/useProjectFilters'
 import { TypeProjectsBoolean } from '@/lib/booleans'
@@ -51,6 +52,9 @@ export default function ProjectPageTemplate({
   const [deleteId, setDeleteId] = useState<string | null>(null)
   // Data hooks
   const { users } = useUsers()
+  const { vendors: civilVendors } = useVendors(
+    isCivil ? { projectType: 'civil' } : {}
+  )
   const { projects, isLoading, updateStatus, deleteProject } = useProjects({
     projectType,
     statusFilter,
@@ -192,6 +196,7 @@ export default function ProjectPageTemplate({
             }}
             isCivil={isCivil}
             users={users}
+            civilVendors={civilVendors}
             projectType={projectType}
             className="flex flex-1 gap-2 items-center"
           />

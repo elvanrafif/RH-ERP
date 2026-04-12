@@ -1,5 +1,3 @@
-export const SipilPic = ['Pak Sur', 'Sarman', 'Sugeng', 'Pak Ipan', 'Mas Dayat']
-
 // Document editor
 export const A4_BASE_WIDTH = 800
 export const DEFAULT_DESIGN_PRICE_PER_METER = 200_000

@@ -1,5 +1,5 @@
 import type { ProjectStatusFilter } from '@/hooks/useProjects'
-import type { User } from '@/types'
+import type { User, Vendor } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -10,7 +10,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Search, X, Filter, CircleDot } from 'lucide-react'
-import { SipilPic } from '@/lib/constant'
 import { cn } from '@/lib/utils'
 
 interface ProjectFilterBarProps {
@@ -24,6 +23,7 @@ interface ProjectFilterBarProps {
   onResetFilters: () => void
   isCivil: boolean
   users: User[]
+  civilVendors: Vendor[]
   projectType: string
   className?: string
 }
@@ -39,6 +39,7 @@ export function ProjectFilterBar({
   onResetFilters,
   isCivil,
   users,
+  civilVendors,
   projectType,
   className,
 }: ProjectFilterBarProps) {
@@ -87,9 +88,9 @@ export function ProjectFilterBar({
               <SelectItem value="all">All PICs</SelectItem>
               <SelectItem value="unassigned">-- Unassigned --</SelectItem>
               {isCivil
-                ? SipilPic.map((pic: string) => (
-                    <SelectItem key={pic} value={pic}>
-                      {pic}
+                ? civilVendors.map((v) => (
+                    <SelectItem key={v.id} value={v.name}>
+                      {v.name}
                     </SelectItem>
                   ))
                 : users

@@ -1,5 +1,5 @@
 import type { Control } from 'react-hook-form'
-import type { User } from '@/types'
+import type { User, Vendor } from '@/types'
 import { Input } from '@/components/ui/input'
 import {
   FormControl,
@@ -15,7 +15,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { SipilPic } from '@/lib/constant'
 import type { ProjectFormValues } from '@/lib/validations/project'
 
 interface ProjectTypeFieldsProps {
@@ -26,6 +25,7 @@ interface ProjectTypeFieldsProps {
   isSuperAdmin: boolean
   user: User | null | undefined
   users: User[] | undefined
+  civilVendors: Vendor[]
   fixedType: string
   displayValue: string
   onRupiahChange: (
@@ -42,6 +42,7 @@ export function ProjectTypeFields({
   isSuperAdmin,
   user,
   users,
+  civilVendors,
   fixedType,
   displayValue,
   onRupiahChange,
@@ -222,9 +223,9 @@ export function ProjectTypeFields({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {SipilPic.map((p) => (
-                      <SelectItem key={p} value={p}>
-                        {p}
+                    {civilVendors.map((v) => (
+                      <SelectItem key={v.id} value={v.name}>
+                        {v.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
