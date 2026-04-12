@@ -82,8 +82,7 @@ const PERMISSION_GROUPS = [
   {
     title: 'Master Data & Settings',
     permissions: [
-      { id: 'view_clients', label: 'View Client Database' },
-      { id: 'manage_clients', label: 'Manage Clients' },
+      { id: 'manage_clients', label: 'Manage Clients (Edit)' },
       { id: 'manage_users', label: 'Manage Users & Roles (Superadmin)' },
     ],
   },
