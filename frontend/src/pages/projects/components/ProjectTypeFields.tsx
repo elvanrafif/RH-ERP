@@ -133,9 +133,10 @@ export function ProjectTypeFields({
         </div>
       )}
 
-      {/* INTERIOR: work scope + vendor */}
+      {/* INTERIOR layout */}
       {isInterior && (
-        <div className="grid grid-cols-2 gap-4">
+        <>
+          {/* Line 2: area scope (full width) */}
           <FormField
             control={control}
             name="area_scope"
@@ -154,137 +155,201 @@ export function ProjectTypeFields({
               </FormItem>
             )}
           />
-          <FormField
-            control={control}
-            name="pic_interior"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Interior Vendor / Contractor</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value as string}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select vendor..." />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {interiorVendors.map((v) => (
-                      <SelectItem key={v.id} value={v.name}>
-                        {v.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
-        </div>
-      )}
 
-      {/* PIC + DEADLINE + CONTRACT VALUE */}
-      <div className="grid grid-cols-2 gap-4">
-        {!isCivil && (
-          <FormField
-            control={control}
-            name="assignee"
-            render={({ field }) => {
-              const availableUsers =
-                users?.filter((u) => u.division?.toLowerCase() === fixedType) ||
-                []
-              if (
-                !isSuperAdmin &&
-                !availableUsers.find((u) => u.id === user?.id) &&
-                user
-              ) {
-                availableUsers.push(user)
-              }
-              return (
+          {/* Line 3: interior PIC + interior vendor */}
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={control}
+              name="assignee"
+              render={({ field }) => {
+                const availableUsers =
+                  users?.filter(
+                    (u) => u.division?.toLowerCase() === fixedType
+                  ) || []
+                if (
+                  !isSuperAdmin &&
+                  !availableUsers.find((u) => u.id === user?.id) &&
+                  user
+                ) {
+                  availableUsers.push(user)
+                }
+                return (
+                  <FormItem>
+                    <FormLabel>Interior PIC</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value as string}
+                      disabled={!isSuperAdmin}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select PIC" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {isSuperAdmin && (
+                          <SelectItem value="unassigned">
+                            -- Unassigned --
+                          </SelectItem>
+                        )}
+                        {availableUsers.map((u) => (
+                          <SelectItem key={u.id} value={u.id}>
+                            {u.name || u.email}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )
+              }}
+            />
+            <FormField
+              control={control}
+              name="pic_interior"
+              render={({ field }) => (
                 <FormItem>
-                  <FormLabel>
-                    {isArchitecture ? 'PIC Design / Drafter' : 'Interior PIC'}
-                  </FormLabel>
+                  <FormLabel>Interior Vendor / Contractor</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     value={field.value as string}
-                    disabled={!isSuperAdmin}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select PIC" />
+                        <SelectValue placeholder="Select vendor..." />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {isSuperAdmin && (
-                        <SelectItem value="unassigned">
-                          -- Unassigned --
-                        </SelectItem>
-                      )}
-                      {availableUsers.map((u) => (
-                        <SelectItem key={u.id} value={u.id}>
-                          {u.name || u.email}
+                      {interiorVendors.map((v) => (
+                        <SelectItem key={v.id} value={v.name}>
+                          {v.name}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </FormItem>
-              )
-            }}
-          />
-        )}
+              )}
+            />
+          </div>
 
-        {isCivil && (
-          <FormField
-            control={control}
-            name="pic_lapangan"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Field PIC</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value as string}
-                >
+          {/* Line 4: target deadline + contract value */}
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={control}
+              name="deadline"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Target Deadline</FormLabel>
                   <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Supervisor" />
-                    </SelectTrigger>
+                    <Input
+                      type="date"
+                      {...field}
+                      value={field.value || ''}
+                      className="block w-full bg-white [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                    />
                   </FormControl>
-                  <SelectContent>
-                    {civilVendors.map((v) => (
-                      <SelectItem key={v.id} value={v.name}>
-                        {v.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {isSuperAdmin && (
+              <FormField
+                control={control}
+                name="contract_value"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contract Value (Rp)</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2 text-sm text-gray-500 font-semibold">
+                          Rp
+                        </span>
+                        <Input
+                          type="text"
+                          className="pl-9 font-medium bg-white"
+                          placeholder="0"
+                          value={displayValue}
+                          onChange={(e) => onRupiahChange(e, field.onChange)}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             )}
-          />
-        )}
+          </div>
+        </>
+      )}
 
-        {!isCivil && (
-          <FormField
-            control={control}
-            name="deadline"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Target Deadline</FormLabel>
-                <FormControl>
-                  <Input
-                    type="date"
-                    {...field}
-                    value={field.value || ''}
-                    className="block w-full bg-white [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-
-        <div className="grid gap-4">
+      {/* ARCHITECTURE layout */}
+      {isArchitecture && (
+        <>
+          {/* Line 3: PIC + deadline */}
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={control}
+              name="assignee"
+              render={({ field }) => {
+                const availableUsers =
+                  users?.filter(
+                    (u) => u.division?.toLowerCase() === fixedType
+                  ) || []
+                if (
+                  !isSuperAdmin &&
+                  !availableUsers.find((u) => u.id === user?.id) &&
+                  user
+                ) {
+                  availableUsers.push(user)
+                }
+                return (
+                  <FormItem>
+                    <FormLabel>PIC Design / Drafter</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      value={field.value as string}
+                      disabled={!isSuperAdmin}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select PIC" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {isSuperAdmin && (
+                          <SelectItem value="unassigned">
+                            -- Unassigned --
+                          </SelectItem>
+                        )}
+                        {availableUsers.map((u) => (
+                          <SelectItem key={u.id} value={u.id}>
+                            {u.name || u.email}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )
+              }}
+            />
+            <FormField
+              control={control}
+              name="deadline"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Target Deadline</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      {...field}
+                      value={field.value || ''}
+                      className="block w-full bg-white [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           {isSuperAdmin && (
             <FormField
               control={control}
@@ -311,8 +376,68 @@ export function ProjectTypeFields({
               )}
             />
           )}
+        </>
+      )}
+
+      {/* CIVIL layout */}
+      {isCivil && (
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={control}
+            name="pic_lapangan"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Field PIC</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value as string}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Supervisor" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {civilVendors.map((v) => (
+                      <SelectItem key={v.id} value={v.name}>
+                        {v.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+          <div>
+            {isSuperAdmin && (
+              <FormField
+                control={control}
+                name="contract_value"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Contract Value (Rp)</FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2 text-sm text-gray-500 font-semibold">
+                          Rp
+                        </span>
+                        <Input
+                          type="text"
+                          className="pl-9 font-medium bg-white"
+                          placeholder="0"
+                          value={displayValue}
+                          onChange={(e) => onRupiahChange(e, field.onChange)}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </>
   )
 }
