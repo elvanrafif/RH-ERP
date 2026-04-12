@@ -70,7 +70,8 @@ export function VendorForm({ onSuccess, initialData }: VendorFormProps) {
       onSuccess?.()
     },
     onError: (error) => {
-      const message = error instanceof Error ? error.message : 'Gagal menyimpan data vendor.'
+      const message =
+        error instanceof Error ? error.message : 'Failed to save vendor data.'
       toast.error(message)
     },
   })
@@ -87,9 +88,9 @@ export function VendorForm({ onSuccess, initialData }: VendorFormProps) {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nama Vendor / Mandor</FormLabel>
+              <FormLabel>Vendor / Contractor Name</FormLabel>
               <FormControl>
-                <Input placeholder="Budi Santoso" {...field} />
+                <Input placeholder="John Doe" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -102,7 +103,7 @@ export function VendorForm({ onSuccess, initialData }: VendorFormProps) {
             name="phone"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nomor HP / WhatsApp</FormLabel>
+                <FormLabel>Phone / WhatsApp</FormLabel>
                 <FormControl>
                   <Input placeholder="0812..." {...field} />
                 </FormControl>
@@ -119,11 +120,11 @@ export function VendorForm({ onSuccess, initialData }: VendorFormProps) {
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Pilih tipe..." />
+                      <SelectValue placeholder="Select type..." />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="civil">Sipil</SelectItem>
+                    <SelectItem value="civil">Civil</SelectItem>
                     <SelectItem value="interior">Interior</SelectItem>
                   </SelectContent>
                 </Select>
@@ -141,7 +142,7 @@ export function VendorForm({ onSuccess, initialData }: VendorFormProps) {
               <FormLabel>Notes</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Keahlian, pengalaman, atau catatan lainnya..."
+                  placeholder="Skills, experience, or other relevant notes..."
                   className="min-h-[100px] resize-none"
                   {...field}
                 />
@@ -153,8 +154,10 @@ export function VendorForm({ onSuccess, initialData }: VendorFormProps) {
 
         <div className="flex justify-end pt-4">
           <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {initialData ? 'Simpan Perubahan' : 'Tambah Vendor'}
+            {mutation.isPending && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            {initialData ? 'Save Changes' : 'Add Vendor'}
           </Button>
         </div>
       </form>

@@ -127,7 +127,7 @@ export function SidebarNav({
         <NavItem
           to="/vendors"
           icon={Users2}
-          label="Vendors & Rekanan"
+          label="Vendors & Partners"
           collapsed={collapsed}
           isActive={isActive('/vendors')}
           onClick={onLinkClick}

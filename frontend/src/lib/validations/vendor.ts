@@ -2,13 +2,13 @@ import { z } from 'zod'
 
 export const vendorSchema = z.object({
   name: z.string().min(2, {
-    message: 'Nama vendor minimal 2 karakter.',
+    message: 'Vendor name must be at least 2 characters.',
   }),
   phone: z.string().min(10, {
-    message: 'Nomor telepon minimal 10 digit.',
+    message: 'Phone number must be at least 10 digits.',
   }),
   project_type: z.enum(['civil', 'interior'], {
-    error: 'Project type wajib dipilih.',
+    error: 'Project type is required.',
   }),
   notes: z.string().optional(),
 })

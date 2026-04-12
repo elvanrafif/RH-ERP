@@ -65,11 +65,11 @@ export default function VendorsPage() {
     <div className="flex-1 h-full p-4 md:p-8 pt-6 flex flex-col overflow-hidden bg-background/50">
       <PageHeader
         icon={<Users2 className="h-6 w-6 text-slate-800" />}
-        title="Vendors & Rekanan"
-        description="Kelola data vendor, rekanan, dan mandor untuk proyek sipil dan interior."
+        title="Vendors & Partners"
+        description="Manage vendor, partner, and contractor data for civil and interior projects."
         action={
           <Button onClick={handleCreate}>
-            <Plus className="mr-2 h-4 w-4" /> Tambah Vendor
+            <Plus className="mr-2 h-4 w-4" /> Add Vendor
           </Button>
         }
       />
@@ -79,7 +79,7 @@ export default function VendorsPage() {
           <div className="relative flex-1 md:max-w-xs">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Cari nama atau nomor HP..."
+              placeholder="Search by name or phone..."
               className="pl-9 h-9 bg-white"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -97,8 +97,8 @@ export default function VendorsPage() {
               <SelectValue placeholder="Semua Project" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">Semua Project</SelectItem>
-              <SelectItem value="civil">Sipil</SelectItem>
+              <SelectItem value="all">All Projects</SelectItem>
+              <SelectItem value="civil">Civil</SelectItem>
               <SelectItem value="interior">Interior</SelectItem>
             </SelectContent>
           </Select>
@@ -123,11 +123,11 @@ export default function VendorsPage() {
       <FormDialog
         open={open}
         onOpenChange={setOpen}
-        title={editingVendor ? 'Edit Vendor' : 'Tambah Vendor Baru'}
+        title={editingVendor ? 'Edit Vendor' : 'Add New Vendor'}
         description={
           editingVendor
-            ? 'Perbarui informasi vendor di bawah ini.'
-            : 'Isi detail vendor baru di bawah ini.'
+            ? 'Update the vendor information below.'
+            : 'Fill in the vendor details below.'
         }
       >
         <VendorForm

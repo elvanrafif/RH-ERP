@@ -22,7 +22,7 @@ import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
 import { getInitials } from '@/lib/helpers'
 
 const PROJECT_TYPE_LABEL: Record<Vendor['project_type'], string> = {
-  civil: 'Sipil',
+  civil: 'Civil',
   interior: 'Interior',
 }
 
@@ -38,7 +38,12 @@ interface VendorTableProps {
   onEdit: (vendor: Vendor) => void
 }
 
-export function VendorTable({ vendors, isLoading, onView, onEdit }: VendorTableProps) {
+export function VendorTable({
+  vendors,
+  isLoading,
+  onView,
+  onEdit,
+}: VendorTableProps) {
   return (
     <div className="flex flex-col h-full bg-white">
       <div className="flex-1 overflow-auto">
@@ -47,8 +52,8 @@ export function VendorTable({ vendors, isLoading, onView, onEdit }: VendorTableP
             <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
               <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
                 <TableHead className="w-[40px]">#</TableHead>
-                <TableHead className="w-[260px]">Nama Vendor</TableHead>
-                <TableHead>No. HP</TableHead>
+                <TableHead className="w-[260px]">Vendor Name</TableHead>
+                <TableHead>Phone</TableHead>
                 <TableHead className="w-[120px]">Project Type</TableHead>
                 <TableHead>Notes</TableHead>
                 <TableHead className="w-[60px]"></TableHead>
@@ -61,8 +66,8 @@ export function VendorTable({ vendors, isLoading, onView, onEdit }: VendorTableP
                 <TableRow>
                   <TableCell colSpan={6} className="h-60">
                     <EmptyState
-                      title="Belum ada vendor"
-                      description="Coba ubah filter atau tambahkan vendor baru."
+                      title="No vendors found"
+                      description="Try adjusting your filters or add a new vendor."
                     />
                   </TableCell>
                 </TableRow>
@@ -77,12 +82,20 @@ export function VendorTable({ vendors, isLoading, onView, onEdit }: VendorTableP
                         <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs shrink-0">
                           {getInitials(vendor.name)}
                         </div>
-                        <span className="font-medium text-slate-900">{vendor.name}</span>
+                        <span className="font-medium text-slate-900">
+                          {vendor.name}
+                        </span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-slate-600">{vendor.phone || '—'}</TableCell>
+                    <TableCell className="text-slate-600">
+                      {vendor.phone || '—'}
+                    </TableCell>
                     <TableCell>
-                      <Badge className={PROJECT_TYPE_BADGE_CLASS[vendor.project_type]}>
+                      <Badge
+                        className={
+                          PROJECT_TYPE_BADGE_CLASS[vendor.project_type]
+                        }
+                      >
                         {PROJECT_TYPE_LABEL[vendor.project_type]}
                       </Badge>
                     </TableCell>
