@@ -8,14 +8,19 @@ interface TableRowsSkeletonProps {
   columns: number
 }
 
-export function TableRowsSkeleton({ rows = 5, columns }: TableRowsSkeletonProps) {
+export function TableRowsSkeleton({
+  rows = 5,
+  columns,
+}: TableRowsSkeletonProps) {
   return (
     <>
       {Array.from({ length: rows }).map((_, rowIdx) => (
         <TableRow key={rowIdx}>
           {Array.from({ length: columns }).map((_, colIdx) => (
             <TableCell key={colIdx}>
-              <Skeleton className={`h-4 ${COL_WIDTHS[colIdx % COL_WIDTHS.length]}`} />
+              <Skeleton
+                className={`h-5 ${COL_WIDTHS[colIdx % COL_WIDTHS.length]}`}
+              />
             </TableCell>
           ))}
         </TableRow>
@@ -37,10 +42,10 @@ export function PageTableSkeleton({ rows = 6 }: PageTableSkeletonProps) {
       <div className="divide-y">
         {Array.from({ length: rows }).map((_, rowIdx) => (
           <div key={rowIdx} className="flex items-center gap-4 px-4 py-3">
-            <Skeleton className="h-4 w-24" />
-            <Skeleton className="h-4 w-48 flex-1" />
-            <Skeleton className="h-4 w-20" />
-            <Skeleton className="h-4 w-8" />
+            <Skeleton className="h-5 w-24" />
+            <Skeleton className="h-5 w-48 flex-1" />
+            <Skeleton className="h-5 w-20" />
+            <Skeleton className="h-5 w-8" />
           </div>
         ))}
       </div>

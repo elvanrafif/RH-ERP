@@ -39,6 +39,7 @@ export function QuotationTable({
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
               <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                <TableHead className="w-[40px]">#</TableHead>
                 <TableHead className="w-[140px]">No. Quotation</TableHead>
                 <TableHead className="w-[500px]">Client</TableHead>
                 <TableHead>Project Area</TableHead>
@@ -49,20 +50,23 @@ export function QuotationTable({
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRowsSkeleton rows={5} columns={6} />
+                <TableRowsSkeleton rows={5} columns={7} />
               ) : quotations?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-60">
+                  <TableCell colSpan={7} className="h-60">
                     <EmptyState title="No quotations found." />
                   </TableCell>
                 </TableRow>
               ) : (
-                quotations?.map((q: any) => (
+                quotations?.map((q: any, index: number) => (
                   <TableRow
                     key={q.id}
                     className="cursor-pointer hover:bg-slate-50 transition-colors h-14"
                     onClick={() => navigate(`/quotations/${q.id}`)}
                   >
+                    <TableCell className="text-slate-400 text-xs tabular-nums">
+                      {index + 1}
+                    </TableCell>
                     <TableCell className="font-mono text-xs text-slate-500">
                       {q.quotation_number}
                     </TableCell>

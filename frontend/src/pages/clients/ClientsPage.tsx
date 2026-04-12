@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Client } from '@/types'
 import { ClientTable } from './ClientTable'
 import { ClientForm } from './ClientForm'
@@ -6,6 +6,7 @@ import { ClientDetailDialog } from './ClientDetailDialog'
 import { useDebounce } from '@/hooks/useDebounce'
 import { useClients } from '@/hooks/useClients'
 import { useAuth } from '@/contexts/AuthContext'
+import { TablePagination } from '@/components/shared/TablePagination'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -13,17 +14,28 @@ import { Plus, Search, Users } from 'lucide-react'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
 
+const PAGE_SIZE = 15
+
 export default function ClientsPage() {
   const { can } = useAuth()
 
   const [open, setOpen] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
+  const [page, setPage] = useState(1)
   const [editingClient, setEditingClient] = useState<Client | null>(null)
   const [viewingClient, setViewingClient] = useState<Client | null>(null)
 
   const debouncedSearch = useDebounce(searchTerm, 500)
 
   const { clients: data, isLoading } = useClients(debouncedSearch)
+
+  useEffect(() => {
+    setPage(1)
+  }, [debouncedSearch])
+
+  const totalItems = data.length
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE)
+  const paginatedClients = data.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   const handleCreate = () => {
     setEditingClient(null)
@@ -68,10 +80,18 @@ export default function ClientsPage() {
         </div>
 
         <ClientTable
-          clients={data || []}
+          clients={paginatedClients}
           isLoading={isLoading}
           onView={handleView}
           onEdit={can('manage_clients') ? handleEdit : undefined}
+        />
+        <TablePagination
+          page={page}
+          totalPages={totalPages}
+          totalItems={totalItems}
+          itemCount={paginatedClients.length}
+          isLoading={isLoading}
+          onPageChange={setPage}
         />
       </div>
 

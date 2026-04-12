@@ -1,3 +1,4 @@
+import type { ProjectStatusFilter } from '@/hooks/useProjects'
 import type { User } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -8,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Search, X, Filter } from 'lucide-react'
+import { Search, X, Filter, CircleDot } from 'lucide-react'
 import { SipilPic } from '@/lib/constant'
 import { cn } from '@/lib/utils'
 
@@ -17,6 +18,8 @@ interface ProjectFilterBarProps {
   onSearchChange: (value: string) => void
   filterPic: string
   onFilterPicChange: (value: string) => void
+  filterStatus: ProjectStatusFilter
+  onFilterStatusChange: (value: ProjectStatusFilter) => void
   hasActiveFilters: boolean
   onResetFilters: () => void
   isCivil: boolean
@@ -30,6 +33,8 @@ export function ProjectFilterBar({
   onSearchChange,
   filterPic,
   onFilterPicChange,
+  filterStatus,
+  onFilterStatusChange,
   hasActiveFilters,
   onResetFilters,
   isCivil,
@@ -94,6 +99,42 @@ export function ProjectFilterBar({
                         {u.name || u.email}
                       </SelectItem>
                     ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="w-[130px] md:w-[150px] relative shrink-0">
+          {filterStatus !== 'active' && (
+            <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />
+          )}
+          <Select
+            value={filterStatus}
+            onValueChange={(v) =>
+              onFilterStatusChange(v as ProjectStatusFilter)
+            }
+          >
+            <SelectTrigger
+              className={cn(
+                'h-9 bg-white transition-colors',
+                filterStatus !== 'active'
+                  ? 'border-primary/50 ring-1 ring-primary/30 text-primary'
+                  : ''
+              )}
+            >
+              <CircleDot
+                className={cn(
+                  'w-3.5 h-3.5 mr-2',
+                  filterStatus !== 'active'
+                    ? 'text-primary'
+                    : 'text-muted-foreground'
+                )}
+              />
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="finished">Finished</SelectItem>
             </SelectContent>
           </Select>
         </div>

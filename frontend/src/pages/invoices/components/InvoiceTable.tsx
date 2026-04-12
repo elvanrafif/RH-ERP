@@ -58,6 +58,7 @@ export function InvoiceTable({
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
               <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                <TableHead className="w-[40px]">#</TableHead>
                 <TableHead className="w-[150px]">Invoice No.</TableHead>
                 <TableHead className="w-[300px]">Client</TableHead>
                 <TableHead>Type</TableHead>
@@ -69,20 +70,23 @@ export function InvoiceTable({
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRowsSkeleton rows={5} columns={7} />
+                <TableRowsSkeleton rows={5} columns={8} />
               ) : invoices?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-60">
+                  <TableCell colSpan={8} className="h-60">
                     <EmptyState title="No invoices found." />
                   </TableCell>
                 </TableRow>
               ) : (
-                invoices?.map((inv: any) => (
+                invoices?.map((inv: any, index: number) => (
                   <TableRow
                     key={inv.id}
                     className="cursor-pointer hover:bg-slate-50 transition-colors h-14"
                     onClick={() => navigate(`/invoices/${inv.id}`)}
                   >
+                    <TableCell className="text-slate-400 text-xs tabular-nums">
+                      {index + 1}
+                    </TableCell>
                     <TableCell className="font-mono text-xs text-slate-500">
                       {inv.invoice_number}
                     </TableCell>

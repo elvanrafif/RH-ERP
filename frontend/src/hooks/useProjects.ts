@@ -4,10 +4,11 @@ import { pb } from '@/lib/pocketbase'
 import type { Project } from '@/types'
 
 type ProjectType = 'architecture' | 'civil' | 'interior'
+export type ProjectStatusFilter = 'active' | 'all' | 'finished'
 
 interface UseProjectsOptions {
   projectType: ProjectType
-  showDone: boolean
+  statusFilter: ProjectStatusFilter
 }
 
 /**
@@ -15,14 +16,17 @@ interface UseProjectsOptions {
  * UI state (deleteId, editingProject) stays in the calling component.
  * Pass onSuccess callbacks from the page to handle post-mutation UI updates.
  */
-export function useProjects({ projectType, showDone }: UseProjectsOptions) {
+export function useProjects({ projectType, statusFilter }: UseProjectsOptions) {
   const queryClient = useQueryClient()
 
   const { data: projects = [], isLoading } = useQuery({
-    queryKey: ['projects', projectType, showDone],
+    queryKey: ['projects', projectType, statusFilter],
     queryFn: () => {
       let filterRule = `type = '${projectType}'`
-      if (!showDone) filterRule += ` && status != 'done' && status != 'finish'`
+      if (statusFilter === 'active')
+        filterRule += ` && status != 'done' && status != 'finish'`
+      if (statusFilter === 'finished')
+        filterRule += ` && (status = 'done' || status = 'finish')`
 
       return pb.collection('projects').getFullList<Project>({
         sort: '-created',

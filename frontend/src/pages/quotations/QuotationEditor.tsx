@@ -22,7 +22,6 @@ import { useDocumentExport } from '@/hooks/useDocumentExport'
 import { useWhatsAppShare } from '@/hooks/useWhatsAppShare'
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges'
 import { DEFAULT_QUOTATION_PRICE_PER_METER } from '@/lib/constant'
-import { cn } from '@/lib/utils'
 
 export default function QuotationEditor() {
   const { id } = useParams()
@@ -207,21 +206,7 @@ export default function QuotationEditor() {
             </div>
 
             <div className="space-y-1">
-              <div className="flex items-center justify-between mb-1">
-                <Label className="text-[10px] text-slate-500">Status</Label>
-                <span
-                  className={cn(
-                    'px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider rounded-full',
-                    status === 'paid'
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : status === 'rejected'
-                        ? 'bg-red-100 text-red-700'
-                        : 'bg-slate-100 text-slate-600'
-                  )}
-                >
-                  {status}
-                </span>
-              </div>
+              <Label className="text-[10px] text-slate-500">Status</Label>
               <Select
                 value={status}
                 onValueChange={(val) => {

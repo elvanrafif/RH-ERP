@@ -49,6 +49,7 @@ export function UserList({ users, onEdit }: UserListProps) {
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
               <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                <TableHead className="w-[40px]">#</TableHead>
                 <TableHead>User</TableHead>
                 <TableHead>Contact</TableHead>
                 <TableHead>Division</TableHead>
@@ -59,13 +60,16 @@ export function UserList({ users, onEdit }: UserListProps) {
             <TableBody>
               {users?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="h-60">
+                  <TableCell colSpan={6} className="h-60">
                     <EmptyState title="No users found." />
                   </TableCell>
                 </TableRow>
               ) : (
-                users?.map((user) => (
+                users?.map((user, index) => (
                   <TableRow key={user.id} className="h-14">
+                    <TableCell className="text-slate-400 text-xs tabular-nums">
+                      {index + 1}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="h-8 w-8">

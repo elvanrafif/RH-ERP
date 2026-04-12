@@ -52,6 +52,7 @@ export default function RoleManagementPage() {
             <Table>
               <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
                 <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                  <TableHead className="w-[40px]">#</TableHead>
                   <TableHead>Role Name</TableHead>
                   <TableHead>Permissions</TableHead>
                   <TableHead className="w-[60px]"></TableHead>
@@ -59,10 +60,10 @@ export default function RoleManagementPage() {
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  <TableRowsSkeleton rows={3} columns={3} />
+                  <TableRowsSkeleton rows={3} columns={4} />
                 ) : roles?.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={3} className="h-60">
+                    <TableCell colSpan={4} className="h-60">
                       <EmptyState
                         title="No roles found."
                         description="Create your first role to manage access permissions."
@@ -70,8 +71,11 @@ export default function RoleManagementPage() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  roles?.map((role) => (
+                  roles?.map((role, index) => (
                     <TableRow key={role.id} className="h-14">
+                      <TableCell className="text-slate-400 text-xs tabular-nums">
+                        {index + 1}
+                      </TableCell>
                       <TableCell className="font-medium text-slate-900">
                         <div className="flex items-center gap-2">
                           <ShieldAlert className="h-4 w-4 text-indigo-500 shrink-0" />

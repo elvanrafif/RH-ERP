@@ -26,6 +26,15 @@ export const getSipilColumns = (
   onDelete: (project: Project) => void
 ): ColumnDef<Project>[] => [
   {
+    id: 'no',
+    header: '#',
+    cell: ({ row }) => (
+      <span className="text-slate-400 text-xs tabular-nums">
+        {row.index + 1}
+      </span>
+    ),
+  },
+  {
     accessorKey: 'client',
     header: 'Project & Client',
     cell: ({ row }) => {

@@ -5,13 +5,12 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useRole } from '@/hooks/useRole'
 import { useUsers } from '@/hooks/useUsers'
 import { useProjects } from '@/hooks/useProjects'
+import type { ProjectStatusFilter } from '@/hooks/useProjects'
 import { useProjectFilters } from '@/hooks/useProjectFilters'
 import { TypeProjectsBoolean } from '@/lib/booleans'
 import { formatRupiah } from '@/lib/helpers'
 
 import { Button } from '@/components/ui/button'
-import { Switch } from '@/components/ui/switch'
-import { Label } from '@/components/ui/label'
 import { Plus, Banknote, Activity, AlertCircle } from 'lucide-react'
 import { ProjectFilterBar } from '@/components/projects/ProjectFilterBar'
 import type { KanbanColumnDefinition } from './ProjectKanban'
@@ -45,7 +44,8 @@ export default function ProjectPageTemplate({
   const { isCivil } = TypeProjectsBoolean(projectType)
 
   // UI state
-  const [showDone, setShowDone] = useState(false)
+  const [statusFilter, setStatusFilter] =
+    useState<ProjectStatusFilter>('active')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
@@ -53,7 +53,7 @@ export default function ProjectPageTemplate({
   const { users } = useUsers()
   const { projects, isLoading, updateStatus, deleteProject } = useProjects({
     projectType,
-    showDone,
+    statusFilter,
   })
   const {
     searchQuery,
@@ -183,27 +183,18 @@ export default function ProjectPageTemplate({
             onSearchChange={setSearchQuery}
             filterPic={filterPic}
             onFilterPicChange={setFilterPic}
-            hasActiveFilters={hasActiveFilters}
-            onResetFilters={resetFilters}
+            filterStatus={statusFilter}
+            onFilterStatusChange={setStatusFilter}
+            hasActiveFilters={hasActiveFilters || statusFilter !== 'active'}
+            onResetFilters={() => {
+              resetFilters()
+              setStatusFilter('active')
+            }}
             isCivil={isCivil}
             users={users}
             projectType={projectType}
             className="flex flex-1 gap-2 items-center"
           />
-          <div className="flex items-center gap-2 md:border-l md:pl-3 shrink-0">
-            <Switch
-              id="show-done"
-              checked={showDone}
-              onCheckedChange={setShowDone}
-              className="scale-90"
-            />
-            <Label
-              htmlFor="show-done"
-              className="text-xs cursor-pointer text-slate-500 whitespace-nowrap"
-            >
-              Show History
-            </Label>
-          </div>
         </div>
 
         {isLoading ? (

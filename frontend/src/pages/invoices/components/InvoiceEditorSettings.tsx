@@ -59,7 +59,7 @@ export function InvoiceEditorSettings({
     <div className="space-y-4 border-b pb-6">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-xs uppercase tracking-wide text-slate-500">
-          Settings ({type.toUpperCase()})
+          Invoice Details
         </h3>
         <div className="flex items-center gap-2">
           <Label className="text-[10px] sm:text-xs uppercase font-bold text-yellow-700 whitespace-nowrap">
