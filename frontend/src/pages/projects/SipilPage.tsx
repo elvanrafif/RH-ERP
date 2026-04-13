@@ -1,13 +1,13 @@
 import ProjectPageTemplate from './ProjectPageTemplate'
 
 const columns = [
-  { id: 'on_contract', title: 'Dalam Kontrak' },
-  { id: 'finish', title: 'Serah Terima' },
+  { id: 'active', title: 'Active' },
+  { id: 'finish', title: 'Finished' },
 ]
 
 const statusOptions = [
-  { value: 'on_contract', label: 'Sedang Berjalan (Kontrak)' },
-  { value: 'finish', label: 'Selesai' },
+  { value: 'active', label: 'Active' },
+  { value: 'finish', label: 'Finished' },
 ]
 
 export default function SipilPage() {

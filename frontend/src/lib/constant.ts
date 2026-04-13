@@ -62,6 +62,9 @@ export const SESSION_LAST_ACTIVITY_KEY = 'rh_last_activity'
 export const DEADLINE_WARNING_DAYS = 7
 export const DONE_STATUSES = ['finish', 'done', 'cancelled'] as const
 
+// Civil project status thresholds
+export const CIVIL_STATUS_WARNING_DAYS = 30
+
 export const COMPANY_INFO = {
   NAME: 'RH STUDIO ARSITEK',
   ADDRESS:
