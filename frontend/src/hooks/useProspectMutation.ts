@@ -26,7 +26,7 @@ export function useProspectMutation({
       }
       const payload = {
         ...values,
-        land_size: values.land_size === '' ? null : values.land_size,
+        land_size: values.land_size ?? null,
         meeting_schedule: toDateTimePB(values.meeting_schedule),
         survey_schedule: toDateTimePB(values.survey_schedule),
       }

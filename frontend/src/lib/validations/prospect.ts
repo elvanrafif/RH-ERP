@@ -5,8 +5,11 @@ export const prospectSchema = z.object({
   client_name: z.string().min(1, { message: 'Client name is required.' }),
   phone: z.string().min(1, { message: 'Phone number is required.' }),
   address: z.string().optional(),
-  land_size: z.coerce.number().positive().optional().or(z.literal('')),
-  needs: z.array(z.string()).default([]),
+  land_size: z.coerce
+    .number()
+    .positive()
+    .optional() as z.ZodOptional<z.ZodNumber>,
+  needs: z.array(z.string()),
   floor: z.string().optional(),
   renovation_type: z.string().optional(),
   status: z.string().min(1, { message: 'Status is required.' }),

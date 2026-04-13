@@ -19,7 +19,7 @@ export function PermissionGuard({ require, requireAny }: PermissionGuardProps) {
     )
   }
 
-  if (process.env.NODE_ENV === 'development') {
+  if (import.meta.env.DEV) {
     if (!require && !requireAny) {
       console.error(
         'PermissionGuard: either "require" or "requireAny" must be provided'
