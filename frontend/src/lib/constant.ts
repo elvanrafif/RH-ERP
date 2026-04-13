@@ -38,6 +38,7 @@ export const DIVISION = {
   ARCHITECTURE: 'arsitektur',
   CIVIL: 'sipil',
   INTERIOR: 'interior',
+  SOCMED: 'socmed',
 } as const
 
 /** Maps PROJECT_TYPE keys → DIVISION values for user filtering */

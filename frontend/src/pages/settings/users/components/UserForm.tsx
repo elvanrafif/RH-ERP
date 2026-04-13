@@ -37,11 +37,12 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
   const [showResetPassword, setShowResetPassword] = useState(false)
 
   const { roles, isLoading: isLoadingRoles } = useRoles()
-  const { mutation, isSendingEmail, handleSendResetEmail } = useUserFormMutation({
-    isEdit,
-    initialData,
-    onSuccess,
-  })
+  const { mutation, isSendingEmail, handleSendResetEmail } =
+    useUserFormMutation({
+      isEdit,
+      initialData,
+      onSuccess,
+    })
 
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userFormSchema),
@@ -97,7 +98,9 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
                       value={field.value || ''}
                       disabled={isEdit}
                       className={
-                        isEdit ? 'bg-slate-100 text-slate-500 cursor-not-allowed' : ''
+                        isEdit
+                          ? 'bg-slate-100 text-slate-500 cursor-not-allowed'
+                          : ''
                       }
                     />
                   </FormControl>
@@ -153,10 +156,13 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="management">Management / Admin</SelectItem>
+                    <SelectItem value="management">
+                      Management / Admin
+                    </SelectItem>
                     <SelectItem value="arsitektur">Architecture</SelectItem>
                     <SelectItem value="sipil">Civil (Field)</SelectItem>
                     <SelectItem value="interior">Interior</SelectItem>
+                    <SelectItem value="socmed">Social Media</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -178,7 +184,9 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue
-                        placeholder={isLoadingRoles ? 'Loading...' : 'Select Role'}
+                        placeholder={
+                          isLoadingRoles ? 'Loading...' : 'Select Role'
+                        }
                       />
                     </SelectTrigger>
                   </FormControl>
