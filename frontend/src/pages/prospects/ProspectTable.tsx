@@ -37,28 +37,24 @@ export function ProspectTable({
   return (
     <div className="flex flex-col h-full bg-white">
       <div className="flex-1 overflow-auto">
-        <div className="min-w-[900px]">
+        <div className="min-w-[600px]">
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
               <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
                 <TableHead className="w-[40px]">#</TableHead>
-                <TableHead>Instagram</TableHead>
-                <TableHead>Client Name</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead className="w-[120px]">Status</TableHead>
+                <TableHead>Client</TableHead>
+                <TableHead className="w-[140px]">Status</TableHead>
                 <TableHead className="w-[120px]">Needs</TableHead>
-                <TableHead className="w-[150px]">Meeting Schedule</TableHead>
-                <TableHead className="w-[150px]">Survey Schedule</TableHead>
-                <TableHead>Result</TableHead>
+                <TableHead className="w-[160px]">Meeting Schedule</TableHead>
                 <TableHead className="w-[60px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRowsSkeleton columns={10} rows={8} />
+                <TableRowsSkeleton columns={6} rows={8} />
               ) : prospects.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={10}>
+                  <TableCell colSpan={6}>
                     <EmptyState title="No prospects found." />
                   </TableCell>
                 </TableRow>
@@ -72,17 +68,19 @@ export function ProspectTable({
                     <TableCell className="text-muted-foreground text-xs">
                       {index + 1}
                     </TableCell>
-                    <TableCell className="font-medium text-sm">
-                      {prospect.instagram || '—'}
-                    </TableCell>
-                    <TableCell className="text-sm">
-                      {prospect.client_name}
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {prospect.phone}
+                    <TableCell>
+                      <div className="text-sm font-medium text-slate-900">
+                        {prospect.instagram ? `@${prospect.instagram}` : '—'}{' '}
+                        <span className="font-normal text-slate-600">
+                          {prospect.client_name}
+                        </span>
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {prospect.phone}
+                      </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 text-xs capitalize">
+                      <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 text-xs capitalize whitespace-nowrap">
                         {prospect.status}
                       </Badge>
                     </TableCell>
@@ -91,12 +89,6 @@ export function ProspectTable({
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {formatDateTime(prospect.meeting_schedule)}
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {formatDateTime(prospect.survey_schedule)}
-                    </TableCell>
-                    <TableCell className="text-sm max-w-[160px] truncate">
-                      {prospect.result || '—'}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>

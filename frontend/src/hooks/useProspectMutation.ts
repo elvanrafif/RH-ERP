@@ -17,11 +17,15 @@ export function useProspectMutation({
 
   return useMutation({
     mutationFn: async (values: ProspectFormValues) => {
+      const toDateTimePB = (val?: string) => {
+        if (!val) return null
+        return val.length === 16 ? val + ':00' : val
+      }
       const payload = {
         ...values,
         land_size: values.land_size === '' ? null : values.land_size,
-        meeting_schedule: values.meeting_schedule || null,
-        survey_schedule: values.survey_schedule || null,
+        meeting_schedule: toDateTimePB(values.meeting_schedule),
+        survey_schedule: toDateTimePB(values.survey_schedule),
       }
       if (initialData) {
         return await pb.collection('prospects').update(initialData.id, payload)
