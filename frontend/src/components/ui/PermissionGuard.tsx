@@ -19,7 +19,13 @@ export function PermissionGuard({ require, requireAny }: PermissionGuardProps) {
     )
   }
 
-  // Check permission: either require (AND) or requireAny (OR)
+  if (process.env.NODE_ENV === 'development' && !require && !requireAny) {
+    console.error(
+      'PermissionGuard: either "require" or "requireAny" must be provided'
+    )
+  }
+
+  // Single permission check (require) or multi-permission OR check (requireAny)
   const hasAccess = require
     ? can(require)
     : requireAny
