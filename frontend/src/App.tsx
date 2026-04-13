@@ -97,9 +97,18 @@ function AppRoutes() {
         </Route>
 
         {/* --- COMMERCIAL (Quotations & Invoices) --- */}
-        <Route element={<PermissionGuard require="view_revenue" />}>
+        <Route
+          element={
+            <PermissionGuard
+              requireAny={['manage_quotations', 'manage_quotations_restricted']}
+            />
+          }
+        >
           <Route path="quotations" element={<QuotationsPage />} />
           <Route path="quotations/:id" element={<QuotationEditor />} />
+        </Route>
+
+        <Route element={<PermissionGuard require="view_revenue" />}>
           <Route path="invoices" element={<InvoicesPage />} />
           <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
         </Route>
