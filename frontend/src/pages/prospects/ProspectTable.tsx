@@ -7,16 +7,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
-import { MoreHorizontal, Pencil, Eye } from 'lucide-react'
+import { Eye, Pencil } from 'lucide-react'
+import { RowActions } from '@/components/shared/RowActions'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
 import { formatDateTime, formatTimeUntil } from '@/lib/helpers'
@@ -129,24 +122,21 @@ export function ProspectTable({
                     })()}
                   </TableCell>
                   <TableCell onClick={(e) => e.stopPropagation()}>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onView(prospect)}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          View Detail
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => onEdit(prospect)}>
-                          <Pencil className="mr-2 h-4 w-4" />
-                          Edit
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <RowActions
+                      actions={[
+                        {
+                          label: 'View Detail',
+                          icon: Eye,
+                          onClick: () => onView(prospect),
+                        },
+                        {
+                          label: 'Edit',
+                          icon: Pencil,
+                          onClick: () => onEdit(prospect),
+                          separator: true,
+                        },
+                      ]}
+                    />
                   </TableCell>
                 </TableRow>
               ))

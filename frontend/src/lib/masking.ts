@@ -1,15 +1,20 @@
-export const MaskingTextByDivision = (division: string | undefined) => {
-    if (division === 'sipil') return 'Civil'
-    if (division === 'arsitektur') return 'Architecture'
-    if (division === 'interior') return 'Interior'
-    if (division === 'management') return 'Management'
-    return 'General'
+const DIVISION_LABELS: Record<string, string> = {
+  sipil: 'Civil',
+  arsitektur: 'Architecture',
+  interior: 'Interior',
+  management: 'Management',
+  socmed: 'Social Media',
 }
 
-export const MaskingTextByInvoiceType = (type: string | undefined) => {
-    if (type === 'design') return 'Design'
-    if (type === 'sipil') return 'Civil'
-    if (type === 'interior') return 'Interior'
-    if (type === 'management') return 'Management'
-    return 'General'
+const INVOICE_TYPE_LABELS: Record<string, string> = {
+  design: 'Design',
+  sipil: 'Civil',
+  interior: 'Interior',
+  management: 'Management',
 }
+
+export const MaskingTextByDivision = (division?: string) =>
+  (division && DIVISION_LABELS[division]) || 'General'
+
+export const MaskingTextByInvoiceType = (type?: string) =>
+  (type && INVOICE_TYPE_LABELS[type]) || 'General'

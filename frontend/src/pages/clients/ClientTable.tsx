@@ -9,19 +9,13 @@ import {
 } from '@/components/ui/table'
 import { Button } from '@/components/ui/button'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { MoreHorizontal, Pencil, Eye } from 'lucide-react'
+import { Eye, Pencil } from 'lucide-react'
+import { RowActions } from '@/components/shared/RowActions'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
 import { getInitials } from '@/lib/helpers'
@@ -109,30 +103,25 @@ export function ClientTable({
                       )}
                     </TableCell>
                     <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 opacity-30 hover:opacity-100 transition-opacity cursor-pointer"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onView(client)}>
-                            <Eye className="mr-2 h-4 w-4" /> View Details
-                          </DropdownMenuItem>
-                          {onEdit && (
-                            <>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => onEdit(client)}>
-                                <Pencil className="mr-2 h-4 w-4" /> Edit
-                              </DropdownMenuItem>
-                            </>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <RowActions
+                        actions={[
+                          {
+                            label: 'View Details',
+                            icon: Eye,
+                            onClick: () => onView(client),
+                          },
+                          ...(onEdit
+                            ? [
+                                {
+                                  label: 'Edit',
+                                  icon: Pencil,
+                                  onClick: () => onEdit!(client),
+                                  separator: true,
+                                },
+                              ]
+                            : []),
+                        ]}
+                      />
                     </TableCell>
                   </TableRow>
                 ))

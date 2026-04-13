@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 import type {
   DropResult,
@@ -17,15 +17,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { RowActions } from '@/components/shared/RowActions'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-} from '@/components/ui/dropdown-menu'
-import {
-  MoreHorizontal,
   CalendarClock,
   Pencil,
   Trash2,
@@ -120,51 +113,54 @@ export default function ProjectKanban({
       setBoardData(buildKanbanState(data, columnsConfig))
   }, [data, columnsConfig])
 
-  const onDragEnd = (result: DropResult) => {
-    const { destination, source, draggableId } = result
-    if (!destination) return
-    if (
-      destination.droppableId === source.droppableId &&
-      destination.index === source.index
-    )
-      return
+  const onDragEnd = useCallback(
+    (result: DropResult) => {
+      const { destination, source, draggableId } = result
+      if (!destination) return
+      if (
+        destination.droppableId === source.droppableId &&
+        destination.index === source.index
+      )
+        return
 
-    const draggedTask = boardData.tasks[draggableId]
-    if (!canEditProject(draggedTask, user, isSuperAdmin)) return
+      const draggedTask = boardData.tasks[draggableId]
+      if (!canEditProject(draggedTask, user, isSuperAdmin)) return
 
-    const startCol = boardData.columns[source.droppableId]
-    const finishCol = boardData.columns[destination.droppableId]
+      const startCol = boardData.columns[source.droppableId]
+      const finishCol = boardData.columns[destination.droppableId]
 
-    if (startCol === finishCol) {
-      const newTaskIds = Array.from(startCol.taskIds)
-      newTaskIds.splice(source.index, 1)
-      newTaskIds.splice(destination.index, 0, draggableId)
-      setBoardData((prev) => ({
-        ...prev,
-        columns: {
-          ...prev.columns,
-          [startCol.id]: { ...startCol, taskIds: newTaskIds },
-        },
-      }))
-    } else {
-      const startTaskIds = Array.from(startCol.taskIds)
-      startTaskIds.splice(source.index, 1)
-      const finishTaskIds = Array.from(finishCol.taskIds)
-      finishTaskIds.splice(destination.index, 0, draggableId)
-      setBoardData((prev) => ({
-        ...prev,
-        columns: {
-          ...prev.columns,
-          [startCol.id]: { ...startCol, taskIds: startTaskIds },
-          [finishCol.id]: { ...finishCol, taskIds: finishTaskIds },
-        },
-      }))
-      onStatusChange(draggableId, destination.droppableId)
-    }
-  }
+      if (startCol === finishCol) {
+        const newTaskIds = Array.from(startCol.taskIds)
+        newTaskIds.splice(source.index, 1)
+        newTaskIds.splice(destination.index, 0, draggableId)
+        setBoardData((prev) => ({
+          ...prev,
+          columns: {
+            ...prev.columns,
+            [startCol.id]: { ...startCol, taskIds: newTaskIds },
+          },
+        }))
+      } else {
+        const startTaskIds = Array.from(startCol.taskIds)
+        startTaskIds.splice(source.index, 1)
+        const finishTaskIds = Array.from(finishCol.taskIds)
+        finishTaskIds.splice(destination.index, 0, draggableId)
+        setBoardData((prev) => ({
+          ...prev,
+          columns: {
+            ...prev.columns,
+            [startCol.id]: { ...startCol, taskIds: startTaskIds },
+            [finishCol.id]: { ...finishCol, taskIds: finishTaskIds },
+          },
+        }))
+        onStatusChange(draggableId, destination.droppableId)
+      }
+    },
+    [boardData, user, isSuperAdmin, onStatusChange]
+  )
 
   return (
-    <>
+    <TooltipProvider>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex h-full gap-4 overflow-x-auto pb-4 pt-2 px-1">
           {boardData.columnOrder.map((columnId) => {
@@ -243,7 +239,7 @@ export default function ProjectKanban({
         open={!!projectToView}
         onOpenChange={(open) => !open && setProjectToView(null)}
       />
-    </>
+    </TooltipProvider>
   )
 }
 
@@ -306,41 +302,23 @@ function KanbanCard({
           >
             {task.type}
           </Badge>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6 -mr-1 text-slate-400 hover:text-slate-700 opacity-30 hover:opacity-100 transition-opacity cursor-pointer"
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              {canEdit && (
-                <>
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onEdit()
-                    }}
-                  >
-                    <Pencil className="mr-2 h-4 w-4" /> Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      onDelete()
-                    }}
-                    className="text-red-600 focus:text-red-600 focus:bg-red-50"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" /> Delete
-                  </DropdownMenuItem>
-                </>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <RowActions
+            stopPropagation
+            actions={
+              canEdit
+                ? [
+                    { label: 'Edit', icon: Pencil, onClick: () => onEdit() },
+                    {
+                      label: 'Delete',
+                      icon: Trash2,
+                      onClick: () => onDelete(),
+                      variant: 'destructive',
+                      separator: true,
+                    },
+                  ]
+                : []
+            }
+          />
         </div>
 
         {/* Identitas proyek */}
@@ -432,28 +410,26 @@ function KanbanCard({
               </span>
             )}
           </div>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <Avatar className="h-6 w-6 border border-white shadow-sm cursor-pointer">
-                  <AvatarImage src={getAvatarUrl(assignee) || ''} />
-                  <AvatarFallback
-                    className={`text-[10px] ${isInterior ? 'bg-violet-100 text-violet-700' : 'bg-blue-100 text-blue-700'}`}
-                  >
-                    {getInitials(assignee?.name)}
-                  </AvatarFallback>
-                </Avatar>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>PIC: {assignee?.name || 'Unassigned'}</p>
-                {isInterior && task.expand?.vendor && (
-                  <p className="text-[10px] text-slate-300">
-                    Vendor: {task.expand.vendor.name}
-                  </p>
-                )}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger>
+              <Avatar className="h-6 w-6 border border-white shadow-sm cursor-pointer">
+                <AvatarImage src={getAvatarUrl(assignee) || ''} />
+                <AvatarFallback
+                  className={`text-[10px] ${isInterior ? 'bg-violet-100 text-violet-700' : 'bg-blue-100 text-blue-700'}`}
+                >
+                  {getInitials(assignee?.name)}
+                </AvatarFallback>
+              </Avatar>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>PIC: {assignee?.name || 'Unassigned'}</p>
+              {isInterior && task.expand?.vendor && (
+                <p className="text-[10px] text-slate-300">
+                  Vendor: {task.expand.vendor.name}
+                </p>
+              )}
+            </TooltipContent>
+          </Tooltip>
         </div>
       </CardContent>
     </Card>

@@ -11,7 +11,9 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Shield, Smartphone, MoreHorizontal } from 'lucide-react'
+import { Shield, Smartphone, Pencil } from 'lucide-react'
+import { RowActions } from '@/components/shared/RowActions'
+import { getInitials } from '@/lib/helpers'
 import { MaskingTextByDivision } from '@/lib/masking'
 import { EmptyState } from '@/components/shared/EmptyState'
 
@@ -19,9 +21,6 @@ interface UserListProps {
   users: User[] | undefined
   onEdit: (user: User) => void
 }
-
-const getInitials = (name?: string) =>
-  name ? name.substring(0, 2).toUpperCase() : '??'
 
 const getAvatar = (user: User) =>
   user.avatar ? pb.files.getUrl(user, user.avatar) : null
@@ -36,6 +35,8 @@ const getDivisionBadge = (div?: string) => {
       return 'bg-violet-100 text-violet-800 border-violet-200'
     case 'management':
       return 'bg-purple-100 text-purple-800 border-purple-200'
+    case 'social media':
+      return 'bg-pink-100 text-pink-800 border-pink-200'
     default:
       return 'bg-slate-100 text-slate-800'
   }
@@ -126,14 +127,15 @@ export function UserList({ users, onEdit }: UserListProps) {
                     </TableCell>
 
                     <TableCell className="text-right">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 opacity-30 hover:opacity-100 transition-opacity cursor-pointer"
-                        onClick={() => onEdit(user)}
-                      >
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
+                      <RowActions
+                        actions={[
+                          {
+                            label: 'Edit',
+                            icon: Pencil,
+                            onClick: () => onEdit(user),
+                          },
+                        ]}
+                      />
                     </TableCell>
                   </TableRow>
                 ))

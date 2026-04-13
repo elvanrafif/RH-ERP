@@ -150,6 +150,17 @@ export function getRemainingTime(endDateStr?: string) {
   return '-'
 }
 
+const pad = (n: number) => String(n).padStart(2, '0')
+
+export const toLocalDateTimeInput = (isoString?: string | null): string => {
+  if (!isoString) return ''
+  const d = new Date(isoString)
+  return (
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
+    `T${pad(d.getHours())}:${pad(d.getMinutes())}`
+  )
+}
+
 export const formatRupiahDisplay = (value: number | string) => {
   if (!value) return ''
   const numberString = value.toString().replace(/[^,\d]/g, '')

@@ -1,4 +1,4 @@
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   prospectSchema,
@@ -8,6 +8,7 @@ import type { Prospect } from '@/types'
 import { useAuth } from '@/contexts/AuthContext'
 import { useProspectMutation } from '@/hooks/useProspectMutation'
 import { PROSPECT_STATUS } from '@/lib/constant'
+import { toLocalDateTimeInput } from '@/lib/helpers'
 import { Button } from '@/components/ui/button'
 import { Form } from '@/components/ui/form'
 import { Loader2 } from 'lucide-react'
@@ -37,19 +38,15 @@ export function ProspectForm({ onSuccess, initialData }: ProspectFormProps) {
       renovation_type: initialData?.renovation_type ?? '',
       status: initialData?.status ?? PROSPECT_STATUS.WAITING,
       notes: initialData?.notes ?? '',
-      meeting_schedule: initialData?.meeting_schedule
-        ? initialData.meeting_schedule.slice(0, 16)
-        : '',
+      meeting_schedule: toLocalDateTimeInput(initialData?.meeting_schedule),
       confirmation: initialData?.confirmation ?? '',
       quotation: initialData?.quotation ?? '',
-      survey_schedule: initialData?.survey_schedule
-        ? initialData.survey_schedule.slice(0, 16)
-        : '',
+      survey_schedule: toLocalDateTimeInput(initialData?.survey_schedule),
       result: initialData?.result ?? '',
     },
   })
 
-  const needsValue = form.watch('needs') ?? []
+  const needsValue = useWatch({ control: form.control, name: 'needs' }) ?? []
 
   function handleNeedsToggle(option: string, checked: boolean) {
     const current = form.getValues('needs') ?? []

@@ -7,16 +7,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { Badge } from '@/components/ui/badge'
-import { MoreHorizontal, Pencil, Eye } from 'lucide-react'
+import { Eye, Pencil } from 'lucide-react'
+import { RowActions } from '@/components/shared/RowActions'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
 import { getInitials } from '@/lib/helpers'
@@ -116,26 +109,21 @@ export function VendorTable({
                       {vendor.notes || '—'}
                     </TableCell>
                     <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 opacity-30 hover:opacity-100 transition-opacity cursor-pointer"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => onView(vendor)}>
-                            <Eye className="mr-2 h-4 w-4" /> View Details
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => onEdit(vendor)}>
-                            <Pencil className="mr-2 h-4 w-4" /> Edit
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <RowActions
+                        actions={[
+                          {
+                            label: 'View Details',
+                            icon: Eye,
+                            onClick: () => onView(vendor),
+                          },
+                          {
+                            label: 'Edit',
+                            icon: Pencil,
+                            onClick: () => onEdit(vendor),
+                            separator: true,
+                          },
+                        ]}
+                      />
                     </TableCell>
                   </TableRow>
                 ))
