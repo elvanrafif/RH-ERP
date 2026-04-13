@@ -47,6 +47,7 @@ export function QuotationTable({
                 <TableHead className="w-[140px]">No. Quotation</TableHead>
                 <TableHead className="w-[500px]">Client</TableHead>
                 {!isRestricted && <TableHead>Project Area</TableHead>}
+                <TableHead className="text-right">Harga / m²</TableHead>
                 <TableHead>Status</TableHead>
                 {!isRestricted && (
                   <TableHead className="text-right">Total Amount</TableHead>
@@ -56,10 +57,10 @@ export function QuotationTable({
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRowsSkeleton rows={5} columns={isRestricted ? 5 : 7} />
+                <TableRowsSkeleton rows={5} columns={isRestricted ? 6 : 8} />
               ) : quotations?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={isRestricted ? 5 : 7} className="h-60">
+                  <TableCell colSpan={isRestricted ? 6 : 8} className="h-60">
                     <EmptyState title="No quotations found." />
                   </TableCell>
                 </TableRow>
@@ -84,6 +85,11 @@ export function QuotationTable({
                         {q.project_area || '-'} m2
                       </TableCell>
                     )}
+                    <TableCell className="text-right text-slate-600">
+                      {q.price_per_meter
+                        ? formatRupiah(q.price_per_meter)
+                        : '-'}
+                    </TableCell>
                     <TableCell>
                       {(() => {
                         const status = (q.status || 'draft').toLowerCase()
