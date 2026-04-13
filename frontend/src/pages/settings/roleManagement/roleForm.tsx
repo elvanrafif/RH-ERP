@@ -92,6 +92,19 @@ const PERMISSION_GROUPS = [
       { id: 'manage_users', label: 'Manage Users & Roles (Superadmin)' },
     ],
   },
+  {
+    title: 'Quotations',
+    permissions: [
+      {
+        id: 'manage_quotations',
+        label: 'Create/Edit Quotation (Full Access)',
+      },
+      {
+        id: 'manage_quotations_restricted',
+        label: 'Create/Edit Quotation (Restricted — hide financials)',
+      },
+    ],
+  },
 ]
 
 interface RoleFormProps {
