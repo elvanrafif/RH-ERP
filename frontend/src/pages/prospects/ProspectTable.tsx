@@ -55,11 +55,11 @@ export function ProspectTable({
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRowsSkeleton cols={10} rows={8} />
+                <TableRowsSkeleton columns={10} rows={8} />
               ) : prospects.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={10}>
-                    <EmptyState message="No prospects found." />
+                    <EmptyState title="No prospects found." />
                   </TableCell>
                 </TableRow>
               ) : (
@@ -75,7 +75,9 @@ export function ProspectTable({
                     <TableCell className="font-medium text-sm">
                       {prospect.instagram || '—'}
                     </TableCell>
-                    <TableCell className="text-sm">{prospect.client_name}</TableCell>
+                    <TableCell className="text-sm">
+                      {prospect.client_name}
+                    </TableCell>
                     <TableCell className="text-sm text-muted-foreground">
                       {prospect.phone}
                     </TableCell>
@@ -85,9 +87,7 @@ export function ProspectTable({
                       </Badge>
                     </TableCell>
                     <TableCell className="text-sm">
-                      {prospect.needs?.length
-                        ? prospect.needs.join(', ')
-                        : '—'}
+                      {prospect.needs?.length ? prospect.needs.join(', ') : '—'}
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">
                       {formatDateTime(prospect.meeting_schedule)}
@@ -101,7 +101,11 @@ export function ProspectTable({
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8"
+                          >
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
