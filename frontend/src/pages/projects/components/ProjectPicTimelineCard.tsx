@@ -1,18 +1,22 @@
 import type { Project } from '@/types'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { User, CalendarClock, CalendarRange, ArrowRight } from 'lucide-react'
-import { formatDateLong, getInitials, getRemainingTime } from '@/lib/helpers'
+import { CalendarClock, CalendarRange, ArrowRight } from 'lucide-react'
+import { getInitials, formatDateLong, getRemainingTime } from '@/lib/helpers'
 
 interface ProjectPicTimelineCardProps {
   picData: string | undefined
   isCivil: boolean
+  isInterior: boolean
+  vendorData?: string
   project: Project
 }
 
 export function ProjectPicTimelineCard({
   picData,
   isCivil,
+  isInterior,
+  vendorData,
   project,
 }: ProjectPicTimelineCardProps) {
   return (
@@ -34,12 +38,30 @@ export function ProjectPicTimelineCard({
         </div>
       </div>
 
+      {/* Vendor — Interior only */}
+      {isInterior && (
+        <div>
+          <p className="text-xs font-semibold text-foreground mb-2">
+            Vendor / Contractor
+          </p>
+          <div className="flex items-center gap-2.5">
+            <Avatar className="h-8 w-8 border border-border">
+              <AvatarFallback className="bg-muted text-muted-foreground font-bold text-xs">
+                {getInitials(vendorData)}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-sm font-semibold text-foreground">
+              {vendorData || '—'}
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Timeline */}
       <div>
         <p className="text-xs font-semibold text-foreground mb-2">
           {isCivil ? 'Contract Timeline' : 'Target Deadline'}
         </p>
-
         {isCivil ? (
           <div className="rounded-lg border border-border bg-muted/30 px-3 py-2.5 flex flex-col items-center gap-1.5">
             <div className="flex items-center gap-2 text-xs text-foreground">

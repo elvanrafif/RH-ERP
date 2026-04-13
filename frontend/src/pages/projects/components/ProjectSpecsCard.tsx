@@ -60,9 +60,11 @@ export function ProjectSpecsCard({
       {/* Notes */}
       <div>
         <p className="text-xs font-semibold text-foreground mb-2">Notes</p>
-        <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-          {notes || 'No notes for this project.'}
-        </p>
+        <div className="rounded-lg border border-border bg-muted/30 px-4 py-3">
+          <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+            {notes || 'No notes for this project.'}
+          </p>
+        </div>
       </div>
     </div>
   )

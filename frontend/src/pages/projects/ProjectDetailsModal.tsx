@@ -47,6 +47,8 @@ export function ProjectDetailsModal({
     ? project.expand?.vendor?.name
     : project.expand?.assignee?.name
 
+  const vendorData = isInterior ? project.expand?.vendor?.name : undefined
+
   const statusColor =
     STATUS_COLORS[project.status] ??
     'bg-secondary text-secondary-foreground border-border'
@@ -99,6 +101,8 @@ export function ProjectDetailsModal({
               <ProjectPicTimelineCard
                 picData={picData}
                 isCivil={isCivil}
+                isInterior={isInterior}
+                vendorData={vendorData}
                 project={project}
               />
             </div>
@@ -109,7 +113,7 @@ export function ProjectDetailsModal({
           {/* Specs + Notes */}
           <div className="px-6 py-5">
             <p className="text-xs font-semibold text-foreground mb-4">
-              Specifications & Notes
+              Specifications
             </p>
             <ProjectSpecsCard
               luasTanah={project.luas_tanah}

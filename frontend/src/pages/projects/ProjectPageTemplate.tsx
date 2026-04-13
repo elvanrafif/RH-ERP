@@ -100,14 +100,7 @@ export default function ProjectPageTemplate({
   return (
     <div className="flex-1 h-full p-4 md:p-8 pt-6 flex flex-col overflow-hidden bg-background/50">
       <PageHeader
-        title={
-          <>
-            {pageTitle}
-            <span className="text-xs font-normal text-muted-foreground bg-slate-100 px-2 py-0.5 rounded-full border">
-              {filteredProjects.length} Projects
-            </span>
-          </>
-        }
+        title={pageTitle}
         description={`Monitoring ${projectType} projects.`}
         action={
           can(`manage_${projectType}`) ? (

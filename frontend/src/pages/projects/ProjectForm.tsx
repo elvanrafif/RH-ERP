@@ -67,6 +67,26 @@ export function ProjectForm({
     isInterior ? { projectType: 'interior', activeOnly: true } : {}
   )
 
+  // Saat edit, pastikan vendor yang sudah tersimpan tetap muncul walau tidak aktif
+  const assignedVendorId = initialData?.vendor
+  const assignedVendor = initialData?.expand?.vendor
+
+  const resolvedCivilVendors =
+    isCivil &&
+    assignedVendorId &&
+    assignedVendor &&
+    !civilVendors.find((v) => v.id === assignedVendorId)
+      ? [...civilVendors, assignedVendor]
+      : civilVendors
+
+  const resolvedInteriorVendors =
+    isInterior &&
+    assignedVendorId &&
+    assignedVendor &&
+    !interiorVendors.find((v) => v.id === assignedVendorId)
+      ? [...interiorVendors, assignedVendor]
+      : interiorVendors
+
   const form = useForm({
     resolver: zodResolver(projectSchema),
     defaultValues: {
@@ -200,8 +220,8 @@ export function ProjectForm({
           isSuperAdmin={isSuperAdmin}
           user={user}
           users={users}
-          civilVendors={civilVendors}
-          interiorVendors={interiorVendors}
+          civilVendors={resolvedCivilVendors}
+          interiorVendors={resolvedInteriorVendors}
           fixedType={fixedType}
         />
 
