@@ -1,4 +1,3 @@
-import type { ElementType, ReactNode } from 'react'
 import type { Prospect } from '@/types'
 import {
   Dialog,
@@ -8,18 +7,7 @@ import {
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import {
-  Instagram,
-  Phone,
-  MapPin,
-  CalendarClock,
-  FileText,
-  CheckSquare,
-  Layers,
-  Wrench,
-  ClipboardList,
-  CalendarCheck,
-} from 'lucide-react'
+import { Instagram } from 'lucide-react'
 import { formatDateTime } from '@/lib/helpers'
 
 interface ProspectDetailDialogProps {
@@ -28,22 +16,11 @@ interface ProspectDetailDialogProps {
   onOpenChange: (open: boolean) => void
 }
 
-function DetailRow({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: ElementType
-  label: string
-  value: ReactNode
-}) {
+function Field({ label, value }: { label: string; value?: string | null }) {
   return (
-    <div className="flex items-start gap-3 text-sm">
-      <Icon className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-      <div className="flex-1 min-w-0">
-        <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
-        <p className="text-slate-800 break-words">{value || '—'}</p>
-      </div>
+    <div>
+      <p className="text-xs text-muted-foreground mb-0.5">{label}</p>
+      <p className="text-sm text-slate-800 break-words">{value || '—'}</p>
     </div>
   )
 }
@@ -59,95 +36,83 @@ export function ProspectDetailDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <div className="flex items-start gap-3">
-            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
-              <Instagram className="h-5 w-5" />
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                <Instagram className="h-4 w-4" />
+              </div>
+              <div>
+                <DialogTitle className="text-base font-semibold text-slate-900">
+                  {prospect.client_name}
+                </DialogTitle>
+                <p className="text-xs text-muted-foreground">
+                  @{prospect.instagram}
+                </p>
+              </div>
             </div>
-            <div>
-              <DialogTitle className="text-lg font-semibold text-slate-900">
-                {prospect.client_name}
-              </DialogTitle>
-              <p className="text-sm text-muted-foreground">
-                @{prospect.instagram}
-              </p>
-              <Badge className="mt-1 bg-blue-100 text-blue-800 hover:bg-blue-100 text-xs capitalize">
-                {prospect.status}
-              </Badge>
-            </div>
+            <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 text-xs capitalize shrink-0 mt-4">
+              {prospect.status}
+            </Badge>
           </div>
         </DialogHeader>
 
         <Separator />
 
-        <div className="space-y-3">
-          <DetailRow icon={Phone} label="Phone" value={prospect.phone} />
-          <DetailRow icon={MapPin} label="Address" value={prospect.address} />
-          <DetailRow
-            icon={Layers}
-            label="Land Size"
-            value={prospect.land_size ? `${prospect.land_size} m²` : undefined}
-          />
-          <DetailRow
-            icon={CheckSquare}
-            label="Needs"
-            value={
-              prospect.needs?.length ? (
-                <div className="flex gap-1 flex-wrap">
-                  {prospect.needs.map((n) => (
-                    <Badge key={n} variant="outline" className="text-xs">
-                      {n}
-                    </Badge>
-                  ))}
-                </div>
-              ) : undefined
-            }
-          />
-          <DetailRow
-            icon={Wrench}
-            label="Floor"
-            value={prospect.floor ? `${prospect.floor} Lantai` : undefined}
-          />
-          <DetailRow
-            icon={Wrench}
-            label="Renovation Type"
-            value={prospect.renovation_type}
-          />
+        {/* Contact */}
+        <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+          <Field label="Phone" value={prospect.phone} />
+          <Field label="Address" value={prospect.address} />
         </div>
 
         <Separator />
 
-        <div className="space-y-3">
-          <DetailRow
-            icon={FileText}
-            label="Notes"
-            value={
-              prospect.notes ? (
-                <span className="whitespace-pre-wrap">{prospect.notes}</span>
-              ) : undefined
-            }
+        {/* Property */}
+        <div className="grid grid-cols-3 gap-x-6 gap-y-3">
+          <Field
+            label="Land Size"
+            value={prospect.land_size ? `${prospect.land_size} m²` : undefined}
           />
-          <DetailRow
-            icon={CalendarClock}
-            label="Meeting Schedule (WIB)"
+          <Field
+            label="Floor"
+            value={prospect.floor ? `${prospect.floor} Lantai` : undefined}
+          />
+          <Field label="Renovation Type" value={prospect.renovation_type} />
+        </div>
+
+        <div>
+          <p className="text-xs text-muted-foreground mb-1">Needs</p>
+          {prospect.needs?.length ? (
+            <div className="flex gap-1 flex-wrap">
+              {prospect.needs.map((n) => (
+                <Badge key={n} variant="outline" className="text-xs">
+                  {n}
+                </Badge>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-slate-800">—</p>
+          )}
+        </div>
+
+        <Separator />
+
+        {/* Notes & Schedule */}
+        <Field label="Notes" value={prospect.notes} />
+
+        <div className="grid grid-cols-2 gap-x-6 gap-y-3">
+          <Field
+            label="Meeting Schedule"
             value={formatDateTime(prospect.meeting_schedule)}
           />
-          <DetailRow
-            icon={FileText}
-            label="Confirmation"
-            value={prospect.confirmation}
-          />
-          <DetailRow
-            icon={ClipboardList}
-            label="Quotation"
-            value={prospect.quotation}
-          />
-          <DetailRow
-            icon={CalendarCheck}
+          <Field
             label="Survey Schedule"
             value={formatDateTime(prospect.survey_schedule)}
           />
-          <DetailRow icon={FileText} label="Result" value={prospect.result} />
+          <Field label="Confirmation" value={prospect.confirmation} />
+          <Field label="Quotation" value={prospect.quotation} />
         </div>
+
+        <Field label="Result" value={prospect.result} />
       </DialogContent>
     </Dialog>
   )

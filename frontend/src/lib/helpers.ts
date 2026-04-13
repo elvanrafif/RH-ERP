@@ -9,7 +9,7 @@ export const formatRupiah = (val: number) => {
 }
 
 export const formatDate = (dateStr?: string | Date) => {
-  if (!dateStr) return '-'
+  if (!dateStr) return '—'
   return new Date(dateStr).toLocaleDateString('id-ID', {
     day: 'numeric',
     month: 'short',
@@ -18,7 +18,7 @@ export const formatDate = (dateStr?: string | Date) => {
 }
 
 export const formatDateShort = (dateStr?: string) => {
-  if (!dateStr) return '-'
+  if (!dateStr) return '—'
   return new Date(dateStr).toLocaleDateString('id-ID', {
     day: 'numeric',
     month: 'short',
@@ -26,7 +26,7 @@ export const formatDateShort = (dateStr?: string) => {
 }
 
 export const formatDateLong = (dateStr?: string) => {
-  if (!dateStr) return '-'
+  if (!dateStr) return '—'
   return new Date(dateStr).toLocaleDateString('id-ID', {
     day: 'numeric',
     month: 'long',
@@ -35,7 +35,7 @@ export const formatDateLong = (dateStr?: string) => {
 }
 
 export const formatDateTime = (dateStr?: string) => {
-  if (!dateStr) return '-'
+  if (!dateStr) return '—'
   return new Date(dateStr).toLocaleString('id-ID', {
     day: 'numeric',
     month: 'short',
@@ -44,6 +44,28 @@ export const formatDateTime = (dateStr?: string) => {
     minute: '2-digit',
     hour12: false,
   })
+}
+
+export interface TimeUntilResult {
+  label: string
+  isOverdue: boolean
+}
+
+export const formatTimeUntil = (dateStr?: string): TimeUntilResult | null => {
+  if (!dateStr) return null
+  const target = new Date(dateStr)
+  if (isNaN(target.getTime())) return null
+
+  const diffMs = target.getTime() - Date.now()
+  if (diffMs < 0) return { label: 'Overdue', isOverdue: true }
+
+  const totalMinutes = Math.floor(diffMs / (1000 * 60))
+  const days = Math.floor(totalMinutes / (60 * 24))
+  const hours = Math.floor((totalMinutes % (60 * 24)) / 60)
+
+  if (days > 0) return { label: `${days}d ${hours}h left`, isOverdue: false }
+  if (hours > 0) return { label: `${hours}h left`, isOverdue: false }
+  return { label: '< 1h left', isOverdue: false }
 }
 
 export const getInitials = (name?: string) =>
