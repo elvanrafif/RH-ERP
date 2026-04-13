@@ -9,6 +9,7 @@ import {
   HardHat,
   Sofa,
   ShieldCheck,
+  Instagram,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NavItem } from './NavItem'
@@ -122,6 +123,17 @@ export function SidebarNav({
         isActive={isActive('/clients')}
         onClick={onLinkClick}
       />
+
+      <Guard require="manage_prospects">
+        <NavItem
+          to="/prospects"
+          icon={Instagram}
+          label="Prospects"
+          collapsed={collapsed}
+          isActive={isActive('/prospects')}
+          onClick={onLinkClick}
+        />
+      </Guard>
 
       {isSuperAdmin && (
         <NavItem

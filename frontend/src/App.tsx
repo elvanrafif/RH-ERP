@@ -37,6 +37,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import { PermissionGuard } from './components/ui/PermissionGuard'
 import { SuperAdminGuard } from './components/ui/SuperAdminGuard'
 import VendorsPage from './pages/vendors/VendorsPage'
+import ProspectsPage from './pages/prospects/ProspectsPage'
 import {
   FallbackDecider,
   ProtectedRoute,
@@ -107,6 +108,10 @@ function AppRoutes() {
 
         <Route element={<SuperAdminGuard />}>
           <Route path="vendors" element={<VendorsPage />} />
+        </Route>
+
+        <Route element={<PermissionGuard require="manage_prospects" />}>
+          <Route path="prospects" element={<ProspectsPage />} />
         </Route>
 
         {/* --- SETTINGS (Only for those who can manage users) --- */}
