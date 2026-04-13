@@ -1,5 +1,6 @@
 import type { Control } from 'react-hook-form'
 import type { User, Vendor } from '@/types'
+import { PROJECT_TYPE_TO_DIVISION } from '@/lib/constant'
 import { Input } from '@/components/ui/input'
 import {
   FormControl,
@@ -164,7 +165,9 @@ export function ProjectTypeFields({
               render={({ field }) => {
                 const availableUsers =
                   users?.filter(
-                    (u) => u.division?.toLowerCase() === fixedType
+                    (u) =>
+                      u.division?.toLowerCase() ===
+                      PROJECT_TYPE_TO_DIVISION[fixedType]
                   ) || []
                 if (
                   !isSuperAdmin &&
@@ -205,7 +208,7 @@ export function ProjectTypeFields({
             />
             <FormField
               control={control}
-              name="pic_interior"
+              name="vendor"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Interior Vendor / Contractor</FormLabel>
@@ -220,7 +223,7 @@ export function ProjectTypeFields({
                     </FormControl>
                     <SelectContent>
                       {interiorVendors.map((v) => (
-                        <SelectItem key={v.id} value={v.name}>
+                        <SelectItem key={v.id} value={v.id}>
                           {v.name}
                         </SelectItem>
                       ))}
@@ -292,7 +295,9 @@ export function ProjectTypeFields({
               render={({ field }) => {
                 const availableUsers =
                   users?.filter(
-                    (u) => u.division?.toLowerCase() === fixedType
+                    (u) =>
+                      u.division?.toLowerCase() ===
+                      PROJECT_TYPE_TO_DIVISION[fixedType]
                   ) || []
                 if (
                   !isSuperAdmin &&
@@ -384,7 +389,7 @@ export function ProjectTypeFields({
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={control}
-            name="pic_lapangan"
+            name="vendor"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Field PIC</FormLabel>
@@ -399,7 +404,7 @@ export function ProjectTypeFields({
                   </FormControl>
                   <SelectContent>
                     {civilVendors.map((v) => (
-                      <SelectItem key={v.id} value={v.name}>
+                      <SelectItem key={v.id} value={v.id}>
                         {v.name}
                       </SelectItem>
                     ))}

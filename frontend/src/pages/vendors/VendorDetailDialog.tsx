@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { Phone, FileText, HardHat, Sofa } from 'lucide-react'
+import { Phone, FileText, HardHat, Sofa, CircleDot } from 'lucide-react'
 import { getInitials } from '@/lib/helpers'
 
 const PROJECT_TYPE_LABEL: Record<Vendor['project_type'], string> = {
@@ -53,10 +53,25 @@ export function VendorDetailDialog({
               <DialogTitle className="text-lg font-semibold text-slate-900">
                 {vendor.name}
               </DialogTitle>
-              <Badge className={PROJECT_TYPE_BADGE_CLASS[vendor.project_type]}>
-                <TypeIcon className="mr-1 h-3 w-3" />
-                {PROJECT_TYPE_LABEL[vendor.project_type]}
-              </Badge>
+              <div className="flex items-center gap-2 mt-1">
+                <Badge
+                  className={PROJECT_TYPE_BADGE_CLASS[vendor.project_type]}
+                >
+                  <TypeIcon className="mr-1 h-3 w-3" />
+                  {PROJECT_TYPE_LABEL[vendor.project_type]}
+                </Badge>
+                <Badge
+                  variant="outline"
+                  className={
+                    vendor.isActive
+                      ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                      : 'bg-slate-100 text-slate-500 border-slate-200'
+                  }
+                >
+                  <CircleDot className="mr-1 h-3 w-3" />
+                  {vendor.isActive ? 'Active' : 'Inactive'}
+                </Badge>
+              </div>
             </div>
           </div>
         </DialogHeader>

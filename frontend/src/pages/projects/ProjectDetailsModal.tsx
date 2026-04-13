@@ -39,12 +39,12 @@ export function ProjectDetailsModal({
   if (!project) return null
 
   const meta = project.meta_data || {}
-  const notes = meta.notes || (project as any).notes
+  const notes = project.notes
   const client = project.expand?.client
   const { isCivil, isInterior } = TypeProjectsBoolean(project.type)
 
   const picData = isCivil
-    ? project.meta_data?.pic_lapangan
+    ? project.expand?.vendor?.name
     : project.expand?.assignee?.name
 
   const statusColor =
@@ -112,7 +112,9 @@ export function ProjectDetailsModal({
               Specifications & Notes
             </p>
             <ProjectSpecsCard
-              meta={meta}
+              luasTanah={project.luas_tanah}
+              luasBangunan={project.luas_bangunan}
+              areaScope={meta.area_scope}
               notes={notes}
               isInterior={isInterior}
             />

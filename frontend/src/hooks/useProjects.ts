@@ -30,7 +30,7 @@ export function useProjects({ projectType, statusFilter }: UseProjectsOptions) {
 
       return pb.collection('projects').getFullList<Project>({
         sort: '-created',
-        expand: 'client,assignee',
+        expand: 'client,assignee,vendor',
         filter: filterRule,
       })
     },

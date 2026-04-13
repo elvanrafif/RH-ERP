@@ -41,11 +41,11 @@ export function isProjectActive(status: string): boolean {
   return !(DONE_STATUSES as readonly string[]).includes(status)
 }
 
-/** Resolves PIC name based on project type. Civil uses meta_data.pic_lapangan;
+/** Resolves PIC name based on project type. Civil uses the vendor relation;
  *  architecture and interior use the assignee user relation. */
 function getPicName(project: Project): string {
   if (project.type === 'civil') {
-    return project.meta_data?.pic_lapangan ?? '-'
+    return project.expand?.vendor?.name ?? '-'
   }
   return project.expand?.assignee?.name ?? '-'
 }

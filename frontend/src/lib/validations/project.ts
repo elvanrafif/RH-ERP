@@ -13,8 +13,7 @@ export const projectSchema = z.object({
   end_date: z.string().optional(),
   luas_tanah: z.coerce.number().optional() as z.ZodOptional<z.ZodNumber>,
   luas_bangunan: z.coerce.number().optional() as z.ZodOptional<z.ZodNumber>,
-  pic_lapangan: z.string().optional(),
-  pic_interior: z.string().optional(),
+  vendor: z.string().optional(),
   area_scope: z.string().optional(),
   notes: z.string().optional(),
 })

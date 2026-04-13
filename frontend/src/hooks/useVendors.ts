@@ -5,11 +5,16 @@ import type { Vendor } from '@/types'
 interface UseVendorsOptions {
   searchTerm?: string
   projectType?: 'civil' | 'interior' | ''
+  activeOnly?: boolean
 }
 
-export function useVendors({ searchTerm = '', projectType = '' }: UseVendorsOptions = {}) {
+export function useVendors({
+  searchTerm = '',
+  projectType = '',
+  activeOnly = false,
+}: UseVendorsOptions = {}) {
   const { data: vendors = [], isLoading } = useQuery({
-    queryKey: ['vendors', searchTerm, projectType],
+    queryKey: ['vendors', searchTerm, projectType, activeOnly],
     queryFn: async () => {
       const filters: string[] = []
 
@@ -18,6 +23,9 @@ export function useVendors({ searchTerm = '', projectType = '' }: UseVendorsOpti
       }
       if (projectType) {
         filters.push(`project_type = "${projectType}"`)
+      }
+      if (activeOnly) {
+        filters.push(`isActive = true`)
       }
 
       return await pb.collection('vendors').getFullList<Vendor>({

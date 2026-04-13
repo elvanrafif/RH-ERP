@@ -16,7 +16,7 @@ interface StatProject {
   contract_value?: number
   value?: number
   total_amount?: number
-  meta_data?: { pic_lapangan?: string | string[] }
+  expand?: { vendor?: { name: string } }
   assignee?: string | string[]
 }
 
@@ -103,19 +103,13 @@ export function buildWorkloadData(
     if (type === PROJECT_TYPE.CIVIL || type === DIVISION.CIVIL) {
       civilTotal.count++
       civilTotal.value += projectValue
-      const meta = p.meta_data || {}
-      const fieldPICs: string[] = Array.isArray(meta?.pic_lapangan)
-        ? meta.pic_lapangan
-        : typeof meta?.pic_lapangan === 'string'
-          ? [meta.pic_lapangan]
-          : []
-      fieldPICs.forEach((rawName: string) => {
-        const picName = rawName.trim()
-        if (!picName) return
-        if (!civilStats[picName]) civilStats[picName] = { count: 0, value: 0 }
-        civilStats[picName].count += 1
-        civilStats[picName].value += projectValue
-      })
+      const vendorName = p.expand?.vendor?.name
+      if (vendorName) {
+        if (!civilStats[vendorName])
+          civilStats[vendorName] = { count: 0, value: 0 }
+        civilStats[vendorName].count += 1
+        civilStats[vendorName].value += projectValue
+      }
     } else {
       const assignees: string[] = Array.isArray(p.assignee)
         ? p.assignee

@@ -9,6 +9,6 @@ export function canEditProject(
   if (isSuperAdmin) return true
   if (!user) return false
   const { isCivil } = TypeProjectsBoolean(project.type)
-  if (isCivil) return project.meta_data?.pic_lapangan === user.name
+  if (isCivil) return false // Civil PIC is a vendor (external), not a system user
   return project.assignee === user.id
 }

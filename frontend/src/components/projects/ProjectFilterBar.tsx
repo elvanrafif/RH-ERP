@@ -11,19 +11,24 @@ import {
 } from '@/components/ui/select'
 import { Search, X, Filter, CircleDot } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { PROJECT_TYPE_TO_DIVISION } from '@/lib/constant'
 
 interface ProjectFilterBarProps {
   searchQuery: string
   onSearchChange: (value: string) => void
   filterPic: string
   onFilterPicChange: (value: string) => void
+  filterVendor?: string
+  onFilterVendorChange?: (value: string) => void
   filterStatus: ProjectStatusFilter
   onFilterStatusChange: (value: ProjectStatusFilter) => void
   hasActiveFilters: boolean
   onResetFilters: () => void
   isCivil: boolean
+  isInterior?: boolean
   users: User[]
   civilVendors: Vendor[]
+  interiorVendors?: Vendor[]
   projectType: string
   className?: string
 }
@@ -33,13 +38,17 @@ export function ProjectFilterBar({
   onSearchChange,
   filterPic,
   onFilterPicChange,
+  filterVendor = 'all',
+  onFilterVendorChange,
   filterStatus,
   onFilterStatusChange,
   hasActiveFilters,
   onResetFilters,
   isCivil,
+  isInterior = false,
   users,
   civilVendors,
+  interiorVendors = [],
   projectType,
   className,
 }: ProjectFilterBarProps) {
@@ -89,12 +98,21 @@ export function ProjectFilterBar({
               <SelectItem value="unassigned">-- Unassigned --</SelectItem>
               {isCivil
                 ? civilVendors.map((v) => (
-                    <SelectItem key={v.id} value={v.name}>
+                    <SelectItem key={v.id} value={v.id}>
                       {v.name}
+                      {!v.isActive && (
+                        <span className="ml-1 text-xs text-muted-foreground">
+                          (Inactive)
+                        </span>
+                      )}
                     </SelectItem>
                   ))
                 : users
-                    .filter((u) => u.division?.toLowerCase() === projectType)
+                    .filter(
+                      (u) =>
+                        u.division?.toLowerCase() ===
+                        PROJECT_TYPE_TO_DIVISION[projectType]
+                    )
                     .map((u) => (
                       <SelectItem key={u.id} value={u.id}>
                         {u.name || u.email}
@@ -103,6 +121,48 @@ export function ProjectFilterBar({
             </SelectContent>
           </Select>
         </div>
+
+        {isInterior && onFilterVendorChange && (
+          <div className="w-[140px] md:w-[180px] relative shrink-0">
+            {filterVendor && filterVendor !== 'all' && (
+              <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />
+            )}
+            <Select value={filterVendor} onValueChange={onFilterVendorChange}>
+              <SelectTrigger
+                className={cn(
+                  'h-9 bg-white transition-colors',
+                  filterVendor && filterVendor !== 'all'
+                    ? 'border-primary/50 ring-1 ring-primary/30 text-primary'
+                    : ''
+                )}
+              >
+                <Filter
+                  className={cn(
+                    'w-3.5 h-3.5 mr-2',
+                    filterVendor && filterVendor !== 'all'
+                      ? 'text-primary'
+                      : 'text-muted-foreground'
+                  )}
+                />
+                <SelectValue placeholder="Filter Vendor" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Vendors</SelectItem>
+                <SelectItem value="unassigned">-- Unassigned --</SelectItem>
+                {interiorVendors.map((v) => (
+                  <SelectItem key={v.id} value={v.id}>
+                    {v.name}
+                    {!v.isActive && (
+                      <span className="ml-1 text-xs text-muted-foreground">
+                        (Inactive)
+                      </span>
+                    )}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         <div className="w-[130px] md:w-[150px] relative shrink-0">
           {filterStatus !== 'active' && (

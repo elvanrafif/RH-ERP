@@ -58,8 +58,8 @@ export const getSipilColumns = (
     id: 'spesifikasi',
     header: 'Specifications',
     cell: ({ row }) => {
-      const lt = row.original.meta_data?.luas_tanah || 0
-      const lb = row.original.meta_data?.luas_bangunan || 0
+      const lt = row.original.luas_tanah || 0
+      const lb = row.original.luas_bangunan || 0
 
       return (
         <div className="flex flex-col gap-1.5 min-w-[90px]">
@@ -84,7 +84,7 @@ export const getSipilColumns = (
     id: 'pic',
     header: 'PIC',
     cell: ({ row }) => {
-      const picName = row.original.meta_data?.pic_lapangan
+      const picName = row.original.expand?.vendor?.name
       return (
         <div className="flex flex-col gap-1.5 min-w-[70px]">
           <div className="flex items-center gap-1.5 text-xs text-slate-600">

@@ -42,7 +42,7 @@ export default function ProjectPageTemplate({
 }: TemplateProps) {
   const { can } = useAuth()
   const { isSuperAdmin } = useRole()
-  const { isCivil } = TypeProjectsBoolean(projectType)
+  const { isCivil, isInterior } = TypeProjectsBoolean(projectType)
 
   // UI state
   const [statusFilter, setStatusFilter] =
@@ -55,6 +55,9 @@ export default function ProjectPageTemplate({
   const { vendors: civilVendors } = useVendors(
     isCivil ? { projectType: 'civil' } : {}
   )
+  const { vendors: interiorVendors } = useVendors(
+    isInterior ? { projectType: 'interior' } : {}
+  )
   const { projects, isLoading, updateStatus, deleteProject } = useProjects({
     projectType,
     statusFilter,
@@ -64,6 +67,8 @@ export default function ProjectPageTemplate({
     setSearchQuery,
     filterPic,
     setFilterPic,
+    filterVendor,
+    setFilterVendor,
     filteredProjects,
     stats,
     hasActiveFilters,
@@ -187,6 +192,8 @@ export default function ProjectPageTemplate({
             onSearchChange={setSearchQuery}
             filterPic={filterPic}
             onFilterPicChange={setFilterPic}
+            filterVendor={filterVendor}
+            onFilterVendorChange={setFilterVendor}
             filterStatus={statusFilter}
             onFilterStatusChange={setStatusFilter}
             hasActiveFilters={hasActiveFilters || statusFilter !== 'active'}
@@ -195,8 +202,10 @@ export default function ProjectPageTemplate({
               setStatusFilter('active')
             }}
             isCivil={isCivil}
+            isInterior={isInterior}
             users={users}
             civilVendors={civilVendors}
+            interiorVendors={interiorVendors}
             projectType={projectType}
             className="flex flex-1 gap-2 items-center"
           />

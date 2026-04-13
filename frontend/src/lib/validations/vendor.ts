@@ -10,6 +10,7 @@ export const vendorSchema = z.object({
   project_type: z.enum(['civil', 'interior'], {
     error: 'Project type is required.',
   }),
+  isActive: z.boolean(),
   notes: z.string().optional(),
 })
 

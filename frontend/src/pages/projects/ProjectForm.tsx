@@ -62,10 +62,10 @@ export function ProjectForm({
   })
 
   const { vendors: civilVendors } = useVendors(
-    isCivil ? { projectType: 'civil' } : {}
+    isCivil ? { projectType: 'civil', activeOnly: true } : {}
   )
   const { vendors: interiorVendors } = useVendors(
-    isInterior ? { projectType: 'interior' } : {}
+    isInterior ? { projectType: 'interior', activeOnly: true } : {}
   )
 
   const [displayValue, setDisplayValue] = useState('')
@@ -87,12 +87,11 @@ export function ProjectForm({
       end_date: initialData?.end_date
         ? initialData.end_date.substring(0, 10)
         : '',
-      luas_tanah: initialData?.meta_data?.luas_tanah || 0,
-      luas_bangunan: initialData?.meta_data?.luas_bangunan || 0,
-      pic_lapangan: initialData?.meta_data?.pic_lapangan || '',
-      pic_interior: initialData?.meta_data?.pic_interior || '',
+      luas_tanah: initialData?.luas_tanah || 0,
+      luas_bangunan: initialData?.luas_bangunan || 0,
+      vendor: initialData?.vendor || '',
       area_scope: initialData?.meta_data?.area_scope || '',
-      notes: initialData?.meta_data?.notes || '',
+      notes: initialData?.notes || '',
     },
   })
 
@@ -121,13 +120,12 @@ export function ProjectForm({
         deadline: values.deadline || null,
         start_date: values.start_date || null,
         end_date: values.end_date || null,
+        luas_tanah: values.luas_tanah || null,
+        luas_bangunan: values.luas_bangunan || null,
+        vendor: values.vendor || null,
+        notes: values.notes || null,
         meta_data: {
-          luas_tanah: values.luas_tanah,
-          luas_bangunan: values.luas_bangunan,
-          pic_lapangan: values.pic_lapangan,
-          pic_interior: values.pic_interior,
           area_scope: values.area_scope,
-          notes: values.notes,
         },
       }
       return initialData

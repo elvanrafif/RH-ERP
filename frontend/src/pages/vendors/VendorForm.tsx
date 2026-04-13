@@ -9,6 +9,7 @@ import type { Vendor } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { Switch } from '@/components/ui/switch'
 import {
   Form,
   FormControl,
@@ -40,6 +41,7 @@ export function VendorForm({ onSuccess, initialData }: VendorFormProps) {
       name: initialData?.name ?? '',
       phone: initialData?.phone ?? '',
       project_type: initialData?.project_type,
+      isActive: initialData?.isActive ?? true,
       notes: initialData?.notes ?? '',
     },
   })
@@ -134,6 +136,29 @@ export function VendorForm({ onSuccess, initialData }: VendorFormProps) {
                 />
               </FormControl>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="isActive"
+          render={({ field }) => (
+            <FormItem className="flex flex-col items-end">
+              <FormLabel>Vendor Status</FormLabel>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-xs font-medium ${field.value ? 'text-emerald-600' : 'text-slate-400'}`}
+                >
+                  {field.value ? 'Active' : 'Inactive'}
+                </span>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </div>
             </FormItem>
           )}
         />

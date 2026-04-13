@@ -1,18 +1,21 @@
-import type { Project } from '@/types'
 import { Maximize2, Building2 } from 'lucide-react'
 
 interface ProjectSpecsCardProps {
-  meta: Project['meta_data']
+  luasTanah?: number
+  luasBangunan?: number
+  areaScope?: string
   notes: string | undefined
   isInterior: boolean
 }
 
 export function ProjectSpecsCard({
-  meta,
+  luasTanah,
+  luasBangunan,
+  areaScope,
   notes,
   isInterior,
 }: ProjectSpecsCardProps) {
-  const hasAreaData = !isInterior && (meta.luas_tanah || meta.luas_bangunan)
+  const hasAreaData = !isInterior && (luasTanah || luasBangunan)
 
   return (
     <div className="space-y-4">
@@ -24,7 +27,7 @@ export function ProjectSpecsCard({
               <Maximize2 className="h-3 w-3" /> Land Area
             </div>
             <p className="text-xl font-bold text-foreground">
-              {meta.luas_tanah || '—'}
+              {luasTanah || '—'}
               <span className="text-sm font-normal text-muted-foreground ml-1">
                 m²
               </span>
@@ -35,7 +38,7 @@ export function ProjectSpecsCard({
               <Building2 className="h-3 w-3" /> Building Area
             </div>
             <p className="text-xl font-bold text-foreground">
-              {meta.luas_bangunan || '—'}
+              {luasBangunan || '—'}
               <span className="text-sm font-normal text-muted-foreground ml-1">
                 m²
               </span>
@@ -45,14 +48,12 @@ export function ProjectSpecsCard({
       )}
 
       {/* Scope area — Interior only */}
-      {meta.area_scope && (
+      {areaScope && (
         <div className="rounded-lg border border-border bg-muted/30 px-4 py-3">
           <p className="text-xs font-semibold text-foreground mb-1">
             Scope Area
           </p>
-          <p className="text-sm text-foreground leading-relaxed">
-            {meta.area_scope}
-          </p>
+          <p className="text-sm text-foreground leading-relaxed">{areaScope}</p>
         </div>
       )}
 

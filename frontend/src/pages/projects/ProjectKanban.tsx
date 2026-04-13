@@ -279,7 +279,7 @@ function KanbanCard({
   const clientName = task.expand?.client?.company_name || 'Unknown Client'
   const contractValue = task.contract_value || task.value
   const meta = task.meta_data || {}
-  const notes = meta.notes
+  const notes = task.notes
 
   return (
     <Card
@@ -367,22 +367,22 @@ function KanbanCard({
         )}
 
         {/* Arsitektur: luas tanah & bangunan */}
-        {isArchitecture && (meta.luas_tanah || meta.luas_bangunan) && (
+        {isArchitecture && (task.luas_tanah || task.luas_bangunan) && (
           <div className="flex justify-center gap-2 flex-wrap text-xs text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100">
-            {meta.luas_tanah && (
+            {task.luas_tanah && (
               <span className="flex items-center gap-1" title="Land Area">
                 <Maximize2 className="h-3 w-3 text-slate-400" />
-                Land: <span className="font-medium">{meta.luas_tanah}m²</span>
+                Land: <span className="font-medium">{task.luas_tanah}m²</span>
               </span>
             )}
-            {meta.luas_tanah && meta.luas_bangunan && (
+            {task.luas_tanah && task.luas_bangunan && (
               <span className="text-slate-300">|</span>
             )}
-            {meta.luas_bangunan && (
+            {task.luas_bangunan && (
               <span className="flex items-center gap-1" title="Building Area">
                 <Ruler className="h-3 w-3 text-slate-400" />
                 Building:{' '}
-                <span className="font-medium">{meta.luas_bangunan}m²</span>
+                <span className="font-medium">{task.luas_bangunan}m²</span>
               </span>
             )}
           </div>
@@ -446,9 +446,9 @@ function KanbanCard({
               </TooltipTrigger>
               <TooltipContent>
                 <p>PIC: {assignee?.name || 'Unassigned'}</p>
-                {isInterior && meta.pic_interior && (
+                {isInterior && task.expand?.vendor && (
                   <p className="text-[10px] text-slate-300">
-                    Vendor: {meta.pic_interior}
+                    Vendor: {task.expand.vendor.name}
                   </p>
                 )}
               </TooltipContent>

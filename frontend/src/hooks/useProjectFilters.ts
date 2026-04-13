@@ -19,11 +19,15 @@ interface ProjectStats {
  * Handles client-side filtering and stats calculation for a project list.
  * Receives raw projects from useProjects and returns filtered results + stats.
  */
-export function useProjectFilters({ projects, projectType }: UseProjectFiltersOptions) {
+export function useProjectFilters({
+  projects,
+  projectType,
+}: UseProjectFiltersOptions) {
   const [searchQuery, setSearchQuery] = useState('')
   const [filterPic, setFilterPic] = useState('all')
+  const [filterVendor, setFilterVendor] = useState('all')
 
-  const { isCivil } = TypeProjectsBoolean(projectType)
+  const { isCivil, isInterior } = TypeProjectsBoolean(projectType)
 
   const filteredProjects = useMemo(() => {
     let result = [...projects]
@@ -34,7 +38,7 @@ export function useProjectFilters({ projects, projectType }: UseProjectFiltersOp
         (p) =>
           p.expand?.client?.company_name?.toLowerCase().includes(lower) ||
           p.meta_data?.area_scope?.toLowerCase().includes(lower) ||
-          p.meta_data?.pic_lapangan?.toLowerCase().includes(lower)
+          p.expand?.vendor?.name?.toLowerCase().includes(lower)
       )
     }
 
@@ -42,8 +46,8 @@ export function useProjectFilters({ projects, projectType }: UseProjectFiltersOp
       if (isCivil) {
         result =
           filterPic === 'unassigned'
-            ? result.filter((p) => !p.meta_data?.pic_lapangan)
-            : result.filter((p) => p.meta_data?.pic_lapangan === filterPic)
+            ? result.filter((p) => !p.vendor)
+            : result.filter((p) => p.vendor === filterPic)
       } else {
         result =
           filterPic === 'unassigned'
@@ -52,8 +56,15 @@ export function useProjectFilters({ projects, projectType }: UseProjectFiltersOp
       }
     }
 
+    if (isInterior && filterVendor !== 'all') {
+      result =
+        filterVendor === 'unassigned'
+          ? result.filter((p) => !p.vendor)
+          : result.filter((p) => p.vendor === filterVendor)
+    }
+
     return result
-  }, [projects, searchQuery, filterPic, isCivil])
+  }, [projects, searchQuery, filterPic, filterVendor, isCivil, isInterior])
 
   const stats: ProjectStats = useMemo(() => {
     const today = new Date()
@@ -75,11 +86,13 @@ export function useProjectFilters({ projects, projectType }: UseProjectFiltersOp
     )
   }, [filteredProjects])
 
-  const hasActiveFilters = searchQuery !== '' || filterPic !== 'all'
+  const hasActiveFilters =
+    searchQuery !== '' || filterPic !== 'all' || filterVendor !== 'all'
 
   const resetFilters = () => {
     setSearchQuery('')
     setFilterPic('all')
+    setFilterVendor('all')
   }
 
   return {
@@ -87,6 +100,8 @@ export function useProjectFilters({ projects, projectType }: UseProjectFiltersOp
     setSearchQuery,
     filterPic,
     setFilterPic,
+    filterVendor,
+    setFilterVendor,
     filteredProjects,
     stats,
     hasActiveFilters,
