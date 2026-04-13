@@ -12,6 +12,7 @@ import { formatRupiah } from '@/lib/helpers'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { TablePagination } from '@/components/shared/TablePagination'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface QuotationTableProps {
   quotations: any[]
@@ -31,6 +32,9 @@ export function QuotationTable({
   onPageChange,
 }: QuotationTableProps) {
   const navigate = useNavigate()
+  const { can } = useAuth()
+  const isRestricted =
+    can('manage_quotations_restricted') && !can('manage_quotations')
 
   return (
     <div className="flex flex-col h-full bg-white">
@@ -42,18 +46,20 @@ export function QuotationTable({
                 <TableHead className="w-[40px]">#</TableHead>
                 <TableHead className="w-[140px]">No. Quotation</TableHead>
                 <TableHead className="w-[500px]">Client</TableHead>
-                <TableHead>Project Area</TableHead>
+                {!isRestricted && <TableHead>Project Area</TableHead>}
                 <TableHead>Status</TableHead>
-                <TableHead className="text-right">Total Amount</TableHead>
+                {!isRestricted && (
+                  <TableHead className="text-right">Total Amount</TableHead>
+                )}
                 <TableHead className="text-right w-[100px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRowsSkeleton rows={5} columns={7} />
+                <TableRowsSkeleton rows={5} columns={isRestricted ? 5 : 7} />
               ) : quotations?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-60">
+                  <TableCell colSpan={isRestricted ? 5 : 7} className="h-60">
                     <EmptyState title="No quotations found." />
                   </TableCell>
                 </TableRow>
@@ -73,9 +79,11 @@ export function QuotationTable({
                     <TableCell className="text-slate-600">
                       {q.expand?.client_id?.company_name || '-'}
                     </TableCell>
-                    <TableCell className="text-slate-600">
-                      {q.project_area || '-'} m2
-                    </TableCell>
+                    {!isRestricted && (
+                      <TableCell className="text-slate-600">
+                        {q.project_area || '-'} m2
+                      </TableCell>
+                    )}
                     <TableCell>
                       {(() => {
                         const status = (q.status || 'draft').toLowerCase()
@@ -100,9 +108,11 @@ export function QuotationTable({
                         )
                       })()}
                     </TableCell>
-                    <TableCell className="text-right font-bold text-slate-700">
-                      {formatRupiah(q.total_price || 0)}
-                    </TableCell>
+                    {!isRestricted && (
+                      <TableCell className="text-right font-bold text-slate-700">
+                        {formatRupiah(q.total_price || 0)}
+                      </TableCell>
+                    )}
                     <TableCell className="text-right">
                       <ArrowRight className="h-3.5 w-3.5 text-slate-300 ml-auto" />
                     </TableCell>
