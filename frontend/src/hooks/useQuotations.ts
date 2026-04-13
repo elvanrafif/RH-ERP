@@ -21,12 +21,17 @@ export function useQuotations({ filters, page }: UseQuotationsOptions) {
   const queryClient = useQueryClient()
 
   const { data: quotationData, isLoading } = useQuery({
-    queryKey: ['quotations', page, filters.debouncedSearch, filters.filterClient],
+    queryKey: [
+      'quotations',
+      page,
+      filters.debouncedSearch,
+      filters.filterClient,
+    ],
     queryFn: () => {
       const filterParts: string[] = []
 
       if (filters.debouncedSearch) {
-        filterParts.push(`title ~ "${filters.debouncedSearch}"`)
+        filterParts.push(`quotation_number ~ "${filters.debouncedSearch}"`)
       }
       if (filters.filterClient !== 'all') {
         filterParts.push(`client_id = "${filters.filterClient}"`)
