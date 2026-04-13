@@ -46,13 +46,11 @@ export function QuotationTable({
                 <TableHead className="w-[40px]">#</TableHead>
                 <TableHead className="w-[140px]">No. Quotation</TableHead>
                 <TableHead className="w-[500px]">Client</TableHead>
-                {!isRestricted && (
-                  <TableHead className="w-[160px]">Project Area</TableHead>
-                )}
-                <TableHead className="text-right w-[160px]">
-                  Harga / m²
-                </TableHead>
                 <TableHead>Status</TableHead>
+                {!isRestricted && (
+                  <TableHead className="w-[120px]">Project Area</TableHead>
+                )}
+                <TableHead className="text-right">Harga / m²</TableHead>
                 {!isRestricted && (
                   <TableHead className="text-right">Total Amount</TableHead>
                 )}
@@ -84,16 +82,6 @@ export function QuotationTable({
                     <TableCell className="text-slate-600">
                       {q.expand?.client_id?.company_name || '-'}
                     </TableCell>
-                    {!isRestricted && (
-                      <TableCell className="text-slate-600">
-                        {q.project_area || '-'} m2
-                      </TableCell>
-                    )}
-                    <TableCell className="text-right text-slate-600">
-                      {q.price_per_meter
-                        ? formatRupiah(q.price_per_meter)
-                        : '-'}
-                    </TableCell>
                     <TableCell>
                       {(() => {
                         const status = (q.status || 'draft').toLowerCase()
@@ -117,6 +105,16 @@ export function QuotationTable({
                           </span>
                         )
                       })()}
+                    </TableCell>
+                    {!isRestricted && (
+                      <TableCell className="text-slate-600">
+                        {q.project_area || '-'} m2
+                      </TableCell>
+                    )}
+                    <TableCell className="text-right text-slate-600">
+                      {q.price_per_meter
+                        ? formatRupiah(q.price_per_meter)
+                        : '-'}
                     </TableCell>
                     {!isRestricted && (
                       <TableCell className="text-right font-bold text-slate-700">
