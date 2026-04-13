@@ -2,19 +2,30 @@ import { type ReactNode } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 
 interface GuardProps {
-  require: string
+  require?: string
+  requireAny?: string[]
   children: ReactNode
   fallback?: ReactNode // Opsional: Tampilan jika ditolak (misal gembok abu-abu)
 }
 
-export function Guard({ require, children, fallback = null }: GuardProps) {
+export function Guard({
+  require,
+  requireAny,
+  children,
+  fallback = null,
+}: GuardProps) {
   const { can } = useAuth()
 
-  // Jika tidak punya izin, render fallback (defaultnya kosong/hilang)
-  if (!can(require)) {
+  // Single permission check (require) or multi-permission OR check (requireAny)
+  const hasAccess = require
+    ? can(require)
+    : requireAny
+      ? requireAny.some((p) => can(p))
+      : false
+
+  if (!hasAccess) {
     return <>{fallback}</>
   }
 
-  // Jika punya izin, tampilkan komponennya
   return <>{children}</>
 }

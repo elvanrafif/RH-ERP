@@ -84,13 +84,21 @@ export function SidebarNav({
         />
       </Guard>
 
-      {!collapsed && isSuperAdmin && (
-        <div className="mt-6 mb-2 px-2 text-[10px] font-bold text-muted-foreground tracking-wider uppercase">
-          Commercial
-        </div>
-      )}
+      <Guard
+        requireAny={[
+          'manage_quotations',
+          'manage_quotations_restricted',
+          'view_revenue',
+        ]}
+      >
+        {!collapsed && (
+          <div className="mt-6 mb-2 px-2 text-[10px] font-bold text-muted-foreground tracking-wider uppercase">
+            Commercial
+          </div>
+        )}
+      </Guard>
 
-      <Guard require="view_revenue">
+      <Guard requireAny={['manage_quotations', 'manage_quotations_restricted']}>
         <NavItem
           to="/quotations"
           icon={FileText}
@@ -99,6 +107,9 @@ export function SidebarNav({
           isActive={isActive('/quotations')}
           onClick={onLinkClick}
         />
+      </Guard>
+
+      <Guard require="view_revenue">
         <NavItem
           to="/invoices"
           icon={Receipt}
