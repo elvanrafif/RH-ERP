@@ -3,10 +3,11 @@ import { useAuth } from '@/contexts/AuthContext'
 import { Loader2 } from 'lucide-react'
 
 interface PermissionGuardProps {
-  require: string
+  require?: string
+  requireAny?: string[]
 }
 
-export function PermissionGuard({ require }: PermissionGuardProps) {
+export function PermissionGuard({ require, requireAny }: PermissionGuardProps) {
   const { can, isLoading } = useAuth()
 
   // Wait for AuthProvider to finish fetching user data from PocketBase
@@ -18,8 +19,15 @@ export function PermissionGuard({ require }: PermissionGuardProps) {
     )
   }
 
+  // Check permission: either require (AND) or requireAny (OR)
+  const hasAccess = require
+    ? can(require)
+    : requireAny
+      ? requireAny.some((p) => can(p))
+      : false
+
   // If the user doesn't have permission, kick them back to the Dashboard
-  if (!can(require)) {
+  if (!hasAccess) {
     return <Navigate to="/" replace />
   }
 
