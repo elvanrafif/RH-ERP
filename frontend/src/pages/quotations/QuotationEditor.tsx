@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -14,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { NumberInput } from '@/components/shared/NumberInput'
 
 import { QuotationPaper } from './QuotationPaper'
 import { DocumentEditorLayout } from '@/components/editors/DocumentEditorLayout'
@@ -22,6 +22,7 @@ import { useDocumentExport } from '@/hooks/useDocumentExport'
 import { useWhatsAppShare } from '@/hooks/useWhatsAppShare'
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges'
 import { DEFAULT_QUOTATION_PRICE_PER_METER } from '@/lib/constant'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function QuotationEditor() {
   const { id } = useParams()
@@ -34,6 +35,10 @@ export default function QuotationEditor() {
   const { share: shareViaWhatsApp } = useWhatsAppShare()
   const { hasUnsavedChanges, markAsDirty, markAsClean, handleBack } =
     useUnsavedChanges('/quotations')
+
+  const { can } = useAuth()
+  const isRestricted =
+    can('manage_quotations_restricted') && !can('manage_quotations')
 
   const { data: clientsList } = useQuery({
     queryKey: ['clients'],
@@ -92,7 +97,7 @@ export default function QuotationEditor() {
     const clientObj = clientsList?.find((c: any) => c.id === newClientId)
     if (clientObj) {
       setSelectedClientData(clientObj)
-      if (!address) setAddress(clientObj.address)
+      setAddress(clientObj.address || '')
     }
   }
 
@@ -209,6 +214,7 @@ export default function QuotationEditor() {
               <Label className="text-[10px] text-slate-500">Status</Label>
               <Select
                 value={status}
+                disabled={isRestricted}
                 onValueChange={(val) => {
                   setStatus(val)
                   markAsDirty()
@@ -240,36 +246,33 @@ export default function QuotationEditor() {
               />
             </div>
 
-            <div className="bg-slate-50 p-3 rounded border">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label className="text-[10px] text-slate-500">
-                    Area (m²)
-                  </Label>
-                  <Input
-                    type="number"
-                    value={projectArea}
-                    onChange={(e) => {
-                      setProjectArea(Number(e.target.value))
-                      markAsDirty()
-                    }}
-                    className="h-7 text-xs"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label className="text-[10px] text-slate-500">
-                    Price / m²
-                  </Label>
-                  <Input
-                    type="number"
-                    value={pricePerMeter}
-                    onChange={(e) => {
-                      setPricePerMeter(Number(e.target.value))
-                      markAsDirty()
-                    }}
-                    className="h-7 text-xs"
-                  />
-                </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label className="text-[10px] text-slate-500">Area (m²)</Label>
+                <NumberInput
+                  value={projectArea}
+                  onChange={(val) => {
+                    setProjectArea(val)
+                    markAsDirty()
+                  }}
+                  step={1}
+                  min={0}
+                  placeholder="0"
+                  disabled={isRestricted}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-[10px] text-slate-500">Price / m²</Label>
+                <NumberInput
+                  value={pricePerMeter}
+                  onChange={(val) => {
+                    setPricePerMeter(val)
+                    markAsDirty()
+                  }}
+                  step={10000}
+                  min={0}
+                  placeholder="0"
+                />
               </div>
             </div>
           </div>
@@ -286,6 +289,7 @@ export default function QuotationEditor() {
                   markAsDirty()
                 }}
                 className="text-xs min-h-[60px] resize-none"
+                disabled={isRestricted}
               />
             </div>
           </div>
