@@ -110,7 +110,7 @@ function AppRoutes() {
 
         <Route element={<PermissionGuard require="view_revenue" />}>
           <Route path="invoices" element={<InvoicesPage />} />
-          <Route path="/invoices/:id" element={<InvoiceDetailPage />} />
+          <Route path="invoices/:id" element={<InvoiceDetailPage />} />
         </Route>
 
         <Route path="clients" element={<ClientsPage />} />
