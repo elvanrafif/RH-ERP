@@ -24,38 +24,58 @@ export interface Vendor {
   name: string
   phone: string
   project_type: 'civil' | 'interior'
+  isActive: boolean
   notes?: string
+  created: string
+  updated: string
+}
+
+export interface Prospect {
+  id: string
+  instagram: string
+  client_name: string
+  phone: string
+  address?: string
+  land_size?: number
+  needs: string[] // JSON array: ["Design", "Build"]
+  floor?: string
+  renovation_type?: string
+  status: string
+  notes?: string
+  meeting_schedule?: string
+  confirmation?: string
+  quotation?: string
+  survey_schedule?: string
+  result?: string
   created: string
   updated: string
 }
 
 export interface Project {
   id: string
-  // name: string; // HAPUS, diganti client relation
   client: string // Relation ID
   type: 'architecture' | 'civil' | 'interior'
   status: string
-  value: number // Contract Value
-  contract_value: number // Contract Value
+  value: number
+  contract_value: number
   deadline: string
   start_date?: string
   end_date?: string
   assignee?: string // User ID
+  vendor?: string // Relation ID → vendors
+  luas_tanah?: number
+  luas_bangunan?: number
+  notes?: string
 
-  // JSON FIELD (Penting!)
   meta_data: {
-    luas_tanah?: number
-    luas_bangunan?: number
-    pic_lapangan?: string // Untuk Sipil
-    pic_interior?: string // Untuk Interior
-    area_scope?: string // Untuk Interior
-    notes?: string
-    [key: string]: any // Flexible
+    area_scope?: string // Interior only
+    [key: string]: any
   }
 
   expand?: {
-    client?: Client // Perhatikan nama field relation di PB (client atau client_id)
+    client?: Client
     assignee?: User
+    vendor?: Vendor
   }
   created: string
   updated: string

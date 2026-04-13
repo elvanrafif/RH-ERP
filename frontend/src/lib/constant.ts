@@ -40,6 +40,13 @@ export const DIVISION = {
   INTERIOR: 'interior',
 } as const
 
+/** Maps PROJECT_TYPE keys → DIVISION values for user filtering */
+export const PROJECT_TYPE_TO_DIVISION: Record<string, string> = {
+  architecture: DIVISION.ARCHITECTURE,
+  civil: DIVISION.CIVIL,
+  interior: DIVISION.INTERIOR,
+}
+
 export const PAYMENT_ITEM_STATUS = {
   SUCCESS: 'Success',
 } as const
@@ -59,3 +66,29 @@ export const COMPANY_INFO = {
   ADDRESS:
     'Ruko Puri Aster,\nJl. Boulevard Grand Depok City\n(+62) 858 1005 5005',
 } as const
+
+// Prospect
+export const PROSPECT_STATUS = {
+  WAITING: 'waiting for online schedule',
+} as const
+
+export const FLOOR_OPTIONS = [
+  '1',
+  '1.5',
+  '2',
+  '2.5',
+  '3',
+  '3.5',
+  '4',
+  '4.5',
+  '5',
+] as const
+
+export const NEEDS_OPTIONS = ['Design', 'Build'] as const
+
+export const RENOVATION_TYPE_OPTIONS = [
+  'new build',
+  'total renovation',
+] as const
+
+export const QUOTATION_OPTIONS = ['design', 'civil'] as const
