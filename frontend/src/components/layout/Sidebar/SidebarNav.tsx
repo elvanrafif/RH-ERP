@@ -45,11 +45,19 @@ export function SidebarNav({
         />
       </Guard>
 
-      {!collapsed && (
-        <div className="mt-6 mb-2 px-2 text-[10px] font-bold text-muted-foreground tracking-wider uppercase">
-          Project Tracker
-        </div>
-      )}
+      <Guard
+        requireAny={[
+          'view_index_project_architecture',
+          'view_index_project_civil',
+          'view_index_project_interior',
+        ]}
+      >
+        {!collapsed && (
+          <div className="mt-6 mb-2 px-2 text-[10px] font-bold text-muted-foreground tracking-wider uppercase">
+            Project Tracker
+          </div>
+        )}
+      </Guard>
 
       <Guard require="view_index_project_architecture">
         <NavItem
