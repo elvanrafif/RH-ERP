@@ -19,10 +19,22 @@ export function PermissionGuard({ require, requireAny }: PermissionGuardProps) {
     )
   }
 
-  if (process.env.NODE_ENV === 'development' && !require && !requireAny) {
-    console.error(
-      'PermissionGuard: either "require" or "requireAny" must be provided'
-    )
+  if (process.env.NODE_ENV === 'development') {
+    if (!require && !requireAny) {
+      console.error(
+        'PermissionGuard: either "require" or "requireAny" must be provided'
+      )
+    }
+    if (require && requireAny) {
+      console.error(
+        'PermissionGuard: "require" and "requireAny" are mutually exclusive. "require" will take precedence.'
+      )
+    }
+    if (requireAny && requireAny.length === 0) {
+      console.error(
+        'PermissionGuard: "requireAny" was passed an empty array — access will always be denied.'
+      )
+    }
   }
 
   // Single permission check (require) or multi-permission OR check (requireAny)
