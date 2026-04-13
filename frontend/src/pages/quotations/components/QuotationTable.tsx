@@ -46,7 +46,9 @@ export function QuotationTable({
                 <TableHead className="w-[40px]">#</TableHead>
                 <TableHead className="w-[140px]">No. Quotation</TableHead>
                 <TableHead className="w-[500px]">Client</TableHead>
-                {!isRestricted && <TableHead>Project Area</TableHead>}
+                {!isRestricted && (
+                  <TableHead className="w-[160px]">Project Area</TableHead>
+                )}
                 <TableHead className="text-right w-[160px]">
                   Harga / m²
                 </TableHead>
