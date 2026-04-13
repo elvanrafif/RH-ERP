@@ -3,7 +3,10 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQueryClient, useMutation } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
-import { prospectSchema, type ProspectFormValues } from '@/lib/validations/prospect'
+import {
+  prospectSchema,
+  type ProspectFormValues,
+} from '@/lib/validations/prospect'
 import type { Prospect } from '@/types'
 import { useAuth } from '@/contexts/AuthContext'
 import {
@@ -103,7 +106,6 @@ export function ProspectForm({ onSuccess, initialData }: ProspectFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-
         {/* Row 1: Instagram + Client Name */}
         <div className="grid grid-cols-2 gap-4">
           <FormField
@@ -190,7 +192,10 @@ export function ProspectForm({ onSuccess, initialData }: ProspectFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Floor</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value ?? ''}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select floor..." />
@@ -218,7 +223,10 @@ export function ProspectForm({ onSuccess, initialData }: ProspectFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Renovation Type</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value ?? ''}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select type..." />
@@ -249,9 +257,11 @@ export function ProspectForm({ onSuccess, initialData }: ProspectFormProps) {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value={PROSPECT_STATUS.WAITING} className="capitalize">
-                      {PROSPECT_STATUS.WAITING}
-                    </SelectItem>
+                    {Object.values(PROSPECT_STATUS).map((s) => (
+                      <SelectItem key={s} value={s} className="capitalize">
+                        {s}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -261,35 +271,42 @@ export function ProspectForm({ onSuccess, initialData }: ProspectFormProps) {
         </div>
 
         {/* Needs — multi-checkbox */}
-        <FormItem>
-          <FormLabel>Needs</FormLabel>
-          <div className="flex gap-6 mt-1">
-            {NEEDS_OPTIONS.map((option) => (
-              <div key={option} className="flex items-center gap-2">
-                <Checkbox
-                  id={`needs-${option}`}
-                  checked={needsValue.includes(option)}
-                  onCheckedChange={(checked) => {
-                    const isChecked = checked === true
-                    const current = form.getValues('needs') ?? []
-                    form.setValue(
-                      'needs',
-                      isChecked
-                        ? [...current, option]
-                        : current.filter((n) => n !== option)
-                    )
-                  }}
-                />
-                <label
-                  htmlFor={`needs-${option}`}
-                  className="text-sm font-medium cursor-pointer"
-                >
-                  {option}
-                </label>
+        <FormField
+          control={form.control}
+          name="needs"
+          render={() => (
+            <FormItem>
+              <FormLabel>Needs</FormLabel>
+              <div className="flex gap-6 mt-1">
+                {NEEDS_OPTIONS.map((option) => (
+                  <div key={option} className="flex items-center gap-2">
+                    <Checkbox
+                      id={`needs-${option}`}
+                      checked={needsValue.includes(option)}
+                      onCheckedChange={(checked) => {
+                        const isChecked = checked === true
+                        const current = form.getValues('needs') ?? []
+                        form.setValue(
+                          'needs',
+                          isChecked
+                            ? [...current, option]
+                            : current.filter((n) => n !== option)
+                        )
+                      }}
+                    />
+                    <label
+                      htmlFor={`needs-${option}`}
+                      className="text-sm font-medium cursor-pointer"
+                    >
+                      {option}
+                    </label>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </FormItem>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         {/* Notes */}
         <FormField
@@ -323,7 +340,9 @@ export function ProspectForm({ onSuccess, initialData }: ProspectFormProps) {
                   {...field}
                   value={field.value ?? ''}
                   disabled={!isSuperAdmin}
-                  className={!isSuperAdmin ? 'opacity-50 cursor-not-allowed' : ''}
+                  className={
+                    !isSuperAdmin ? 'opacity-50 cursor-not-allowed' : ''
+                  }
                 />
               </FormControl>
               {!isSuperAdmin && (
@@ -357,7 +376,10 @@ export function ProspectForm({ onSuccess, initialData }: ProspectFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Quotation</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value ?? ''}>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value ?? ''}
+                >
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select type..." />
