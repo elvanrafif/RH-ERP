@@ -47,7 +47,9 @@ export function QuotationTable({
                 <TableHead className="w-[140px]">No. Quotation</TableHead>
                 <TableHead className="w-[500px]">Client</TableHead>
                 {!isRestricted && <TableHead>Project Area</TableHead>}
-                <TableHead className="text-right">Harga / m²</TableHead>
+                <TableHead className="text-right w-[160px]">
+                  Harga / m²
+                </TableHead>
                 <TableHead>Status</TableHead>
                 {!isRestricted && (
                   <TableHead className="text-right">Total Amount</TableHead>
