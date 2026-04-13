@@ -19,7 +19,10 @@ export function useProspectMutation({
     mutationFn: async (values: ProspectFormValues) => {
       const toDateTimePB = (val?: string) => {
         if (!val) return null
-        return val.length === 16 ? val + ':00' : val
+        // datetime-local gives local time without timezone (e.g. "2026-04-13T17:00")
+        // new Date() treats this as local time → toISOString() converts to UTC correctly
+        const withSeconds = val.length === 16 ? val + ':00' : val
+        return new Date(withSeconds).toISOString()
       }
       const payload = {
         ...values,
