@@ -47,14 +47,19 @@ export function useQuotations({ filters, page }: UseQuotationsOptions) {
   })
 
   const createMutation = useMutation({
-    mutationFn: ({ clientId }: CreateQuotationPayload) =>
-      pb.collection('quotations').create({
+    mutationFn: async ({ clientId }: CreateQuotationPayload) => {
+      const record = await pb.collection('quotations').create({
         client_id: clientId,
         date: new Date(),
         status: 'draft',
         items: [],
         total_amount: 0,
-      }),
+      })
+      const autoNum = `Q-${new Date().toISOString().slice(0, 7).replace('-', '')}-${record.id.substring(0, 4).toUpperCase()}`
+      return await pb
+        .collection('quotations')
+        .update(record.id, { quotation_number: autoNum })
+    },
     onSuccess: () => {
       toast.success('Quotation created!')
       queryClient.invalidateQueries({ queryKey: ['quotations'] })
