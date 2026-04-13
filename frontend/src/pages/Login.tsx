@@ -27,12 +27,12 @@ export default function Login() {
     try {
       await pb.collection('users').authWithPassword(email, password)
       if (pb.authStore.isValid) {
-        toast.success('Login berhasil! Selamat datang.')
+        toast.success('Login successful! Welcome.')
         navigate('/')
       }
     } catch (err: any) {
       console.error(err?.message ?? err)
-      const msg = 'Email atau password salah.'
+      const msg = 'Incorrect email or password.'
       setError(msg)
       toast.error(msg)
     } finally {
@@ -152,10 +152,10 @@ export default function Login() {
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />{' '}
-                      Verifikasi...
+                      Verifying...
                     </>
                   ) : (
-                    'Masuk Dashboard'
+                    'Sign In'
                   )}
                 </Button>
               </motion.div>
@@ -171,7 +171,7 @@ export default function Login() {
             transition={{ delay: 0.8 }}
             className="text-xs text-muted-foreground text-center"
           >
-            Lupa password? Hubungi Super Admin.
+            Forgot your password? Contact your Super Admin.
           </motion.p>
         </CardFooter>
       </Card>
