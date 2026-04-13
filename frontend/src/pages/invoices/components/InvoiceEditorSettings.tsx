@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { NumberInput } from '@/components/shared/NumberInput'
 
 interface TermItem {
   percent: string
@@ -107,43 +108,44 @@ export function InvoiceEditorSettings({
         </div>
       </div>
 
-      <div className="bg-slate-50 p-3 rounded border">
-        {type === 'design' ? (
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-[10px] text-slate-500">Area (m²)</Label>
-              <Input
-                type="number"
-                value={projectArea}
-                onChange={(e) => onProjectAreaChange(Number(e.target.value))}
-                className="h-7 text-xs"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-[10px] text-slate-500">Price / m²</Label>
-              <Input
-                type="number"
-                value={pricePerMeter}
-                onChange={(e) => onPricePerMeterChange(Number(e.target.value))}
-                className="h-7 text-xs"
-              />
-            </div>
-          </div>
-        ) : (
+      {type === 'design' ? (
+        <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <Label className="text-[10px] text-slate-500 font-bold uppercase text-blue-600">
-              Total Contract Value (IDR)
-            </Label>
-            <Input
-              type="number"
-              value={manualTotal}
-              onChange={(e) => onManualTotalChange(Number(e.target.value))}
-              className="h-8 text-sm font-mono border-blue-200 focus-visible:ring-blue-500"
-              placeholder="Enter total value..."
+            <Label className="text-[10px] text-slate-500">Area (m²)</Label>
+            <NumberInput
+              value={projectArea}
+              onChange={onProjectAreaChange}
+              step={1}
+              min={0}
+              placeholder="0"
             />
           </div>
-        )}
-      </div>
+          <div className="space-y-1">
+            <Label className="text-[10px] text-slate-500">Price / m²</Label>
+            <NumberInput
+              value={pricePerMeter}
+              onChange={onPricePerMeterChange}
+              step={10000}
+              min={0}
+              placeholder="0"
+            />
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-1">
+          <Label className="text-[10px] text-slate-500 font-bold uppercase text-blue-600">
+            Total Contract Value (IDR)
+          </Label>
+          <NumberInput
+            value={manualTotal}
+            onChange={onManualTotalChange}
+            step={1000000}
+            min={0}
+            placeholder="Enter total value..."
+            inputClassName="font-mono border-blue-200"
+          />
+        </div>
+      )}
     </div>
   )
 }

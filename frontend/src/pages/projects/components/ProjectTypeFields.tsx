@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { ProjectFormValues } from '@/lib/validations/project'
+import { NumberInput } from '@/components/shared/NumberInput'
 
 interface ProjectTypeFieldsProps {
   control: Control<ProjectFormValues>
@@ -29,11 +30,6 @@ interface ProjectTypeFieldsProps {
   civilVendors: Vendor[]
   interiorVendors: Vendor[]
   fixedType: string
-  displayValue: string
-  onRupiahChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
-    onChange: (val: number) => void
-  ) => void
 }
 
 export function ProjectTypeFields({
@@ -47,8 +43,6 @@ export function ProjectTypeFields({
   civilVendors,
   interiorVendors,
   fixedType,
-  displayValue,
-  onRupiahChange,
 }: ProjectTypeFieldsProps) {
   return (
     <>
@@ -102,12 +96,12 @@ export function ProjectTypeFields({
               <FormItem>
                 <FormLabel>Land Area (m²)</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
+                  <NumberInput
+                    value={field.value ?? 0}
+                    onChange={field.onChange}
+                    step={1}
+                    min={0}
                     placeholder="0"
-                    {...field}
-                    value={field.value ? String(field.value) : ''}
-                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>
               </FormItem>
@@ -120,12 +114,12 @@ export function ProjectTypeFields({
               <FormItem>
                 <FormLabel>Building Area (m²)</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
+                  <NumberInput
+                    value={field.value ?? 0}
+                    onChange={field.onChange}
+                    step={1}
+                    min={0}
                     placeholder="0"
-                    {...field}
-                    value={field.value ? String(field.value) : ''}
-                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
                   />
                 </FormControl>
               </FormItem>
@@ -262,18 +256,13 @@ export function ProjectTypeFields({
                   <FormItem>
                     <FormLabel>Contract Value (Rp)</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <span className="absolute left-3 top-2 text-sm text-gray-500 font-semibold">
-                          Rp
-                        </span>
-                        <Input
-                          type="text"
-                          className="pl-9 font-medium bg-white"
-                          placeholder="0"
-                          value={displayValue}
-                          onChange={(e) => onRupiahChange(e, field.onChange)}
-                        />
-                      </div>
+                      <NumberInput
+                        value={field.value ?? 0}
+                        onChange={field.onChange}
+                        step={1000000}
+                        min={0}
+                        placeholder="0"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -363,18 +352,13 @@ export function ProjectTypeFields({
                 <FormItem>
                   <FormLabel>Contract Value (Rp)</FormLabel>
                   <FormControl>
-                    <div className="relative">
-                      <span className="absolute left-3 top-2 text-sm text-gray-500 font-semibold">
-                        Rp
-                      </span>
-                      <Input
-                        type="text"
-                        className="pl-9 font-medium bg-white"
-                        placeholder="0"
-                        value={displayValue}
-                        onChange={(e) => onRupiahChange(e, field.onChange)}
-                      />
-                    </div>
+                    <NumberInput
+                      value={field.value ?? 0}
+                      onChange={field.onChange}
+                      step={1000000}
+                      min={0}
+                      placeholder="0"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -422,18 +406,13 @@ export function ProjectTypeFields({
                   <FormItem>
                     <FormLabel>Contract Value (Rp)</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <span className="absolute left-3 top-2 text-sm text-gray-500 font-semibold">
-                          Rp
-                        </span>
-                        <Input
-                          type="text"
-                          className="pl-9 font-medium bg-white"
-                          placeholder="0"
-                          value={displayValue}
-                          onChange={(e) => onRupiahChange(e, field.onChange)}
-                        />
-                      </div>
+                      <NumberInput
+                        value={field.value ?? 0}
+                        onChange={field.onChange}
+                        step={1000000}
+                        min={0}
+                        placeholder="0"
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

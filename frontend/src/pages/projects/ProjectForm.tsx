@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -23,7 +22,6 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Loader2 } from 'lucide-react'
-import { formatRupiahDisplay } from '@/lib/helpers'
 import { TypeProjectsBoolean } from '@/lib/booleans'
 import { useRole } from '@/hooks/useRole'
 import { projectSchema } from '@/lib/validations/project'
@@ -68,8 +66,6 @@ export function ProjectForm({
     isInterior ? { projectType: 'interior', activeOnly: true } : {}
   )
 
-  const [displayValue, setDisplayValue] = useState('')
-
   const form = useForm({
     resolver: zodResolver(projectSchema),
     defaultValues: {
@@ -94,20 +90,6 @@ export function ProjectForm({
       notes: initialData?.notes || '',
     },
   })
-
-  useEffect(() => {
-    if (initialData?.contract_value)
-      setDisplayValue(formatRupiahDisplay(initialData.contract_value))
-  }, [initialData])
-
-  const handleRupiahChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    onChange: (val: number) => void
-  ) => {
-    const rawValue = e.target.value.replace(/\./g, '')
-    setDisplayValue(formatRupiahDisplay(rawValue))
-    onChange(parseInt(rawValue) || 0)
-  }
 
   const mutation = useMutation({
     mutationFn: async (values: ProjectFormValues) => {
@@ -195,8 +177,6 @@ export function ProjectForm({
           civilVendors={civilVendors}
           interiorVendors={interiorVendors}
           fixedType={fixedType}
-          displayValue={displayValue}
-          onRupiahChange={handleRupiahChange}
         />
 
         <FormField
