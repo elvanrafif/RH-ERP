@@ -1,4 +1,4 @@
-import type { ElementType } from 'react'
+import type { ElementType, ReactNode } from 'react'
 import type { Prospect } from '@/types'
 import {
   Dialog,
@@ -35,7 +35,7 @@ function DetailRow({
 }: {
   icon: ElementType
   label: string
-  value: React.ReactNode
+  value: ReactNode
 }) {
   return (
     <div className="flex items-start gap-3 text-sm">
@@ -146,11 +146,7 @@ export function ProspectDetailDialog({
             label="Survey Schedule"
             value={formatDateTime(prospect.survey_schedule)}
           />
-          <DetailRow
-            icon={FileText}
-            label="Result"
-            value={prospect.result}
-          />
+          <DetailRow icon={FileText} label="Result" value={prospect.result} />
         </div>
       </DialogContent>
     </Dialog>

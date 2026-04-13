@@ -33,7 +33,10 @@ export default function ProspectsPage() {
 
   const totalItems = data.length
   const totalPages = Math.ceil(totalItems / PAGE_SIZE)
-  const paginatedProspects = data.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+  const paginatedProspects = data.slice(
+    (page - 1) * PAGE_SIZE,
+    page * PAGE_SIZE
+  )
 
   const handleCreate = () => {
     setEditingProspect(null)
@@ -100,6 +103,8 @@ export default function ProspectsPage() {
             ? 'Update the prospect information below.'
             : 'Fill in the prospect details below.'
         }
+        scrollable
+        maxWidth="sm:max-w-[600px]"
       >
         <ProspectForm
           key={editingProspect ? editingProspect.id : 'new-prospect'}

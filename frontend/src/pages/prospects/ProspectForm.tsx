@@ -290,7 +290,8 @@ export function ProspectForm({ onSuccess, initialData }: ProspectFormProps) {
                           'needs',
                           isChecked
                             ? [...current, option]
-                            : current.filter((n) => n !== option)
+                            : current.filter((n) => n !== option),
+                          { shouldValidate: true }
                         )
                       }}
                     />
