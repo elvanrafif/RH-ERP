@@ -80,6 +80,12 @@ const PERMISSION_GROUPS = [
     ],
   },
   {
+    title: 'Prospects',
+    permissions: [
+      { id: 'manage_prospects', label: 'Manage Prospects (View/Create/Edit)' },
+    ],
+  },
+  {
     title: 'Master Data & Settings',
     permissions: [
       { id: 'manage_clients', label: 'Manage Clients (Edit)' },
