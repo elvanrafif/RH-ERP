@@ -123,13 +123,13 @@ export const QuotationPaper = React.forwardRef<
                 </ul>
               </td>
               <td className="py-6 text-center align-middle font-medium text-slate-900 text-[14px]">
-                {projectArea} m2
+                {projectArea > 0 ? `${projectArea} m2` : ''}
               </td>
               <td className="py-6 text-center align-middle font-medium text-slate-900 text-[14px]">
                 {formatRupiah(pricePerMeter)}
               </td>
               <td className="py-6 text-center align-middle font-medium text-slate-900 text-[14px]">
-                {formatRupiah(grandTotal)}
+                {projectArea > 0 ? formatRupiah(grandTotal) : ''}
               </td>
             </tr>
           </tbody>
