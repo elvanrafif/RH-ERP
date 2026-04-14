@@ -1,4 +1,5 @@
 import type { ProjectStatusFilter } from '@/hooks/useProjects'
+import type { DeadlineFilter } from '@/hooks/useProjectFilters'
 import type { User, Vendor } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -9,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Search, X, Filter, CircleDot } from 'lucide-react'
+import { Search, X, Filter, CircleDot, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PROJECT_TYPE_TO_DIVISION } from '@/lib/constant'
 
@@ -22,6 +23,10 @@ interface ProjectFilterBarProps {
   onFilterVendorChange?: (value: string) => void
   filterStatus: ProjectStatusFilter
   onFilterStatusChange: (value: ProjectStatusFilter) => void
+  filterDeadline: DeadlineFilter
+  onFilterDeadlineChange: (value: DeadlineFilter) => void
+  deadlineWarningDays: number
+  resultCount: number
   hasActiveFilters: boolean
   onResetFilters: () => void
   isCivil: boolean
@@ -42,6 +47,10 @@ export function ProjectFilterBar({
   onFilterVendorChange,
   filterStatus,
   onFilterStatusChange,
+  filterDeadline,
+  onFilterDeadlineChange,
+  deadlineWarningDays,
+  resultCount,
   hasActiveFilters,
   onResetFilters,
   isCivil,
@@ -59,7 +68,7 @@ export function ProjectFilterBar({
         'flex flex-col sm:flex-row gap-3 mb-3 items-start sm:items-center justify-between shrink-0'
       }
     >
-      <div className="flex flex-1 gap-2 w-full min-w-0">
+      <div className="flex flex-1 gap-2 w-full min-w-0 items-center">
         <div className="relative flex-1 min-w-0 md:max-w-xs">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
@@ -200,6 +209,42 @@ export function ProjectFilterBar({
           </Select>
         </div>
 
+        <div className="w-[160px] md:w-[190px] relative shrink-0">
+          {filterDeadline !== 'all' && (
+            <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />
+          )}
+          <Select
+            value={filterDeadline}
+            onValueChange={(v) => onFilterDeadlineChange(v as DeadlineFilter)}
+          >
+            <SelectTrigger
+              className={cn(
+                'h-9 bg-white transition-colors',
+                filterDeadline !== 'all'
+                  ? 'border-primary/50 ring-1 ring-primary/30 text-primary'
+                  : ''
+              )}
+            >
+              <Clock
+                className={cn(
+                  'w-3.5 h-3.5 mr-2',
+                  filterDeadline !== 'all'
+                    ? 'text-primary'
+                    : 'text-muted-foreground'
+                )}
+              />
+              <SelectValue placeholder="Deadline" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Deadlines</SelectItem>
+              <SelectItem value="near">
+                Near Deadline (≤{deadlineWarningDays} hari)
+              </SelectItem>
+              <SelectItem value="overdue">Overdue</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
         {hasActiveFilters && (
           <Button
             variant="ghost"
@@ -211,6 +256,10 @@ export function ProjectFilterBar({
             <X className="h-4 w-4 text-muted-foreground" />
           </Button>
         )}
+
+        <span className="ml-auto text-xs text-muted-foreground whitespace-nowrap shrink-0">
+          Showing {resultCount} projects
+        </span>
       </div>
     </div>
   )
