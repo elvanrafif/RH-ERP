@@ -1,33 +1,48 @@
 import { useState, useMemo } from 'react'
 import { TypeProjectsBoolean } from '@/lib/booleans'
 import type { Project } from '@/types'
+import { getDaysRemaining, getProjectDeadlineDate } from '@/lib/projects/deadline'
 
 type ProjectType = 'architecture' | 'civil' | 'interior'
+
+export type DeadlineFilter = 'all' | 'near' | 'overdue'
 
 interface UseProjectFiltersOptions {
   projects: Project[]
   projectType: ProjectType
+  deadlineWarningDays: number
 }
 
 interface ProjectStats {
   totalValue: number
   activeCount: number
-  urgentCount: number
 }
 
-/**
- * Handles client-side filtering and stats calculation for a project list.
- * Receives raw projects from useProjects and returns filtered results + stats.
- */
 export function useProjectFilters({
   projects,
   projectType,
+  deadlineWarningDays,
 }: UseProjectFiltersOptions) {
   const [searchQuery, setSearchQuery] = useState('')
   const [filterPic, setFilterPic] = useState('all')
   const [filterVendor, setFilterVendor] = useState('all')
+  const [filterDeadline, setFilterDeadline] = useState<DeadlineFilter>('all')
 
   const { isCivil, isInterior } = TypeProjectsBoolean(projectType)
+
+  // Stats always computed from raw projects — unaffected by filters
+  const stats: ProjectStats = useMemo(
+    () =>
+      projects.reduce(
+        (acc, p) => {
+          acc.totalValue += p.contract_value || 0
+          acc.activeCount++
+          return acc
+        },
+        { totalValue: 0, activeCount: 0 }
+      ),
+    [projects]
+  )
 
   const filteredProjects = useMemo(() => {
     let result = [...projects]
@@ -63,36 +78,33 @@ export function useProjectFilters({
           : result.filter((p) => p.vendor === filterVendor)
     }
 
+    if (filterDeadline !== 'all') {
+      result = result.filter((p) => {
+        const date = getProjectDeadlineDate(p)
+        if (!date) return false
+        const days = getDaysRemaining(date)
+        if (filterDeadline === 'overdue') return days < 0
+        if (filterDeadline === 'near') return days >= 0 && days <= deadlineWarningDays
+        return true
+      })
+    }
+
     return result
-  }, [projects, searchQuery, filterPic, filterVendor, isCivil, isInterior])
+  }, [projects, searchQuery, filterPic, filterVendor, filterDeadline, isCivil, isInterior, deadlineWarningDays])
 
-  const stats: ProjectStats = useMemo(() => {
-    const today = new Date()
-    today.setHours(0, 0, 0, 0)
-    const nextWeek = new Date(today)
-    nextWeek.setDate(today.getDate() + 7)
-
-    return filteredProjects.reduce(
-      (acc, p) => {
-        acc.totalValue += p.contract_value || 0
-        acc.activeCount++
-        if (p.deadline) {
-          const d = new Date(p.deadline)
-          if (d <= nextWeek && d >= today) acc.urgentCount++
-        }
-        return acc
-      },
-      { totalValue: 0, activeCount: 0, urgentCount: 0 }
-    )
-  }, [filteredProjects])
+  const resultCount = filteredProjects.length
 
   const hasActiveFilters =
-    searchQuery !== '' || filterPic !== 'all' || filterVendor !== 'all'
+    searchQuery !== '' ||
+    filterPic !== 'all' ||
+    filterVendor !== 'all' ||
+    filterDeadline !== 'all'
 
   const resetFilters = () => {
     setSearchQuery('')
     setFilterPic('all')
     setFilterVendor('all')
+    setFilterDeadline('all')
   }
 
   return {
@@ -102,8 +114,11 @@ export function useProjectFilters({
     setFilterPic,
     filterVendor,
     setFilterVendor,
+    filterDeadline,
+    setFilterDeadline,
     filteredProjects,
     stats,
+    resultCount,
     hasActiveFilters,
     resetFilters,
   }
