@@ -59,7 +59,14 @@ export const SESSION_TIMEOUT_MS = 1000 * 60 * 60 // 1 jam
 export const SESSION_LAST_ACTIVITY_KEY = 'rh_last_activity'
 
 // Deadline notification
-export const DEADLINE_WARNING_DAYS = 7
+export const DEADLINE_WARNING_DAYS: Record<
+  'architecture' | 'civil' | 'interior',
+  number
+> = {
+  architecture: 7,
+  civil: 30,
+  interior: 7,
+}
 export const DONE_STATUSES = ['finish', 'done', 'cancelled'] as const
 
 // Civil project status thresholds

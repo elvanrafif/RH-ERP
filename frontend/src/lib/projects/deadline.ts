@@ -1,5 +1,5 @@
 import type { Project } from '@/types'
-import { DEADLINE_WARNING_DAYS, DONE_STATUSES } from '@/lib/constant'
+import { DONE_STATUSES } from '@/lib/constant'
 
 export type DeadlineStatus = 'overdue' | 'warning'
 
@@ -29,10 +29,14 @@ export function getDaysRemaining(deadlineDate: Date): number {
   return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
 }
 
-/** Returns deadline status or null if not applicable. */
-export function classifyDeadline(daysRemaining: number): DeadlineStatus | null {
+/** Returns deadline status or null if not applicable.
+ *  warningDays defaults to 7 — callers that need per-type threshold should pass it explicitly. */
+export function classifyDeadline(
+  daysRemaining: number,
+  warningDays = 7
+): DeadlineStatus | null {
   if (daysRemaining < 0) return 'overdue'
-  if (daysRemaining <= DEADLINE_WARNING_DAYS) return 'warning'
+  if (daysRemaining <= warningDays) return 'warning'
   return null
 }
 
@@ -67,7 +71,7 @@ export function toDeadlineProjects(
       if (!date) return acc
 
       const daysRemaining = getDaysRemaining(date)
-      const deadlineStatus = classifyDeadline(daysRemaining)
+      const deadlineStatus = classifyDeadline(daysRemaining) // uses default 7 — sidebar bell stays unchanged
       if (!deadlineStatus) return acc
 
       acc.push({
@@ -80,5 +84,5 @@ export function toDeadlineProjects(
       })
       return acc
     }, [])
-    .sort((a, b) => a.daysRemaining - b.daysRemaining) // overdue first
+    .sort((a, b) => a.daysRemaining - b.daysRemaining)
 }
