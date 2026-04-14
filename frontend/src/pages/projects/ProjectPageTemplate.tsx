@@ -10,9 +10,10 @@ import type { ProjectStatusFilter } from '@/hooks/useProjects'
 import { useProjectFilters } from '@/hooks/useProjectFilters'
 import { TypeProjectsBoolean } from '@/lib/booleans'
 import { formatRupiah } from '@/lib/helpers'
+import { DEADLINE_WARNING_DAYS } from '@/lib/constant'
 
 import { Button } from '@/components/ui/button'
-import { Plus, Banknote, Activity, AlertCircle } from 'lucide-react'
+import { Plus, Banknote, Activity } from 'lucide-react'
 import { ProjectFilterBar } from '@/components/projects/ProjectFilterBar'
 import type { KanbanColumnDefinition } from './ProjectKanban'
 import ProjectKanban from './ProjectKanban'
@@ -23,7 +24,6 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
 import { PageTableSkeleton } from '@/components/shared/TableSkeleton'
 import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog'
-import { cn } from '@/lib/utils'
 
 interface TemplateProps {
   pageTitle: string
@@ -43,6 +43,7 @@ export default function ProjectPageTemplate({
   const { can } = useAuth()
   const { isSuperAdmin } = useRole()
   const { isCivil, isInterior } = TypeProjectsBoolean(projectType)
+  const deadlineWarningDays = DEADLINE_WARNING_DAYS[projectType]
 
   // UI state
   const [statusFilter, setStatusFilter] =
@@ -69,11 +70,14 @@ export default function ProjectPageTemplate({
     setFilterPic,
     filterVendor,
     setFilterVendor,
+    filterDeadline,
+    setFilterDeadline,
     filteredProjects,
     stats,
+    resultCount,
     hasActiveFilters,
     resetFilters,
-  } = useProjectFilters({ projects, projectType })
+  } = useProjectFilters({ projects, projectType, deadlineWarningDays })
 
   const { projectToView, setProjectToView } = useAutoOpenProject(
     projects,
@@ -137,43 +141,6 @@ export default function ProjectPageTemplate({
             <span className="font-normal text-slate-400 text-xs">units</span>
           </span>
         </div>
-        <div
-          className={cn(
-            'flex items-center gap-2.5 px-4 py-2.5 flex-1',
-            stats.urgentCount > 0 ? 'bg-red-50/40' : ''
-          )}
-        >
-          <AlertCircle
-            className={cn(
-              'h-4 w-4 shrink-0',
-              stats.urgentCount > 0 ? 'text-red-500' : 'text-slate-300'
-            )}
-          />
-          <span
-            className={cn(
-              'text-xs whitespace-nowrap',
-              stats.urgentCount > 0 ? 'text-red-400' : 'text-slate-400'
-            )}
-          >
-            Deadline &lt; 7 days
-          </span>
-          <span
-            className={cn(
-              'font-semibold ml-auto',
-              stats.urgentCount > 0 ? 'text-red-600' : 'text-slate-800'
-            )}
-          >
-            {stats.urgentCount}{' '}
-            <span
-              className={cn(
-                'font-normal text-xs',
-                stats.urgentCount > 0 ? 'text-red-400' : 'text-slate-400'
-              )}
-            >
-              projects
-            </span>
-          </span>
-        </div>
       </div>
 
       {/* MAIN CONTENT */}
@@ -189,6 +156,10 @@ export default function ProjectPageTemplate({
             onFilterVendorChange={setFilterVendor}
             filterStatus={statusFilter}
             onFilterStatusChange={setStatusFilter}
+            filterDeadline={filterDeadline}
+            onFilterDeadlineChange={setFilterDeadline}
+            deadlineWarningDays={deadlineWarningDays}
+            resultCount={resultCount}
             hasActiveFilters={hasActiveFilters || statusFilter !== 'active'}
             onResetFilters={() => {
               resetFilters()
