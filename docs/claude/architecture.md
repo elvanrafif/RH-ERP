@@ -90,6 +90,8 @@ Satu hook = satu tanggung jawab. Return object (bukan array) kecuali state seder
 | `useUnsavedChanges` | Deteksi form dirty state |
 | `useDebounce` | Debounce nilai input |
 | `useSessionTimeout` | Auto logout setelah idle 1 jam |
+| `useTableState` | Generic CRUD page state: open dialog, editing/viewing entity, search term |
+| `useFormMutation` | Generic PocketBase create/update mutation dengan query invalidation dan toast error |
 
 ## Validasi Schema
 
