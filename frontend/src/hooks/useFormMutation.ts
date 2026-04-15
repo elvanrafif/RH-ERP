@@ -2,7 +2,7 @@ import { toast } from 'sonner'
 import { useQueryClient, useMutation } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
 
-interface UseFormMutationOptions<TValues> {
+interface UseFormMutationOptions {
   collection: string
   queryKey: string[]
   initialData?: { id: string } | null
@@ -14,7 +14,7 @@ export function useFormMutation<TValues>({
   queryKey,
   initialData,
   onSuccess,
-}: UseFormMutationOptions<TValues>) {
+}: UseFormMutationOptions) {
   const queryClient = useQueryClient()
 
   const mutation = useMutation({
@@ -40,7 +40,7 @@ export function useFormMutation<TValues>({
   })
 
   return {
-    mutate: (values: TValues) => mutation.mutate(values),
+    mutate: mutation.mutate,
     isPending: mutation.isPending,
   }
 }
