@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react'
 import type { Prospect } from '@/types'
 import { ProspectTable } from './ProspectTable'
 import { ProspectForm } from './ProspectForm'
@@ -6,51 +5,39 @@ import { ProspectDetailDialog } from './ProspectDetailDialog'
 import { useDebounce } from '@/hooks/useDebounce'
 import { useProspects } from '@/hooks/useProspects'
 import { TablePagination } from '@/components/shared/TablePagination'
+import { usePagination } from '@/hooks/usePagination'
+import { useTableState } from '@/hooks/useTableState'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Plus, Search, Instagram } from 'lucide-react'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
 
-const PAGE_SIZE = 15
-
 export default function ProspectsPage() {
-  const [open, setOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [page, setPage] = useState(1)
-  const [editingProspect, setEditingProspect] = useState<Prospect | null>(null)
-  const [viewingProspect, setViewingProspect] = useState<Prospect | null>(null)
+  const {
+    open,
+    setOpen,
+    editing,
+    viewing,
+    searchTerm,
+    setSearchTerm,
+    handleCreate,
+    handleEdit,
+    handleView,
+    handleCloseDetail,
+  } = useTableState<Prospect>()
 
   const debouncedSearch = useDebounce(searchTerm, 500)
-
   const { prospects: data, isLoading } = useProspects({
     searchTerm: debouncedSearch,
   })
-
-  useEffect(() => {
-    setPage(1)
-  }, [debouncedSearch])
-
-  const totalItems = data.length
-  const totalPages = Math.ceil(totalItems / PAGE_SIZE)
-  const paginatedProspects = data.slice(
-    (page - 1) * PAGE_SIZE,
-    page * PAGE_SIZE
-  )
-
-  const handleCreate = () => {
-    setEditingProspect(null)
-    setOpen(true)
-  }
-
-  const handleEdit = (prospect: Prospect) => {
-    setEditingProspect(prospect)
-    setOpen(true)
-  }
-
-  const handleView = (prospect: Prospect) => {
-    setViewingProspect(prospect)
-  }
+  const {
+    page,
+    setPage,
+    totalItems,
+    totalPages,
+    paginatedData: paginatedProspects,
+  } = usePagination(data, [debouncedSearch])
 
   return (
     <div className="flex-1 h-full p-4 md:p-8 pt-6 flex flex-col overflow-hidden bg-background/50">
@@ -97,9 +84,9 @@ export default function ProspectsPage() {
       <FormDialog
         open={open}
         onOpenChange={setOpen}
-        title={editingProspect ? 'Edit Prospect' : 'Add New Prospect'}
+        title={editing ? 'Edit Prospect' : 'Add New Prospect'}
         description={
-          editingProspect
+          editing
             ? 'Update the prospect information below.'
             : 'Fill in the prospect details below.'
         }
@@ -107,16 +94,16 @@ export default function ProspectsPage() {
         maxWidth="sm:max-w-[600px]"
       >
         <ProspectForm
-          key={editingProspect ? editingProspect.id : 'new-prospect'}
-          initialData={editingProspect}
+          key={editing ? editing.id : 'new-prospect'}
+          initialData={editing}
           onSuccess={() => setOpen(false)}
         />
       </FormDialog>
 
       <ProspectDetailDialog
-        prospect={viewingProspect}
-        open={!!viewingProspect}
-        onOpenChange={(isOpen) => !isOpen && setViewingProspect(null)}
+        prospect={viewing}
+        open={!!viewing}
+        onOpenChange={(isOpen) => !isOpen && handleCloseDetail()}
       />
     </div>
   )
