@@ -24,6 +24,8 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
 import { PageTableSkeleton } from '@/components/shared/TableSkeleton'
 import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog'
+import { TablePagination } from '@/components/shared/TablePagination'
+import { usePagination } from '@/hooks/usePagination'
 
 interface TemplateProps {
   pageTitle: string
@@ -78,6 +80,20 @@ export default function ProjectPageTemplate({
     hasActiveFilters,
     resetFilters,
   } = useProjectFilters({ projects, projectType, deadlineWarningDays })
+
+  const {
+    page,
+    setPage,
+    totalItems,
+    totalPages,
+    paginatedData: paginatedProjects,
+  } = usePagination(filteredProjects, [
+    searchQuery,
+    filterPic,
+    filterVendor,
+    filterDeadline,
+    statusFilter,
+  ])
 
   const { projectToView, setProjectToView } = useAutoOpenProject(
     projects,
@@ -190,15 +206,25 @@ export default function ProjectPageTemplate({
             />
           </div>
         ) : (
-          <div className="flex-1 overflow-auto h-full">
-            <ProjectTable
-              projectType={projectType}
-              onView={(project) => setProjectToView(project)}
-              data={filteredProjects}
-              onEdit={handleEdit}
-              onDelete={(p) => setDeleteId(p.id)}
+          <>
+            <div className="flex-1 overflow-auto h-full">
+              <ProjectTable
+                projectType={projectType}
+                onView={(project) => setProjectToView(project)}
+                data={paginatedProjects}
+                onEdit={handleEdit}
+                onDelete={(p) => setDeleteId(p.id)}
+              />
+            </div>
+            <TablePagination
+              page={page}
+              totalPages={totalPages}
+              totalItems={totalItems}
+              itemCount={paginatedProjects.length}
+              isLoading={isLoading}
+              onPageChange={setPage}
             />
-          </div>
+          </>
         )}
       </div>
 

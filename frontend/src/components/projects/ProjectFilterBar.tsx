@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Search, X, Filter, CircleDot, Clock } from 'lucide-react'
+import { Search, X, Filter, CircleDot, Clock, LayoutList } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { PROJECT_TYPE_TO_DIVISION } from '@/lib/constant'
 
@@ -65,11 +65,11 @@ export function ProjectFilterBar({
     <div
       className={
         className ??
-        'flex flex-col sm:flex-row gap-3 mb-3 items-start sm:items-center justify-between shrink-0'
+        'flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between shrink-0'
       }
     >
       <div className="flex flex-1 gap-2 w-full min-w-0 items-center">
-        <div className="relative flex-1 min-w-0 md:max-w-xs">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search client"
@@ -256,10 +256,6 @@ export function ProjectFilterBar({
             <X className="h-4 w-4 text-muted-foreground" />
           </Button>
         )}
-
-        <span className="ml-auto text-xs text-muted-foreground whitespace-nowrap shrink-0">
-          Showing {resultCount} projects
-        </span>
       </div>
     </div>
   )
