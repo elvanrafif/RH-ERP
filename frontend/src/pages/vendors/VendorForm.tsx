@@ -1,10 +1,8 @@
-import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQueryClient, useMutation } from '@tanstack/react-query'
-import { pb } from '@/lib/pocketbase'
 import { vendorSchema, type VendorFormValues } from '@/lib/validations/vendor'
 import type { Vendor } from '@/types'
+import { useFormMutation } from '@/hooks/useFormMutation'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -33,8 +31,6 @@ interface VendorFormProps {
 }
 
 export function VendorForm({ onSuccess, initialData }: VendorFormProps) {
-  const queryClient = useQueryClient()
-
   const form = useForm<VendorFormValues>({
     resolver: zodResolver(vendorSchema),
     defaultValues: {
@@ -46,31 +42,19 @@ export function VendorForm({ onSuccess, initialData }: VendorFormProps) {
     },
   })
 
-  const mutation = useMutation({
-    mutationFn: async (values: VendorFormValues) => {
-      if (initialData) {
-        return await pb.collection('vendors').update(initialData.id, values)
-      }
-      return await pb.collection('vendors').create(values)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vendors'] })
-      onSuccess?.()
-    },
-    onError: (error) => {
-      const message =
-        error instanceof Error ? error.message : 'Failed to save vendor data.'
-      toast.error(message)
-    },
+  const mutation = useFormMutation<VendorFormValues>({
+    collection: 'vendors',
+    queryKey: ['vendors'],
+    initialData,
+    onSuccess,
   })
-
-  function onSubmit(values: VendorFormValues) {
-    mutation.mutate(values)
-  }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
+        className="space-y-4"
+      >
         <FormField
           control={form.control}
           name="name"
