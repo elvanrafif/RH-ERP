@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
+import type { ReactNode } from 'react'
 import { useAutoOpenProject } from '@/hooks/useAutoOpenProject'
 import type { Project } from '@/types'
 import { useAuth } from '@/contexts/AuthContext'
@@ -11,9 +12,13 @@ import { useProjectFilters } from '@/hooks/useProjectFilters'
 import { TypeProjectsBoolean } from '@/lib/booleans'
 import { formatRupiah } from '@/lib/helpers'
 import { DEADLINE_WARNING_DAYS } from '@/lib/constant'
+import {
+  getDaysRemaining,
+  getProjectDeadlineDate,
+} from '@/lib/projects/deadline'
 
 import { Button } from '@/components/ui/button'
-import { Plus, Banknote, Activity } from 'lucide-react'
+import { Plus, Banknote, Activity, AlertTriangle } from 'lucide-react'
 import { ProjectFilterBar } from '@/components/projects/ProjectFilterBar'
 import type { KanbanColumnDefinition } from './ProjectKanban'
 import ProjectKanban from './ProjectKanban'
@@ -81,6 +86,19 @@ export default function ProjectPageTemplate({
     resetFilters,
   } = useProjectFilters({ projects, projectType, deadlineWarningDays })
 
+  const atRiskStats = useMemo(() => {
+    let overdueCount = 0
+    let nearDeadlineCount = 0
+    for (const p of projects) {
+      const date = getProjectDeadlineDate(p)
+      if (!date) continue
+      const days = getDaysRemaining(date)
+      if (days < 0) overdueCount++
+      else if (days <= deadlineWarningDays) nearDeadlineCount++
+    }
+    return { overdueCount, nearDeadlineCount }
+  }, [projects, deadlineWarningDays])
+
   const {
     page,
     setPage,
@@ -135,28 +153,62 @@ export default function ProjectPageTemplate({
       />
 
       {/* STATS BAR */}
-      <div className="flex flex-col md:flex-row bg-white border rounded-xl shadow-sm mb-4 shrink-0 overflow-hidden divide-y md:divide-y-0 md:divide-x text-sm">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-row gap-2 md:gap-3 mb-4 shrink-0">
         {isSuperAdmin && (
-          <div className="flex items-center gap-2.5 px-4 py-2.5 flex-1">
-            <Banknote className="h-4 w-4 text-emerald-500 shrink-0" />
-            <span className="text-slate-400 text-xs whitespace-nowrap">
-              Potential Revenue
-            </span>
-            <span className="font-semibold text-slate-800 ml-auto">
-              {formatRupiah(stats.totalValue)}
-            </span>
-          </div>
+          <ProjectStatCard
+            icon={<Banknote />}
+            label="Potential Revenue"
+            color="emerald"
+            value={
+              <p className="text-base md:text-2xl font-bold text-slate-800 leading-tight text-right md:text-left">
+                {formatRupiah(stats.totalValue)}
+              </p>
+            }
+            description="Combined contract value of all active projects — the total income expected upon full completion."
+          />
         )}
-        <div className="flex items-center gap-2.5 px-4 py-2.5 flex-1">
-          <Activity className="h-4 w-4 text-blue-500 shrink-0" />
-          <span className="text-slate-400 text-xs whitespace-nowrap">
-            Active Projects
-          </span>
-          <span className="font-semibold text-slate-800 ml-auto">
-            {stats.activeCount}{' '}
-            <span className="font-normal text-slate-400 text-xs">units</span>
-          </span>
-        </div>
+        <ProjectStatCard
+          icon={<Activity />}
+          label="Active Projects"
+          color="blue"
+          value={
+            <p className="text-base md:text-2xl font-bold text-slate-800 leading-tight">
+              {stats.activeCount}{' '}
+              <span className="text-sm md:text-base font-normal text-slate-400">
+                projects
+              </span>
+            </p>
+          }
+          description="Projects with active status currently in progress. Count stays fixed regardless of search or filter."
+        />
+        <ProjectStatCard
+          icon={<AlertTriangle />}
+          label="At-Risk Projects"
+          color="amber"
+          className="sm:col-span-2 md:col-span-1"
+          value={
+            <div className="flex items-baseline gap-3 md:gap-4">
+              <div className="flex items-baseline gap-1">
+                <span className="text-base md:text-2xl font-bold text-red-500 leading-tight">
+                  {atRiskStats.overdueCount}
+                </span>
+                <span className="text-xs md:text-sm text-slate-400">
+                  overdue
+                </span>
+              </div>
+              <span className="text-slate-200 font-light select-none">/</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-base md:text-2xl font-bold text-amber-500 leading-tight">
+                  {atRiskStats.nearDeadlineCount}
+                </span>
+                <span className="text-xs md:text-sm text-slate-400">
+                  near deadline
+                </span>
+              </div>
+            </div>
+          }
+          description={`Overdue projects plus those within ${deadlineWarningDays} days of their deadline. Needs immediate follow-up.`}
+        />
       </div>
 
       {/* MAIN CONTENT */}
@@ -258,6 +310,69 @@ export default function ProjectPageTemplate({
         description="This action cannot be undone."
         onConfirm={handleDelete}
       />
+    </div>
+  )
+}
+
+const colorMap = {
+  emerald: {
+    border: 'border-emerald-100',
+    icon: 'text-emerald-500',
+    label: 'text-emerald-600',
+  },
+  blue: {
+    border: 'border-blue-100',
+    icon: 'text-blue-500',
+    label: 'text-blue-600',
+  },
+  amber: {
+    border: 'border-amber-100',
+    icon: 'text-amber-500',
+    label: 'text-amber-600',
+  },
+}
+
+interface ProjectStatCardProps {
+  icon: ReactNode
+  label: string
+  color: keyof typeof colorMap
+  value: ReactNode
+  description: string
+  className?: string
+}
+
+function ProjectStatCard({
+  icon,
+  label,
+  color,
+  value,
+  description,
+  className,
+}: ProjectStatCardProps) {
+  const c = colorMap[color]
+  return (
+    <div
+      className={`bg-white border ${c.border} rounded-xl shadow-sm px-4 py-3 md:px-5 md:py-4 flex-1 min-w-0 flex flex-row items-center gap-3 md:flex-col md:items-stretch md:gap-0 ${className ?? ''}`}
+    >
+      <div className="flex items-center gap-2 md:mb-3 shrink-0">
+        <span className={`${c.icon} shrink-0 [&>svg]:h-4 [&>svg]:w-4`}>
+          {icon}
+        </span>
+        <span
+          className={`text-xs font-semibold ${c.label} uppercase tracking-wider`}
+        >
+          {label}
+        </span>
+      </div>
+      <div
+        className="md:mb-3 ml-auto md:ml-0"
+        style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+      >
+        {value}
+      </div>
+      <div className="hidden md:block border-t border-slate-100 pt-3">
+        <p className="text-xs text-slate-400 leading-relaxed">{description}</p>
+      </div>
     </div>
   )
 }
