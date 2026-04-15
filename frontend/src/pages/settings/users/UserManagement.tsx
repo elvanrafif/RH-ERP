@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import type { User } from '@/types'
 import { useUserManagement } from '@/hooks/useUserManagement'
+import { useTableState } from '@/hooks/useTableState'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Plus, UserCog, Search } from 'lucide-react'
@@ -11,9 +12,15 @@ import { FormDialog } from '@/components/shared/FormDialog'
 import { PageTableSkeleton } from '@/components/shared/TableSkeleton'
 
 export default function UserManagementPage() {
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingUser, setEditingUser] = useState<User | null>(null)
-  const [searchTerm, setSearchTerm] = useState('')
+  const {
+    open,
+    setOpen,
+    editing,
+    searchTerm,
+    setSearchTerm,
+    handleCreate,
+    handleEdit,
+  } = useTableState<User>()
 
   const { users, isLoading } = useUserManagement()
 
@@ -26,16 +33,6 @@ export default function UserManagementPage() {
         u.email?.toLowerCase().includes(q)
     )
   }, [users, searchTerm])
-
-  const handleCreate = () => {
-    setEditingUser(null)
-    setIsDialogOpen(true)
-  }
-
-  const handleEdit = (user: User) => {
-    setEditingUser(user)
-    setIsDialogOpen(true)
-  }
 
   return (
     <div className="flex-1 h-full p-4 md:p-8 pt-6 flex flex-col overflow-hidden bg-background/50">
@@ -50,9 +47,7 @@ export default function UserManagementPage() {
         }
       />
 
-      {/* CONTENT CARD */}
       <div className="flex-1 overflow-hidden relative bg-card/50 rounded-lg border border-border shadow-inner flex flex-col">
-        {/* INTEGRATED TOOLBAR */}
         <div className="flex items-center gap-2 px-3 py-2 border-b bg-white/80 backdrop-blur-sm shrink-0">
           <div className="relative flex-1 md:max-w-xs">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -75,13 +70,13 @@ export default function UserManagementPage() {
       </div>
 
       <FormDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        title={editingUser ? 'Edit User' : 'Add New User'}
+        open={open}
+        onOpenChange={setOpen}
+        title={editing ? 'Edit User' : 'Add New User'}
       >
         <UserForm
-          initialData={editingUser}
-          onSuccess={() => setIsDialogOpen(false)}
+          initialData={editing}
+          onSuccess={() => setOpen(false)}
         />
       </FormDialog>
     </div>
