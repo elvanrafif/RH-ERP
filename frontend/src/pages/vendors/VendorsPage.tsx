@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import type { Vendor } from '@/types'
 import { VendorTable } from './VendorTable'
 import { VendorForm } from './VendorForm'
@@ -6,6 +6,8 @@ import { VendorDetailDialog } from './VendorDetailDialog'
 import { useDebounce } from '@/hooks/useDebounce'
 import { useVendors } from '@/hooks/useVendors'
 import { TablePagination } from '@/components/shared/TablePagination'
+import { usePagination } from '@/hooks/usePagination'
+import { useTableState } from '@/hooks/useTableState'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -20,46 +22,36 @@ import { Plus, Search, Users2 } from 'lucide-react'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
 
-const PAGE_SIZE = 15
-
 export default function VendorsPage() {
-  const [open, setOpen] = useState(false)
-  const [searchTerm, setSearchTerm] = useState('')
+  const {
+    open,
+    setOpen,
+    editing,
+    viewing,
+    searchTerm,
+    setSearchTerm,
+    handleCreate,
+    handleEdit,
+    handleView,
+    handleCloseDetail,
+  } = useTableState<Vendor>()
+
   const [projectTypeFilter, setProjectTypeFilter] = useState<
     'civil' | 'interior' | ''
   >('')
-  const [page, setPage] = useState(1)
-  const [editingVendor, setEditingVendor] = useState<Vendor | null>(null)
-  const [viewingVendor, setViewingVendor] = useState<Vendor | null>(null)
 
   const debouncedSearch = useDebounce(searchTerm, 500)
-
   const { vendors: data, isLoading } = useVendors({
     searchTerm: debouncedSearch,
     projectType: projectTypeFilter,
   })
-
-  useEffect(() => {
-    setPage(1)
-  }, [debouncedSearch, projectTypeFilter])
-
-  const totalItems = data.length
-  const totalPages = Math.ceil(totalItems / PAGE_SIZE)
-  const paginatedVendors = data.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
-
-  const handleCreate = () => {
-    setEditingVendor(null)
-    setOpen(true)
-  }
-
-  const handleEdit = (vendor: Vendor) => {
-    setEditingVendor(vendor)
-    setOpen(true)
-  }
-
-  const handleView = (vendor: Vendor) => {
-    setViewingVendor(vendor)
-  }
+  const {
+    page,
+    setPage,
+    totalItems,
+    totalPages,
+    paginatedData: paginatedVendors,
+  } = usePagination(data, [debouncedSearch, projectTypeFilter])
 
   return (
     <div className="flex-1 h-full p-4 md:p-8 pt-6 flex flex-col overflow-hidden bg-background/50">
@@ -123,24 +115,24 @@ export default function VendorsPage() {
       <FormDialog
         open={open}
         onOpenChange={setOpen}
-        title={editingVendor ? 'Edit Vendor' : 'Add New Vendor'}
+        title={editing ? 'Edit Vendor' : 'Add New Vendor'}
         description={
-          editingVendor
+          editing
             ? 'Update the vendor information below.'
             : 'Fill in the vendor details below.'
         }
       >
         <VendorForm
-          key={editingVendor ? editingVendor.id : 'new-vendor'}
-          initialData={editingVendor}
+          key={editing ? editing.id : 'new-vendor'}
+          initialData={editing}
           onSuccess={() => setOpen(false)}
         />
       </FormDialog>
 
       <VendorDetailDialog
-        vendor={viewingVendor}
-        open={!!viewingVendor}
-        onOpenChange={(isOpen) => !isOpen && setViewingVendor(null)}
+        vendor={viewing}
+        open={!!viewing}
+        onOpenChange={(isOpen) => !isOpen && handleCloseDetail()}
       />
     </div>
   )
