@@ -1,11 +1,9 @@
 import { useEffect } from 'react'
-import { toast } from 'sonner'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQueryClient, useMutation } from '@tanstack/react-query'
-import { pb } from '@/lib/pocketbase'
 import { clientSchema, type ClientFormValues } from '@/lib/validations/client'
 import type { Client } from '@/types'
+import { useFormMutation } from '@/hooks/useFormMutation'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,9 +24,6 @@ interface ClientFormProps {
 }
 
 export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
-  const queryClient = useQueryClient()
-
-  // 1. Setup Form
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
@@ -39,7 +34,6 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
     },
   })
 
-  // 2. Effect to reset form if mode changes
   useEffect(() => {
     if (initialData) {
       form.reset({
@@ -58,33 +52,19 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
     }
   }, [initialData, form])
 
-  // 3. Setup Mutation
-  const mutation = useMutation({
-    mutationFn: async (values: ClientFormValues) => {
-      if (initialData) {
-        return await pb.collection('clients').update(initialData.id, values)
-      } else {
-        return await pb.collection('clients').create(values)
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['clients'] })
-      onSuccess?.()
-    },
-    onError: (error) => {
-      const message =
-        error instanceof Error ? error.message : 'Failed to save client data.'
-      toast.error(message)
-    },
+  const mutation = useFormMutation<ClientFormValues>({
+    collection: 'clients',
+    queryKey: ['clients'],
+    initialData,
+    onSuccess,
   })
-
-  function onSubmit(values: ClientFormValues) {
-    mutation.mutate(values)
-  }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
+        className="space-y-4"
+      >
         <FormField
           control={form.control}
           name="company_name"
@@ -128,7 +108,6 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
           />
         </div>
 
-        {/* 4. Address Textarea */}
         <FormField
           control={form.control}
           name="address"
