@@ -66,7 +66,7 @@ export default function Login() {
         {/* KONTEN FORM: Ini yang kita animasikan muncul setelah logo mendarat */}
         <CardContent>
           <motion.div
-            // Animasi container form: Muncul dari bawah dengan staggers
+            // Animasi container form: Muncul dari bawah dengan stagger
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{
