@@ -67,7 +67,7 @@ export default function VendorsPage() {
       />
 
       <div className="flex-1 overflow-hidden relative bg-card/50 rounded-lg border border-border shadow-inner flex flex-col">
-        <div className="flex items-center gap-2 px-3 py-2 border-b bg-white/80 backdrop-blur-sm shrink-0">
+        <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b bg-white/80 backdrop-blur-sm shrink-0">
           <div className="relative flex-1 md:max-w-xs">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -77,23 +77,25 @@ export default function VendorsPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <Select
-            value={projectTypeFilter || 'all'}
-            onValueChange={(val) =>
-              setProjectTypeFilter(
-                val === 'all' ? '' : (val as 'civil' | 'interior')
-              )
-            }
-          >
-            <SelectTrigger className="w-[160px] h-9 bg-white">
-              <SelectValue placeholder="Semua Project" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Projects</SelectItem>
-              <SelectItem value="civil">Civil</SelectItem>
-              <SelectItem value="interior">Interior</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex-1 min-w-[120px] max-w-[160px]">
+            <Select
+              value={projectTypeFilter || 'all'}
+              onValueChange={(val) =>
+                setProjectTypeFilter(
+                  val === 'all' ? '' : (val as 'civil' | 'interior')
+                )
+              }
+            >
+              <SelectTrigger className="w-full h-9 bg-white">
+                <SelectValue placeholder="Semua Project" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Projects</SelectItem>
+                <SelectItem value="civil">Civil</SelectItem>
+                <SelectItem value="interior">Interior</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         <VendorTable

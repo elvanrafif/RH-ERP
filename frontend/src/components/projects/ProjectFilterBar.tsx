@@ -68,8 +68,8 @@ export function ProjectFilterBar({
         'flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between shrink-0'
       }
     >
-      <div className="flex flex-1 gap-2 w-full min-w-0 items-center">
-        <div className="relative flex-1 min-w-0">
+      <div className="flex flex-wrap gap-2 w-full items-center">
+        <div className="relative flex-1 min-w-[180px]">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search client"
@@ -79,7 +79,7 @@ export function ProjectFilterBar({
           />
         </div>
 
-        <div className="w-[140px] md:w-[180px] relative shrink-0">
+        <div className="flex-1 min-w-[120px] max-w-[180px] relative">
           {filterPic && filterPic !== 'all' && (
             <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />
           )}
@@ -132,7 +132,7 @@ export function ProjectFilterBar({
         </div>
 
         {isInterior && onFilterVendorChange && (
-          <div className="w-[140px] md:w-[180px] relative shrink-0">
+          <div className="flex-1 min-w-[120px] max-w-[180px] relative">
             {filterVendor && filterVendor !== 'all' && (
               <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />
             )}
@@ -173,7 +173,7 @@ export function ProjectFilterBar({
           </div>
         )}
 
-        <div className="w-[130px] md:w-[150px] relative shrink-0">
+        <div className="flex-1 min-w-[110px] max-w-[150px] relative">
           {filterStatus !== 'active' && (
             <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />
           )}
@@ -209,7 +209,7 @@ export function ProjectFilterBar({
           </Select>
         </div>
 
-        <div className="w-[160px] md:w-[190px] relative shrink-0">
+        <div className="flex-1 min-w-[160px] max-w-[220px] relative">
           {filterDeadline !== 'all' && (
             <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />
           )}
