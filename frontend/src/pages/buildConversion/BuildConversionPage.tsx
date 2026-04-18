@@ -1,5 +1,11 @@
 import { useState } from 'react'
-import { TrendingUp, CheckCircle2, Clock, BarChart2, Search } from 'lucide-react'
+import {
+  TrendingUp,
+  CheckCircle2,
+  Clock,
+  BarChart2,
+  Search,
+} from 'lucide-react'
 import {
   useArchitectureToBuildConversion,
   type ConversionProject,
@@ -12,7 +18,6 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { TablePagination } from '@/components/shared/TablePagination'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Table,
   TableBody,
@@ -111,11 +116,14 @@ function ConversionTable({
                       </TableCell>
                       <TableCell className="text-slate-500 text-sm">
                         {civil
-                          ? new Date(civil.created).toLocaleDateString('en-GB', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
-                            })
+                          ? new Date(civil.created).toLocaleDateString(
+                              'en-GB',
+                              {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              }
+                            )
                           : '—'}
                       </TableCell>
                     </>
@@ -147,7 +155,8 @@ export default function BuildConversionPage() {
 
   const sortedConverted = [...converted].sort(
     (a, b) =>
-      new Date(b.civil!.created).getTime() - new Date(a.civil!.created).getTime()
+      new Date(b.civil!.created).getTime() -
+      new Date(a.civil!.created).getTime()
   )
 
   const filterBySearch = (rows: ConversionProject[]) =>
@@ -164,21 +173,61 @@ export default function BuildConversionPage() {
   const filteredNotConverted = filterBySearch(notConverted)
 
   const {
-    page: cp, setPage: setCp, totalItems: ct, totalPages: ctp, paginatedData: pc,
+    page: cp,
+    setPage: setCp,
+    totalItems: ct,
+    totalPages: ctp,
+    paginatedData: pc,
   } = usePagination(filteredConverted, [debouncedSearch, picFilter, activeTab])
 
   const {
-    page: pp, setPage: setPp, totalItems: pt, totalPages: ptp, paginatedData: pp2,
+    page: pp,
+    setPage: setPp,
+    totalItems: pt,
+    totalPages: ptp,
+    paginatedData: pp2,
   } = usePagination(filteredPotential, [debouncedSearch, picFilter, activeTab])
 
   const {
-    page: np, setPage: setNp, totalItems: nt, totalPages: ntp, paginatedData: pnc,
-  } = usePagination(filteredNotConverted, [debouncedSearch, picFilter, activeTab])
+    page: np,
+    setPage: setNp,
+    totalItems: nt,
+    totalPages: ntp,
+    paginatedData: pnc,
+  } = usePagination(filteredNotConverted, [
+    debouncedSearch,
+    picFilter,
+    activeTab,
+  ])
 
   const tableProps = {
-    converted: { rows: pc, showCivil: true, page: cp, setPage: setCp, total: ct, pages: ctp, count: pc.length },
-    potential: { rows: pp2, showCivil: false, page: pp, setPage: setPp, total: pt, pages: ptp, count: pp2.length },
-    'not-converted': { rows: pnc, showCivil: false, page: np, setPage: setNp, total: nt, pages: ntp, count: pnc.length },
+    converted: {
+      rows: pc,
+      showCivil: true,
+      page: cp,
+      setPage: setCp,
+      total: ct,
+      pages: ctp,
+      count: pc.length,
+    },
+    potential: {
+      rows: pp2,
+      showCivil: false,
+      page: pp,
+      setPage: setPp,
+      total: pt,
+      pages: ptp,
+      count: pp2.length,
+    },
+    'not-converted': {
+      rows: pnc,
+      showCivil: false,
+      page: np,
+      setPage: setNp,
+      total: nt,
+      pages: ntp,
+      count: pnc.length,
+    },
   }[activeTab]
 
   return (
@@ -217,43 +266,47 @@ export default function BuildConversionPage() {
 
       <div className="flex-1 overflow-hidden bg-card/50 rounded-lg border border-border shadow-inner flex flex-col">
         <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b bg-white/80 backdrop-blur-sm shrink-0">
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as ActiveTab)}>
-            <TabsList>
-              <TabsTrigger value="converted">
-                Converted ({filteredConverted.length})
-              </TabsTrigger>
-              <TabsTrigger value="potential">
-                Potential ({filteredPotential.length})
-              </TabsTrigger>
-              <TabsTrigger value="not-converted">
-                Not Converted ({filteredNotConverted.length})
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-          <div className="ml-auto flex items-center gap-2">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search client..."
-                className="pl-9 h-9 bg-white w-44"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <Select value={picFilter} onValueChange={setPicFilter}>
-              <SelectTrigger className="h-9 bg-white w-44">
-                <SelectValue placeholder="All PICs" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All PICs</SelectItem>
-                {architectureUsers.map((u) => (
-                  <SelectItem key={u.id} value={u.id}>
-                    {u.name || u.email}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search client..."
+              className="pl-9 h-9 bg-white w-44"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
+          <Select
+            value={activeTab}
+            onValueChange={(v) => setActiveTab(v as ActiveTab)}
+          >
+            <SelectTrigger className="h-9 bg-white w-52">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="converted">
+                Converted ({filteredConverted.length})
+              </SelectItem>
+              <SelectItem value="potential">
+                Potential ({filteredPotential.length})
+              </SelectItem>
+              <SelectItem value="not-converted">
+                Not Converted ({filteredNotConverted.length})
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={picFilter} onValueChange={setPicFilter}>
+            <SelectTrigger className="h-9 bg-white w-44">
+              <SelectValue placeholder="All PICs" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All PICs</SelectItem>
+              {architectureUsers.map((u) => (
+                <SelectItem key={u.id} value={u.id}>
+                  {u.name || u.email}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <ConversionTable
