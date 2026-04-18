@@ -28,7 +28,7 @@ function ConversionTable({
   if (rows.length === 0) {
     return (
       <p className="text-sm text-muted-foreground text-center py-10">
-        Tidak ada data.
+        No data available.
       </p>
     )
   }
@@ -42,18 +42,18 @@ function ConversionTable({
               Client
             </th>
             <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wide text-muted-foreground">
-              PIC Arsitektur
+              Architecture PIC
             </th>
             <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wide text-muted-foreground">
-              Status Arsitektur
+              Architecture Status
             </th>
             {showCivil && (
               <>
                 <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wide text-muted-foreground">
-                  Status Civil
+                  Civil Status
                 </th>
                 <th className="px-4 py-3 text-left font-semibold text-xs uppercase tracking-wide text-muted-foreground">
-                  Civil Dibuat
+                  Civil Created
                 </th>
               </>
             )}
@@ -125,20 +125,23 @@ export default function BuildConversionPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <PageHeader title="Design → Build Conversion" />
+      <PageHeader
+        title="Design → Build Conversion"
+        description="Track which architecture designs have progressed to civil construction. Filter by PIC to view individual conversion performance."
+      />
 
       {/* Stat Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-border rounded-xl border border-border overflow-hidden bg-white shadow-sm">
         <StatCard
           icon={<CheckCircle2 className="h-5 w-5 text-emerald-600" />}
           iconBg="bg-emerald-100"
-          label="Total Design Selesai"
+          label="Designs Completed"
           value={isLoading ? '—' : stats.totalFinished}
         />
         <StatCard
           icon={<TrendingUp className="h-5 w-5 text-blue-600" />}
           iconBg="bg-blue-100"
-          label="Converted ke Civil"
+          label="Converted to Civil"
           value={isLoading ? '—' : stats.convertedCount}
         />
         <StatCard
@@ -150,7 +153,7 @@ export default function BuildConversionPage() {
         <StatCard
           icon={<Clock className="h-5 w-5 text-amber-600" />}
           iconBg="bg-amber-100"
-          label="Potensial (Ongoing)"
+          label="Potential (Ongoing)"
           value={isLoading ? '—' : stats.potentialCount}
         />
       </div>
@@ -158,14 +161,14 @@ export default function BuildConversionPage() {
       {/* Filter PIC */}
       <div className="flex items-center gap-3">
         <p className="text-sm font-medium text-muted-foreground shrink-0">
-          Filter PIC:
+          Filter by PIC:
         </p>
         <Select value={picFilter} onValueChange={setPicFilter}>
           <SelectTrigger className="w-52">
-            <SelectValue placeholder="Semua PIC" />
+            <SelectValue placeholder="All PICs" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Semua PIC</SelectItem>
+            <SelectItem value="all">All PICs</SelectItem>
             {architectureUsers.map((u) => (
               <SelectItem key={u.id} value={u.id}>
                 {u.name || u.email}
@@ -179,13 +182,13 @@ export default function BuildConversionPage() {
       <Tabs defaultValue="converted">
         <TabsList>
           <TabsTrigger value="converted">
-            Lanjut ke Build ({converted.length})
+            Converted ({converted.length})
           </TabsTrigger>
           <TabsTrigger value="potential">
-            Potensial ({potential.length})
+            Potential ({potential.length})
           </TabsTrigger>
           <TabsTrigger value="not-converted">
-            Belum Lanjut ({notConverted.length})
+            Not Converted ({notConverted.length})
           </TabsTrigger>
         </TabsList>
 

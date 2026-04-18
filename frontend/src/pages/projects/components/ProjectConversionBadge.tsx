@@ -9,15 +9,16 @@ interface ProjectConversionBadgeProps {
   project: Project
 }
 
-export function ProjectConversionBadge({ project }: ProjectConversionBadgeProps) {
+export function ProjectConversionBadge({
+  project,
+}: ProjectConversionBadgeProps) {
   const { isCivil, isArchitecture } = TypeProjectsBoolean(project.type)
 
   const { civilProjects, hasCivil } = useProjectCivilByClient(
     isArchitecture ? project.client : undefined
   )
-  const { architectureProjects, hasArchitecture } = useProjectArchitectureByClient(
-    isCivil ? project.client : undefined
-  )
+  const { architectureProjects, hasArchitecture } =
+    useProjectArchitectureByClient(isCivil ? project.client : undefined)
 
   if (!isArchitecture && !isCivil) return null
 
@@ -30,6 +31,7 @@ export function ProjectConversionBadge({ project }: ProjectConversionBadgeProps)
             <p className="text-xs font-semibold text-foreground mb-3">
               Design → Build
             </p>
+
             {hasCivil ? (
               <div className="flex flex-wrap gap-2">
                 {civilProjects.map((cp) => (
@@ -45,7 +47,7 @@ export function ProjectConversionBadge({ project }: ProjectConversionBadgeProps)
             ) : (
               <div className="inline-flex items-center gap-1.5 rounded-full bg-muted text-muted-foreground border border-border px-3 py-1 text-xs font-semibold">
                 <HardHat className="h-3 w-3" />
-                Belum ada project Civil
+                No Civil project yet
               </div>
             )}
           </div>
@@ -57,7 +59,7 @@ export function ProjectConversionBadge({ project }: ProjectConversionBadgeProps)
           <Separator />
           <div className="px-6 py-4">
             <p className="text-xs font-semibold text-foreground mb-3">
-              Asal Design
+              Design Origin
             </p>
             <div className="flex flex-wrap gap-2">
               {architectureProjects.map((ap) => (
