@@ -25,6 +25,7 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 | Sipil | ✅ | Table, filter, computed status berdasarkan tanggal |
 | Interior | ✅ | Table, detail modal dengan info vendor |
 | Form Proyek | ✅ | Field berbeda per tipe proyek (arsitektur/sipil/interior) |
+| Build Conversion | ✅ | Hanya superadmin — cross-reference arsitektur → sipil by client ID, conversion rate per PIC, badge di project detail modal |
 
 ---
 

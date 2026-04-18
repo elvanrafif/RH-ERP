@@ -44,6 +44,9 @@ frontend/src/
     ├── projects/              # ArsitekturPage, SipilPage, InteriorPage,
     │                          # ProjectPageTemplate, ProjectForm, ProjectTable,
     │                          # ProjectDetailsModal, ProjectKanban
+    │   └── components/        # ProjectClientCard, ProjectPicTimelineCard,
+    │                          # ProjectSpecsCard, ProjectConversionBadge
+    ├── buildConversion/       # BuildConversionPage (superadmin only)
     ├── quotations/            # QuotationsPage, QuotationEditor, QuotationPaper,
     │                          # QuotationTable, QuotationCreateDialog, QuotationToolbar
     ├── invoices/              # InvoicesPage, InvoiceDetailPage, InvoicePaper,
@@ -83,6 +86,9 @@ Satu hook = satu tanggung jawab. Return object (bukan array) kecuali state seder
 | `useDashboard` | Agregasi data dashboard |
 | `useDeadlineProjects` | Proyek yang mendekati deadline |
 | `useAutoOpenProject` | Auto-open project detail dari URL param |
+| `useProjectCivilByClient` | Query civil projects by client ID |
+| `useProjectArchitectureByClient` | Query architecture projects by client ID |
+| `useArchitectureToBuildConversion` | Cross-reference arsitektur vs civil — return converted/potential/notConverted + stats, optional filter by PIC |
 | `useDocumentScaling` | A4 ResizeObserver scaling |
 | `useDocumentExport` | Export dokumen ke JPEG |
 | `useWhatsAppShare` | Format nomor & buka link WhatsApp |
