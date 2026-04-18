@@ -37,6 +37,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import { PermissionGuard } from './components/ui/PermissionGuard'
 import { SuperAdminGuard } from './components/ui/SuperAdminGuard'
 import VendorsPage from './pages/vendors/VendorsPage'
+import BuildConversionPage from './pages/buildConversion/BuildConversionPage'
 import ProspectsPage from './pages/prospects/ProspectsPage'
 import {
   FallbackDecider,
@@ -117,6 +118,7 @@ function AppRoutes() {
 
         <Route element={<SuperAdminGuard />}>
           <Route path="vendors" element={<VendorsPage />} />
+          <Route path="build-conversion" element={<BuildConversionPage />} />
         </Route>
 
         <Route element={<PermissionGuard require="manage_prospects" />}>

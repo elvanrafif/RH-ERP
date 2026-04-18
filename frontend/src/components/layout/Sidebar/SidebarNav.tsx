@@ -10,6 +10,7 @@ import {
   Sofa,
   ShieldCheck,
   Instagram,
+  TrendingUp,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NavItem } from './NavItem'
@@ -155,14 +156,24 @@ export function SidebarNav({
       </Guard>
 
       {isSuperAdmin && (
-        <NavItem
-          to="/vendors"
-          icon={Users2}
-          label="Vendors & Partners"
-          collapsed={collapsed}
-          isActive={isActive('/vendors')}
-          onClick={onLinkClick}
-        />
+        <>
+          <NavItem
+            to="/vendors"
+            icon={Users2}
+            label="Vendors & Partners"
+            collapsed={collapsed}
+            isActive={isActive('/vendors')}
+            onClick={onLinkClick}
+          />
+          <NavItem
+            to="/build-conversion"
+            icon={TrendingUp}
+            label="Build Conversion"
+            collapsed={collapsed}
+            isActive={isActive('/build-conversion')}
+            onClick={onLinkClick}
+          />
+        </>
       )}
 
       <Guard require="manage_users">
