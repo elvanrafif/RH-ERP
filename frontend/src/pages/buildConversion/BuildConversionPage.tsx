@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { TrendingUp, CheckCircle2, Clock } from 'lucide-react'
+import { TrendingUp, CheckCircle2, Clock, BarChart2 } from 'lucide-react'
 import {
   useArchitectureToBuildConversion,
   type ConversionProject,
@@ -18,7 +18,13 @@ import {
 import { DIVISION } from '@/lib/constant'
 import { Badge } from '@/components/ui/badge'
 
-function ConversionTable({ rows, showCivil }: { rows: ConversionProject[]; showCivil: boolean }) {
+function ConversionTable({
+  rows,
+  showCivil,
+}: {
+  rows: ConversionProject[]
+  showCivil: boolean
+}) {
   if (rows.length === 0) {
     return (
       <p className="text-sm text-muted-foreground text-center py-10">
@@ -66,7 +72,10 @@ function ConversionTable({ rows, showCivil }: { rows: ConversionProject[]; showC
                 {arch.expand?.assignee?.name ?? '—'}
               </td>
               <td className="px-4 py-3">
-                <Badge variant="outline" className="text-[10px] uppercase tracking-wide">
+                <Badge
+                  variant="outline"
+                  className="text-[10px] uppercase tracking-wide"
+                >
                   {arch.status.replace(/_/g, ' ')}
                 </Badge>
               </td>
@@ -80,7 +89,9 @@ function ConversionTable({ rows, showCivil }: { rows: ConversionProject[]; showC
                       >
                         {civil.status.replace(/_/g, ' ')}
                       </Badge>
-                    ) : '—'}
+                    ) : (
+                      '—'
+                    )}
                   </td>
                   <td className="px-4 py-3 text-muted-foreground text-xs">
                     {civil
@@ -131,7 +142,7 @@ export default function BuildConversionPage() {
           value={isLoading ? '—' : stats.convertedCount}
         />
         <StatCard
-          icon={<TrendingUp className="h-5 w-5 text-violet-600" />}
+          icon={<BarChart2 className="h-5 w-5 text-violet-600" />}
           iconBg="bg-violet-100"
           label="Conversion Rate"
           value={isLoading ? '—' : `${stats.conversionRate}%`}
@@ -146,7 +157,9 @@ export default function BuildConversionPage() {
 
       {/* Filter PIC */}
       <div className="flex items-center gap-3">
-        <p className="text-sm font-medium text-muted-foreground shrink-0">Filter PIC:</p>
+        <p className="text-sm font-medium text-muted-foreground shrink-0">
+          Filter PIC:
+        </p>
         <Select value={picFilter} onValueChange={setPicFilter}>
           <SelectTrigger className="w-52">
             <SelectValue placeholder="Semua PIC" />
@@ -166,7 +179,7 @@ export default function BuildConversionPage() {
       <Tabs defaultValue="converted">
         <TabsList>
           <TabsTrigger value="converted">
-            Converted ({converted.length})
+            Lanjut ke Build ({converted.length})
           </TabsTrigger>
           <TabsTrigger value="potential">
             Potensial ({potential.length})

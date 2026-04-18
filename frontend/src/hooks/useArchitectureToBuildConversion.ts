@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
 import type { Project } from '@/types'
-import { DONE_STATUSES } from '@/lib/constant'
 
 export interface ConversionProject {
   architecture: Project
@@ -43,14 +42,11 @@ export function useArchitectureToBuildConversion(picFilter?: string) {
     }
   }
 
-  const isDone = (status: string) =>
-    (DONE_STATUSES as readonly string[]).includes(status)
+  const isDone = (status: string) => status === 'finish' || status === 'done'
 
   let architectureList = allArchitecture
   if (picFilter) {
-    architectureList = allArchitecture.filter(
-      (p) => p.assignee === picFilter
-    )
+    architectureList = allArchitecture.filter((p) => p.assignee === picFilter)
   }
 
   const converted: ConversionProject[] = []
@@ -60,6 +56,9 @@ export function useArchitectureToBuildConversion(picFilter?: string) {
   for (const arch of architectureList) {
     const civil = civilByClientId.get(arch.client)
     const finished = isDone(arch.status)
+    const cancelled = arch.status === 'cancelled'
+
+    if (cancelled) continue
 
     if (civil) {
       converted.push({ architecture: arch, civil })

@@ -3,15 +3,14 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
-import { Banknote, HardHat, PencilRuler } from 'lucide-react'
+import { Banknote } from 'lucide-react'
 import { TypeProjectsBoolean } from '@/lib/booleans'
 import { useRole } from '@/hooks/useRole'
 import { formatRupiah } from '@/lib/helpers'
 import { ProjectClientCard } from './components/ProjectClientCard'
 import { ProjectPicTimelineCard } from './components/ProjectPicTimelineCard'
 import { ProjectSpecsCard } from './components/ProjectSpecsCard'
-import { useProjectCivilByClient } from '@/hooks/useProjectCivilByClient'
-import { useProjectArchitectureByClient } from '@/hooks/useProjectArchitectureByClient'
+import { ProjectConversionBadge } from './components/ProjectConversionBadge'
 
 const TYPE_LABEL: Record<Project['type'], string> = {
   architecture: 'Architecture',
@@ -38,19 +37,9 @@ export function ProjectDetailsModal({
 }: ProjectDetailsModalProps) {
   const { isSuperAdmin } = useRole()
 
-  const { isCivil, isInterior, isArchitecture } = TypeProjectsBoolean(
+  const { isCivil, isInterior } = TypeProjectsBoolean(
     project?.type ?? 'architecture'
   )
-
-  const clientId = project?.client
-
-  const { civilProjects, hasCivil } = useProjectCivilByClient(
-    isArchitecture && isSuperAdmin ? clientId : undefined
-  )
-  const { architectureProjects, hasArchitecture } =
-    useProjectArchitectureByClient(
-      isCivil && isSuperAdmin ? clientId : undefined
-    )
 
   if (!project) return null
 
@@ -140,56 +129,7 @@ export function ProjectDetailsModal({
           </div>
 
           {/* ── CONVERSION BADGE (superadmin only) ─────── */}
-          {isSuperAdmin && isArchitecture && (
-            <>
-              <Separator />
-              <div className="px-6 py-4">
-                <p className="text-xs font-semibold text-foreground mb-3">
-                  Design → Build
-                </p>
-                {hasCivil ? (
-                  <div className="flex flex-wrap gap-2">
-                    {civilProjects.map((cp) => (
-                      <div
-                        key={cp.id}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200 px-3 py-1 text-xs font-semibold"
-                      >
-                        <HardHat className="h-3 w-3" />
-                        Civil: {cp.status.replace(/_/g, ' ')}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="inline-flex items-center gap-1.5 rounded-full bg-muted text-muted-foreground border border-border px-3 py-1 text-xs font-semibold">
-                    <HardHat className="h-3 w-3" />
-                    Belum ada project Civil
-                  </div>
-                )}
-              </div>
-            </>
-          )}
-
-          {isSuperAdmin && isCivil && hasArchitecture && (
-            <>
-              <Separator />
-              <div className="px-6 py-4">
-                <p className="text-xs font-semibold text-foreground mb-3">
-                  Asal Design
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {architectureProjects.map((ap) => (
-                    <div
-                      key={ap.id}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1 text-xs font-semibold"
-                    >
-                      <PencilRuler className="h-3 w-3" />
-                      Architecture: {ap.status.replace(/_/g, ' ')}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
+          {isSuperAdmin && <ProjectConversionBadge project={project} />}
         </div>
 
         <Separator />
