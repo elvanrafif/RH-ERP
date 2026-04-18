@@ -93,6 +93,17 @@ export function SidebarNav({
         />
       </Guard>
 
+      {isSuperAdmin && (
+        <NavItem
+          to="/build-conversion"
+          icon={TrendingUp}
+          label="Build Conversion"
+          collapsed={collapsed}
+          isActive={isActive('/build-conversion')}
+          onClick={onLinkClick}
+        />
+      )}
+
       <Guard
         requireAny={[
           'manage_quotations',
@@ -156,24 +167,14 @@ export function SidebarNav({
       </Guard>
 
       {isSuperAdmin && (
-        <>
-          <NavItem
-            to="/vendors"
-            icon={Users2}
-            label="Vendors & Partners"
-            collapsed={collapsed}
-            isActive={isActive('/vendors')}
-            onClick={onLinkClick}
-          />
-          <NavItem
-            to="/build-conversion"
-            icon={TrendingUp}
-            label="Build Conversion"
-            collapsed={collapsed}
-            isActive={isActive('/build-conversion')}
-            onClick={onLinkClick}
-          />
-        </>
+        <NavItem
+          to="/vendors"
+          icon={Users2}
+          label="Vendors & Partners"
+          collapsed={collapsed}
+          isActive={isActive('/vendors')}
+          onClick={onLinkClick}
+        />
       )}
 
       <Guard require="manage_users">
