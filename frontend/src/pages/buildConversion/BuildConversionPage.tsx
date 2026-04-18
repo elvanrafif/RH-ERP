@@ -266,11 +266,11 @@ export default function BuildConversionPage() {
 
       <div className="flex-1 overflow-hidden bg-card/50 rounded-lg border border-border shadow-inner flex flex-col">
         <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b bg-white/80 backdrop-blur-sm shrink-0">
-          <div className="relative flex-1 md:max-w-xs">
+          <div className="relative flex-1">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search client..."
-              className="pl-9 h-9 bg-white"
+              className="pl-9 h-9 bg-white w-full"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
