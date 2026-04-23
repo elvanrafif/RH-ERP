@@ -26,7 +26,7 @@ export function ClientTrackingTab() {
         <div>
           <h3 className="text-lg font-bold text-slate-800">Client Tracking</h3>
           <p className="text-xs text-slate-500 mt-1">
-            Daftar project per client, dikelompokkan per semester.
+            Project list per client, grouped by semester.
           </p>
         </div>
         <div className="flex items-center gap-2">
