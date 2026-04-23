@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { formatCompactCurrency } from '@/lib/formatting/currency'
+import { formatRupiah } from '@/lib/helpers'
 import { useNavigate } from 'react-router-dom'
 
 const TYPE_LABELS: Record<Project['type'], string> = {
@@ -51,7 +52,7 @@ export function SemesterCard({
               {isLoading ? '...' : `${projects.length} projects`}
             </span>
             <span className="text-sm font-semibold text-slate-700 bg-white px-3 py-1 rounded-full border border-slate-200 shadow-sm">
-              {isLoading ? '...' : formatCompactCurrency(totalValue)}
+              {isLoading ? '...' : formatRupiah(totalValue)}
             </span>
           </div>
         </div>
