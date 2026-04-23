@@ -12,7 +12,8 @@ const DATE_FIELD_BY_TYPE: Record<Project['type'], keyof Project> = {
 
 function getDateValue(project: Project): string | undefined {
   const field = DATE_FIELD_BY_TYPE[project.type]
-  return project[field] as string | undefined
+  const value = project[field]
+  return typeof value === 'string' ? value : undefined
 }
 
 function getProjectYear(project: Project): number | null {
@@ -36,6 +37,8 @@ async function fetchAllProjects(): Promise<Project[]> {
 }
 
 export function useClientTracking(year: number) {
+  // queryKey is intentionally year-agnostic: all projects are fetched once and
+  // filtered client-side, so changing year does not trigger a new network request.
   const { data: projects = [], isLoading } = useQuery({
     queryKey: ['client-tracking'],
     queryFn: fetchAllProjects,
@@ -43,11 +46,7 @@ export function useClientTracking(year: number) {
   })
 
   const availableYears = Array.from(
-    new Set(
-      projects
-        .map(getProjectYear)
-        .filter((y): y is number => y !== null)
-    )
+    new Set(projects.map(getProjectYear).filter((y): y is number => y !== null))
   ).sort((a, b) => b - a)
 
   const yearProjects = projects.filter((p) => getProjectYear(p) === year)
