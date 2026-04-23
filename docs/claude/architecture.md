@@ -23,6 +23,7 @@ frontend/src/
 │   │                          # NumberInput, RowActions, TableSkeleton, ChartSkeleton
 │   └── dashboard/             # MainDashboard, Overview
 │       └── tabs/              # OverviewTab, ResourceMonitoringTab, DocumentRevenueTab,
+│                              # ClientTrackingTab, SemesterCard,
 │                              # WorkloadChart, RevenuePieChart, InvoiceRevenue,
 │                              # QuotationRevenue, TopInvoicesList, TopQuotationsList
 ├── hooks/                     # Custom hooks — satu hook satu tanggung jawab
@@ -98,6 +99,7 @@ Satu hook = satu tanggung jawab. Return object (bukan array) kecuali state seder
 | `useSessionTimeout` | Auto logout setelah idle 1 jam |
 | `useTableState` | Generic CRUD page state: open dialog, editing/viewing entity, search term |
 | `useFormMutation` | Generic PocketBase create/update mutation dengan query invalidation dan toast error |
+| `useClientTracking` | Fetch semua project, group ke S1/S2 per tahun berdasarkan date field per tipe (civil→end_date, architecture/interior→deadline) — return s1, s2, availableYears |
 
 ## Validasi Schema
 

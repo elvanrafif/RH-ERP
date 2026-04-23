@@ -12,7 +12,7 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 |---|---|---|
 | Login / Auth | ✅ | Session timeout 1 jam, auto logout |
 | RBAC (Role & Permission) | ✅ | Custom roles dengan permission granular via PocketBase |
-| Dashboard | ✅ | Workload chart, revenue stats, top invoices & quotations |
+| Dashboard | ✅ | Workload chart, revenue stats, top invoices & quotations, client tracking per semester |
 | Profile & Security | ✅ | Edit profil, ganti password, upload avatar |
 
 ---
