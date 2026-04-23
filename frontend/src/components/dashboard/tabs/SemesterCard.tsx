@@ -3,7 +3,6 @@ import type { Project } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
-import { formatCompactCurrency } from '@/lib/formatting/currency'
 import { formatRupiah } from '@/lib/helpers'
 import { useNavigate } from 'react-router-dom'
 
@@ -95,21 +94,24 @@ export function SemesterCard({
                     }
                     className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60 transition-colors cursor-pointer"
                   >
-                    <td className="px-4 py-2.5 text-slate-800 font-medium truncate max-w-[160px]">
+                    <td className="px-4 py-2.5 text-slate-800 font-medium">
                       {project.expand?.client?.company_name ?? '—'}
                     </td>
-                    <td className="px-4 py-2.5">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline" className="text-xs shrink-0">
+                    <td className="px-4 py-2.5 w-px whitespace-nowrap">
+                      <div className="flex flex-col items-end gap-1">
+                        <Badge variant="outline" className="text-xs">
                           {TYPE_LABELS[project.type]}
                         </Badge>
-                        <span className="text-slate-600 capitalize">
+                        <Badge
+                          variant="secondary"
+                          className="text-xs capitalize"
+                        >
                           {project.status.replace(/_/g, ' ')}
-                        </span>
+                        </Badge>
                       </div>
                     </td>
-                    <td className="px-4 py-2.5 text-right text-slate-700 tabular-nums">
-                      {formatCompactCurrency(project.contract_value)}
+                    <td className="px-4 py-2.5 text-right text-slate-700 tabular-nums w-px whitespace-nowrap">
+                      {formatRupiah(project.contract_value)}
                     </td>
                   </tr>
                 ))}
