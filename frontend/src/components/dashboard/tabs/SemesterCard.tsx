@@ -95,21 +95,18 @@ export function SemesterCard({
                     }
                     className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60 transition-colors cursor-pointer"
                   >
+                    <td className="px-4 py-2.5 text-slate-800 font-medium truncate max-w-[160px]">
+                      {project.expand?.client?.company_name ?? '—'}
+                    </td>
                     <td className="px-4 py-2.5">
                       <div className="flex items-center gap-2">
-                        <span className="text-slate-800 font-medium truncate max-w-[140px]">
-                          {project.expand?.client?.company_name ?? '—'}
-                        </span>
-                        <Badge
-                          variant="outline"
-                          className="text-xs capitalize shrink-0"
-                        >
+                        <Badge variant="outline" className="text-xs shrink-0">
                           {TYPE_LABELS[project.type]}
                         </Badge>
+                        <span className="text-slate-600 capitalize">
+                          {project.status.replace(/_/g, ' ')}
+                        </span>
                       </div>
-                    </td>
-                    <td className="px-4 py-2.5 text-slate-600 capitalize">
-                      {project.status}
                     </td>
                     <td className="px-4 py-2.5 text-right text-slate-700 tabular-nums">
                       {formatCompactCurrency(project.contract_value)}
