@@ -1,11 +1,6 @@
 // frontend/src/components/dashboard/tabs/SemesterCard.tsx
 import type { Project } from '@/types'
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { formatCompactCurrency } from '@/lib/formatting/currency'
@@ -17,7 +12,9 @@ const TYPE_LABELS: Record<Project['type'], string> = {
   interior: 'Interior',
 }
 
-const DATE_FIELD_BY_TYPE: Record<Project['type'], keyof Project> = {
+type ProjectDateKey = 'end_date' | 'deadline'
+
+const DATE_FIELD_BY_TYPE: Record<Project['type'], ProjectDateKey> = {
   civil: 'end_date',
   architecture: 'deadline',
   interior: 'deadline',
@@ -87,7 +84,7 @@ export function SemesterCard({
               <tbody>
                 {projects.map((project) => {
                   const dateField = DATE_FIELD_BY_TYPE[project.type]
-                  const dateValue = project[dateField] as string | undefined
+                  const dateValue = project[dateField]
                   return (
                     <tr
                       key={project.id}
