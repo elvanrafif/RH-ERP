@@ -12,6 +12,12 @@ const TYPE_LABELS: Record<Project['type'], string> = {
   interior: 'Interior',
 }
 
+const TYPE_BADGE_CLASS: Record<Project['type'], string> = {
+  architecture: 'bg-slate-100 text-slate-700 border-slate-300',
+  civil: 'bg-amber-50 text-amber-700 border-amber-300',
+  interior: 'bg-emerald-50 text-emerald-700 border-emerald-300',
+}
+
 const PROJECT_TYPE_ROUTES: Record<Project['type'], string> = {
   architecture: '/projects/architecture',
   civil: '/projects/civil',
@@ -99,7 +105,10 @@ export function SemesterCard({
                     </td>
                     <td className="px-4 py-2.5 w-px whitespace-nowrap">
                       <div className="flex flex-col items-end gap-1">
-                        <Badge variant="outline" className="text-xs">
+                        <Badge
+                          variant="outline"
+                          className={`text-xs ${TYPE_BADGE_CLASS[project.type]}`}
+                        >
                           {TYPE_LABELS[project.type]}
                         </Badge>
                         <Badge
