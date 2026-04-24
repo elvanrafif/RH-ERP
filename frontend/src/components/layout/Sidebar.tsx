@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Menu, LogOut, ChevronLeft } from 'lucide-react'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import { pb } from '@/lib/pocketbase'
 import {
@@ -35,6 +35,7 @@ function SidebarContent({
 }) {
   const location = useLocation()
   const pathname = location.pathname
+  const navigate = useNavigate()
   const { isSuperAdmin } = useRole()
 
   const isActive = (path: string) => {
@@ -49,7 +50,7 @@ function SidebarContent({
   const handleLogout = () => {
     pb.authStore.clear()
     localStorage.removeItem('sidebar-collapsed')
-    window.location.href = '/login'
+    navigate('/login')
   }
 
   return (

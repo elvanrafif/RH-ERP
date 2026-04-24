@@ -21,7 +21,7 @@ frontend/src/
 │   ├── shared/                # EmptyState, FormDialog, LoadingSpinner, PageHeader,
 │   │                          # StatCard, TablePagination, DeleteConfirmDialog,
 │   │                          # NumberInput, RowActions, TableSkeleton, ChartSkeleton
-│   └── dashboard/             # MainDashboard, Overview
+│   └── dashboard/             # ExecutiveDashboard (superadmin), MyProjectsDashboard (employee)
 │       └── tabs/              # OverviewTab, ResourceMonitoringTab, DocumentRevenueTab,
 │                              # ClientTrackingTab, SemesterCard,
 │                              # WorkloadChart, RevenuePieChart, InvoiceRevenue,
@@ -100,6 +100,7 @@ Satu hook = satu tanggung jawab. Return object (bukan array) kecuali state seder
 | `useTableState` | Generic CRUD page state: open dialog, editing/viewing entity, search term |
 | `useFormMutation` | Generic PocketBase create/update mutation dengan query invalidation dan toast error |
 | `useClientTracking` | Fetch semua project, group ke S1/S2 per tahun berdasarkan date field per tipe (civil→end_date, architecture/interior→deadline) — return s1, s2, availableYears |
+| `useMyProjects` | Fetch active projects assigned to current user (excludes done/finish/cancelled), compute nearDeadlineCount per type threshold + inProgressCount |
 
 ## Validasi Schema
 
