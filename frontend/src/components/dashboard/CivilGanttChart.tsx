@@ -119,7 +119,7 @@ export function CivilGanttChart({
             {months.map((m) => (
               <div
                 key={m.label}
-                className="absolute top-0 bottom-0 flex items-center justify-center text-[10px] font-medium text-slate-400 border-r border-slate-200 last:border-r-0"
+                className="absolute top-0 bottom-0 flex items-center justify-center text-[10px] font-medium text-slate-500 border-r border-slate-300 last:border-r-0"
                 style={{ left: `${m.leftPct}%`, width: `${m.widthPct}%` }}
               >
                 {m.label.split(' ')[0]}
@@ -127,7 +127,7 @@ export function CivilGanttChart({
             ))}
             {todayPct >= 0 && todayPct <= 100 && (
               <div
-                className="absolute top-0 bottom-0 w-px bg-red-400 opacity-70 pointer-events-none"
+                className="absolute top-0 bottom-0 w-0.5 bg-red-500 pointer-events-none"
                 style={{ left: `${todayPct}%` }}
               >
                 <div className="absolute -top-0.5 -left-[3px] w-2 h-2 rounded-full bg-red-400" />
