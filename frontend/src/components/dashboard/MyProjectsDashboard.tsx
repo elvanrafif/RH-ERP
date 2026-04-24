@@ -15,7 +15,10 @@ import { StatCard } from '@/components/shared/StatCard'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { useMyProjects } from '@/hooks/useMyProjects'
 import { ProjectDetailsModal } from '@/pages/projects/ProjectDetailsModal'
-import { getProjectDeadlineDate, getDaysRemaining } from '@/lib/projects/deadline'
+import {
+  getProjectDeadlineDate,
+  getDaysRemaining,
+} from '@/lib/projects/deadline'
 import { PROJECT_STATUS, DEADLINE_WARNING_DAYS } from '@/lib/constant'
 import type { Project } from '@/types'
 
@@ -28,7 +31,8 @@ const TYPE_LABEL: Record<Project['type'], string> = {
 const TYPE_CLASS: Record<Project['type'], string> = {
   architecture: 'bg-blue-100 text-blue-800 border-blue-200 hover:bg-blue-100',
   civil: 'bg-amber-100 text-amber-800 border-amber-200 hover:bg-amber-100',
-  interior: 'bg-violet-100 text-violet-800 border-violet-200 hover:bg-violet-100',
+  interior:
+    'bg-violet-100 text-violet-800 border-violet-200 hover:bg-violet-100',
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -37,8 +41,10 @@ const STATUS_LABEL: Record<string, string> = {
 }
 
 const STATUS_CLASS: Record<string, string> = {
-  [PROJECT_STATUS.DESIGN]: 'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-50',
-  [PROJECT_STATUS.PROGRESS]: 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50',
+  [PROJECT_STATUS.DESIGN]:
+    'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-50',
+  [PROJECT_STATUS.PROGRESS]:
+    'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50',
 }
 
 function getDeadlineBadge(
@@ -53,13 +59,19 @@ function getDeadlineBadge(
       className: 'bg-red-50 text-red-700 border-red-200',
     }
   if (days === 0)
-    return { label: 'Due today', className: 'bg-red-50 text-red-700 border-red-200' }
+    return {
+      label: 'Due today',
+      className: 'bg-red-50 text-red-700 border-red-200',
+    }
   if (days <= threshold)
     return {
       label: `${days}d left`,
       className: 'bg-amber-50 text-amber-700 border-amber-200',
     }
-  return { label: `${days}d left`, className: 'bg-slate-50 text-slate-600 border-slate-200' }
+  return {
+    label: `${days}d left`,
+    className: 'bg-slate-50 text-slate-600 border-slate-200',
+  }
 }
 
 function formatDeadlineDate(date: Date): string {
@@ -142,7 +154,8 @@ export function MyProjectsDashboard() {
           My Projects
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
-          {projects.length} active project{projects.length !== 1 ? 's' : ''} in progress
+          {projects.length} active project{projects.length !== 1 ? 's' : ''} in
+          progress
         </p>
       </div>
 
@@ -180,7 +193,7 @@ export function MyProjectsDashboard() {
         </Card>
       </div>
 
-      <Card>
+      <Card className="overflow-hidden">
         <div className="overflow-auto">
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
