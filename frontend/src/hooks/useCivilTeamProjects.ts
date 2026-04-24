@@ -15,6 +15,7 @@ export interface CivilTeamData {
   vendorGroups: VendorGroup[]
   totalProjects: number
   nearDeadlineCount: number
+  overdueCount: number
 }
 
 export function useCivilTeamProjects() {
@@ -43,6 +44,8 @@ export function useCivilTeamProjects() {
       }
 
       let nearDeadlineCount = 0
+      let overdueCount = 0
+
       const vendorGroups: VendorGroup[] = Array.from(vendorMap.values()).map(
         ({ vendor, projects }) => {
           let hasOverdue = false
@@ -53,7 +56,7 @@ export function useCivilTeamProjects() {
             const days = getDaysRemaining(date)
             if (days < 0) {
               hasOverdue = true
-              nearDeadlineCount++
+              overdueCount++
             } else if (days <= threshold) {
               hasNearDeadline = true
               nearDeadlineCount++
@@ -69,7 +72,9 @@ export function useCivilTeamProjects() {
         return 0
       })
 
-      return { vendorGroups, totalProjects: projects.length, nearDeadlineCount }
+      const totalProjects = vendorGroups.reduce((sum, g) => sum + g.projects.length, 0)
+
+      return { vendorGroups, totalProjects, nearDeadlineCount, overdueCount }
     },
   })
 }
