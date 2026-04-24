@@ -2,6 +2,15 @@ import { useQuery } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
 import { useAuth } from '@/contexts/AuthContext'
 import type { Project } from '@/types'
+import {
+  DONE_STATUSES,
+  PROJECT_STATUS,
+  DEADLINE_WARNING_DAYS,
+} from '@/lib/constant'
+import {
+  getProjectDeadlineDate,
+  getDaysRemaining,
+} from '@/lib/projects/deadline'
 
 export interface MyProjectsData {
   projects: Project[]
@@ -17,25 +26,27 @@ export function useMyProjects() {
     queryKey: ['my-projects', userId],
     enabled: !!userId,
     queryFn: async () => {
+      const excludeFilter = DONE_STATUSES.map((s) => `status != '${s}'`).join(
+        ' && '
+      )
+      const filter = `assignee = '${userId}' && ${excludeFilter}`
+
       const projects = await pb.collection('projects').getFullList<Project>({
-        filter: `assignee = '${userId}' && status != 'done' && status != 'finish' && status != 'cancelled'`,
+        filter,
         expand: 'client',
         sort: 'deadline',
       })
 
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-
       const nearDeadlineCount = projects.filter((p) => {
-        if (!p.deadline) return false
-        const d = new Date(p.deadline)
-        d.setHours(0, 0, 0, 0)
-        const diff = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
-        return diff >= 0 && diff <= 7
+        const date = getProjectDeadlineDate(p)
+        if (!date) return false
+        const days = getDaysRemaining(date)
+        const threshold = DEADLINE_WARNING_DAYS[p.type]
+        return days >= 0 && days <= threshold
       }).length
 
       const inProgressCount = projects.filter(
-        (p) => p.status === 'progress'
+        (p) => p.status === PROJECT_STATUS.PROGRESS
       ).length
 
       return { projects, nearDeadlineCount, inProgressCount }
