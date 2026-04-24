@@ -16,11 +16,14 @@ export function CivilTeamDashboard() {
 
   if (isLoading) return <LoadingSpinner className="min-h-screen" />
 
-  const { vendorGroups, totalProjects, nearDeadlineCount } = data ?? {
-    vendorGroups: [],
-    totalProjects: 0,
-    nearDeadlineCount: 0,
-  }
+  const { vendorGroups, totalProjects, nearDeadlineCount, overdueCount } =
+    data ?? {
+      vendorGroups: [],
+      totalProjects: 0,
+      nearDeadlineCount: 0,
+      overdueCount: 0,
+    }
+  const atRiskCount = nearDeadlineCount + overdueCount
 
   return (
     <div className="flex-1 space-y-6 p-4 md:p-8 pt-6 min-h-screen">
@@ -51,8 +54,8 @@ export function CivilTeamDashboard() {
               icon={<AlertTriangle className="h-5 w-5 text-red-600" />}
               iconBg="bg-red-100"
               label="Near Deadline"
-              value={nearDeadlineCount}
-              urgent={nearDeadlineCount > 0}
+              value={atRiskCount}
+              urgent={atRiskCount > 0}
             />
           </CardContent>
         </Card>
