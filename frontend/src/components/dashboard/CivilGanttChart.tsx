@@ -1,5 +1,5 @@
 // frontend/src/components/dashboard/CivilGanttChart.tsx
-import { useState, useRef, useCallback } from 'react'
+import { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -75,9 +75,6 @@ export function CivilGanttChart({
 }: CivilGanttChartProps) {
   const [offset, setOffset] = useState(0)
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
-  const [animKey, setAnimKey] = useState(0)
-  const [animDir, setAnimDir] = useState<'left' | 'right'>('right')
-  const scrollAccum = useRef(0)
 
   const { windowStart, windowEnd, totalMs, months } = getWindow(offset)
   const todayPct =
@@ -85,106 +82,74 @@ export function CivilGanttChart({
       ? ((new Date().getTime() - windowStart.getTime()) / totalMs) * 100
       : -1
 
-  const navigate = useCallback((dir: 'left' | 'right') => {
-    setAnimDir(dir)
-    setAnimKey((k) => k + 1)
-    setOffset((o) => (dir === 'right' ? o + 1 : o - 1))
-    scrollAccum.current = 0
-  }, [])
-
-  const handleWheel = useCallback(
-    (e: React.WheelEvent) => {
-      if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return
-      scrollAccum.current += e.deltaX
-      if (scrollAccum.current > 80) {
-        navigate('right')
-      } else if (scrollAccum.current < -80) {
-        navigate('left')
-      }
-    },
-    [navigate]
-  )
-
   const toggleCollapse = (vendorId: string) =>
     setCollapsed((prev) => ({ ...prev, [vendorId]: !prev[vendorId] }))
 
   return (
     <Card className="overflow-hidden">
-      <style>{`
-        @keyframes gantt-from-right {
-          from { transform: translateX(28px); opacity: 0.4; }
-          to   { transform: translateX(0);    opacity: 1; }
-        }
-        @keyframes gantt-from-left {
-          from { transform: translateX(-28px); opacity: 0.4; }
-          to   { transform: translateX(0);     opacity: 1; }
-        }
-        .gantt-slide-right { animation: gantt-from-right 0.22s ease-out; }
-        .gantt-slide-left  { animation: gantt-from-left  0.22s ease-out; }
-      `}</style>
-
       {/* Month navigation */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-slate-100 bg-slate-50">
-        <Button variant="ghost" size="sm" onClick={() => navigate('left')}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setOffset((o) => o - 1)}
+        >
           <ChevronLeft className="h-4 w-4" />
         </Button>
         <span className="text-sm font-semibold text-slate-700">
           {months.map((m) => m.label).join(' · ')}
         </span>
-        <Button variant="ghost" size="sm" onClick={() => navigate('right')}>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setOffset((o) => o + 1)}
+        >
           <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
 
       {/* Scrollable gantt area */}
-      <div className="overflow-x-auto" onWheel={handleWheel}>
-        <div
-          key={animKey}
-          className={
-            animDir === 'right' ? 'gantt-slide-right' : 'gantt-slide-left'
-          }
-        >
-          {/* Column header */}
-          <div className="flex border-b border-slate-200 bg-slate-50 min-w-0">
-            <div className="w-40 min-w-40 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-slate-400 border-r border-slate-200">
-              Vendor / Client
-            </div>
-            <div className="flex-1 relative h-8">
-              {months.map((m) => (
-                <div
-                  key={m.label}
-                  className="absolute top-0 bottom-0 flex items-center justify-center text-[10px] font-medium text-slate-500 border-r border-slate-300 last:border-r-0"
-                  style={{ left: `${m.leftPct}%`, width: `${m.widthPct}%` }}
-                >
-                  {m.label.split(' ')[0]}
-                </div>
-              ))}
-              {todayPct >= 0 && todayPct <= 100 && (
-                <div
-                  className="absolute top-0 bottom-0 w-0.5 bg-red-500 pointer-events-none"
-                  style={{ left: `${todayPct}%` }}
-                >
-                  <div className="absolute -top-0.5 -left-[3px] w-2 h-2 rounded-full bg-red-400" />
-                </div>
-              )}
-            </div>
+      <div className="overflow-x-auto">
+        {/* Column header */}
+        <div className="flex border-b border-slate-200 bg-slate-50 min-w-0">
+          <div className="w-40 min-w-40 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-slate-400 border-r border-slate-200">
+            Vendor / Client
           </div>
-
-          {/* Vendor rows */}
-          {vendorGroups.map((group) => (
-            <CivilVendorSection
-              key={group.vendor.id}
-              group={group}
-              windowStart={windowStart}
-              windowEnd={windowEnd}
-              totalMs={totalMs}
-              todayPct={todayPct}
-              isCollapsed={!!collapsed[group.vendor.id]}
-              onToggle={() => toggleCollapse(group.vendor.id)}
-              onProjectClick={onProjectClick}
-            />
-          ))}
+          <div className="flex-1 relative h-8">
+            {months.map((m) => (
+              <div
+                key={m.label}
+                className="absolute top-0 bottom-0 flex items-center justify-center text-[10px] font-medium text-slate-500 border-r border-slate-300 last:border-r-0"
+                style={{ left: `${m.leftPct}%`, width: `${m.widthPct}%` }}
+              >
+                {m.label.split(' ')[0]}
+              </div>
+            ))}
+            {todayPct >= 0 && todayPct <= 100 && (
+              <div
+                className="absolute top-0 bottom-0 w-0.5 bg-red-500 pointer-events-none"
+                style={{ left: `${todayPct}%` }}
+              >
+                <div className="absolute -top-0.5 -left-[3px] w-2 h-2 rounded-full bg-red-400" />
+              </div>
+            )}
+          </div>
         </div>
+
+        {/* Vendor rows */}
+        {vendorGroups.map((group) => (
+          <CivilVendorSection
+            key={group.vendor.id}
+            group={group}
+            windowStart={windowStart}
+            windowEnd={windowEnd}
+            totalMs={totalMs}
+            todayPct={todayPct}
+            isCollapsed={!!collapsed[group.vendor.id]}
+            onToggle={() => toggleCollapse(group.vendor.id)}
+            onProjectClick={onProjectClick}
+          />
+        ))}
       </div>
     </Card>
   )
