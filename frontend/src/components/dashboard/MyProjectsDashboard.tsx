@@ -36,11 +36,27 @@ const TYPE_CLASS: Record<Project['type'], string> = {
 }
 
 const STATUS_LABEL: Record<string, string> = {
+  // Architecture
+  denah: 'Floor Plan',
+  fasad: 'Facade',
+  detail_drawing: 'Detail Drawing',
+  // Interior
+  draft_skematik: 'Schematic Draft',
+  // Civil
+  active: 'Active',
+  // Legacy fallback
   [PROJECT_STATUS.DESIGN]: 'Design',
   [PROJECT_STATUS.PROGRESS]: 'In Progress',
 }
 
 const STATUS_CLASS: Record<string, string> = {
+  denah: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-50',
+  fasad: 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-50',
+  detail_drawing:
+    'bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-50',
+  draft_skematik: 'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-50',
+  active:
+    'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-50',
   [PROJECT_STATUS.DESIGN]:
     'bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-50',
   [PROJECT_STATUS.PROGRESS]:
