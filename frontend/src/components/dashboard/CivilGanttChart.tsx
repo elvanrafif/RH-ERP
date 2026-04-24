@@ -127,10 +127,12 @@ export function CivilGanttChart({
             ))}
             {todayPct >= 0 && todayPct <= 100 && (
               <div
-                className="absolute top-0 bottom-0 w-0.5 bg-red-500 pointer-events-none"
+                className="absolute top-0 bottom-0 w-0.5 bg-blue-500 pointer-events-none z-10"
                 style={{ left: `${todayPct}%` }}
               >
-                <div className="absolute -top-0.5 -left-[3px] w-2 h-2 rounded-full bg-red-400" />
+                <span className="absolute top-1 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-[8px] font-semibold px-1.5 py-px rounded whitespace-nowrap leading-tight">
+                  Today
+                </span>
               </div>
             )}
           </div>

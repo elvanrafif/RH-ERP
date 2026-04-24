@@ -47,7 +47,13 @@ export function CivilVendorSection({
             {group.vendor.name}
           </span>
         </div>
-        <div className="flex-1 px-3 py-2">
+        <div className="flex-1 relative py-2 px-3">
+          {todayPct >= 0 && todayPct <= 100 && (
+            <div
+              className="absolute top-0 bottom-0 w-0.5 bg-blue-500 opacity-30 pointer-events-none z-10"
+              style={{ left: `${todayPct}%` }}
+            />
+          )}
           <span className="text-[10px] text-slate-400">
             {group.projects.length} project
             {group.projects.length !== 1 ? 's' : ''}
@@ -67,7 +73,7 @@ export function CivilVendorSection({
             <div className="flex-1 relative h-9">
               {todayPct >= 0 && todayPct <= 100 && (
                 <div
-                  className="absolute top-0 bottom-0 w-0.5 bg-red-500 opacity-80 z-10 pointer-events-none"
+                  className="absolute top-0 bottom-0 w-0.5 bg-blue-500 opacity-60 z-10 pointer-events-none"
                   style={{ left: `${todayPct}%` }}
                 />
               )}
