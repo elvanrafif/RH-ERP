@@ -35,16 +35,14 @@ export function SidebarNav({
     <nav
       className={cn('grid gap-1 px-3', collapsed ? 'justify-center px-2' : '')}
     >
-      <Guard require="view_dashboard">
-        <NavItem
-          to="/"
-          icon={LayoutDashboard}
-          label="Dashboard"
-          collapsed={collapsed}
-          isActive={isActive('/') && pathname === '/'}
-          onClick={onLinkClick}
-        />
-      </Guard>
+      <NavItem
+        to="/"
+        icon={LayoutDashboard}
+        label="Dashboard"
+        collapsed={collapsed}
+        isActive={isActive('/') && pathname === '/'}
+        onClick={onLinkClick}
+      />
 
       <Guard
         requireAny={[

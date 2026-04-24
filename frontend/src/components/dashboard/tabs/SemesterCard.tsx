@@ -13,9 +13,9 @@ const TYPE_LABELS: Record<Project['type'], string> = {
 }
 
 const TYPE_BADGE_CLASS: Record<Project['type'], string> = {
-  architecture: 'bg-blue-50 text-blue-700 border-blue-300',
-  civil: 'bg-amber-50 text-amber-700 border-amber-300',
-  interior: 'bg-emerald-50 text-emerald-700 border-emerald-300',
+  architecture: 'bg-blue-100 text-blue-800 border-blue-200',
+  civil: 'bg-amber-100 text-amber-800 border-amber-200',
+  interior: 'bg-violet-100 text-violet-800 border-violet-200',
 }
 
 const PROJECT_TYPE_ROUTES: Record<Project['type'], string> = {
