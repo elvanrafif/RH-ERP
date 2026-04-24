@@ -52,7 +52,9 @@ function ProjectRow({ project, onClick }: ProjectRowProps) {
   const date = getProjectDeadlineDate(project)
   const days = date ? getDaysRemaining(date) : null
   const threshold = DEADLINE_WARNING_DAYS[project.type]
-  const isUrgent = days !== null && days <= threshold
+  const isOverdue = days !== null && days < 0
+  const isWarning = days !== null && days >= 0 && days <= threshold
+  const isUrgent = isOverdue || isWarning
   const clientName = project.expand?.client?.company_name ?? '—'
 
   return (
@@ -80,9 +82,7 @@ function ProjectRow({ project, onClick }: ProjectRowProps) {
       <div
         className={`text-sm font-medium ${isUrgent ? 'text-red-600' : 'text-muted-foreground'}`}
       >
-        {isUrgent && days !== null && days >= 0 && (
-          <span className="mr-1">⚠</span>
-        )}
+        {isWarning && <span className="mr-1">⚠</span>}
         {formatDeadlineLabel(days)}
       </div>
     </div>

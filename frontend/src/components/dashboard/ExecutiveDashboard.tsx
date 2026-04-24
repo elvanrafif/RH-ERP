@@ -2,7 +2,16 @@
 import { useDashboardStats } from '@/hooks/useDashboard'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Download, Plus } from 'lucide-react'
+import {
+  Download,
+  Plus,
+  LayoutDashboard,
+  UsersRound,
+  Briefcase,
+  Wallet,
+  Compass,
+  CalendarDays,
+} from 'lucide-react'
 import { OverviewTab } from '@/components/dashboard/tabs/OverviewTab'
 import { ResourceMonitoringTab } from '@/components/dashboard/tabs/ResourceMonitoringTab'
 import {
@@ -12,14 +21,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import {
-  LayoutDashboard,
-  UsersRound,
-  Briefcase,
-  Wallet,
-  Compass,
-  CalendarDays,
-} from 'lucide-react'
 import { DocumentRevenueTab } from '@/components/dashboard/tabs/DocumentRevenueTab'
 import { ClientTrackingTab } from '@/components/dashboard/tabs/ClientTrackingTab'
 
@@ -97,17 +98,25 @@ export function ExecutiveDashboard() {
           </TabsList>
         </div>
 
-        <TabsContent value="overview" className="space-y-6 animate-in fade-in-50">
+        <TabsContent
+          value="overview"
+          className="space-y-6 animate-in fade-in-50"
+        >
           <OverviewTab data={data} isLoading={isLoading} />
         </TabsContent>
-        <TabsContent value="resources" className="space-y-6 animate-in fade-in-50">
+        <TabsContent
+          value="resources"
+          className="space-y-6 animate-in fade-in-50"
+        >
           <ResourceMonitoringTab />
         </TabsContent>
         <TabsContent value="project-value">
           <Card className="border-dashed border-2 bg-slate-50">
             <CardHeader>
               <CardTitle>Project Value Analytics</CardTitle>
-              <CardDescription>Breakdown: Interior / Sipil / Arsitektur</CardDescription>
+              <CardDescription>
+                Breakdown: Interior / Sipil / Arsitektur
+              </CardDescription>
             </CardHeader>
             <CardContent className="h-[300px] flex flex-col items-center justify-center text-muted-foreground gap-2">
               <Compass className="h-10 w-10 opacity-20" />
@@ -115,10 +124,16 @@ export function ExecutiveDashboard() {
             </CardContent>
           </Card>
         </TabsContent>
-        <TabsContent value="revenue" className="space-y-6 animate-in fade-in-50">
+        <TabsContent
+          value="revenue"
+          className="space-y-6 animate-in fade-in-50"
+        >
           <DocumentRevenueTab />
         </TabsContent>
-        <TabsContent value="client-tracking" className="space-y-6 animate-in fade-in-50">
+        <TabsContent
+          value="client-tracking"
+          className="space-y-6 animate-in fade-in-50"
+        >
           <ClientTrackingTab />
         </TabsContent>
       </Tabs>
