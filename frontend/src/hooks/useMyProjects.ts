@@ -33,7 +33,7 @@ export function useMyProjects() {
 
       const projects = await pb.collection('projects').getFullList<Project>({
         filter,
-        expand: 'client',
+        expand: 'client,assignee,vendor',
         sort: 'deadline',
       })
 
