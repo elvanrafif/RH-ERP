@@ -7,6 +7,11 @@ import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { StatCard } from '@/components/shared/StatCard'
 import { useMyProjects } from '@/hooks/useMyProjects'
 import { ProjectDetailsModal } from '@/pages/projects/ProjectDetailsModal'
+import {
+  getProjectDeadlineDate,
+  getDaysRemaining,
+} from '@/lib/projects/deadline'
+import { PROJECT_STATUS, DEADLINE_WARNING_DAYS } from '@/lib/constant'
 import type { Project } from '@/types'
 
 const TYPE_LABEL: Record<Project['type'], string> = {
@@ -22,22 +27,13 @@ const TYPE_CLASS: Record<Project['type'], string> = {
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  design: 'Design',
-  progress: 'Progress',
+  [PROJECT_STATUS.DESIGN]: 'Design',
+  [PROJECT_STATUS.PROGRESS]: 'Progress',
 }
 
 const STATUS_CLASS: Record<string, string> = {
-  design: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100',
-  progress: 'bg-green-100 text-green-700 hover:bg-green-100',
-}
-
-function getDaysUntil(dateStr: string | undefined): number | null {
-  if (!dateStr) return null
-  const target = new Date(dateStr)
-  const today = new Date()
-  target.setHours(0, 0, 0, 0)
-  today.setHours(0, 0, 0, 0)
-  return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  [PROJECT_STATUS.DESIGN]: 'bg-yellow-100 text-yellow-700 hover:bg-yellow-100',
+  [PROJECT_STATUS.PROGRESS]: 'bg-green-100 text-green-700 hover:bg-green-100',
 }
 
 function formatDeadlineLabel(days: number | null): string {
@@ -53,8 +49,10 @@ interface ProjectRowProps {
 }
 
 function ProjectRow({ project, onClick }: ProjectRowProps) {
-  const days = getDaysUntil(project.deadline)
-  const isUrgent = days !== null && days <= 7
+  const date = getProjectDeadlineDate(project)
+  const days = date ? getDaysRemaining(date) : null
+  const threshold = DEADLINE_WARNING_DAYS[project.type]
+  const isUrgent = days !== null && days <= threshold
   const clientName = project.expand?.client?.company_name ?? '—'
 
   return (
@@ -67,14 +65,24 @@ function ProjectRow({ project, onClick }: ProjectRowProps) {
           {TYPE_LABEL[project.type]}
         </Badge>
       </div>
-      <div className="text-sm font-medium text-foreground truncate">{clientName}</div>
+      <div className="text-sm font-medium text-foreground truncate">
+        {clientName}
+      </div>
       <div>
-        <Badge className={STATUS_CLASS[project.status] ?? 'bg-slate-100 text-slate-600'}>
+        <Badge
+          className={
+            STATUS_CLASS[project.status] ?? 'bg-slate-100 text-slate-600'
+          }
+        >
           {STATUS_LABEL[project.status] ?? project.status}
         </Badge>
       </div>
-      <div className={`text-sm font-medium ${isUrgent ? 'text-red-600' : 'text-muted-foreground'}`}>
-        {isUrgent && days !== null && days >= 0 && <span className="mr-1">⚠</span>}
+      <div
+        className={`text-sm font-medium ${isUrgent ? 'text-red-600' : 'text-muted-foreground'}`}
+      >
+        {isUrgent && days !== null && days >= 0 && (
+          <span className="mr-1">⚠</span>
+        )}
         {formatDeadlineLabel(days)}
       </div>
     </div>
@@ -140,10 +148,18 @@ export function MyProjectsDashboard() {
 
       <Card>
         <div className="grid grid-cols-[110px_1fr_100px_120px] gap-3 px-4 py-2.5 border-b border-border bg-muted/30 rounded-t-lg">
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tipe</div>
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Client</div>
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Status</div>
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Deadline</div>
+          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Tipe
+          </div>
+          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Client
+          </div>
+          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Status
+          </div>
+          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Deadline
+          </div>
         </div>
 
         {projects.length === 0 ? (
@@ -165,7 +181,9 @@ export function MyProjectsDashboard() {
       <ProjectDetailsModal
         project={selectedProject}
         open={!!selectedProject}
-        onOpenChange={(open) => { if (!open) setSelectedProject(null) }}
+        onOpenChange={(open) => {
+          if (!open) setSelectedProject(null)
+        }}
       />
     </div>
   )
