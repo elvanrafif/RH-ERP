@@ -33,7 +33,7 @@ frontend/src/
 │   ├── helpers.ts             # Format tanggal, rupiah, avatar, formatDateTime, formatDateLongEn, getRemainingTime
 │   ├── constant.ts            # Semua konstanta global
 │   ├── booleans.ts            # Boolean utility helpers
-│   ├── masking.ts             # Input masking helpers
+│   ├── masking.ts             # Display label helpers: MaskingTextByDivision, MaskingTextByInvoiceType, MaskingTextByArchitectureStatus
 │   ├── validations/           # Zod schemas: client, user, project, role, vendor, prospect
 │   ├── invoicing/             # dateFilter, termCalculation, revenueStats, quotationStats
 │   ├── projects/              # statistics, permissions, deadline, status
@@ -90,8 +90,8 @@ Satu hook = satu tanggung jawab. Return object (bukan array) kecuali state seder
 | `useDeadlineProjects` | Proyek yang mendekati deadline |
 | `useAutoOpenProject` | Auto-open project detail dari URL param |
 | `useProjectCivilByClient` | Query civil projects by client ID |
-| `useProjectArchitectureByClient` | Query architecture projects by client ID |
-| `useArchitectureToBuildConversion` | Cross-reference arsitektur vs civil — return converted/potential/notConverted + stats, optional filter by PIC |
+| `useProjectArchitectureByClient` | Query architecture projects by client ID, dengan expand `client,assignee` |
+| `useArchitectureToBuildConversion` | Cross-reference arsitektur vs civil via `source_architecture` field — return converted/potential/notConverted + stats, optional filter by PIC |
 | `useDocumentScaling` | A4 ResizeObserver scaling |
 | `useDocumentExport` | Export dokumen ke JPEG |
 | `useWhatsAppShare` | Format nomor & buka link WhatsApp |
