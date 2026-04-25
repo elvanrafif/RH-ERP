@@ -85,9 +85,9 @@ export function buildWorkloadData(
   const archStats: Record<string, StatsRecord> = {}
   const civilStats: Record<string, StatsRecord> = {}
   const interiorStats: Record<string, StatsRecord> = {}
-  let archTotal: StatsRecord = { count: 0, value: 0 }
-  let civilTotal: StatsRecord = { count: 0, value: 0 }
-  let interiorTotal: StatsRecord = { count: 0, value: 0 }
+  let archTotal: StatsRecord = { count: 0, value: 0, projects: [] }
+  let civilTotal: StatsRecord = { count: 0, value: 0, projects: [] }
+  let interiorTotal: StatsRecord = { count: 0, value: 0, projects: [] }
 
   users.forEach((u) => {
     if (
