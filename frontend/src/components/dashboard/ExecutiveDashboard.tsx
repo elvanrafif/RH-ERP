@@ -7,20 +7,11 @@ import {
   Plus,
   LayoutDashboard,
   UsersRound,
-  Briefcase,
   Wallet,
-  Compass,
   CalendarDays,
 } from 'lucide-react'
 import { OverviewTab } from '@/components/dashboard/tabs/OverviewTab'
 import { ResourceMonitoringTab } from '@/components/dashboard/tabs/ResourceMonitoringTab'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import { DocumentRevenueTab } from '@/components/dashboard/tabs/DocumentRevenueTab'
 import { ClientTrackingTab } from '@/components/dashboard/tabs/ClientTrackingTab'
 
@@ -75,13 +66,6 @@ export function ExecutiveDashboard() {
               <span className="font-medium text-sm">Resource Monitoring</span>
             </TabsTrigger>
             <TabsTrigger
-              value="project-value"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all text-muted-foreground hover:text-foreground"
-            >
-              <Briefcase className="w-4 h-4" />
-              <span className="font-medium text-sm">Project Value</span>
-            </TabsTrigger>
-            <TabsTrigger
               value="revenue"
               className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all text-muted-foreground hover:text-foreground"
             >
@@ -109,20 +93,6 @@ export function ExecutiveDashboard() {
           className="space-y-6 animate-in fade-in-50"
         >
           <ResourceMonitoringTab />
-        </TabsContent>
-        <TabsContent value="project-value">
-          <Card className="border-dashed border-2 bg-slate-50">
-            <CardHeader>
-              <CardTitle>Project Value Analytics</CardTitle>
-              <CardDescription>
-                Breakdown: Interior / Sipil / Arsitektur
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="h-[300px] flex flex-col items-center justify-center text-muted-foreground gap-2">
-              <Compass className="h-10 w-10 opacity-20" />
-              <p>Under Development</p>
-            </CardContent>
-          </Card>
         </TabsContent>
         <TabsContent
           value="revenue"

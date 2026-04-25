@@ -104,6 +104,11 @@ export function WorkloadChart({
           />
           <YAxis
             allowDecimals={false}
+            domain={
+              viewMode === 'count'
+                ? [0, (dataMax: number) => dataMax + 2]
+                : [0, 'auto']
+            }
             tick={{ fontSize: 10, fill: '#64748b' }}
             axisLine={false}
             tickLine={false}
