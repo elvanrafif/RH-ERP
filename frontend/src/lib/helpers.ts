@@ -34,6 +34,15 @@ export const formatDateLong = (dateStr?: string) => {
   })
 }
 
+export const formatDateLongEn = (dateStr?: string | Date) => {
+  if (!dateStr) return '—'
+  return new Date(dateStr).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+}
+
 export const formatDateTime = (dateStr?: string) => {
   if (!dateStr) return '—'
   return new Date(dateStr).toLocaleString('id-ID', {

@@ -1,6 +1,10 @@
 import type { Project } from '@/types'
-import { getProjectDeadlineDate, getDaysRemaining } from '@/lib/projects/deadline'
+import {
+  getProjectDeadlineDate,
+  getDaysRemaining,
+} from '@/lib/projects/deadline'
 import { DEADLINE_WARNING_DAYS } from '@/lib/constant'
+import { getRemainingTime, formatDateLongEn } from '@/lib/helpers'
 
 interface CivilGanttBarProps {
   project: Project
@@ -32,10 +36,7 @@ function getBarStyle(
   if (clampedLeft > clampedRight) return null
 
   const leftPct = ((clampedLeft - windowStart.getTime()) / totalMs) * 100
-  const widthPct = Math.max(
-    ((clampedRight - clampedLeft) / totalMs) * 100,
-    2
-  )
+  const widthPct = Math.max(((clampedRight - clampedLeft) / totalMs) * 100, 2)
 
   return {
     left: `${leftPct}%`,
@@ -62,13 +63,9 @@ function buildLabel(
 ): string {
   const client = project.expand?.client?.company_name ?? '—'
   const date = getProjectDeadlineDate(project)
-  const days = date ? getDaysRemaining(date) : null
-  const suffix =
-    days === null
-      ? ''
-      : days < 0
-        ? ` · ${Math.abs(days)}d overdue`
-        : ` · ${days}d left`
+  const suffix = date
+    ? ` · ${formatDateLongEn(date)} · ${getRemainingTime(date.toISOString())}`
+    : ''
   return `${overflowLeft ? '‹ ' : ''}${client}${suffix}${overflowRight ? ' ›' : ''}`
 }
 
@@ -87,8 +84,13 @@ export function CivilGanttBar({
 
   return (
     <div
-      className={`absolute h-5 top-[7px] rounded border flex items-center px-2 text-[10px] font-medium whitespace-nowrap overflow-hidden cursor-pointer hover:brightness-95 transition-[filter] ${barClass}`}
-      style={{ left: style.left, width: style.width }}
+      className={`absolute h-6 rounded border flex items-center px-2 text-xs font-medium whitespace-nowrap overflow-hidden cursor-pointer hover:brightness-95 transition-[filter] ${barClass}`}
+      style={{
+        left: style.left,
+        width: style.width,
+        top: '50%',
+        transform: 'translateY(-50%)',
+      }}
       title={label}
       onClick={() => onClick(project)}
     >

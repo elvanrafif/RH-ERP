@@ -21,14 +21,16 @@ frontend/src/
 │   ├── shared/                # EmptyState, FormDialog, LoadingSpinner, PageHeader,
 │   │                          # StatCard, TablePagination, DeleteConfirmDialog,
 │   │                          # NumberInput, RowActions, TableSkeleton, ChartSkeleton
-│   └── dashboard/             # ExecutiveDashboard (superadmin), MyProjectsDashboard (employee)
+│   └── dashboard/             # ExecutiveDashboard (superadmin), MyProjectsDashboard (employee),
+│                              # CivilTeamDashboard (civil role) — Gantt chart per vendor,
+│                              # CivilGanttChart, CivilGanttBar, CivilVendorSection
 │       └── tabs/              # OverviewTab, ResourceMonitoringTab, DocumentRevenueTab,
 │                              # ClientTrackingTab, SemesterCard,
 │                              # WorkloadChart, RevenuePieChart, InvoiceRevenue,
 │                              # QuotationRevenue, TopInvoicesList, TopQuotationsList
 ├── hooks/                     # Custom hooks — satu hook satu tanggung jawab
 ├── lib/
-│   ├── helpers.ts             # Format tanggal, rupiah, avatar, formatDateTime
+│   ├── helpers.ts             # Format tanggal, rupiah, avatar, formatDateTime, formatDateLongEn, getRemainingTime
 │   ├── constant.ts            # Semua konstanta global
 │   ├── booleans.ts            # Boolean utility helpers
 │   ├── masking.ts             # Input masking helpers

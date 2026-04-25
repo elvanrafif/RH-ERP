@@ -1,11 +1,11 @@
 // frontend/src/components/dashboard/CivilGanttChart.tsx
-import { useState } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { ChevronLeft, ChevronRight, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import type { Project } from '@/types'
 import type { VendorGroup } from '@/hooks/useCivilTeamProjects'
-import { CivilVendorSection } from './CivilVendorSection'
+import { CivilGanttBar } from './CivilGanttBar'
 
 interface MonthBlock {
   label: string
@@ -20,16 +20,27 @@ interface WindowData {
   months: MonthBlock[]
 }
 
-function getWindow(offset: number): WindowData {
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 640)
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)')
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
+  return isMobile
+}
+
+function getWindow(offset: number, monthCount: number): WindowData {
   const now = new Date()
   const windowStart = new Date(
     now.getFullYear(),
-    now.getMonth() - 1 + offset,
+    now.getMonth() - Math.floor(monthCount / 2) + offset,
     1
   )
   const windowEnd = new Date(
     now.getFullYear(),
-    now.getMonth() + 2 + offset,
+    now.getMonth() - Math.floor(monthCount / 2) + monthCount + offset,
     0,
     23,
     59,
@@ -75,15 +86,19 @@ export function CivilGanttChart({
 }: CivilGanttChartProps) {
   const [offset, setOffset] = useState(0)
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({})
+  const isMobile = useIsMobile()
+  const monthCount = isMobile ? 1 : 3
 
-  const { windowStart, windowEnd, totalMs, months } = getWindow(offset)
+  const { windowStart, windowEnd, totalMs, months } = getWindow(
+    offset,
+    monthCount
+  )
   const todayPct =
-    totalMs > 0
-      ? ((new Date().getTime() - windowStart.getTime()) / totalMs) * 100
-      : -1
+    totalMs > 0 ? ((Date.now() - windowStart.getTime()) / totalMs) * 100 : -1
+  const showToday = todayPct >= 0 && todayPct <= 100
 
-  const toggleCollapse = (vendorId: string) =>
-    setCollapsed((prev) => ({ ...prev, [vendorId]: !prev[vendorId] }))
+  const toggleCollapse = (id: string) =>
+    setCollapsed((prev) => ({ ...prev, [id]: !prev[id] }))
 
   return (
     <Card className="overflow-hidden">
@@ -108,50 +123,143 @@ export function CivilGanttChart({
         </Button>
       </div>
 
-      {/* Scrollable gantt area */}
+      {/* Chart: sidebar column + gantt column side by side */}
       <div className="overflow-x-auto">
-        {/* Column header */}
-        <div className="flex border-b border-slate-200 bg-slate-50 min-w-0">
-          <div className="w-40 min-w-40 px-3 py-2 text-[10px] font-semibold uppercase tracking-wide text-slate-400 border-r border-slate-200">
-            Vendor / Client
+        <div className="flex">
+          {/* ── Sidebar column ── */}
+          <div className="w-40 min-w-40 shrink-0 border-r border-slate-200">
+            <div className="h-12 px-3 flex items-end pb-2 bg-slate-50 border-b border-slate-200 text-xs font-semibold uppercase tracking-wide text-slate-400">
+              Vendor / Client
+            </div>
+            {vendorGroups.map((group) => {
+              const nameColor = group.hasOverdue
+                ? 'text-red-600'
+                : group.hasNearDeadline
+                  ? 'text-amber-600'
+                  : 'text-slate-700'
+              const isCollapsed = !!collapsed[group.vendor.id]
+              return (
+                <div key={group.vendor.id}>
+                  <div
+                    className="h-9 px-3 flex items-center gap-1.5 bg-slate-50/80 border-b border-slate-200 cursor-pointer hover:bg-slate-100 transition-colors select-none"
+                    onClick={() => toggleCollapse(group.vendor.id)}
+                  >
+                    <ChevronDown
+                      className={`h-3 w-3 shrink-0 text-slate-400 transition-transform ${isCollapsed ? '-rotate-90' : ''}`}
+                    />
+                    <span
+                      className={`text-xs font-semibold truncate ${nameColor}`}
+                    >
+                      {group.vendor.name}
+                    </span>
+                  </div>
+                  {!isCollapsed &&
+                    group.projects.map((project, idx) => (
+                      <div
+                        key={project.id}
+                        className="h-9 px-3 flex items-center gap-2 border-b border-slate-200 text-xs text-slate-500 hover:bg-slate-50/50"
+                      >
+                        <span className="shrink-0 text-slate-400 font-medium w-4 text-right">
+                          {idx + 1}.
+                        </span>
+                        <span className="truncate">
+                          {project.expand?.client?.company_name ?? '—'}
+                        </span>
+                      </div>
+                    ))}
+                </div>
+              )
+            })}
           </div>
-          <div className="flex-1 relative h-8">
-            {months.map((m) => (
-              <div
-                key={m.label}
-                className="absolute top-0 bottom-0 flex items-center justify-center text-[10px] font-medium text-slate-500 border-r border-slate-300 last:border-r-0"
-                style={{ left: `${m.leftPct}%`, width: `${m.widthPct}%` }}
-              >
-                {m.label.split(' ')[0]}
-              </div>
-            ))}
-            {todayPct >= 0 && todayPct <= 100 && (
-              <div
-                className="absolute top-0 bottom-0 w-0.5 bg-blue-500 pointer-events-none z-10"
-                style={{ left: `${todayPct}%` }}
-              >
-                <span className="absolute top-1 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-[8px] font-semibold px-1.5 py-px rounded whitespace-nowrap leading-tight">
+
+          {/* ── Gantt column (today line lives here) ── */}
+          <div
+            className="flex-1 relative min-w-0"
+            style={{ overflowY: 'clip' }}
+          >
+            {/* Month header */}
+            <div className="h-12 relative border-b border-slate-200 bg-slate-50">
+              {/* Month name labels — pinned to bottom */}
+              {months.map((m) => (
+                <div
+                  key={m.label}
+                  className="absolute bottom-0 h-6 flex items-center justify-center text-xs font-medium text-slate-500 border-r border-slate-300 last:border-r-0"
+                  style={{ left: `${m.leftPct}%`, width: `${m.widthPct}%` }}
+                >
+                  {m.label.split(' ')[0]}
+                </div>
+              ))}
+              {/* Today badge — debug: pure inline style, no Tailwind */}
+              {showToday && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: `${todayPct}%`,
+                    transform: 'translateX(-50%)',
+                    backgroundColor: '#3b82f6',
+                    color: 'white',
+                    fontSize: 11,
+                    fontWeight: 700,
+                    padding: '2px 6px',
+                    borderRadius: 4,
+                    whiteSpace: 'nowrap',
+                    pointerEvents: 'none',
+                    zIndex: 11,
+                  }}
+                >
                   Today
-                </span>
-              </div>
+                </div>
+              )}
+            </div>
+
+            {/* Vendor + project bar rows */}
+            {vendorGroups.map((group) => {
+              const isCollapsed = !!collapsed[group.vendor.id]
+              return (
+                <div key={group.vendor.id}>
+                  <div className="h-9 px-3 flex items-center bg-slate-50/80 border-b border-slate-200">
+                    <span className="text-xs text-slate-400">
+                      {group.projects.length} project
+                      {group.projects.length !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  {!isCollapsed &&
+                    group.projects.map((project) => (
+                      <div
+                        key={project.id}
+                        className="h-9 relative border-b border-slate-200 hover:bg-slate-50/50"
+                      >
+                        <CivilGanttBar
+                          project={project}
+                          windowStart={windowStart}
+                          windowEnd={windowEnd}
+                          totalMs={totalMs}
+                          onClick={onProjectClick}
+                        />
+                      </div>
+                    ))}
+                </div>
+              )
+            })}
+
+            {/* Today line — spans full chart height, clipped by overflowY:clip on parent */}
+            {showToday && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: `${todayPct}%`,
+                  width: 2,
+                  height: 9999,
+                  backgroundColor: '#3b82f6',
+                  zIndex: 10,
+                  pointerEvents: 'none',
+                }}
+              />
             )}
           </div>
         </div>
-
-        {/* Vendor rows */}
-        {vendorGroups.map((group) => (
-          <CivilVendorSection
-            key={group.vendor.id}
-            group={group}
-            windowStart={windowStart}
-            windowEnd={windowEnd}
-            totalMs={totalMs}
-            todayPct={todayPct}
-            isCollapsed={!!collapsed[group.vendor.id]}
-            onToggle={() => toggleCollapse(group.vendor.id)}
-            onProjectClick={onProjectClick}
-          />
-        ))}
       </div>
     </Card>
   )

@@ -4,8 +4,8 @@ import { cn } from '@/lib/utils'
 import type { DeadlineProject } from '@/lib/projects/deadline'
 
 const TYPE_LABEL: Record<DeadlineProject['type'], string> = {
-  architecture: 'Arsitektur',
-  civil: 'Sipil',
+  architecture: 'Architecture',
+  civil: 'Civil',
   interior: 'Interior',
 }
 

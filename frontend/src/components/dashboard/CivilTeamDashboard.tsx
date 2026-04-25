@@ -37,7 +37,7 @@ export function CivilTeamDashboard() {
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="overflow-hidden">
           <CardContent className="p-0">
             <StatCard

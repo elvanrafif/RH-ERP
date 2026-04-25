@@ -10,9 +10,9 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 
 | Modul | Status | Catatan |
 |---|---|---|
-| Login / Auth | ✅ | Session timeout 1 jam, auto logout |
+| Login / Auth | ✅ | Session timeout 1 jam, auto logout, show/hide password toggle |
 | RBAC (Role & Permission) | ✅ | Custom roles dengan permission granular via PocketBase |
-| Dashboard | ✅ | Role-based: superadmin → Executive Overview (workload, revenue, client tracking); employee → My Projects (active assigned projects, deadline stats) |
+| Dashboard | ✅ | Role-based: superadmin → Executive Overview (workload, revenue, client tracking); employee → My Projects (active assigned projects, deadline stats); civil role → Civil Team Dashboard (Gantt chart per vendor, responsive 1–3 month window, Today label, color-coded deadlines) |
 | Profile & Security | ✅ | Edit profil, ganti password, upload avatar |
 
 ---
@@ -64,4 +64,4 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 | Modul | Status | Catatan |
 |---|---|---|
 | Laporan / Reporting | ⬜ | Export rekap per periode |
-| Notifikasi | ⬜ | Reminder deadline proyek |
+| Notifikasi | ✅ | Sidebar bell — overdue & upcoming tabs; civil projects tampil ke semua user (PIC = vendor), arsitektur/interior filter by assignee; label tipe dalam English |

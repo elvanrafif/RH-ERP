@@ -18,7 +18,7 @@ export function useDeadlineProjects() {
     queryFn: () =>
       pb.collection('projects').getFullList<Project>({
         filter: excludeFilter,
-        expand: 'client,assignee',
+        expand: 'client,assignee,vendor',
       }),
     refetchInterval: 5 * 60 * 1000, // refresh every 5 minutes
   })
