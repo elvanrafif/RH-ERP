@@ -96,40 +96,37 @@ export function ResourceMonitoringTab() {
         </div>
       </div>
 
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
+      <div className="grid gap-4 grid-cols-1 md:grid-cols-3">
         {DIVISION_CARDS.map((card) => {
           const dataRef = workloadData?.[card.id]
           return (
-            <Card
-              key={card.id}
-              className="shadow-sm border-slate-200/60 overflow-hidden"
-            >
+            <Card key={card.id} className="shadow-sm border-slate-200/60">
               <CardHeader
-                className={`${card.theme.bgHeader} pb-4 border-b ${card.theme.border}`}
+                className={`${card.theme.bgHeader} px-4 py-3 border-b ${card.theme.border} rounded-t-xl`}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
                     <div
-                      className={`p-2 bg-white border ${card.theme.border} rounded-md shadow-sm ${card.theme.text}`}
+                      className={`p-1.5 bg-white border ${card.theme.border} rounded-md shadow-sm ${card.theme.text}`}
                     >
                       {card.icon}
                     </div>
                     <div>
-                      <CardTitle className="text-base font-bold text-slate-800">
+                      <CardTitle className="text-sm font-bold text-slate-800">
                         {card.title}
                       </CardTitle>
-                      <CardDescription className="text-xs">
+                      <CardDescription className="text-[11px]">
                         {card.description}
                       </CardDescription>
                     </div>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right shrink-0">
                     <span
-                      className={`text-xs font-semibold ${card.theme.label} uppercase tracking-wider`}
+                      className={`text-[10px] font-semibold ${card.theme.label} uppercase tracking-wider`}
                     >
-                      {viewMode === 'count' ? 'Total Project' : 'Total Rp'}
+                      {viewMode === 'count' ? 'Total' : 'Total Rp'}
                     </span>
-                    <p className="text-lg font-bold text-slate-800 leading-none mt-1">
+                    <p className="text-base font-bold text-slate-800 leading-none mt-0.5">
                       {viewMode === 'count'
                         ? dataRef?.totalCount || 0
                         : formatCompactCurrency(dataRef?.totalValue || 0)}
@@ -137,7 +134,7 @@ export function ResourceMonitoringTab() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="pt-2">
+              <CardContent className="px-3 pt-1 pb-3">
                 <WorkloadChart
                   chartData={dataRef?.data || []}
                   color={card.chartColor}

@@ -11,7 +11,10 @@ export function useWorkloadData() {
     queryFn: async () => {
       const [users, projects] = await Promise.all([
         pb.collection('users').getFullList<User>(),
-        pb.collection('projects').getFullList<Project>({ filter: 'status != "finish"' }),
+        pb.collection('projects').getFullList<Project>({
+          filter: 'status != "finish"',
+          expand: 'vendor,client',
+        }),
       ])
       return buildWorkloadData(users, projects)
     },

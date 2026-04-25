@@ -10,7 +10,7 @@ import {
   ArrowRight,
 } from 'lucide-react'
 import { RowActions } from '@/components/shared/RowActions'
-import { formatDate, formatRupiah } from '@/lib/helpers'
+import { formatDate, formatRupiah, calculateDuration } from '@/lib/helpers'
 import {
   getCivilProjectStatus,
   getCivilStatusConfig,
@@ -19,7 +19,8 @@ import {
 export const getSipilColumns = (
   onView: (project: Project) => void,
   onEdit: (project: Project) => void,
-  onDelete: (project: Project) => void
+  onDelete: (project: Project) => void,
+  isSuperAdmin = false
 ): ColumnDef<Project>[] => [
   {
     id: 'no',
@@ -104,16 +105,20 @@ export const getSipilColumns = (
       const start = row.original.start_date
       const end = row.original.end_date
 
+      const duration = start && end ? calculateDuration(start, end) : ''
+
       return (
         <div className="flex flex-col min-w-[140px]">
-          {/* Top Row: Value & Status Badge */}
-          <div className="flex items-center justify-between pr-2">
-            <span className="font-bold text-sm text-slate-800">
-              {formatRupiah(value || 0)}
-            </span>
-          </div>
+          {/* Top Row: Value — superadmin only */}
+          {isSuperAdmin && (
+            <div className="flex items-center justify-between pr-2">
+              <span className="font-bold text-sm text-slate-800">
+                {formatRupiah(value || 0)}
+              </span>
+            </div>
+          )}
 
-          {/* Bottom Row: Date (Duration) */}
+          {/* Date Range */}
           <div className="flex items-center text-[11px] text-slate-500 bg-slate-50/50 p-1 rounded w-fit">
             <CalendarRange className="h-3 w-3 mr-1.5 text-slate-400" />
             {start && end ? (
@@ -126,6 +131,13 @@ export const getSipilColumns = (
               <span className="italic text-slate-400">Schedule not set</span>
             )}
           </div>
+
+          {/* Duration */}
+          {duration && (
+            <span className="text-[10px] text-slate-600 pl-1 mt-0.5">
+              {duration}
+            </span>
+          )}
         </div>
       )
     },

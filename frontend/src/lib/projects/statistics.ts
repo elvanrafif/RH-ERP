@@ -16,13 +16,14 @@ interface StatProject {
   contract_value?: number
   value?: number
   total_amount?: number
-  expand?: { vendor?: { name: string } }
+  expand?: { vendor?: { name: string }; client?: { company_name: string } }
   assignee?: string | string[]
 }
 
 interface StatsRecord {
   count: number
   value: number
+  projects: string[]
 }
 
 export interface WorkloadChartEntry {
@@ -34,6 +35,7 @@ export interface WorkloadChartEntry {
   displayLabelCount: string
   displayLabelValue: string
   isOverload: boolean
+  projects: string[]
 }
 
 export interface WorkloadResult {
@@ -67,6 +69,7 @@ function toChartData(
         displayLabelCount: `${data.count} (${countPercentage}%)`,
         displayLabelValue: formatCompactCurrency(data.value),
         isOverload: data.count >= WORKLOAD_OVERLOAD_THRESHOLD,
+        projects: data.projects,
       }
     })
     .sort((a, b) => b.count - a.count)
@@ -91,14 +94,15 @@ export function buildWorkloadData(
       u.division === DIVISION.ARCHITECTURE ||
       u.division === PROJECT_TYPE.ARCHITECTURE
     )
-      archStats[u.name] = { count: 0, value: 0 }
+      archStats[u.name] = { count: 0, value: 0, projects: [] }
     if (u.division === DIVISION.INTERIOR)
-      interiorStats[u.name] = { count: 0, value: 0 }
+      interiorStats[u.name] = { count: 0, value: 0, projects: [] }
   })
 
   projects.forEach((p) => {
     const type = p.type
     const projectValue = p.contract_value || p.value || p.total_amount || 0
+    const clientName = p.expand?.client?.company_name ?? '—'
 
     if (type === PROJECT_TYPE.CIVIL || type === DIVISION.CIVIL) {
       civilTotal.count++
@@ -106,9 +110,10 @@ export function buildWorkloadData(
       const vendorName = p.expand?.vendor?.name
       if (vendorName) {
         if (!civilStats[vendorName])
-          civilStats[vendorName] = { count: 0, value: 0 }
+          civilStats[vendorName] = { count: 0, value: 0, projects: [] }
         civilStats[vendorName].count += 1
         civilStats[vendorName].value += projectValue
+        civilStats[vendorName].projects.push(clientName)
       }
     } else {
       const assignees: string[] = Array.isArray(p.assignee)
@@ -133,6 +138,7 @@ export function buildWorkloadData(
           if (archStats[picName] !== undefined) {
             archStats[picName].count += 1
             archStats[picName].value += projectValue
+            archStats[picName].projects.push(clientName)
           }
         } else if (type === PROJECT_TYPE.INTERIOR) {
           if (!addedToInt) {
@@ -143,6 +149,7 @@ export function buildWorkloadData(
           if (interiorStats[picName] !== undefined) {
             interiorStats[picName].count += 1
             interiorStats[picName].value += projectValue
+            interiorStats[picName].projects.push(clientName)
           }
         }
       })

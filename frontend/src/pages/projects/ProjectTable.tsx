@@ -4,6 +4,7 @@ import { DataTable } from '@/components/ui/data-table'
 import { getSipilColumns } from './columnsSipil'
 import { getColumns } from './columns'
 import { TypeProjectsBoolean } from '@/lib/booleans'
+import { useAuth } from '@/contexts/AuthContext'
 
 interface ProjectTableProps {
   data: Project[]
@@ -22,10 +23,11 @@ export function ProjectTable({
 }: ProjectTableProps) {
   let columns
   const { isCivil } = TypeProjectsBoolean(projectType)
+  const { isSuperAdmin } = useAuth()
   if (isCivil) {
     columns = useMemo(
-      () => getSipilColumns(onView, onEdit, onDelete),
-      [onView, onEdit, onDelete]
+      () => getSipilColumns(onView, onEdit, onDelete, isSuperAdmin),
+      [onView, onEdit, onDelete, isSuperAdmin]
     )
   } else {
     columns = useMemo(
