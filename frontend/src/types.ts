@@ -63,6 +63,7 @@ export interface Project {
   end_date?: string
   assignee?: string // User ID
   vendor?: string // Relation ID → vendors
+  source_architecture?: string // Relation ID → projects (civil only)
   luas_tanah?: number
   luas_bangunan?: number
   notes?: string
@@ -76,6 +77,7 @@ export interface Project {
     client?: Client
     assignee?: User
     vendor?: Vendor
+    source_architecture?: Project
   }
   created: string
   updated: string

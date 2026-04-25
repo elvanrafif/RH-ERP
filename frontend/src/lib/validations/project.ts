@@ -14,6 +14,7 @@ export const projectSchema = z.object({
   luas_tanah: z.coerce.number().optional() as z.ZodOptional<z.ZodNumber>,
   luas_bangunan: z.coerce.number().optional() as z.ZodOptional<z.ZodNumber>,
   vendor: z.string().optional(),
+  source_architecture: z.string().optional(),
   area_scope: z.string().optional(),
   notes: z.string().optional(),
 })

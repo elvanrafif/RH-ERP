@@ -1,4 +1,7 @@
 import ProjectPageTemplate from './ProjectPageTemplate'
+import { MaskingTextByArchitectureStatus } from '@/lib/masking'
+
+const ARCH_STATUS_VALUES = ['denah', 'fasad', 'detail_drawing', 'finish']
 
 const columns = [
   { id: 'denah', title: 'Floor Plan' },
@@ -7,12 +10,10 @@ const columns = [
   { id: 'finish', title: 'Finish' },
 ]
 
-const statusOptions = [
-  { value: 'denah', label: 'Floor Plan Stage' },
-  { value: 'fasad', label: 'Facade Stage' },
-  { value: 'detail_drawing', label: 'Detail Drawing' },
-  { value: 'finish', label: 'Finish' },
-]
+const statusOptions = ARCH_STATUS_VALUES.map((value) => ({
+  value,
+  label: MaskingTextByArchitectureStatus(value),
+}))
 
 export default function ArsitekturPage() {
   return (

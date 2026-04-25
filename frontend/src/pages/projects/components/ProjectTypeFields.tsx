@@ -1,5 +1,5 @@
 import type { Control } from 'react-hook-form'
-import type { User, Vendor } from '@/types'
+import type { Project, User, Vendor } from '@/types'
 import { PROJECT_TYPE_TO_DIVISION } from '@/lib/constant'
 import { Input } from '@/components/ui/input'
 import {
@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import type { ProjectFormValues } from '@/lib/validations/project'
+import { MaskingTextByArchitectureStatus } from '@/lib/masking'
 import { NumberInput } from '@/components/shared/NumberInput'
 
 interface ProjectTypeFieldsProps {
@@ -30,6 +31,7 @@ interface ProjectTypeFieldsProps {
   civilVendors: Vendor[]
   interiorVendors: Vendor[]
   fixedType: string
+  architectureProjects?: Project[]
 }
 
 export function ProjectTypeFields({
@@ -43,6 +45,7 @@ export function ProjectTypeFields({
   civilVendors,
   interiorVendors,
   fixedType,
+  architectureProjects = [],
 }: ProjectTypeFieldsProps) {
   return (
     <>
@@ -369,6 +372,43 @@ export function ProjectTypeFields({
       )}
 
       {/* CIVIL layout */}
+      {isCivil && (
+        <FormField
+          control={control}
+          name="source_architecture"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Converted from Architecture Project</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                value={(field.value as string) || ''}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="None (fresh project)" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="__none__">None (fresh project)</SelectItem>
+                  {architectureProjects.map((ap) => (
+                    <SelectItem key={ap.id} value={ap.id}>
+                      {users?.find((u) => u.id === ap.assignee)?.name ?? '—'} ·{' '}
+                      {MaskingTextByArchitectureStatus(ap.status)}
+                      {(ap.luas_tanah || ap.luas_bangunan) && (
+                        <span className="text-muted-foreground">
+                          {' '}
+                          · L:{ap.luas_tanah ?? 0}m² | B:{ap.luas_bangunan ?? 0}
+                          m²
+                        </span>
+                      )}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </FormItem>
+          )}
+        />
+      )}
       {isCivil && (
         <div className="grid grid-cols-2 gap-4">
           <FormField

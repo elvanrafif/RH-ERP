@@ -35,10 +35,13 @@ export function useArchitectureToBuildConversion(picFilter?: string) {
       }),
   })
 
-  const civilByClientId = new Map<string, Project>()
+  const civilBySourceArchId = new Map<string, Project>()
   for (const cp of allCivil) {
-    if (!civilByClientId.has(cp.client)) {
-      civilByClientId.set(cp.client, cp)
+    if (
+      cp.source_architecture &&
+      !civilBySourceArchId.has(cp.source_architecture)
+    ) {
+      civilBySourceArchId.set(cp.source_architecture, cp)
     }
   }
 
@@ -54,7 +57,7 @@ export function useArchitectureToBuildConversion(picFilter?: string) {
   const notConverted: ConversionProject[] = []
 
   for (const arch of architectureList) {
-    const civil = civilByClientId.get(arch.client)
+    const civil = civilBySourceArchId.get(arch.id)
     const finished = isDone(arch.status)
     const cancelled = arch.status === 'cancelled'
 

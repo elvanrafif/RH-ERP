@@ -8,6 +8,7 @@ export function useProjectArchitectureByClient(clientId: string | undefined) {
     queryFn: () =>
       pb.collection('projects').getFullList<Project>({
         filter: `type = 'architecture' && client = '${clientId}'`,
+        expand: 'client,assignee',
         sort: '-created',
       }),
     enabled: !!clientId,

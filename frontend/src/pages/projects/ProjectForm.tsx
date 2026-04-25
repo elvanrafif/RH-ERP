@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -30,6 +31,7 @@ import type { ProjectFormValues } from '@/lib/validations/project'
 import { ClientComboboxField } from '@/components/forms/ClientComboboxField'
 import { ProjectTypeFields } from './components/ProjectTypeFields'
 import { useVendors } from '@/hooks/useVendors'
+import { useProjectArchitectureByClient } from '@/hooks/useProjectArchitectureByClient'
 
 interface ProjectFormProps {
   onSuccess?: () => void
@@ -107,10 +109,23 @@ export function ProjectForm({
       luas_tanah: initialData?.luas_tanah || 0,
       luas_bangunan: initialData?.luas_bangunan || 0,
       vendor: initialData?.vendor || '',
+      source_architecture: initialData?.source_architecture || '__none__',
       area_scope: initialData?.meta_data?.area_scope || '',
       notes: initialData?.notes || '',
     },
   })
+
+  const clientId = form.watch('client_id')
+  const prevClientRef = useRef(clientId)
+  const { architectureProjects } = useProjectArchitectureByClient(
+    isCivil ? clientId : undefined
+  )
+  useEffect(() => {
+    if (prevClientRef.current !== clientId) {
+      prevClientRef.current = clientId
+      if (isCivil) form.setValue('source_architecture', '__none__')
+    }
+  }, [clientId])
 
   const mutation = useMutation({
     mutationFn: async (values: ProjectFormValues) => {
@@ -126,6 +141,10 @@ export function ProjectForm({
         luas_tanah: values.luas_tanah || null,
         luas_bangunan: values.luas_bangunan || null,
         vendor: values.vendor || null,
+        source_architecture:
+          values.source_architecture === '__none__'
+            ? null
+            : values.source_architecture || null,
         notes: values.notes || null,
         meta_data: {
           area_scope: values.area_scope,
@@ -223,6 +242,7 @@ export function ProjectForm({
           civilVendors={resolvedCivilVendors}
           interiorVendors={resolvedInteriorVendors}
           fixedType={fixedType}
+          architectureProjects={architectureProjects}
         />
 
         <FormField

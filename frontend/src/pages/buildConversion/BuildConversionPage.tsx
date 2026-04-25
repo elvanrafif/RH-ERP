@@ -36,6 +36,7 @@ import {
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { DIVISION } from '@/lib/constant'
+import { MaskingTextByArchitectureStatus } from '@/lib/masking'
 
 type ActiveTab = 'converted' | 'potential' | 'not-converted'
 
@@ -95,9 +96,9 @@ function ConversionTable({
                   <TableCell>
                     <Badge
                       variant="outline"
-                      className="text-[10px] uppercase tracking-wide"
+                      className="text-[10px] tracking-wide"
                     >
-                      {arch.status.replace(/_/g, ' ')}
+                      {MaskingTextByArchitectureStatus(arch.status)}
                     </Badge>
                   </TableCell>
                   {showCivil && (
