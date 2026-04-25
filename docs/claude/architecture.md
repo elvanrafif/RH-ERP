@@ -20,7 +20,9 @@ frontend/src/
 │   ├── projects/              # ProjectFilterBar
 │   ├── shared/                # EmptyState, FormDialog, LoadingSpinner, PageHeader,
 │   │                          # StatCard, TablePagination, DeleteConfirmDialog,
-│   │                          # NumberInput, RowActions, TableSkeleton, ChartSkeleton
+│   │                          # NumberInput, RowActions, TableSkeleton, ChartSkeleton,
+│   │                          # SearchInput, FormSubmitButton, EntityAvatar,
+│   │                          # ActiveBadge, DetailField, CrudPageShell
 │   └── dashboard/             # ExecutiveDashboard (superadmin), MyProjectsDashboard (employee),
 │                              # CivilTeamDashboard (civil role) — Gantt chart per vendor,
 │                              # CivilGanttChart, CivilGanttBar, CivilVendorSection
@@ -48,14 +50,20 @@ frontend/src/
     │                          # ProjectPageTemplate, ProjectForm, ProjectTable,
     │                          # ProjectDetailsModal, ProjectKanban
     │   └── components/        # ProjectClientCard, ProjectPicTimelineCard,
-    │                          # ProjectSpecsCard, ProjectConversionBadge
+    │                          # ProjectSpecsCard, ProjectConversionBadge,
+    │                          # ProjectTypeFields
     ├── buildConversion/       # BuildConversionPage (superadmin only)
     ├── quotations/            # QuotationsPage, QuotationEditor, QuotationPaper,
     │                          # QuotationTable, QuotationCreateDialog, QuotationToolbar
     ├── invoices/              # InvoicesPage, InvoiceDetailPage, InvoicePaper,
     │                          # InvoiceTable, InvoiceCreateDialog, InvoiceToolbar,
     │                          # InvoiceEditorSettings, PaymentTermsEditor
-    ├── settings/              # UserManagement, ProfilePage, RoleManagement
+    ├── settings/
+    │   ├── users/             # UserManagement
+    │   │   └── components/    # UserForm, UserList, PasswordSection
+    │   ├── profile/           # ProfilePage
+    │   │   └── components/    # ProfileAvatar, ProfileEditForm, SecurityForm
+    │   └── roleManagement/    # roleManagement, roleForm
     ├── verification/          # PublicVerificationPage
     └── Dashboard.tsx
 ```
@@ -103,6 +111,8 @@ Satu hook = satu tanggung jawab. Return object (bukan array) kecuali state seder
 | `useFormMutation` | Generic PocketBase create/update mutation dengan query invalidation dan toast error |
 | `useClientTracking` | Fetch semua project, group ke S1/S2 per tahun berdasarkan date field per tipe (civil→end_date, architecture/interior→deadline) — return s1, s2, availableYears |
 | `useMyProjects` | Fetch active projects assigned to current user (excludes done/finish/cancelled), compute nearDeadlineCount per type threshold + inProgressCount |
+| `useCivilTeamProjects` | Fetch semua civil project aktif, group by vendor, compute hasOverdue/hasNearDeadline per vendor group + aggregated counts — data source untuk CivilTeamDashboard |
+| `usePagination` | Client-side pagination generic: slice `data` array by page, reset ke page 1 otomatis saat `resetDeps` berubah |
 
 ## Validasi Schema
 
