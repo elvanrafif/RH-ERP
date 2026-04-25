@@ -19,6 +19,7 @@
 ## Panduan Lengkap
 
 @docs/claude/architecture.md
+@docs/claude/design-system.md
 @docs/claude/rbac.md
 @docs/claude/solid.md
 @docs/claude/conventions.md

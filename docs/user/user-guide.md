@@ -9,17 +9,20 @@ Sistem manajemen internal RH Studio Arsitek — untuk tim Arsitektur, Sipil, dan
 1. [Masuk dan Keluar Sistem](#1-masuk-dan-keluar-sistem)
 2. [Catatan Penting: Sesi Otomatis Keluar](#2-catatan-penting-sesi-otomatis-keluar)
 3. [Dashboard](#3-dashboard)
-4. [Proyek](#4-proyek)
+4. [Notifikasi Deadline](#4-notifikasi-deadline)
+5. [Proyek](#5-proyek)
    - [Tampilan Kanban](#tampilan-kanban)
    - [Tampilan Tabel](#tampilan-tabel)
    - [Menambah dan Mengedit Proyek](#menambah-dan-mengedit-proyek)
-5. [Penawaran (Quotation)](#5-penawaran-quotation)
-6. [Invoice (Tagihan)](#6-invoice-tagihan)
-7. [Klien](#7-klien)
-8. [Manajemen Pengguna](#8-manajemen-pengguna)
-9. [Manajemen Peran (Role)](#9-manajemen-peran-role)
-10. [Profil Saya](#10-profil-saya)
-11. [Pencarian dan Filter di Semua Halaman](#11-pencarian-dan-filter-di-semua-halaman)
+6. [Penawaran (Quotation)](#6-penawaran-quotation)
+7. [Invoice (Tagihan)](#7-invoice-tagihan)
+8. [Klien](#8-klien)
+9. [Prospek](#9-prospek)
+10. [Build Conversion](#10-build-conversion)
+11. [Manajemen Pengguna](#11-manajemen-pengguna)
+12. [Manajemen Peran (Role)](#12-manajemen-peran-role)
+13. [Profil Saya](#13-profil-saya)
+14. [Pencarian dan Filter di Semua Halaman](#14-pencarian-dan-filter-di-semua-halaman)
 
 ---
 
@@ -54,20 +57,48 @@ Sebelum itu terjadi, sistem akan memberikan **peringatan**. Anda bisa klik tombo
 
 ## 3. Dashboard
 
-Dashboard adalah halaman pertama yang muncul setelah masuk. Halaman ini menampilkan ringkasan kondisi studio secara keseluruhan.
+Dashboard adalah halaman pertama yang muncul setelah masuk. Tampilan dashboard berbeda tergantung peran (role) Anda:
 
-Yang bisa Anda lihat di Dashboard:
+### Dashboard Admin (Executive Overview)
+
+Khusus pengguna dengan peran Administrator/Superadmin. Menampilkan:
 
 - **Ringkasan Proyek** — jumlah proyek aktif per divisi (Arsitektur, Sipil, Interior).
-- **Grafik Pendapatan** — perbandingan pendapatan dari invoice yang sudah dibayar.
+- **Grafik Pendapatan** — perbandingan pendapatan dari invoice dan penawaran per periode.
 - **Beban Kerja Tim** — seberapa banyak proyek yang ditangani setiap anggota tim.
-- **Proyek Mendekati Tenggat** — daftar proyek yang batas waktunya sudah dekat.
+- **Pelacakan Klien** — rekap proyek per klien berdasarkan semester dan tahun.
+
+### Dashboard Karyawan (My Projects)
+
+Untuk karyawan umum. Menampilkan proyek-proyek yang sedang ditangani oleh Anda sendiri:
+
+- Jumlah proyek aktif per divisi yang Anda pegang.
+- Proyek mendekati tenggat atau sudah lewat tenggat — dikelompokkan per divisi dengan indikator warna.
+
+### Dashboard Tim Sipil (Civil Team Dashboard)
+
+Khusus pengguna dengan peran Civil/Sipil. Menampilkan:
+
+- **Statistik ringkas** — total proyek aktif, mendekati tenggat, dan overdue.
+- **Gantt Chart per Vendor** — timeline proyek sipil dikelompokkan per vendor, dengan rentang tampilan 1–3 bulan yang bisa digeser. Vendor dengan proyek overdue muncul paling atas.
+- Setiap bar proyek berwarna sesuai status: merah (overdue), kuning (mendekati tenggat), biru (normal).
 
 Dashboard tidak bisa diedit — hanya untuk melihat informasi.
 
 ---
 
-## 4. Proyek
+## 4. Notifikasi Deadline
+
+Ikon lonceng di sidebar menampilkan daftar proyek yang mendekati atau sudah melewati tenggat waktu.
+
+- **Tab Overdue** — proyek yang sudah melewati deadline.
+- **Tab Upcoming** — proyek yang tenggat waktunya dalam waktu dekat.
+
+Untuk pengguna Civil, notifikasi menampilkan semua proyek sipil (PIC = vendor). Untuk pengguna lain, notifikasi hanya menampilkan proyek yang di-assign ke Anda.
+
+---
+
+## 5. Proyek
 
 Menu **Proyek** terbagi menjadi tiga divisi: **Arsitektur**, **Sipil**, dan **Interior**. Masing-masing bisa diakses dari menu di sidebar.
 
@@ -119,7 +150,7 @@ Proyek **Sipil** hanya tersedia dalam tampilan tabel.
 
 ---
 
-## 5. Penawaran (Quotation)
+## 6. Penawaran (Quotation)
 
 Menu **Penawaran** digunakan untuk membuat dokumen penawaran harga kepada klien.
 
@@ -149,7 +180,7 @@ Penawaran ditampilkan dalam format **dokumen A4** yang siap cetak. Anda bisa men
 
 ---
 
-## 6. Invoice (Tagihan)
+## 7. Invoice (Tagihan)
 
 Menu **Invoice** digunakan untuk membuat tagihan resmi kepada klien setelah pekerjaan selesai atau sesuai kesepakatan.
 
@@ -177,7 +208,7 @@ Sama seperti Penawaran, Invoice juga bisa diunduh sebagai gambar atau dibagikan 
 
 ---
 
-## 7. Klien
+## 8. Klien
 
 Menu **Klien** menyimpan data semua klien atau perusahaan yang bekerja sama dengan RH Studio.
 
@@ -196,7 +227,43 @@ Menu **Klien** menyimpan data semua klien atau perusahaan yang bekerja sama deng
 
 ---
 
-## 8. Manajemen Pengguna
+## 9. Prospek
+
+Menu **Prospek** digunakan untuk mencatat calon klien yang sedang dalam tahap penjajakan atau negosiasi, sebelum resmi menjadi klien.
+
+### Menambah Prospek Baru
+
+1. Klik tombol **+ Tambah Prospek**.
+2. Isi form yang terbagi menjadi tiga bagian:
+   - **Kontak** — nama, email, nomor telepon.
+   - **Properti** — lokasi dan jenis proyek yang diminati.
+   - **Jadwal** — tanggal follow-up atau pertemuan.
+3. Klik **Simpan**.
+
+### Mengedit atau Menghapus Prospek
+
+1. Klik baris prospek di daftar untuk melihat detail.
+2. Klik **Edit** untuk memperbarui data, atau **Hapus** untuk menghapus.
+
+---
+
+## 10. Build Conversion
+
+> **Khusus Admin.** Menu ini hanya bisa diakses oleh Administrator.
+
+Menu **Build Conversion** menampilkan laporan konversi proyek Arsitektur yang berlanjut menjadi proyek Sipil (pembangunan). Berguna untuk memantau seberapa banyak desain yang benar-benar dieksekusi.
+
+Yang bisa dilihat di halaman ini:
+
+- **Daftar proyek arsitektur** beserta status konversinya — sudah dikonversi, berpotensi dikonversi, atau belum dikonversi.
+- **Conversion rate per PIC** — persentase konversi per anggota tim.
+- **Badge konversi** di detail proyek sipil — bisa diklik untuk membuka detail proyek arsitektur sumbernya.
+
+Relasi antara proyek arsitektur dan sipil ditentukan oleh field **Source Architecture** yang dipilih saat membuat atau mengedit proyek sipil.
+
+---
+
+## 11. Manajemen Pengguna
 
 > **Khusus Admin.** Menu ini hanya bisa diakses oleh pengguna dengan peran Administrator.
 
@@ -218,7 +285,7 @@ Karyawan bisa masuk menggunakan email dan kata sandi yang ditetapkan, lalu mengu
 
 ---
 
-## 9. Manajemen Peran (Role)
+## 12. Manajemen Peran (Role)
 
 > **Khusus Admin.** Menu ini hanya bisa diakses oleh Administrator.
 
@@ -235,7 +302,7 @@ Peran menentukan fitur apa saja yang bisa diakses oleh setiap karyawan. Misalnya
 
 ---
 
-## 10. Profil Saya
+## 13. Profil Saya
 
 Setiap pengguna bisa memperbarui data dirinya sendiri.
 
@@ -262,7 +329,7 @@ Setiap pengguna bisa memperbarui data dirinya sendiri.
 
 ---
 
-## 11. Pencarian dan Filter di Semua Halaman
+## 14. Pencarian dan Filter di Semua Halaman
 
 Hampir semua halaman daftar (Proyek, Penawaran, Invoice, Klien) memiliki fitur pencarian dan filter.
 
