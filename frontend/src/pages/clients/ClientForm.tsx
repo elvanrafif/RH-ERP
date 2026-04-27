@@ -16,7 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Loader2 } from 'lucide-react'
+import { Loader2, MapPin } from 'lucide-react'
 
 interface ClientFormProps {
   onSuccess?: () => void
@@ -31,6 +31,7 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
       email: '',
       phone: '',
       address: '',
+      maps_link: '',
     },
   })
 
@@ -41,6 +42,7 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
         email: initialData.email,
         phone: initialData.phone,
         address: initialData.address,
+        maps_link: initialData.maps_link ?? '',
       })
     } else {
       form.reset({
@@ -48,6 +50,7 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
         email: '',
         phone: '',
         address: '',
+        maps_link: '',
       })
     }
   }, [initialData, form])
@@ -120,6 +123,23 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
                   className="min-h-[100px] resize-none"
                   {...field}
                 />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="maps_link"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="flex items-center gap-1.5">
+                <MapPin className="h-3.5 w-3.5" />
+                Google Maps Link
+              </FormLabel>
+              <FormControl>
+                <Input placeholder="https://maps.app.goo.gl/..." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -54,6 +54,17 @@ export function ClientDetailDialog({
             <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
             <span className="text-slate-700">{client.address || '—'}</span>
           </div>
+          {client.maps_link && (
+            <a
+              href={client.maps_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium hover:bg-emerald-100 transition-colors"
+            >
+              <MapPin className="h-3.5 w-3.5" />
+              Open in Google Maps
+            </a>
+          )}
         </div>
       </DialogContent>
     </Dialog>

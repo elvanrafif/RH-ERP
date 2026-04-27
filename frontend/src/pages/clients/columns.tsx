@@ -1,7 +1,7 @@
 import type { ColumnDef } from '@tanstack/react-table'
 import type { Client } from '@/types'
 import { Button } from '@/components/ui/button'
-import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react'
+import { MoreHorizontal, Pencil, Trash2, MapPin } from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,29 +59,52 @@ export const getColumns = (
     accessorKey: 'address',
     header: 'Alamat',
     cell: ({ row }) => {
-      const address = (row.getValue('address') as string) || '-'
+      const client = row.original
+      const address = client.address || '-'
+      const mapsLink = client.maps_link
 
-      // Jika alamat kosong/pendek, tampilkan biasa saja
-      if (address === '-' || address.length < 20) {
-        return <span>{address}</span>
-      }
+      const addressText =
+        address === '-' || address.length < 20 ? (
+          <span>{address}</span>
+        ) : (
+          <TooltipProvider>
+            <Tooltip delayDuration={200}>
+              <TooltipTrigger asChild>
+                <span className="truncate max-w-[220px] block cursor-default hover:text-slate-900 transition-colors">
+                  {address}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-[400px] break-words bg-slate-800 text-white">
+                <p>{address}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )
 
       return (
-        <TooltipProvider>
-          <Tooltip delayDuration={200}>
-            {' '}
-            {/* Delay biar ga kedip2 pas lewat mouse */}
-            <TooltipTrigger asChild>
-              {/* max-w-[200px] membatasi lebar, truncate bikin titik-titik */}
-              <span className="truncate max-w-[250px] block cursor-default hover:text-slate-900 transition-colors">
-                {address}
-              </span>
-            </TooltipTrigger>
-            <TooltipContent className="max-w-[400px] break-words bg-slate-800 text-white">
-              <p>{address}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <div className="flex items-center gap-1.5">
+          {addressText}
+          {mapsLink && (
+            <TooltipProvider>
+              <Tooltip delayDuration={200}>
+                <TooltipTrigger asChild>
+                  <a
+                    href={mapsLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="shrink-0 text-emerald-600 hover:text-emerald-700 transition-colors"
+                  >
+                    <MapPin className="h-3.5 w-3.5" />
+                  </a>
+                </TooltipTrigger>
+                <TooltipContent className="bg-slate-800 text-white">
+                  <p>Open in Google Maps</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </div>
       )
     },
   },

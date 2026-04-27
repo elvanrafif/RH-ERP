@@ -17,6 +17,7 @@ export interface Client {
   email: string
   phone: string
   address?: string
+  maps_link?: string
 }
 
 export interface Vendor {
