@@ -1,6 +1,6 @@
 # Security Guide — RH-ERP
 
-> Terakhir diaudit: 2026-04-26
+> Terakhir diaudit: 2026-04-28
 > Setiap fitur baru wajib cek checklist di bawah sebelum merge.
 
 ---
@@ -13,8 +13,8 @@ Legend: 🔴 Open · 🟡 In Progress · ✅ Fixed
 
 | ID | Isu | File | Status |
 |---|---|---|---|
-| H1 | Client-side only authorization — backend rules belum dikonfigurasi | `AuthContext.tsx`, PocketBase collections | 🔴 |
-| H2 | Nomor rekening bank hardcoded di source code | `QuotationEditor.tsx:62`, `useInvoices.ts:74` | 🔴 |
+| H1 | Client-side only authorization — backend rules belum dikonfigurasi | `AuthContext.tsx`, PocketBase collections | ✅ |
+| H2 | Nomor rekening bank hardcoded di source code | `QuotationEditor.tsx:62`, `useInvoices.ts:74` | ✅ |
 | H3 | Filter query injection — user input langsung di-concat ke PocketBase filter | `useInvoices.ts:38-48`, `useQuotations.ts:33-34` | 🔴 |
 | H4 | Public verification page expose data klien tanpa token | `PublicVerificationPage.tsx` | 🔴 |
 | H5 | Restricted user bisa bypass field `disabled` via DevTools | `QuotationEditor.tsx:261,292` | 🔴 |
@@ -70,6 +70,14 @@ Update Rule:      @request.auth.id = id || @request.auth.isSuperAdmin = true
 
 Frontend guard tetap dipakai untuk UX, bukan security.
 
+**Status (2026-04-28):** Level 1 selesai — semua collection dikonfigurasi di PocketBase. Rules yang diterapkan:
+- `clients`, `projects`, `prospects`, `vendors`: List/View/Create/Update = `@request.auth.id != ""`, Delete = `@request.auth.isSuperAdmin = true`
+- `roles`: List/View = `@request.auth.id != ""`, Create/Update/Delete = `@request.auth.isSuperAdmin = true`
+- `users`: List = `@request.auth.id != ""`, View/Update = `@request.auth.id = id || @request.auth.isSuperAdmin = true`, Create/Delete = `@request.auth.isSuperAdmin = true`
+- `invoices`, `quotations`: List/Create/Update = `@request.auth.id != ""`, View = kosong (dibutuhkan public verification), Delete = `@request.auth.isSuperAdmin = true`
+
+Level 2 (full permission parity) dan H4 (public verification token) belum dikerjakan.
+
 ---
 
 ### H2 — Hardcoded Bank Details
@@ -84,20 +92,17 @@ bank_details: 'BNI - 0717571663\nIsmail Deyrian Anugrah'
 useState('Name : Ismail Deyrian Anugrah\nAccount Number : BNI 0717571663')
 ```
 
-**Fix:** Simpan di PocketBase collection `settings` (key-value store):
+**Fix:** Nomor rekening dipindah ke environment variable `VITE_BANK_ACCOUNT_NUMBER`. Nama bank dan nama pemilik tetap hardcoded karena bukan data sensitif.
 
 ```tsx
-// Fetch dari backend
-const { data: settings } = useQuery({
-  queryKey: ['settings', 'bank_details'],
-  queryFn: () => pb.collection('settings').getFirstListItem('key="bank_details"'),
-})
+// useInvoices.ts
+bank_details: `BNI - ${import.meta.env.VITE_BANK_ACCOUNT_NUMBER}\nIsmail Deyrian Anugrah`
 
-// Gunakan
-bank_details: settings?.value ?? ''
+// QuotationEditor.tsx
+useState(`Name : Ismail Deyrian Anugrah\nAccount Number : BNI ${import.meta.env.VITE_BANK_ACCOUNT_NUMBER}`)
 ```
 
-Akses edit settings hanya untuk superadmin.
+Set `VITE_BANK_ACCOUNT_NUMBER` di environment variables server (Coolify). Jangan commit ke `.env.local`.
 
 ---
 
