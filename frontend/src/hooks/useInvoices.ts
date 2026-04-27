@@ -71,7 +71,7 @@ export function useInvoices({ filters, page }: UseInvoicesOptions) {
         price_per_meter: 200000,
         project_area: 0,
         total_amount: 0,
-        bank_details: 'BNI - 0717571663\nIsmail Deyrian Anugrah',
+        bank_details: `BNI - ${import.meta.env.VITE_BANK_ACCOUNT_NUMBER}\nIsmail Deyrian Anugrah`,
         items: getTemplateByType(type),
       })
     },

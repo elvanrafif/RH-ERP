@@ -60,7 +60,7 @@ export default function QuotationEditor() {
     DEFAULT_QUOTATION_PRICE_PER_METER
   )
   const [bankDetails, setBankDetails] = useState(
-    'Name : Ismail Deyrian Anugrah\nAccount Number : BNI 0717571663'
+    `Name : Ismail Deyrian Anugrah\nAccount Number : BNI ${import.meta.env.VITE_BANK_ACCOUNT_NUMBER}`
   )
   const [selectedClientId, setSelectedClientId] = useState('')
   const [selectedClientData, setSelectedClientData] = useState<any>(null)
