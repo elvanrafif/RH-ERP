@@ -175,7 +175,7 @@ export function MyProjectsDashboard() {
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Card className="overflow-hidden">
           <CardContent className="p-0">
             <StatCard
@@ -210,8 +210,8 @@ export function MyProjectsDashboard() {
       </div>
 
       <Card className="overflow-hidden">
-        <div className="overflow-auto">
-          <Table>
+        <div className="overflow-x-auto w-full">
+          <Table className="min-w-[700px]">
             <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
               <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
                 <TableHead className="w-[40px]">#</TableHead>
