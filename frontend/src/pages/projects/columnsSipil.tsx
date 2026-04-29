@@ -31,6 +31,7 @@ export const getSipilColumns = (
   {
     accessorKey: 'client',
     header: 'Project & Client',
+    enableSorting: false,
     cell: ({ row }) => {
       const client = row.original.expand?.client
       const clientName = client?.company_name || 'Client Not Found'

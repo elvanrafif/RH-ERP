@@ -73,7 +73,7 @@ Frontend guard tetap dipakai untuk UX, bukan security.
 **Status (2026-04-28):** Level 1 selesai — semua collection dikonfigurasi di PocketBase. Rules yang diterapkan:
 - `clients`, `projects`, `prospects`, `vendors`: List/View/Create/Update = `@request.auth.id != ""`, Delete = `@request.auth.isSuperAdmin = true`
 - `roles`: List/View = `@request.auth.id != ""`, Create/Update/Delete = `@request.auth.isSuperAdmin = true`
-- `users`: List = `@request.auth.id != ""`, View/Update = `@request.auth.id = id || @request.auth.isSuperAdmin = true`, Create/Delete = `@request.auth.isSuperAdmin = true`
+- `users`: List/View = `@request.auth.id != ""`, Update = `@request.auth.id = id || @request.auth.isSuperAdmin = true`, Create/Delete = `@request.auth.isSuperAdmin = true` — View rule dilonggarkan dari `@request.auth.id = id || @request.auth.isSuperAdmin = true` agar expand `assignee` pada project query bisa resolve untuk semua authenticated user (fix bug PIC Unassigned di halaman arsitektur)
 - `invoices`, `quotations`: List/Create/Update = `@request.auth.id != ""`, View = kosong (dibutuhkan public verification), Delete = `@request.auth.isSuperAdmin = true`
 
 Level 2 (full permission parity) dan H4 (public verification token) belum dikerjakan.

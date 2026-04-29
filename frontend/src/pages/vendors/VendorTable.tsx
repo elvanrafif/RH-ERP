@@ -67,7 +67,11 @@ export function VendorTable({
                 </TableRow>
               ) : (
                 vendors.map((vendor, index) => (
-                  <TableRow key={vendor.id} className="h-14">
+                  <TableRow
+                    key={vendor.id}
+                    className="h-14 cursor-pointer"
+                    onClick={() => onView(vendor)}
+                  >
                     <TableCell className="text-slate-400 text-xs tabular-nums">
                       {index + 1}
                     </TableCell>
@@ -108,7 +112,10 @@ export function VendorTable({
                     <TableCell className="text-slate-500 text-sm max-w-[200px] truncate">
                       {vendor.notes || '—'}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell
+                      className="text-right"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <RowActions
                         actions={[
                           {

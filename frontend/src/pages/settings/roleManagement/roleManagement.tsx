@@ -72,7 +72,11 @@ export default function RoleManagementPage() {
                   </TableRow>
                 ) : (
                   roles?.map((role, index) => (
-                    <TableRow key={role.id} className="h-14">
+                    <TableRow
+                      key={role.id}
+                      className="h-14 cursor-pointer"
+                      onClick={() => handleEdit(role)}
+                    >
                       <TableCell className="text-slate-400 text-xs tabular-nums">
                         {index + 1}
                       </TableCell>
@@ -90,7 +94,10 @@ export default function RoleManagementPage() {
                           access granted
                         </span>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell
+                        className="text-right"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Button
                           variant="ghost"
                           size="icon"

@@ -131,6 +131,7 @@ export default function Login() {
                       type={showPassword ? 'text' : 'password'}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
+                      placeholder="•••••••"
                       required
                       className="bg-slate-50 pr-10"
                     />

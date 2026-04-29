@@ -67,7 +67,11 @@ export function UserList({ users, onEdit }: UserListProps) {
                 </TableRow>
               ) : (
                 users?.map((user, index) => (
-                  <TableRow key={user.id} className="h-14">
+                  <TableRow
+                    key={user.id}
+                    className="h-14 cursor-pointer"
+                    onClick={() => onEdit(user)}
+                  >
                     <TableCell className="text-slate-400 text-xs tabular-nums">
                       {index + 1}
                     </TableCell>
@@ -126,7 +130,10 @@ export function UserList({ users, onEdit }: UserListProps) {
                       )}
                     </TableCell>
 
-                    <TableCell className="text-right">
+                    <TableCell
+                      className="text-right"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <RowActions
                         actions={[
                           {

@@ -62,7 +62,11 @@ export function ClientTable({
                 </TableRow>
               ) : (
                 clients.map((client, index) => (
-                  <TableRow key={client.id} className="h-14">
+                  <TableRow
+                    key={client.id}
+                    className="h-14 cursor-pointer"
+                    onClick={() => onView(client)}
+                  >
                     <TableCell className="text-slate-400 text-xs tabular-nums">
                       {index + 1}
                     </TableCell>
@@ -102,7 +106,10 @@ export function ClientTable({
                         </TooltipProvider>
                       )}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell
+                      className="text-right"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <RowActions
                         actions={[
                           {
