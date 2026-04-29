@@ -6,7 +6,13 @@ interface ProjectSpecsCardProps {
   areaScope?: string
   notes: string | undefined
   isInterior: boolean
-  additionalLinks?: string[]
+  additionalLinks?: Array<{ label?: string; url: string } | string>
+}
+
+type LinkEntry = { label?: string; url: string }
+
+function normalizeLink(v: { label?: string; url: string } | string): LinkEntry {
+  return typeof v === 'string' ? { url: v } : v
 }
 
 export function ProjectSpecsCard({
@@ -66,18 +72,31 @@ export function ProjectSpecsCard({
             Additional Links
           </p>
           <div className="space-y-1.5">
-            {additionalLinks.map((link, i) => (
-              <a
-                key={i}
-                href={link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-4 py-2.5 text-sm text-primary hover:bg-muted/60 transition-colors truncate"
-              >
-                <ExternalLink className="h-3.5 w-3.5 shrink-0" />
-                <span className="truncate">{link}</span>
-              </a>
-            ))}
+            {additionalLinks.map((raw, i) => {
+              const { label, url } = normalizeLink(raw)
+              return (
+                <a
+                  key={i}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-4 py-2.5 text-sm text-primary hover:bg-muted/60 transition-colors"
+                >
+                  <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                  {label ? (
+                    <>
+                      <span className="shrink-0 font-medium text-foreground">
+                        {label}
+                      </span>
+                      <span className="text-muted-foreground">·</span>
+                      <span className="truncate text-primary">{url}</span>
+                    </>
+                  ) : (
+                    <span className="truncate">{url}</span>
+                  )}
+                </a>
+              )
+            })}
           </div>
         </div>
       )}

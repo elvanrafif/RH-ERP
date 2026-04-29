@@ -33,7 +33,7 @@ export function AdditionalLinksField({ control }: AdditionalLinksFieldProps) {
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => append({ value: '' })}
+            onClick={() => append({ label: '', url: '' })}
             className="h-7 text-xs gap-1 shrink-0"
           >
             <Plus className="h-3 w-3" />
@@ -43,37 +43,53 @@ export function AdditionalLinksField({ control }: AdditionalLinksFieldProps) {
       </div>
       <div className="space-y-2">
         {fields.map((field, index) => (
-          <FormField
-            key={field.id}
-            control={control}
-            name={`additional_links.${index}.value`}
-            render={({ field: inputField }) => (
-              <FormItem>
-                <div className="flex items-center gap-2">
+          <div key={field.id} className="flex items-start gap-2">
+            <FormField
+              control={control}
+              name={`additional_links.${index}.label`}
+              render={({ field: inputField }) => (
+                <FormItem className="w-[130px] shrink-0">
+                  <FormControl>
+                    <Input
+                      placeholder="Label..."
+                      {...inputField}
+                      value={inputField.value || ''}
+                      className="h-9"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={control}
+              name={`additional_links.${index}.url`}
+              render={({ field: inputField }) => (
+                <FormItem className="flex-1">
                   <FormControl>
                     <Input
                       placeholder="https://..."
                       {...inputField}
                       value={inputField.value || ''}
-                      className="flex-1"
+                      className="h-9"
                     />
                   </FormControl>
-                  {fields.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => remove(index)}
-                      className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-                <FormMessage />
-              </FormItem>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {fields.length > 1 && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => remove(index)}
+                className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive mt-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             )}
-          />
+          </div>
         ))}
       </div>
       <p className="text-xs text-gray-400 leading-relaxed pt-0.5">

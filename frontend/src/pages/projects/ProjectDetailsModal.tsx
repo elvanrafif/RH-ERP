@@ -125,7 +125,11 @@ export function ProjectDetailsModal({
               areaScope={meta.area_scope}
               notes={notes}
               isInterior={isInterior}
-              additionalLinks={meta.additional_links as string[] | undefined}
+              additionalLinks={
+                meta.additional_links as
+                  | Array<{ label?: string; url: string } | string>
+                  | undefined
+              }
             />
           </div>
 

@@ -18,7 +18,7 @@ export const projectSchema = z.object({
   area_scope: z.string().optional(),
   notes: z.string().optional(),
   additional_links: z
-    .array(z.object({ value: z.string() }))
+    .array(z.object({ label: z.string().optional(), url: z.string() }))
     .max(5)
     .optional(),
 })

@@ -113,10 +113,16 @@ export function ProjectForm({
       area_scope: initialData?.meta_data?.area_scope || '',
       notes: initialData?.notes || '',
       additional_links: initialData?.meta_data?.additional_links?.length
-        ? (initialData.meta_data.additional_links as string[]).map(
-            (v: string) => ({ value: v })
+        ? (
+            initialData.meta_data.additional_links as Array<
+              string | { label?: string; url: string }
+            >
+          ).map((v) =>
+            typeof v === 'string'
+              ? { label: '', url: v }
+              : { label: v.label ?? '', url: v.url ?? '' }
           )
-        : [{ value: '' }],
+        : [{ label: '', url: '' }],
     },
   })
 
@@ -155,8 +161,11 @@ export function ProjectForm({
           area_scope: values.area_scope,
           additional_links:
             values.additional_links
-              ?.map((l) => l.value.trim())
-              .filter(Boolean) || [],
+              ?.filter((l) => l.url.trim())
+              .map((l) => ({
+                label: l.label?.trim() ?? '',
+                url: l.url.trim(),
+              })) || [],
         },
       }
       return initialData

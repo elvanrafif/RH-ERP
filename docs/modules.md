@@ -24,7 +24,7 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 | Arsitektur | ✅ | Table + Kanban, detail modal, filter status |
 | Sipil | ✅ | Table, klik baris → buka detail modal; filter status (Active/Building/Finishing/Finished/All) — "Active" adalah frontend alias untuk building + finishing, default view; status diambil langsung dari field `status` PocketBase (building/finishing/finish); kolom "Contract Info" sortable by deadline (end_date) — klik header untuk sort asc/desc/reset |
 | Interior | ✅ | Table, detail modal dengan info vendor |
-| Form Proyek | ✅ | Field berbeda per tipe proyek (arsitektur/sipil/interior); civil status pakai Select (building/finishing/finish); additional links (1–5 link, disimpan di `meta_data.additional_links`) berlaku untuk semua tipe |
+| Form Proyek | ✅ | Field berbeda per tipe proyek (arsitektur/sipil/interior); civil status pakai Select (building/finishing/finish); additional links (1–5 link, disimpan di `meta_data.additional_links` sebagai `{ label?, url }[]`) berlaku untuk semua tipe — label opsional, backward-compatible dengan format lama `string[]` |
 | Build Conversion | ✅ | Hanya superadmin — cross-reference arsitektur → sipil via relasi eksplisit `source_architecture` (dipilih saat buat/edit project sipil), conversion rate per PIC, badge di project detail modal civil (clickable → buka detail arsitektur) |
 
 ---
