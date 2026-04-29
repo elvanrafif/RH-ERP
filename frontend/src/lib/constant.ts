@@ -119,4 +119,4 @@ export const RENOVATION_TYPE_OPTIONS = [
   'total renovation',
 ] as const
 
-export const QUOTATION_OPTIONS = ['design', 'civil'] as const
+export const QUOTATION_OPTIONS = ['design', 'civil', 'civil + design'] as const
