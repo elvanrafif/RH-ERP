@@ -5,7 +5,6 @@ import {
   type ProspectFormValues,
 } from '@/lib/validations/prospect'
 import type { Prospect } from '@/types'
-import { useAuth } from '@/contexts/AuthContext'
 import { useProspectMutation } from '@/hooks/useProspectMutation'
 import { PROSPECT_STATUS } from '@/lib/constant'
 import { toLocalDateTimeInput } from '@/lib/helpers'
@@ -22,7 +21,6 @@ interface ProspectFormProps {
 }
 
 export function ProspectForm({ onSuccess, initialData }: ProspectFormProps) {
-  const { isSuperAdmin } = useAuth()
   const mutation = useProspectMutation({ initialData, onSuccess })
 
   const form = useForm<ProspectFormValues>({
@@ -69,10 +67,7 @@ export function ProspectForm({ onSuccess, initialData }: ProspectFormProps) {
           needsValue={needsValue}
           onNeedsToggle={handleNeedsToggle}
         />
-        <ProspectScheduleFields
-          control={form.control}
-          isSuperAdmin={isSuperAdmin}
-        />
+        <ProspectScheduleFields control={form.control} />
 
         <div className="flex justify-end pt-4">
           <Button type="submit" disabled={mutation.isPending}>

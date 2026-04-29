@@ -20,12 +20,10 @@ import {
 
 interface ProspectScheduleFieldsProps {
   control: Control<ProspectFormValues>
-  isSuperAdmin: boolean
 }
 
 export function ProspectScheduleFields({
   control,
-  isSuperAdmin,
 }: ProspectScheduleFieldsProps) {
   return (
     <>
@@ -58,15 +56,8 @@ export function ProspectScheduleFields({
                 type="datetime-local"
                 {...field}
                 value={field.value ?? ''}
-                disabled={!isSuperAdmin}
-                className={!isSuperAdmin ? 'opacity-50 cursor-not-allowed' : ''}
               />
             </FormControl>
-            {!isSuperAdmin && (
-              <p className="text-xs text-muted-foreground">
-                Only superadmin can set the meeting schedule.
-              </p>
-            )}
             <FormMessage />
           </FormItem>
         )}
