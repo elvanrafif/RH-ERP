@@ -51,7 +51,7 @@ frontend/src/
     │                          # ProjectDetailsModal, ProjectKanban
     │   └── components/        # ProjectClientCard, ProjectPicTimelineCard,
     │                          # ProjectSpecsCard, ProjectConversionBadge,
-    │                          # ProjectTypeFields
+    │                          # ProjectTypeFields, AdditionalLinksField
     ├── buildConversion/       # BuildConversionPage (superadmin only)
     ├── quotations/            # QuotationsPage, QuotationEditor, QuotationPaper,
     │                          # QuotationTable, QuotationCreateDialog, QuotationToolbar

@@ -30,6 +30,7 @@ import { projectSchema } from '@/lib/validations/project'
 import type { ProjectFormValues } from '@/lib/validations/project'
 import { ClientComboboxField } from '@/components/forms/ClientComboboxField'
 import { ProjectTypeFields } from './components/ProjectTypeFields'
+import { AdditionalLinksField } from './components/AdditionalLinksField'
 import { useVendors } from '@/hooks/useVendors'
 import { useProjectArchitectureByClient } from '@/hooks/useProjectArchitectureByClient'
 
@@ -112,6 +113,11 @@ export function ProjectForm({
       source_architecture: initialData?.source_architecture || '__none__',
       area_scope: initialData?.meta_data?.area_scope || '',
       notes: initialData?.notes || '',
+      additional_links: initialData?.meta_data?.additional_links?.length
+        ? (initialData.meta_data.additional_links as string[]).map(
+            (v: string) => ({ value: v })
+          )
+        : [{ value: '' }],
     },
   })
 
@@ -148,6 +154,10 @@ export function ProjectForm({
         notes: values.notes || null,
         meta_data: {
           area_scope: values.area_scope,
+          additional_links:
+            values.additional_links
+              ?.map((l) => l.value.trim())
+              .filter(Boolean) || [],
         },
       }
       return initialData
@@ -244,6 +254,8 @@ export function ProjectForm({
           fixedType={fixedType}
           architectureProjects={architectureProjects}
         />
+
+        <AdditionalLinksField control={form.control} />
 
         <FormField
           control={form.control}

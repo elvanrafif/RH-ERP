@@ -1,4 +1,4 @@
-import { Maximize2, Building2 } from 'lucide-react'
+import { Maximize2, Building2, ExternalLink } from 'lucide-react'
 
 interface ProjectSpecsCardProps {
   luasTanah?: number
@@ -6,6 +6,7 @@ interface ProjectSpecsCardProps {
   areaScope?: string
   notes: string | undefined
   isInterior: boolean
+  additionalLinks?: string[]
 }
 
 export function ProjectSpecsCard({
@@ -14,6 +15,7 @@ export function ProjectSpecsCard({
   areaScope,
   notes,
   isInterior,
+  additionalLinks,
 }: ProjectSpecsCardProps) {
   const hasAreaData = !isInterior && (luasTanah || luasBangunan)
 
@@ -54,6 +56,29 @@ export function ProjectSpecsCard({
             Scope Area
           </p>
           <p className="text-sm text-foreground leading-relaxed">{areaScope}</p>
+        </div>
+      )}
+
+      {/* Additional Links */}
+      {additionalLinks && additionalLinks.length > 0 && (
+        <div>
+          <p className="text-xs font-semibold text-foreground mb-2">
+            Additional Links
+          </p>
+          <div className="space-y-1.5">
+            {additionalLinks.map((link, i) => (
+              <a
+                key={i}
+                href={link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-4 py-2.5 text-sm text-primary hover:bg-muted/60 transition-colors truncate"
+              >
+                <ExternalLink className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate">{link}</span>
+              </a>
+            ))}
+          </div>
         </div>
       )}
 

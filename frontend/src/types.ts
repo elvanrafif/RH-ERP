@@ -71,6 +71,7 @@ export interface Project {
 
   meta_data: {
     area_scope?: string // Interior only
+    additional_links?: string[]
     [key: string]: any
   }
 

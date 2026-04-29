@@ -17,6 +17,10 @@ export const projectSchema = z.object({
   source_architecture: z.string().optional(),
   area_scope: z.string().optional(),
   notes: z.string().optional(),
+  additional_links: z
+    .array(z.object({ value: z.string() }))
+    .max(5)
+    .optional(),
 })
 
 export type ProjectFormValues = z.infer<typeof projectSchema>
