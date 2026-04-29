@@ -142,7 +142,7 @@ export const getSipilColumns = (
           {/* Duration */}
           {duration && (
             <span className="text-[10px] text-slate-600 pl-1 mt-0.5">
-              {duration}
+              <span className="text-slate-400">Total:</span> {duration}
             </span>
           )}
         </div>
