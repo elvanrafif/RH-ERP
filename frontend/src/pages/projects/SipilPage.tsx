@@ -1,12 +1,14 @@
 import ProjectPageTemplate from './ProjectPageTemplate'
 
 const columns = [
-  { id: 'active', title: 'Active' },
+  { id: 'building', title: 'Building' },
+  { id: 'finishing', title: 'Finishing' },
   { id: 'finish', title: 'Finished' },
 ]
 
 const statusOptions = [
-  { value: 'active', label: 'Active' },
+  { value: 'building', label: 'Building' },
+  { value: 'finishing', label: 'Finishing' },
   { value: 'finish', label: 'Finished' },
 ]
 

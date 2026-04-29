@@ -2,8 +2,8 @@ import {
   flexRender,
   getCoreRowModel,
   useReactTable,
-} from "@tanstack/react-table"
-import type { ColumnDef } from "@tanstack/react-table"
+} from '@tanstack/react-table'
+import type { ColumnDef } from '@tanstack/react-table'
 import {
   Table,
   TableBody,
@@ -11,7 +11,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from '@/components/ui/table'
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -34,7 +34,6 @@ export function DataTable<TData, TValue>({
          overflow-x-auto: Mengizinkan scroll horizontal
       */}
       <div className="overflow-x-auto w-full">
-        
         {/* TABLE WIDTH CONSTRAINT:
            min-w-[1000px]: Memaksa tabel memiliki lebar minimal 1000px.
            Jika layar HP < 1000px, scrollbar akan muncul.
@@ -45,7 +44,10 @@ export function DataTable<TData, TValue>({
               <TableRow key={headerGroup.id} className="bg-slate-50/50">
                 {headerGroup.headers.map((header) => {
                   return (
-                    <TableHead key={header.id} className="font-semibold text-slate-700">
+                    <TableHead
+                      key={header.id}
+                      className="font-semibold text-slate-700"
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -63,20 +65,26 @@ export function DataTable<TData, TValue>({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() && 'selected'}
                   className="hover:bg-slate-50/50"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="py-3">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
-                  Belum ada data project.
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center text-muted-foreground"
+                >
+                  No projects found.
                 </TableCell>
               </TableRow>
             )}

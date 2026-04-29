@@ -11,10 +11,7 @@ import {
 } from 'lucide-react'
 import { RowActions } from '@/components/shared/RowActions'
 import { formatDate, formatRupiah, calculateDuration } from '@/lib/helpers'
-import {
-  getCivilProjectStatus,
-  getCivilStatusConfig,
-} from '@/lib/projects/status'
+import { getCivilRawStatusConfig } from '@/lib/projects/status'
 
 export const getSipilColumns = (
   onView: (project: Project) => void,
@@ -147,8 +144,7 @@ export const getSipilColumns = (
     id: 'status',
     header: 'Status',
     cell: ({ row }) => {
-      const computed = getCivilProjectStatus(row.original)
-      const { label, colorClass } = getCivilStatusConfig(computed)
+      const { label, colorClass } = getCivilRawStatusConfig(row.original.status)
       return (
         <Badge
           variant="outline"

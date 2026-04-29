@@ -174,7 +174,7 @@ export function ProjectFilterBar({
         )}
 
         <div className="flex-1 min-w-[110px] max-w-[150px] relative">
-          {filterStatus !== 'active' && (
+          {filterStatus !== 'all' && (
             <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />
           )}
           <Select
@@ -186,7 +186,7 @@ export function ProjectFilterBar({
             <SelectTrigger
               className={cn(
                 'h-9 bg-white transition-colors',
-                filterStatus !== 'active'
+                filterStatus !== 'all'
                   ? 'border-primary/50 ring-1 ring-primary/30 text-primary'
                   : ''
               )}
@@ -194,7 +194,7 @@ export function ProjectFilterBar({
               <CircleDot
                 className={cn(
                   'w-3.5 h-3.5 mr-2',
-                  filterStatus !== 'active'
+                  filterStatus !== 'all'
                     ? 'text-primary'
                     : 'text-muted-foreground'
                 )}
@@ -203,8 +203,18 @@ export function ProjectFilterBar({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="finished">Finished</SelectItem>
+              {isCivil ? (
+                <>
+                  <SelectItem value="building">Building</SelectItem>
+                  <SelectItem value="finishing">Finishing</SelectItem>
+                  <SelectItem value="finished">Finished</SelectItem>
+                </>
+              ) : (
+                <>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="finished">Finished</SelectItem>
+                </>
+              )}
             </SelectContent>
           </Select>
         </div>

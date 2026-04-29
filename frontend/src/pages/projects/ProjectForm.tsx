@@ -8,7 +8,6 @@ import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
 import {
   Form,
   FormControl,
@@ -188,57 +187,34 @@ export function ProjectForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ClientComboboxField control={form.control} clients={clients} />
 
-          {isCivil ? (
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem className="flex flex-col justify-center">
-                  <FormLabel>Project Status</FormLabel>
-                  <div className="flex items-center gap-3 h-9">
-                    <FormControl>
-                      <Switch
-                        checked={field.value === 'finish'}
-                        onCheckedChange={(checked) =>
-                          field.onChange(checked ? 'finish' : 'active')
-                        }
-                      />
-                    </FormControl>
-                    <span className="text-sm text-slate-600">
-                      {field.value === 'finish' ? 'Finished' : 'Still ongoing'}
-                    </span>
-                  </div>
-                </FormItem>
-              )}
-            />
-          ) : (
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status / Stage</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value as string}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {statusOptions.map((opt) => (
-                        <SelectItem key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
-            />
-          )}
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem className="flex flex-col">
+                <FormLabel>
+                  {isCivil ? 'Project Status' : 'Status / Stage'}
+                </FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value as string}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status..." />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {statusOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
         </div>
 
         <ProjectTypeFields

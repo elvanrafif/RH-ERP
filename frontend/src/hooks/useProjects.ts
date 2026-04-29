@@ -4,7 +4,12 @@ import { pb } from '@/lib/pocketbase'
 import type { Project } from '@/types'
 
 type ProjectType = 'architecture' | 'civil' | 'interior'
-export type ProjectStatusFilter = 'active' | 'all' | 'finished'
+export type ProjectStatusFilter =
+  | 'active'
+  | 'all'
+  | 'finished'
+  | 'building'
+  | 'finishing'
 
 interface UseProjectsOptions {
   projectType: ProjectType
@@ -27,6 +32,8 @@ export function useProjects({ projectType, statusFilter }: UseProjectsOptions) {
         filterRule += ` && status != 'done' && status != 'finish'`
       if (statusFilter === 'finished')
         filterRule += ` && (status = 'done' || status = 'finish')`
+      if (statusFilter === 'building') filterRule += ` && status = 'building'`
+      if (statusFilter === 'finishing') filterRule += ` && status = 'finishing'`
 
       return pb.collection('projects').getFullList<Project>({
         sort: '-created',
