@@ -84,3 +84,17 @@ export interface Project {
   created: string
   updated: string
 }
+
+export interface Survey {
+  id: string
+  client: string // relation ID → clients
+  surveyor: string // relation ID → users
+  schedule: string // ISO datetime string
+  notes?: string
+  expand?: {
+    client?: Client
+    surveyor?: User
+  }
+  created: string
+  updated: string
+}
