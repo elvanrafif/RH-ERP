@@ -67,7 +67,7 @@ Dark mode didukung via class `.dark` (`@custom-variant dark (&:is(.dark *))`), t
 
 **`DataTable<TData, TValue>`** — `components/ui/data-table.tsx`
 
-Wrapper generik di atas `@tanstack/react-table`. Terima `columns` (ColumnDef array) dan `data`.
+Wrapper generik di atas `@tanstack/react-table`. Terima `columns` (ColumnDef array) dan `data`. Mendukung sorting bawaan — sort state dikelola internal, ikon sort otomatis tampil di header kolom yang sortable.
 
 ```tsx
 <DataTable columns={columns} data={projects} />
@@ -82,6 +82,22 @@ Styling tabel:
 ### Definisi Kolom
 
 Tiap halaman punya file `columns.tsx` (atau `columnsSipil.tsx`) yang mendefinisikan `ColumnDef[]`. Gunakan `accessorKey` untuk nilai langsung, `cell` untuk render kustom.
+
+**Sorting per kolom:** Tambah `enableSorting: true` + `sortingFn` di definisi kolom untuk mengaktifkan sort. Header akan otomatis clickable dan tampil ikon `ArrowUpDown` / `ArrowUp` / `ArrowDown`. Contoh di `columnsSipil.tsx` (sort by `end_date`):
+
+```ts
+{
+  id: 'contract_info',
+  accessorFn: (row) => row.end_date ?? '',
+  enableSorting: true,
+  sortingFn: (rowA, rowB) => {
+    const a = rowA.original.end_date ? new Date(rowA.original.end_date).getTime() : 0
+    const b = rowB.original.end_date ? new Date(rowB.original.end_date).getTime() : 0
+    return a - b
+  },
+  cell: ({ row }) => { ... }
+}
+```
 
 ### Pagination
 

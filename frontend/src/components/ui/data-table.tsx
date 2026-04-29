@@ -1,9 +1,12 @@
+import { useState } from 'react'
 import {
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table'
-import type { ColumnDef } from '@tanstack/react-table'
+import type { ColumnDef, SortingState } from '@tanstack/react-table'
+import { ArrowUp, ArrowDown, ArrowUpDown } from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -24,10 +27,15 @@ export function DataTable<TData, TValue>({
   data,
   onRowClick,
 }: DataTableProps<TData, TValue>) {
+  const [sorting, setSorting] = useState<SortingState>([])
+
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
+    state: { sorting },
   })
 
   return (
@@ -45,17 +53,34 @@ export function DataTable<TData, TValue>({
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="bg-slate-50/50">
                 {headerGroup.headers.map((header) => {
+                  const canSort = header.column.getCanSort()
+                  const sortDir = header.column.getIsSorted()
                   return (
                     <TableHead
                       key={header.id}
-                      className="font-semibold text-slate-700"
+                      className={`font-semibold text-slate-700${canSort ? ' cursor-pointer select-none' : ''}`}
+                      onClick={
+                        canSort
+                          ? header.column.getToggleSortingHandler()
+                          : undefined
+                      }
                     >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
+                      {header.isPlaceholder ? null : (
+                        <div className="flex items-center gap-1">
+                          {flexRender(
                             header.column.columnDef.header,
                             header.getContext()
                           )}
+                          {canSort &&
+                            (sortDir === 'asc' ? (
+                              <ArrowUp className="h-3.5 w-3.5 text-primary" />
+                            ) : sortDir === 'desc' ? (
+                              <ArrowDown className="h-3.5 w-3.5 text-primary" />
+                            ) : (
+                              <ArrowUpDown className="h-3.5 w-3.5 opacity-40" />
+                            ))}
+                        </div>
+                      )}
                     </TableHead>
                   )
                 })}
