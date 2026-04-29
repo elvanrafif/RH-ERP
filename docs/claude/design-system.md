@@ -110,20 +110,24 @@ const { page, setPage, totalPages, totalItems, paginatedData } = usePagination(
 
 ## Search Bar
 
-**`SearchInput`** — `components/shared/SearchInput.tsx`
-
-Komponen reusable untuk search di semua halaman CRUD. Props: `value`, `onChange`, `placeholder?`, `className?`.
+Search bar diimplementasi inline (bukan komponen tersendiri) dengan pola yang konsisten di semua halaman.
 
 ```tsx
-<SearchInput
-  className="flex-1"
-  value={searchTerm}
-  onChange={setSearchTerm}
-  placeholder="Search name, email..."
-/>
+<div className="relative flex-1 sm:max-w-[240px]">
+  <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+  <Input
+    placeholder="Search client..."
+    className="pl-9 h-9 bg-white w-full"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+</div>
 ```
 
-`className` mengatur ukuran wrapper — bukan internal. Default max-width `md:max-w-xs`. Gunakan `className="flex-1"` di toolbar agar stretch sesuai parent.
+**Konvensi width:**
+- `flex-1` — agar stretch di dalam toolbar
+- `sm:max-w-[240px]` atau `md:max-w-xs` — wajib di semua toolbar agar tidak mendorong filter ke kanan
+- Mobile (< sm/md): full width, filter turun ke bawah (wrap)
 
 Search dilakukan client-side dengan `array.filter()` — tidak ada debounce (pakai `useDebounce` jika query server-side).
 

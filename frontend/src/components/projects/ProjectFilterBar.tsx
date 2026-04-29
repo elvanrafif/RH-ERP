@@ -69,7 +69,7 @@ export function ProjectFilterBar({
       }
     >
       <div className="flex flex-wrap gap-2 w-full items-center">
-        <div className="relative flex-1 min-w-[180px]">
+        <div className="relative flex-1 min-w-[180px] sm:max-w-[240px]">
           <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search client"
