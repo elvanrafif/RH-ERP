@@ -1,7 +1,7 @@
 # CLAUDE.md — RH-ERP Codebase Guide
 
 > Panduan ini wajib dibaca sebelum membuat atau memodifikasi kode.
-> Terakhir diperbarui: 2026-04-25
+> Terakhir diperbarui: 2026-04-26
 
 ---
 
@@ -25,3 +25,4 @@
 @docs/claude/conventions.md
 @docs/modules.md
 @docs/decisions/
+@docs/security.md

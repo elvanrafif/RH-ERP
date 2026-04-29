@@ -25,19 +25,23 @@ export default function InvoiceDetailPage() {
   const queryClient = useQueryClient()
   const componentRef = useRef<HTMLDivElement>(null)
 
-  const { containerRef: previewContainerRef, scale: previewScale } = useDocumentScaling()
+  const { containerRef: previewContainerRef, scale: previewScale } =
+    useDocumentScaling()
   const { generateJpeg } = useDocumentExport(componentRef)
   const { share: shareViaWhatsApp } = useWhatsAppShare()
-  const { hasUnsavedChanges, markAsDirty, markAsClean, handleBack } = useUnsavedChanges('/invoices')
+  const { hasUnsavedChanges, markAsDirty, markAsClean, handleBack } =
+    useUnsavedChanges('/invoices')
 
   const { data: clientsList } = useQuery({
     queryKey: ['clients'],
-    queryFn: () => pb.collection('clients').getFullList({ sort: 'company_name' }),
+    queryFn: () =>
+      pb.collection('clients').getFullList({ sort: 'company_name' }),
   })
 
   const { data: invoice, isLoading } = useQuery({
     queryKey: ['invoice', id],
-    queryFn: () => pb.collection('invoices').getOne(id as string, { expand: 'client_id' }),
+    queryFn: () =>
+      pb.collection('invoices').getOne(id as string, { expand: 'client_id' }),
   })
 
   const [items, setItems] = useState<TermItem[]>([])
@@ -50,11 +54,14 @@ export default function InvoiceDetailPage() {
   const [selectedClientId, setSelectedClientId] = useState('')
   const [selectedClientData, setSelectedClientData] = useState<any>(null)
   const [projectArea, setProjectArea] = useState(0)
-  const [pricePerMeter, setPricePerMeter] = useState(DEFAULT_DESIGN_PRICE_PER_METER)
+  const [pricePerMeter, setPricePerMeter] = useState(
+    DEFAULT_DESIGN_PRICE_PER_METER
+  )
   const [manualTotal, setManualTotal] = useState(0)
 
   const qrLink = `${import.meta.env.VITE_FE_LINK_URL}/verify/invoices/${id}`
-  const grandTotal = type === 'design' ? projectArea * pricePerMeter : manualTotal
+  const grandTotal =
+    type === 'design' ? projectArea * pricePerMeter : manualTotal
 
   const recalcItems = useCallback(
     (currentItems: TermItem[], currentTotal: number) =>
@@ -82,7 +89,8 @@ export default function InvoiceDetailPage() {
     setProjectArea(area)
     setPricePerMeter(price)
     setManualTotal(invoice.total_amount || 0)
-    const total = currentType === 'design' ? area * price : invoice.total_amount || 0
+    const total =
+      currentType === 'design' ? area * price : invoice.total_amount || 0
     setItems(total > 0 ? recalcItems(loadedItems, total) : loadedItems)
     markAsClean()
   }, [invoice, recalcItems])
@@ -115,14 +123,16 @@ export default function InvoiceDetailPage() {
   }
 
   const handleShareWA = () => {
-    const message = `Hello ${selectedClientData?.company_name},\n\nHere is the link to your Invoice:\n${qrLink}\n\nThank you.`
+    const message = `Dear ${selectedClientData?.company_name},\n\nWe would like to inform you that your invoice has been prepared and is now available for your review.\n\nPlease access the document through the following link:\n${qrLink}\n\nShould you have any questions or require further clarification, please do not hesitate to contact us.\n\nBest regards,\nRH Studio`
     shareViaWhatsApp(selectedClientData?.phone, message)
   }
 
   const handleDownloadOfficial = () => {
     const fileName = invoice?.document_file
     if (!fileName) {
-      toast.error("Document not available. Please click 'Save' first to generate the document.")
+      toast.error(
+        "Document not available. Please click 'Save' first to generate the document."
+      )
       return
     }
     const fileUrl = pb.files.getUrl(invoice, fileName, { download: true })
@@ -145,8 +155,14 @@ export default function InvoiceDetailPage() {
       formData.append('bank_details', bankDetails)
       formData.append('notes', notes)
       formData.append('total_amount', String(grandTotal))
-      formData.append('project_area', String(type === 'design' ? projectArea : 0))
-      formData.append('price_per_meter', String(type === 'design' ? pricePerMeter : 0))
+      formData.append(
+        'project_area',
+        String(type === 'design' ? projectArea : 0)
+      )
+      formData.append(
+        'price_per_meter',
+        String(type === 'design' ? pricePerMeter : 0)
+      )
       formData.append('active_termin', activeTermin)
       const blob = await generateJpeg()
       if (blob) {
@@ -199,12 +215,27 @@ export default function InvoiceDetailPage() {
             pricePerMeter={pricePerMeter}
             manualTotal={manualTotal}
             clientsList={clientsList as any}
-            onActiveTerminChange={(val) => { setActiveTermin(val); markAsDirty() }}
+            onActiveTerminChange={(val) => {
+              setActiveTermin(val)
+              markAsDirty()
+            }}
             onClientChange={handleClientChange}
-            onDateChange={(val) => { setDate(val); markAsDirty() }}
-            onProjectAreaChange={(val) => { setProjectArea(val); markAsDirty() }}
-            onPricePerMeterChange={(val) => { setPricePerMeter(val); markAsDirty() }}
-            onManualTotalChange={(val) => { setManualTotal(val); markAsDirty() }}
+            onDateChange={(val) => {
+              setDate(val)
+              markAsDirty()
+            }}
+            onProjectAreaChange={(val) => {
+              setProjectArea(val)
+              markAsDirty()
+            }}
+            onPricePerMeterChange={(val) => {
+              setPricePerMeter(val)
+              markAsDirty()
+            }}
+            onManualTotalChange={(val) => {
+              setManualTotal(val)
+              markAsDirty()
+            }}
           />
 
           <div className="space-y-4 border-b pb-6">
@@ -214,7 +245,10 @@ export default function InvoiceDetailPage() {
               </Label>
               <Textarea
                 value={notes}
-                onChange={(e) => { setNotes(e.target.value); markAsDirty() }}
+                onChange={(e) => {
+                  setNotes(e.target.value)
+                  markAsDirty()
+                }}
                 className="text-xs min-h-[60px]"
                 placeholder="e.g. Revised twice, additional fees applied..."
               />
@@ -225,7 +259,10 @@ export default function InvoiceDetailPage() {
               </Label>
               <Textarea
                 value={bankDetails}
-                onChange={(e) => { setBankDetails(e.target.value); markAsDirty() }}
+                onChange={(e) => {
+                  setBankDetails(e.target.value)
+                  markAsDirty()
+                }}
                 className="text-xs min-h-[60px] resize-none"
               />
             </div>

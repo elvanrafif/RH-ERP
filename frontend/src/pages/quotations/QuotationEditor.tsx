@@ -102,7 +102,7 @@ export default function QuotationEditor() {
   }
 
   const handleShareWA = () => {
-    const message = `Hello ${selectedClientData?.company_name},\n\nHere is the link to your Quotation:\n${qrLink}\n\nThank you.`
+    const message = `Dear ${selectedClientData?.company_name},\n\nWe are pleased to present the quotation that has been prepared for your review.\n\nPlease access the document through the following link:\n${qrLink}\n\nShould you have any questions or require further clarification, please do not hesitate to contact us.\n\nBest regards,\nRH Studio`
     shareViaWhatsApp(selectedClientData?.phone, message)
   }
 

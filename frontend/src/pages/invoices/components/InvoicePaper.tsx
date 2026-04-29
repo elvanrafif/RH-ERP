@@ -243,7 +243,7 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
                 </p>
               </div>
             </div>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center gap-1">
               <div className="bg-white p-1 border-2 border-yellow-400 rounded">
                 <QRCode
                   value={qrLink}
@@ -252,6 +252,9 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
                   viewBox={`0 0 256 256`}
                 />
               </div>
+              <p className="text-[9px] text-gray-500 tracking-wide">
+                Scan to Verify
+              </p>
             </div>
           </div>
         </div>

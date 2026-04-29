@@ -177,7 +177,7 @@ export const QuotationPaper = React.forwardRef<
           </div>
 
           {/* Kotak QR Code di kanan bawah */}
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center gap-1">
             <div className="bg-white p-1 border-2 border-[#ce9c2b] rounded">
               <QRCode
                 value={qrLink}
@@ -186,6 +186,9 @@ export const QuotationPaper = React.forwardRef<
                 viewBox={`0 0 256 256`}
               />
             </div>
+            <p className="text-[9px] text-gray-500 tracking-wide">
+              Scan to Verify
+            </p>
           </div>
         </div>
       </div>
