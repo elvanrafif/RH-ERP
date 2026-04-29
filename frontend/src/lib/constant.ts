@@ -80,7 +80,24 @@ export const COMPANY_INFO = {
 
 // Prospect
 export const PROSPECT_STATUS = {
-  WAITING: 'waiting for online schedule',
+  WAITING_ONLINE: 'waiting for online schedule',
+  WAITING_OFFLINE: 'waiting for offline schedule',
+  WAITING_PAYMENT: 'waiting for payment',
+  FOLLOW_UP: 'follow up',
+  FAMILY_DISCUSSION: 'family discussion',
+  CANCEL: 'cancel',
+  DONE: 'done',
+} as const
+
+export const PROSPECT_STATUS_COLORS: Record<string, string> = {
+  'waiting for online schedule': 'bg-blue-100 text-blue-800 hover:bg-blue-100',
+  'waiting for offline schedule':
+    'bg-indigo-100 text-indigo-800 hover:bg-indigo-100',
+  'waiting for payment': 'bg-amber-100 text-amber-800 hover:bg-amber-100',
+  'follow up': 'bg-violet-100 text-violet-800 hover:bg-violet-100',
+  'family discussion': 'bg-orange-100 text-orange-800 hover:bg-orange-100',
+  cancel: 'bg-red-100 text-red-700 hover:bg-red-100',
+  done: 'bg-emerald-100 text-emerald-800 hover:bg-emerald-100',
 } as const
 
 export const FLOOR_OPTIONS = [

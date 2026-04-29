@@ -7,7 +7,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Badge } from '@/components/ui/badge'
 import { Eye, Pencil } from 'lucide-react'
 import { RowActions } from '@/components/shared/RowActions'
 import { EmptyState } from '@/components/shared/EmptyState'
@@ -36,7 +35,6 @@ export function ProspectTable({
               <TableHead className="min-w-[40px] w-[40px]">#</TableHead>
               <TableHead className="min-w-[130px]">Instagram</TableHead>
               <TableHead className="min-w-[180px]">Client</TableHead>
-              <TableHead className="min-w-[120px]">Status</TableHead>
               <TableHead className="min-w-[110px]">Needs</TableHead>
               <TableHead className="min-w-[150px]">Details</TableHead>
               <TableHead className="min-w-[160px]">Meeting Schedule</TableHead>
@@ -45,10 +43,10 @@ export function ProspectTable({
           </TableHeader>
           <TableBody>
             {isLoading ? (
-              <TableRowsSkeleton columns={8} rows={8} />
+              <TableRowsSkeleton columns={7} rows={8} />
             ) : prospects.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8}>
+                <TableCell colSpan={7}>
                   <EmptyState title="No prospects found." />
                 </TableCell>
               </TableRow>
@@ -80,11 +78,6 @@ export function ProspectTable({
                         {prospect.address}
                       </div>
                     )}
-                  </TableCell>
-                  <TableCell>
-                    <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 text-xs capitalize whitespace-nowrap">
-                      {prospect.status}
-                    </Badge>
                   </TableCell>
                   <TableCell className="text-sm">
                     {prospect.needs?.length ? prospect.needs.join(', ') : '—'}

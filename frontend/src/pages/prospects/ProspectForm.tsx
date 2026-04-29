@@ -36,7 +36,7 @@ export function ProspectForm({ onSuccess, initialData }: ProspectFormProps) {
       needs: initialData?.needs ?? [],
       floor: initialData?.floor ?? '',
       renovation_type: initialData?.renovation_type ?? '',
-      status: initialData?.status ?? PROSPECT_STATUS.WAITING,
+      status: initialData?.status ?? PROSPECT_STATUS.WAITING_ONLINE,
       notes: initialData?.notes ?? '',
       meeting_schedule: toLocalDateTimeInput(initialData?.meeting_schedule),
       confirmation: initialData?.confirmation ?? '',

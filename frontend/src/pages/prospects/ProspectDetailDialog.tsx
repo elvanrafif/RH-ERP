@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Instagram } from 'lucide-react'
 import { formatDateTime } from '@/lib/helpers'
+import { PROSPECT_STATUS_COLORS } from '@/lib/constant'
 
 interface ProspectDetailDialogProps {
   prospect: Prospect | null
@@ -50,7 +51,9 @@ export function ProspectDetailDialog({
                 </p>
               </div>
             </div>
-            <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100 text-xs capitalize shrink-0 mt-4">
+            <Badge
+              className={`text-xs capitalize shrink-0 mt-4 ${PROSPECT_STATUS_COLORS[prospect.status] ?? 'bg-gray-100 text-gray-700 hover:bg-gray-100'}`}
+            >
               {prospect.status}
             </Badge>
           </div>

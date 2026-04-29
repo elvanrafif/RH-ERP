@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Prospect } from '@/types'
 import { ProspectTable } from './ProspectTable'
 import { ProspectForm } from './ProspectForm'
@@ -9,9 +10,17 @@ import { usePagination } from '@/hooks/usePagination'
 import { useTableState } from '@/hooks/useTableState'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Plus, Search, Instagram } from 'lucide-react'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
+import { PROSPECT_STATUS } from '@/lib/constant'
 
 export default function ProspectsPage() {
   const {
@@ -27,17 +36,25 @@ export default function ProspectsPage() {
     handleCloseDetail,
   } = useTableState<Prospect>()
 
+  const [filterStatus, setFilterStatus] = useState('all')
+
   const debouncedSearch = useDebounce(searchTerm, 500)
   const { prospects: data, isLoading } = useProspects({
     searchTerm: debouncedSearch,
   })
+
+  const filteredData =
+    filterStatus === 'all'
+      ? data
+      : data.filter((p) => p.status === filterStatus)
+
   const {
     page,
     setPage,
     totalItems,
     totalPages,
     paginatedData: paginatedProspects,
-  } = usePagination(data, [debouncedSearch])
+  } = usePagination(filteredData, [debouncedSearch, filterStatus])
 
   return (
     <div className="flex-1 h-full p-4 md:p-8 pt-6 flex flex-col overflow-hidden bg-background/50">
@@ -53,15 +70,39 @@ export default function ProspectsPage() {
       />
 
       <div className="flex-1 overflow-hidden relative bg-card/50 rounded-lg border border-border shadow-inner flex flex-col">
-        <div className="flex items-center gap-2 px-3 py-2 border-b bg-white/80 backdrop-blur-sm shrink-0">
-          <div className="relative flex-1 md:max-w-xs">
+        <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b bg-white/80 backdrop-blur-sm shrink-0">
+          <div className="relative flex-1 sm:max-w-[240px]">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search by name, instagram, phone..."
-              className="pl-9 h-9 bg-white"
+              className="pl-9 h-9 bg-white w-full"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
+          </div>
+          <div className="relative">
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger
+                className={`h-9 text-sm bg-white shadow-sm w-[200px] ${
+                  filterStatus !== 'all'
+                    ? 'border-primary/50 ring-1 ring-primary/30 text-primary'
+                    : ''
+                }`}
+              >
+                <SelectValue placeholder="All statuses" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                {Object.values(PROSPECT_STATUS).map((s) => (
+                  <SelectItem key={s} value={s} className="capitalize">
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {filterStatus !== 'all' && (
+              <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />
+            )}
           </div>
         </div>
 
