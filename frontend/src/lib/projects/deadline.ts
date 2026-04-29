@@ -55,16 +55,20 @@ function getPicName(project: Project): string {
 }
 
 /** Converts raw projects into a sorted list of deadline-relevant projects.
- *  Civil projects are shown to all users (PIC = vendor, not assignee).
- *  Architecture/interior are filtered to the current user's assignee. */
+ *  Superadmin → all projects.
+ *  Civil division → all civil projects + their own assigned non-civil projects.
+ *  Others → only projects assigned to them. */
 export function toDeadlineProjects(
   projects: Project[],
   userId?: string,
-  isSuperAdmin?: boolean
+  isSuperAdmin?: boolean,
+  isCivil?: boolean
 ): DeadlineProject[] {
   const filtered = isSuperAdmin
     ? projects
-    : projects.filter((p) => p.type === 'civil' || p.assignee === userId)
+    : isCivil
+      ? projects.filter((p) => p.type === 'civil' || p.assignee === userId)
+      : projects.filter((p) => p.assignee === userId)
 
   return filtered
     .filter((p) => isProjectActive(p.status))

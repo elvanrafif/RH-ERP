@@ -161,27 +161,29 @@ export const getSipilColumns = (
     cell: ({ row }) => {
       const project = row.original
       return (
-        <RowActions
-          actions={[
-            {
-              label: 'View Details',
-              icon: Eye,
-              onClick: () => onView(project),
-            },
-            {
-              label: 'Edit Details',
-              icon: Pencil,
-              onClick: () => onEdit(project),
-            },
-            {
-              label: 'Delete Project',
-              icon: Trash2,
-              onClick: () => onDelete(project),
-              variant: 'destructive',
-              separator: true,
-            },
-          ]}
-        />
+        <div onClick={(e) => e.stopPropagation()}>
+          <RowActions
+            actions={[
+              {
+                label: 'View Details',
+                icon: Eye,
+                onClick: () => onView(project),
+              },
+              {
+                label: 'Edit Details',
+                icon: Pencil,
+                onClick: () => onEdit(project),
+              },
+              {
+                label: 'Delete Project',
+                icon: Trash2,
+                onClick: () => onDelete(project),
+                variant: 'destructive',
+                separator: true,
+              },
+            ]}
+          />
+        </div>
       )
     },
   },

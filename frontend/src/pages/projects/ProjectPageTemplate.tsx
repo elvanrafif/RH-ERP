@@ -53,9 +53,8 @@ export default function ProjectPageTemplate({
   const deadlineWarningDays = DEADLINE_WARNING_DAYS[projectType]
 
   // UI state
-  const [statusFilter, setStatusFilter] = useState<ProjectStatusFilter>(
-    isCivil ? 'all' : 'active'
-  )
+  const [statusFilter, setStatusFilter] =
+    useState<ProjectStatusFilter>('active')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
@@ -229,12 +228,10 @@ export default function ProjectPageTemplate({
             onFilterDeadlineChange={setFilterDeadline}
             deadlineWarningDays={deadlineWarningDays}
             resultCount={resultCount}
-            hasActiveFilters={
-              hasActiveFilters || statusFilter !== (isCivil ? 'all' : 'active')
-            }
+            hasActiveFilters={hasActiveFilters || statusFilter !== 'active'}
             onResetFilters={() => {
               resetFilters()
-              setStatusFilter(isCivil ? 'all' : 'active')
+              setStatusFilter('active')
             }}
             isCivil={isCivil}
             isInterior={isInterior}

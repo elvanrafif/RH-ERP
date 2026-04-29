@@ -173,7 +173,9 @@ export function ProjectFilterBar({
           </div>
         )}
 
-        <div className="flex-1 min-w-[110px] max-w-[150px] relative">
+        <div
+          className={`flex-1 relative ${isCivil ? 'min-w-[190px] max-w-[250px]' : 'min-w-[110px] max-w-[150px]'}`}
+        >
           {filterStatus !== 'all' && (
             <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />
           )}
@@ -205,6 +207,9 @@ export function ProjectFilterBar({
               <SelectItem value="all">All Status</SelectItem>
               {isCivil ? (
                 <>
+                  <SelectItem value="active">
+                    Active (Building + Finishing)
+                  </SelectItem>
                   <SelectItem value="building">Building</SelectItem>
                   <SelectItem value="finishing">Finishing</SelectItem>
                   <SelectItem value="finished">Finished</SelectItem>

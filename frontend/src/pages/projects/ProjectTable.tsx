@@ -38,7 +38,11 @@ export function ProjectTable({
 
   return (
     <div className="bg-white rounded-md">
-      <DataTable columns={columns} data={data} />
+      <DataTable
+        columns={columns}
+        data={data}
+        onRowClick={isCivil ? onView : undefined}
+      />
     </div>
   )
 }
