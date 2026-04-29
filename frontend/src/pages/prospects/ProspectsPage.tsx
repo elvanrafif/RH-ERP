@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { Prospect } from '@/types'
 import { ProspectTable } from './ProspectTable'
 import { ProspectForm } from './ProspectForm'
@@ -17,10 +17,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Plus, Search, Instagram } from 'lucide-react'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Plus, Search, Instagram, CalendarIcon, X } from 'lucide-react'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
 import { PROSPECT_STATUS } from '@/lib/constant'
+import { format, parseISO, startOfMonth } from 'date-fns'
+import { MonthYearPicker } from '@/components/shared/MonthYearPicker'
 
 export default function ProspectsPage() {
   const {
@@ -37,16 +40,26 @@ export default function ProspectsPage() {
   } = useTableState<Prospect>()
 
   const [filterStatus, setFilterStatus] = useState('all')
+  const [selectedMonth, setSelectedMonth] = useState<Date | undefined>(undefined)
+  const [calendarOpen, setCalendarOpen] = useState(false)
 
   const debouncedSearch = useDebounce(searchTerm, 500)
   const { prospects: data, isLoading } = useProspects({
     searchTerm: debouncedSearch,
   })
 
-  const filteredData =
-    filterStatus === 'all'
-      ? data
-      : data.filter((p) => p.status === filterStatus)
+  const filteredData = useMemo(() => {
+    return data
+      .filter((p) => filterStatus === 'all' || p.status === filterStatus)
+      .filter((p) => {
+        if (!selectedMonth || !p.created) return true
+        const created = parseISO(p.created)
+        return (
+          created.getFullYear() === selectedMonth.getFullYear() &&
+          created.getMonth() === selectedMonth.getMonth()
+        )
+      })
+  }, [data, filterStatus, selectedMonth])
 
   const {
     page,
@@ -54,7 +67,14 @@ export default function ProspectsPage() {
     totalItems,
     totalPages,
     paginatedData: paginatedProspects,
-  } = usePagination(filteredData, [debouncedSearch, filterStatus])
+  } = usePagination(filteredData, [debouncedSearch, filterStatus, selectedMonth])
+
+  const handleMonthSelect = (date: Date | undefined) => {
+    setSelectedMonth(date ? startOfMonth(date) : undefined)
+    setCalendarOpen(false)
+  }
+
+  const clearMonthFilter = () => setSelectedMonth(undefined)
 
   return (
     <div className="flex-1 h-full p-4 md:p-8 pt-6 flex flex-col overflow-hidden bg-background/50">
@@ -104,6 +124,47 @@ export default function ProspectsPage() {
               <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />
             )}
           </div>
+          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className={`h-9 text-sm bg-white shadow-sm w-[180px] justify-start text-left font-normal ${
+                  selectedMonth
+                    ? 'border-primary/50 ring-1 ring-primary/30 text-primary'
+                    : 'text-muted-foreground'
+                }`}
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {selectedMonth
+                  ? format(selectedMonth, 'MMMM yyyy')
+                  : 'Pick a month'}
+                {selectedMonth && (
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    className="ml-auto opacity-50 hover:opacity-100"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      clearMonthFilter()
+                    }}
+                    onPointerDown={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                    }}
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <MonthYearPicker
+                selected={selectedMonth}
+                onSelect={handleMonthSelect}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
 
         <ProspectTable

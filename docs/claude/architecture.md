@@ -22,7 +22,7 @@ frontend/src/
 │   │                          # StatCard, TablePagination, DeleteConfirmDialog,
 │   │                          # NumberInput, RowActions, TableSkeleton, ChartSkeleton,
 │   │                          # SearchInput, FormSubmitButton, EntityAvatar,
-│   │                          # ActiveBadge, DetailField, CrudPageShell
+│   │                          # ActiveBadge, DetailField, CrudPageShell, MonthYearPicker
 │   └── dashboard/             # ExecutiveDashboard (superadmin), MyProjectsDashboard (employee),
 │                              # CivilTeamDashboard (civil role) — Gantt chart per vendor,
 │                              # CivilGanttChart, CivilGanttBar, CivilVendorSection

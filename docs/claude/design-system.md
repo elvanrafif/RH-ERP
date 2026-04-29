@@ -344,6 +344,25 @@ Tombol `...` (MoreHorizontal) di tiap baris tabel yang membuka `<DropdownMenu>`.
 
 Skeleton placeholder saat chart loading.
 
+### MonthYearPicker
+
+**`MonthYearPicker`** — `components/shared/MonthYearPicker.tsx`
+
+Picker bulan & tahun tanpa grid tanggal. Grid 3x4 bulan (Jan–Dec) dengan navigasi tahun. Props: `selected: Date | undefined`, `onSelect: (date: Date | undefined) => void`.
+
+Dipakai di ProspectsPage untuk filter berdasarkan bulan created date. Dipakai bersama `<Popover>`:
+
+```tsx
+<Popover>
+  <PopoverTrigger asChild>
+    <Button variant="outline">...</Button>
+  </PopoverTrigger>
+  <PopoverContent className="w-auto p-0" align="start">
+    <MonthYearPicker selected={selectedMonth} onSelect={handleMonthSelect} />
+  </PopoverContent>
+</Popover>
+```
+
 ---
 
 ## CRUD Page State
