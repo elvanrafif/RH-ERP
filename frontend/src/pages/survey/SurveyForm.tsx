@@ -15,9 +15,17 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { ClientComboboxField } from '@/components/forms/ClientComboboxField'
-import { Loader2 } from 'lucide-react'
 import { UserComboboxField } from '@/components/forms/UserComboboxField'
+import { Loader2 } from 'lucide-react'
+import { SURVEY_STATUS } from '@/lib/constant'
 
 interface SurveyFormProps {
   onSuccess?: () => void
@@ -45,6 +53,7 @@ export function SurveyForm({
       client: initialData?.client ?? '',
       surveyor: initialData?.surveyor ?? '',
       schedule: toLocalDateTimeInput(initialData?.schedule),
+      status: initialData?.status ?? SURVEY_STATUS.PENDING,
       notes: initialData?.notes ?? '',
     },
   })
@@ -86,6 +95,28 @@ export function SurveyForm({
               <FormControl>
                 <Input type="datetime-local" {...field} />
               </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="status"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Status</FormLabel>
+              <Select onValueChange={field.onChange} value={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status..." />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value={SURVEY_STATUS.PENDING}>Pending</SelectItem>
+                  <SelectItem value={SURVEY_STATUS.DONE}>Done</SelectItem>
+                </SelectContent>
+              </Select>
               <FormMessage />
             </FormItem>
           )}

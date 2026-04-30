@@ -52,6 +52,11 @@ export const PAYMENT_ITEM_STATUS = {
   SUCCESS: 'Success',
 } as const
 
+export const SURVEY_STATUS = {
+  PENDING: 'pending',
+  DONE: 'done',
+} as const
+
 export const MAX_AVATAR_SIZE_BYTES = 5 * 1024 * 1024 // 5MB
 
 // Session timeout — ubah di sini untuk semua behaviour (idle + tab closed)

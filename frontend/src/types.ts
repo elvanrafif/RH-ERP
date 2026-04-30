@@ -90,6 +90,7 @@ export interface Survey {
   client: string // relation ID → clients
   surveyor: string // relation ID → users
   schedule: string // ISO datetime string
+  status: string
   notes?: string
   expand?: {
     client?: Client

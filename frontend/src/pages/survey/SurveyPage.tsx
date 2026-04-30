@@ -11,6 +11,7 @@ import { usePagination } from '@/hooks/usePagination'
 import { useTableState } from '@/hooks/useTableState'
 import { SurveyTable } from './SurveyTable'
 import { SurveyForm } from './SurveyForm'
+import { SurveyDetailDialog } from './SurveyDetailDialog'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
 import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog'
@@ -27,11 +28,14 @@ export default function SurveyPage() {
     open,
     setOpen,
     editing,
+    viewing,
     searchTerm,
     setSearchTerm,
     handleCreate,
     handleEdit,
+    handleView,
     handleCloseForm,
+    handleCloseDetail,
   } = useTableState<Survey>()
 
   const debouncedSearch = useDebounce(searchTerm, 300)
@@ -80,6 +84,7 @@ export default function SurveyPage() {
         <SurveyTable
           surveys={paginatedData}
           isLoading={isLoading}
+          onView={handleView}
           onEdit={handleEdit}
           onDelete={setDeleteTarget}
         />
@@ -92,6 +97,13 @@ export default function SurveyPage() {
           onPageChange={setPage}
         />
       </div>
+
+      <SurveyDetailDialog
+        survey={viewing}
+        open={!!viewing}
+        onOpenChange={(v) => { if (!v) handleCloseDetail() }}
+        onEdit={handleEdit}
+      />
 
       <FormDialog
         open={open}
