@@ -10,7 +10,7 @@ import {
 import { RowActions } from '@/components/shared/RowActions'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
-import { formatDateTime } from '@/lib/helpers'
+import { formatDateTime, getRemainingTime } from '@/lib/helpers'
 import { SURVEY_STATUS } from '@/lib/constant'
 import { ClipboardList, Pencil, Trash2 } from 'lucide-react'
 
@@ -47,15 +47,15 @@ export function SurveyTable({
   return (
     <div className="flex flex-col h-full bg-white">
       <div className="flex-1 overflow-auto">
-        <div className="min-w-[700px]">
+        <div className="min-w-[800px]">
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
               <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
                 <TableHead className="w-[40px]">#</TableHead>
                 <TableHead>Client</TableHead>
-                <TableHead className="w-[160px] text-right">Surveyor</TableHead>
-                <TableHead className="w-[180px] text-right">Schedule</TableHead>
-                <TableHead className="w-[100px] text-right">Status</TableHead>
+                <TableHead className="w-[200px] text-right pr-6">Surveyor</TableHead>
+                <TableHead className="w-[220px] text-right pr-6">Schedule</TableHead>
+                <TableHead className="w-[130px] text-right pr-6">Status</TableHead>
                 <TableHead className="w-[60px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -78,7 +78,7 @@ export function SurveyTable({
                 surveys.map((survey, index) => (
                   <TableRow
                     key={survey.id}
-                    className="h-14 cursor-pointer"
+                    className="h-16 cursor-pointer"
                     onClick={() => onView(survey)}
                   >
                     <TableCell className="text-slate-400 text-xs tabular-nums">
@@ -87,13 +87,18 @@ export function SurveyTable({
                     <TableCell className="font-medium text-slate-900">
                       {survey.expand?.client?.company_name ?? '—'}
                     </TableCell>
-                    <TableCell className="text-slate-600 text-right">
+                    <TableCell className="text-slate-600 text-right pr-6">
                       {survey.expand?.surveyor?.name ?? '—'}
                     </TableCell>
-                    <TableCell className="text-slate-600 tabular-nums text-right">
-                      {formatDateTime(survey.schedule)}
+                    <TableCell className="text-right pr-6">
+                      <p className="text-slate-600 tabular-nums text-sm">
+                        {formatDateTime(survey.schedule)}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {getRemainingTime(survey.schedule)}
+                      </p>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-right pr-6">
                       <div className="flex justify-end">
                         <StatusBadge status={survey.status} />
                       </div>
