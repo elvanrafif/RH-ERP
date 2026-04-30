@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { formatDateTime } from '@/lib/helpers'
 import { SURVEY_STATUS } from '@/lib/constant'
-import { Building2, User, Calendar, FileText, Pencil } from 'lucide-react'
+import { Building2, User, Calendar, FileText, Pencil, Phone, Mail, MapPin, ExternalLink } from 'lucide-react'
 
 interface SurveyDetailDialogProps {
   survey: Survey | null
@@ -22,23 +22,36 @@ function Field({
   icon,
   label,
   value,
+  href,
 }: {
   icon: React.ReactNode
   label: string
   value?: string | null
+  href?: string
 }) {
   return (
-    <div className="flex items-start gap-3">
+    <div className="flex items-start gap-2">
       <div className="mt-0.5 shrink-0 text-muted-foreground">{icon}</div>
-      <div>
-        <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="text-sm font-medium text-slate-800">{value ?? '—'}</p>
+      <div className="min-w-0">
+        <p className="text-[10px] text-muted-foreground">{label}</p>
+        {href ? (
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium text-blue-600 hover:underline flex items-center gap-1 truncate"
+          >
+            Open Maps <ExternalLink className="h-3 w-3 shrink-0" />
+          </a>
+        ) : (
+          <p className="text-sm font-medium text-slate-800 truncate">{value ?? '—'}</p>
+        )}
       </div>
     </div>
   )
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status }: { status: 'pending' | 'done' }) {
   if (status === SURVEY_STATUS.DONE) {
     return (
       <span className="inline-flex items-center rounded-md border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-sm font-medium text-emerald-700">
@@ -66,7 +79,7 @@ export function SurveyDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm">
+      <DialogContent className="max-w-md">
         <DialogHeader>
           <div className="flex items-start justify-between gap-2">
             <div>
@@ -83,54 +96,68 @@ export function SurveyDetailDialog({
         <Separator />
 
         <div className="space-y-4">
-          <div className="space-y-3">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3">
               Client
             </p>
-            <Field
-              icon={<Building2 className="h-4 w-4" />}
-              label="Company"
-              value={client?.company_name}
-            />
-            {client?.contact_person && (
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
               <Field
-                icon={<User className="h-4 w-4" />}
-                label="Contact Person"
-                value={client.contact_person}
+                icon={<User className="h-3.5 w-3.5" />}
+                label="Client Name"
+                value={client?.contact_person}
               />
-            )}
-            {client?.phone && (
               <Field
-                icon={<User className="h-4 w-4" />}
+                icon={<Phone className="h-3.5 w-3.5" />}
                 label="Phone"
-                value={client.phone}
+                value={client?.phone}
               />
-            )}
+              <Field
+                icon={<Mail className="h-3.5 w-3.5" />}
+                label="Email"
+                value={client?.email}
+              />
+              <Field
+                icon={<Building2 className="h-3.5 w-3.5" />}
+                label="Address"
+                value={client?.address}
+              />
+              {client?.maps_link && (
+                <Field
+                  icon={<MapPin className="h-3.5 w-3.5" />}
+                  label="Maps"
+                  href={client.maps_link}
+                />
+              )}
+            </div>
           </div>
 
           <Separator />
 
-          <div className="space-y-3">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3">
               Survey
             </p>
-            <Field
-              icon={<User className="h-4 w-4" />}
-              label="Surveyor"
-              value={surveyor?.name}
-            />
-            <Field
-              icon={<Calendar className="h-4 w-4" />}
-              label="Schedule"
-              value={formatDateTime(survey.schedule)}
-            />
-            {survey.notes && (
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
               <Field
-                icon={<FileText className="h-4 w-4" />}
-                label="Notes"
-                value={survey.notes}
+                icon={<User className="h-3.5 w-3.5" />}
+                label="Surveyor"
+                value={surveyor?.name}
               />
-            )}
+              <Field
+                icon={<Calendar className="h-3.5 w-3.5" />}
+                label="Schedule"
+                value={formatDateTime(survey.schedule)}
+              />
+              {survey.notes && (
+                <div className="col-span-2">
+                  <Field
+                    icon={<FileText className="h-3.5 w-3.5" />}
+                    label="Notes"
+                    value={survey.notes}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

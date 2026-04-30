@@ -47,25 +47,24 @@ export function SurveyTable({
   return (
     <div className="flex flex-col h-full bg-white">
       <div className="flex-1 overflow-auto">
-        <div className="min-w-[900px]">
+        <div className="min-w-[700px]">
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
               <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
                 <TableHead className="w-[40px]">#</TableHead>
-                <TableHead className="w-[200px]">Client</TableHead>
-                <TableHead className="w-[160px]">Surveyor</TableHead>
-                <TableHead className="w-[180px]">Schedule</TableHead>
-                <TableHead className="w-[100px]">Status</TableHead>
-                <TableHead>Notes</TableHead>
+                <TableHead>Client</TableHead>
+                <TableHead className="w-[160px] text-right">Surveyor</TableHead>
+                <TableHead className="w-[180px] text-right">Schedule</TableHead>
+                <TableHead className="w-[100px] text-right">Status</TableHead>
                 <TableHead className="w-[60px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRowsSkeleton rows={5} columns={7} />
+                <TableRowsSkeleton rows={5} columns={6} />
               ) : surveys.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-60">
+                  <TableCell colSpan={6} className="h-60">
                     <EmptyState
                       icon={
                         <ClipboardList className="h-8 w-8 text-slate-400" />
@@ -88,21 +87,16 @@ export function SurveyTable({
                     <TableCell className="font-medium text-slate-900">
                       {survey.expand?.client?.company_name ?? '—'}
                     </TableCell>
-                    <TableCell className="text-slate-600">
+                    <TableCell className="text-slate-600 text-right">
                       {survey.expand?.surveyor?.name ?? '—'}
                     </TableCell>
-                    <TableCell className="text-slate-600 tabular-nums">
+                    <TableCell className="text-slate-600 tabular-nums text-right">
                       {formatDateTime(survey.schedule)}
                     </TableCell>
-                    <TableCell>
-                      <StatusBadge status={survey.status} />
-                    </TableCell>
-                    <TableCell className="text-slate-500 text-sm">
-                      {survey.notes
-                        ? survey.notes.length > 50
-                          ? survey.notes.slice(0, 50) + '…'
-                          : survey.notes
-                        : '—'}
+                    <TableCell className="text-right">
+                      <div className="flex justify-end">
+                        <StatusBadge status={survey.status} />
+                      </div>
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <RowActions
