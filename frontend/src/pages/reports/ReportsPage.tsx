@@ -2,7 +2,13 @@
 import { useRef } from 'react'
 import { BarChart2 } from 'lucide-react'
 import { PageHeader } from '@/components/shared/PageHeader'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { ChartSkeleton } from '@/components/shared/ChartSkeleton'
 import { useReportFilters } from '@/hooks/useReportFilters'
 import { useRevenueReport } from '@/hooks/useRevenueReport'
@@ -12,13 +18,37 @@ import { RevenueDetailTable } from './components/RevenueDetailTable'
 import { ReportExportButton } from './components/ReportExportButton'
 import type { ReportPeriod } from '@/lib/invoicing/reportCalculations'
 
-const MONTH_LABELS = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des']
+const MONTH_LABELS = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'Mei',
+  'Jun',
+  'Jul',
+  'Agu',
+  'Sep',
+  'Okt',
+  'Nov',
+  'Des',
+]
 const CURRENT_YEAR = new Date().getFullYear()
 const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => CURRENT_YEAR - i)
 
 export default function ReportsPage() {
   const contentRef = useRef<HTMLDivElement>(null)
-  const { granularity, setGranularity, year, setYear, month, setMonth, quarter, setQuarter, projectType, setProjectType } = useReportFilters()
+  const {
+    granularity,
+    setGranularity,
+    year,
+    setYear,
+    month,
+    setMonth,
+    quarter,
+    setQuarter,
+    projectType,
+    setProjectType,
+  } = useReportFilters()
 
   const period: ReportPeriod = { granularity, year, month, quarter }
   const { reportData, isLoading } = useRevenueReport(period, projectType)
@@ -51,35 +81,51 @@ export default function ReportsPage() {
           </SelectContent>
         </Select>
 
-        <Select value={String(year)} onValueChange={v => setYear(Number(v))}>
+        <Select value={String(year)} onValueChange={(v) => setYear(Number(v))}>
           <SelectTrigger className="h-9 w-[100px] bg-white shadow-sm">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            {YEAR_OPTIONS.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
+            {YEAR_OPTIONS.map((y) => (
+              <SelectItem key={y} value={String(y)}>
+                {y}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
 
         {granularity === 'monthly' && (
-          <Select value={String(month)} onValueChange={v => setMonth(Number(v))}>
+          <Select
+            value={String(month)}
+            onValueChange={(v) => setMonth(Number(v))}
+          >
             <SelectTrigger className="h-9 w-[110px] bg-white shadow-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {MONTH_LABELS.map((m, i) => (
-                <SelectItem key={i + 1} value={String(i + 1)}>{m}</SelectItem>
+                <SelectItem key={i + 1} value={String(i + 1)}>
+                  {m}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
         )}
 
         {granularity === 'quarterly' && (
-          <Select value={String(quarter)} onValueChange={v => setQuarter(Number(v))}>
+          <Select
+            value={String(quarter)}
+            onValueChange={(v) => setQuarter(Number(v))}
+          >
             <SelectTrigger className="h-9 w-[100px] bg-white shadow-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {[1, 2, 3, 4].map(q => <SelectItem key={q} value={String(q)}>Q{q}</SelectItem>)}
+              {[1, 2, 3, 4].map((q) => (
+                <SelectItem key={q} value={String(q)}>
+                  Q{q}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         )}
@@ -95,6 +141,12 @@ export default function ReportsPage() {
             <SelectItem value="interior">Interior</SelectItem>
           </SelectContent>
         </Select>
+
+        {projectType !== 'all' && (
+          <span className="text-xs text-muted-foreground">
+            Filter tipe hanya berlaku untuk data invoice
+          </span>
+        )}
 
         <span className="text-sm text-muted-foreground ml-auto hidden sm:block">
           Periode: <strong>{periodLabel()}</strong>
