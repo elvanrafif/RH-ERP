@@ -71,5 +71,5 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 
 | Modul | Status | Catatan |
 |---|---|---|
-| Laporan / Reporting | ⬜ | Export rekap per periode |
+| Laporan / Reporting | ✅ | `/reports` — stat cards (total revenue, invoice aktif, quotation paid) dengan % change vs periode sebelumnya; bar chart per bulan/kuartal/tahun (granularity Bulanan/Kuartalan/Tahunan); tabel detail invoice + quotation; filter tipe proyek; URL params; Export PDF |
 | Notifikasi | ✅ | Sidebar bell — overdue & upcoming tabs; civil projects tampil ke user divisi civil saja (bukan semua user); arsitektur/interior filter by assignee; label tipe dalam English |

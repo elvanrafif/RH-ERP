@@ -29,6 +29,7 @@ import RoleManagementPage from './pages/settings/roleManagement/roleManagement'
 
 import InvoicesPage from './pages/invoices/InvoicesPage'
 import InvoiceDetailPage from './pages/invoices/InvoiceDetailPage'
+import ReportsPage from './pages/reports/ReportsPage'
 import PublicVerificationPage from './pages/verification/PublicVerificationPage'
 import { AuthProvider } from './contexts/AuthContext'
 import { PermissionGuard } from './components/ui/PermissionGuard'
@@ -110,6 +111,10 @@ function AppRoutes() {
         <Route element={<PermissionGuard require="view_revenue" />}>
           <Route path="invoices" element={<InvoicesPage />} />
           <Route path="invoices/:id" element={<InvoiceDetailPage />} />
+        </Route>
+
+        <Route element={<PermissionGuard require="view_revenue" />}>
+          <Route path="reports" element={<ReportsPage />} />
         </Route>
 
         <Route path="clients" element={<ClientsPage />} />

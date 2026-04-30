@@ -12,6 +12,7 @@ import {
   Instagram,
   TrendingUp,
   ClipboardList,
+  BarChart2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NavItem } from './NavItem'
@@ -135,6 +136,17 @@ export function SidebarNav({
           label="Invoices"
           collapsed={collapsed}
           isActive={isActive('/invoices')}
+          onClick={onLinkClick}
+        />
+      </Guard>
+
+      <Guard require="view_revenue">
+        <NavItem
+          to="/reports"
+          icon={BarChart2}
+          label="Laporan"
+          collapsed={collapsed}
+          isActive={isActive('/reports')}
           onClick={onLinkClick}
         />
       </Guard>
