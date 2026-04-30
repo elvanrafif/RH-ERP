@@ -42,22 +42,31 @@ export function useDashboardCalendarEvents() {
     projectType: 'civil',
     statusFilter: 'all',
   })
-  const { projects: interiorProjects, isLoading: interiorLoading } = useProjects({
-    projectType: 'interior',
-    statusFilter: 'all',
-  })
+  const { projects: interiorProjects, isLoading: interiorLoading } =
+    useProjects({
+      projectType: 'interior',
+      statusFilter: 'all',
+    })
   const { prospects, isLoading: prospectsLoading } = useProspects()
   const { surveys, isLoading: surveysLoading } = useSurveys()
 
   const isLoading =
-    archLoading || civilLoading || interiorLoading || prospectsLoading || surveysLoading
+    archLoading ||
+    civilLoading ||
+    interiorLoading ||
+    prospectsLoading ||
+    surveysLoading
 
   const events = useMemo<CalendarEvent[]>(() => {
     const result: CalendarEvent[] = []
     const color = CALENDAR_EVENT_COLORS
 
     for (const p of archProjects) {
-      if ((DONE_STATUSES as readonly string[]).includes(p.status) || !p.deadline) continue
+      if (
+        (DONE_STATUSES as readonly string[]).includes(p.status) ||
+        !p.deadline
+      )
+        continue
       result.push({
         id: `arch-${p.id}`,
         title: p.expand?.client?.company_name ?? 'Architecture',
@@ -74,7 +83,11 @@ export function useDashboardCalendarEvents() {
     }
 
     for (const p of civilProjects) {
-      if ((DONE_STATUSES as readonly string[]).includes(p.status) || !p.end_date) continue
+      if (
+        (DONE_STATUSES as readonly string[]).includes(p.status) ||
+        !p.end_date
+      )
+        continue
       result.push({
         id: `civil-${p.id}`,
         title: p.expand?.client?.company_name ?? 'Civil',
@@ -85,13 +98,17 @@ export function useDashboardCalendarEvents() {
         extendedProps: {
           eventType: 'civil',
           clientName: p.expand?.client?.company_name ?? '—',
-          assignee: p.expand?.assignee?.name,
+          assignee: p.expand?.vendor?.name,
         },
       })
     }
 
     for (const p of interiorProjects) {
-      if ((DONE_STATUSES as readonly string[]).includes(p.status) || !p.deadline) continue
+      if (
+        (DONE_STATUSES as readonly string[]).includes(p.status) ||
+        !p.deadline
+      )
+        continue
       result.push({
         id: `int-${p.id}`,
         title: p.expand?.client?.company_name ?? 'Interior',

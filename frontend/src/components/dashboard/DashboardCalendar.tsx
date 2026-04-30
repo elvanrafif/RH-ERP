@@ -3,6 +3,7 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import type { DateClickArg, EventClickArg } from '@fullcalendar/interaction'
+import { AnimatePresence, motion } from 'framer-motion'
 import { CalendarDays } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useDashboardCalendarEvents } from '@/hooks/useDashboardCalendarEvents'
@@ -101,29 +102,35 @@ export function DashboardCalendar() {
         )}
 
         {/* Custom popover */}
-        {popoverState && (
-          <>
-            <div
-              className="fixed inset-0 z-40"
-              onClick={() => setPopoverState(null)}
-            />
-            <div
-              className="fixed z-50"
-              style={{
-                // 300 = w-72 (288px) + 12px safety margin
-                left: Math.min(popoverState.x, window.innerWidth - 300),
-                // 320 = max-h-72 (288px) + 32px header clearance
-                top: Math.min(popoverState.y + 10, window.innerHeight - 320),
-              }}
-            >
-              <DashboardCalendarPopover
-                date={popoverState.date}
-                events={popoverEvents}
-                onClose={() => setPopoverState(null)}
+        <AnimatePresence>
+          {popoverState && (
+            <>
+              <div
+                className="fixed inset-0 z-40"
+                onClick={() => setPopoverState(null)}
               />
-            </div>
-          </>
-        )}
+              <motion.div
+                className="fixed z-50"
+                style={{
+                  // 300 = w-72 (288px) + 12px safety margin
+                  left: Math.min(popoverState.x, window.innerWidth - 300),
+                  // 320 = max-h-72 (288px) + 32px header clearance
+                  top: Math.min(popoverState.y + 10, window.innerHeight - 320),
+                }}
+                initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                transition={{ duration: 0.15, ease: 'easeOut' }}
+              >
+                <DashboardCalendarPopover
+                  date={popoverState.date}
+                  events={popoverEvents}
+                  onClose={() => setPopoverState(null)}
+                />
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </CardContent>
     </Card>
   )
