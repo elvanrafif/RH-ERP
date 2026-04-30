@@ -134,7 +134,7 @@ export function DashboardCalendar() {
             dateClick={isMobile ? undefined : handleDateClick}
             eventClick={handleEventClick}
             moreLinkClick={isMobile ? undefined : handleMoreLinkClick}
-            height="auto"
+            height={isMobile ? 'auto' : 600}
             eventDisplay="block"
             noEventsText="No events this month"
           />
