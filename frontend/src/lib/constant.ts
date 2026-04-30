@@ -52,6 +52,12 @@ export const PAYMENT_ITEM_STATUS = {
   SUCCESS: 'Success',
 } as const
 
+export const INVOICE_DOC_TYPE = {
+  DESIGN: 'design',
+  CIVIL: 'sipil',
+  INTERIOR: 'interior',
+} as const
+
 export const SURVEY_STATUS = {
   PENDING: 'pending',
   DONE: 'done',
