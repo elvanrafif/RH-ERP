@@ -1,6 +1,7 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
+import listPlugin from '@fullcalendar/list'
 import interactionPlugin from '@fullcalendar/interaction'
 import type { DateClickArg, EventClickArg } from '@fullcalendar/interaction'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -27,6 +28,14 @@ const LEGEND_ITEMS = [
 export function DashboardCalendar() {
   const { events, isLoading } = useDashboardCalendarEvents()
   const [popoverState, setPopoverState] = useState<PopoverState | null>(null)
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)')
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches)
+    mq.addEventListener('change', handler)
+    return () => mq.removeEventListener('change', handler)
+  }, [])
 
   const popoverEvents = useMemo(() => {
     if (!popoverState) return []
@@ -60,8 +69,9 @@ export function DashboardCalendar() {
             <CalendarDays className="h-4 w-4 text-slate-500" />
             Team Calendar
           </CardTitle>
-          {/* Legend */}
-          <div className="flex flex-wrap gap-3">
+
+          {/* Legend — desktop */}
+          <div className="hidden sm:flex flex-wrap gap-3">
             {LEGEND_ITEMS.map((item) => (
               <span
                 key={item.label}
@@ -75,35 +85,52 @@ export function DashboardCalendar() {
               </span>
             ))}
           </div>
+
+          {/* Legend — mobile (compact) */}
+          <div className="flex sm:hidden flex-wrap gap-2">
+            {LEGEND_ITEMS.map((item) => (
+              <span
+                key={item.label}
+                className="flex items-center gap-1 text-[10px] text-slate-500"
+              >
+                <span
+                  className="inline-block w-2 h-2 rounded-sm shrink-0"
+                  style={{ backgroundColor: item.color }}
+                />
+                {item.label}
+              </span>
+            ))}
+          </div>
         </div>
       </CardHeader>
 
       <CardContent className="relative">
         {isLoading ? (
-          <div className="h-[500px] animate-pulse rounded-md bg-slate-100" />
+          <div className="h-[400px] animate-pulse rounded-md bg-slate-100" />
         ) : (
           <FullCalendar
-            plugins={[dayGridPlugin, interactionPlugin]}
-            initialView="dayGridMonth"
-            headerToolbar={{
-              left: 'prev,next today',
-              center: 'title',
-              right: 'dayGridMonth,dayGridWeek',
-            }}
+            plugins={[dayGridPlugin, listPlugin, interactionPlugin]}
+            initialView={isMobile ? 'listMonth' : 'dayGridMonth'}
+            headerToolbar={
+              isMobile
+                ? { left: 'prev,next today', center: 'title', right: '' }
+                : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,dayGridWeek' }
+            }
             buttonText={{ today: 'Today', month: 'Month', week: 'Week' }}
             events={events}
-            dayMaxEvents={2}
-            dateClick={handleDateClick}
+            dayMaxEvents={isMobile ? undefined : 2}
+            dateClick={isMobile ? undefined : handleDateClick}
             eventClick={handleEventClick}
-            moreLinkClick={handleMoreLinkClick}
+            moreLinkClick={isMobile ? undefined : handleMoreLinkClick}
             height="auto"
             eventDisplay="block"
+            noEventsText="No events this month"
           />
         )}
 
-        {/* Custom popover */}
+        {/* Desktop: Floating Popover */}
         <AnimatePresence>
-          {popoverState && (
+          {!isMobile && popoverState && (
             <>
               <div
                 className="fixed inset-0 z-40"
@@ -112,9 +139,7 @@ export function DashboardCalendar() {
               <motion.div
                 className="fixed z-50"
                 style={{
-                  // 300 = w-72 (288px) + 12px safety margin
                   left: Math.min(popoverState.x, window.innerWidth - 300),
-                  // 320 = max-h-72 (288px) + 32px header clearance
                   top: Math.min(popoverState.y + 10, window.innerHeight - 320),
                 }}
                 initial={{ opacity: 0, scale: 0.95, y: -4 }}
@@ -122,6 +147,34 @@ export function DashboardCalendar() {
                 exit={{ opacity: 0, scale: 0.95, y: -4 }}
                 transition={{ duration: 0.15, ease: 'easeOut' }}
               >
+                <DashboardCalendarPopover
+                  date={popoverState.date}
+                  events={popoverEvents}
+                  onClose={() => setPopoverState(null)}
+                />
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
+
+        {/* Mobile: Bottom Sheet */}
+        <AnimatePresence>
+          {isMobile && popoverState && (
+            <>
+              <div
+                className="fixed inset-0 z-40 bg-black/40"
+                onClick={() => setPopoverState(null)}
+              />
+              <motion.div
+                className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-white shadow-2xl overflow-hidden"
+                initial={{ y: '100%' }}
+                animate={{ y: 0 }}
+                exit={{ y: '100%' }}
+                transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              >
+                <div className="flex justify-center pt-3 pb-1">
+                  <div className="w-10 h-1 rounded-full bg-slate-300" />
+                </div>
                 <DashboardCalendarPopover
                   date={popoverState.date}
                   events={popoverEvents}

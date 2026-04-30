@@ -26,7 +26,7 @@ frontend/src/
 │   └── dashboard/             # ExecutiveDashboard (superadmin), MyProjectsDashboard (employee),
 │                              # CivilTeamDashboard (civil role) — Gantt chart per vendor,
 │                              # CivilGanttChart, CivilGanttBar, CivilVendorSection,
-│                              # DashboardCalendar, DashboardCalendarPopover
+│                              # DashboardCalendar (responsive: mobile→listMonth+bottom sheet, desktop→dayGrid+floating popover), DashboardCalendarPopover
 │       └── tabs/              # OverviewTab, ResourceMonitoringTab, DocumentRevenueTab,
 │                              # ClientTrackingTab, SemesterCard,
 │                              # WorkloadChart, RevenuePieChart, InvoiceRevenue,

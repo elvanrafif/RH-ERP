@@ -1,29 +1,38 @@
-import { useQuery } from "@tanstack/react-query"
-import { pb } from "@/lib/pocketbase"
-import type { Project } from "@/types"
+import { useQuery } from '@tanstack/react-query'
+import { pb } from '@/lib/pocketbase'
+import type { Project } from '@/types'
 
-// Fungsi Fetcher (Logika Murni)
 const fetchDashboardStats = async () => {
-    // 1. Request data ke PocketBase
-    const records = await pb.collection('projects').getFullList<Project>();
+  const [projects, clientsResult, prospectsResult, pendingSurveysResult] =
+    await Promise.all([
+      pb.collection('projects').getFullList<Project>(),
+      pb.collection('clients').getList(1, 1, { fields: 'id' }),
+      pb.collection('prospects').getList(1, 1, { fields: 'id' }),
+      pb
+        .collection('surveys')
+        .getList(1, 1, { filter: 'status = "pending"', fields: 'id' }),
+    ])
 
-    // 2. Lakukan perhitungan di sini (bukan di UI component)
-    const totalOmzet = records.reduce((acc, curr) => acc + curr.value, 0);
-    const totalProjects = records.length;
+  const totalOmzet = projects.reduce((acc, curr) => acc + curr.value, 0)
+  const totalProjects = projects.length
+  const totalClients = clientsResult.totalItems
+  const totalProspects = prospectsResult.totalItems
+  const pendingSurveys = pendingSurveysResult.totalItems
 
-    // 3. Return data yang sudah siap saji
-    return {
-        records,
-        totalOmzet,
-        totalProjects
-    };
-};
+  return {
+    records: projects,
+    totalOmzet,
+    totalProjects,
+    totalClients,
+    totalProspects,
+    pendingSurveys,
+  }
+}
 
-// Hook Utama
 export const useDashboardStats = () => {
-    return useQuery({
-        queryKey: ['dashboard-stats'], // Key unik untuk cache
-        queryFn: fetchDashboardStats,
-        staleTime: 1000 * 60 * 5, // Data dianggap "segar" selama 5 menit
-    });
-};
+  return useQuery({
+    queryKey: ['dashboard-stats'],
+    queryFn: fetchDashboardStats,
+    staleTime: 1000 * 60 * 5,
+  })
+}

@@ -12,7 +12,7 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 |---|---|---|
 | Login / Auth | ✅ | Session timeout 1 jam, auto logout, show/hide password toggle |
 | RBAC (Role & Permission) | ✅ | Custom roles dengan permission granular via PocketBase |
-| Dashboard | ✅ | Role-based: superadmin → Executive Overview (workload, revenue, client tracking, **Team Calendar** — deadline project civil/architecture/interior, jadwal meeting prospect & survey, monthly/weekly view, color-coded events, day-detail popover); employee → My Projects (active assigned projects, deadline stats); civil role → Civil Team Dashboard (Gantt chart per vendor, responsive 1–3 month window, Today label, color-coded deadlines) |
+| Dashboard | ✅ | Role-based: superadmin → Executive Overview (workload, revenue, client tracking, **Team Calendar** — deadline project civil/architecture/interior, jadwal meeting prospect & survey, monthly/weekly view, color-coded events, day-detail popover; responsive: mobile → list view + bottom sheet, desktop → grid + floating popover); employee → My Projects (active assigned projects, deadline stats); civil role → Civil Team Dashboard (Gantt chart per vendor, responsive 1–3 month window, Today label, color-coded deadlines) |
 | Profile & Security | ✅ | Edit profil, ganti password, upload avatar |
 
 ---
