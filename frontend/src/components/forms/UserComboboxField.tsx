@@ -27,11 +27,15 @@ import type { User } from '@/types'
 
 interface UserComboboxFieldProps<T extends FieldValues = FieldValues> {
   control: Control<T>
+  name: Path<T>
+  label?: string
   users: User[] | undefined
 }
 
 export function UserComboboxField<T extends FieldValues = FieldValues>({
   control,
+  name,
+  label,
   users,
 }: UserComboboxFieldProps<T>) {
   const [open, setOpen] = useState(false)
@@ -39,10 +43,10 @@ export function UserComboboxField<T extends FieldValues = FieldValues>({
   return (
     <FormField
       control={control}
-      name={'surveyor' as Path<T>}
+      name={name}
       render={({ field }) => (
         <FormItem className="flex flex-col">
-          <FormLabel>Surveyor</FormLabel>
+          <FormLabel>{label ?? 'User'}</FormLabel>
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <FormControl>
@@ -57,7 +61,7 @@ export function UserComboboxField<T extends FieldValues = FieldValues>({
                 >
                   {field.value
                     ? users?.find((u) => u.id === field.value)?.name
-                    : 'Search & Select Surveyor...'}
+                    : 'Search & Select User...'}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </FormControl>

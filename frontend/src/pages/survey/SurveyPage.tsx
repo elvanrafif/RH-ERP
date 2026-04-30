@@ -4,6 +4,8 @@ import { toast } from 'sonner'
 import { pb } from '@/lib/pocketbase'
 import type { Survey } from '@/types'
 import { useSurveys } from '@/hooks/useSurveys'
+import { useClients } from '@/hooks/useClients'
+import { useUsers } from '@/hooks/useUsers'
 import { useDebounce } from '@/hooks/useDebounce'
 import { usePagination } from '@/hooks/usePagination'
 import { useTableState } from '@/hooks/useTableState'
@@ -34,10 +36,10 @@ export default function SurveyPage() {
 
   const debouncedSearch = useDebounce(searchTerm, 300)
   const { surveys, isLoading } = useSurveys({ searchTerm: debouncedSearch })
-  const { page, setPage, totalItems, totalPages, paginatedData } = usePagination(
-    surveys,
-    [debouncedSearch]
-  )
+  const { clients } = useClients()
+  const { users } = useUsers()
+  const { page, setPage, totalItems, totalPages, paginatedData } =
+    usePagination(surveys, [debouncedSearch])
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => pb.collection('surveys').delete(id),
@@ -105,12 +107,16 @@ export default function SurveyPage() {
           key={editing ? editing.id : 'new-survey'}
           initialData={editing}
           onSuccess={handleCloseForm}
+          clients={clients ?? []}
+          users={users ?? []}
         />
       </FormDialog>
 
       <DeleteConfirmDialog
         open={!!deleteTarget}
-        onOpenChange={(v) => { if (!v) setDeleteTarget(null) }}
+        onOpenChange={(v) => {
+          if (!v) setDeleteTarget(null)
+        }}
         title="Delete Survey"
         description="This action cannot be undone."
         onConfirm={() => deleteTarget && deleteMutation.mutate(deleteTarget.id)}

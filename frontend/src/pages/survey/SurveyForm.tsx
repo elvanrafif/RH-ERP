@@ -1,14 +1,9 @@
-import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { surveySchema, type SurveyFormValues } from '@/lib/validations/survey'
-import type { Survey, Client } from '@/types'
+import type { Survey, Client, User } from '@/types'
 import { useFormMutation } from '@/hooks/useFormMutation'
-import { useClients } from '@/hooks/useClients'
-import { useUsers } from '@/hooks/useUsers'
 import { toLocalDateTimeInput } from '@/lib/helpers'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -17,101 +12,20 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command'
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { FormSubmitButton } from '@/components/shared/FormSubmitButton'
+import { ClientComboboxField } from '@/components/forms/ClientComboboxField'
 import { UserComboboxField } from '@/components/forms/UserComboboxField'
-import { Check, ChevronsUpDown } from 'lucide-react'
-import type { Control } from 'react-hook-form'
 
 interface SurveyFormProps {
   onSuccess?: () => void
   initialData?: Survey | null
+  clients: Client[]
+  users: User[]
 }
 
-interface ClientFieldProps {
-  control: Control<SurveyFormValues>
-  clients: Client[] | undefined
-}
-
-function ClientField({ control, clients }: ClientFieldProps) {
-  const [open, setOpen] = useState(false)
-
-  return (
-    <FormField
-      control={control}
-      name="client"
-      render={({ field }) => (
-        <FormItem className="flex flex-col">
-          <FormLabel>Client</FormLabel>
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <FormControl>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  className={cn('w-full justify-between', !field.value && 'text-muted-foreground')}
-                >
-                  {field.value
-                    ? clients?.find((c) => c.id === field.value)?.company_name
-                    : 'Search & Select Client...'}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </FormControl>
-            </PopoverTrigger>
-            <PopoverContent className="w-[300px] p-0">
-              <Command>
-                <CommandInput placeholder="Type client name..." />
-                <CommandList>
-                  <CommandEmpty>No client found.</CommandEmpty>
-                  <CommandGroup>
-                    {clients?.map((client) => (
-                      <CommandItem
-                        value={client.company_name}
-                        key={client.id}
-                        onSelect={() => {
-                          field.onChange(client.id)
-                          setOpen(false)
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            'mr-2 h-4 w-4',
-                            client.id === field.value ? 'opacity-100' : 'opacity-0'
-                          )}
-                        />
-                        {client.company_name}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
-          <FormMessage />
-        </FormItem>
-      )}
-    />
-  )
-}
-
-export function SurveyForm({ onSuccess, initialData }: SurveyFormProps) {
-  const { clients } = useClients()
-  const { users } = useUsers()
-
+export function SurveyForm({ onSuccess, initialData, clients, users }: SurveyFormProps) {
   const { mutate, isPending } = useFormMutation<SurveyFormValues>({
     collection: 'surveys',
     queryKey: ['surveys'],
@@ -139,10 +53,19 @@ export function SurveyForm({ onSuccess, initialData }: SurveyFormProps) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-        {/* Client inline combobox — cannot use ClientComboboxField (hardcodes 'client_id') */}
-        <ClientField control={form.control} clients={clients} />
+        <ClientComboboxField
+          control={form.control}
+          name="client"
+          label="Client"
+          clients={clients}
+        />
 
-        <UserComboboxField control={form.control} users={users} />
+        <UserComboboxField
+          control={form.control}
+          name="surveyor"
+          label="Surveyor"
+          users={users}
+        />
 
         <FormField
           control={form.control}

@@ -28,12 +28,16 @@ import type { Client } from '@/types'
 interface ClientComboboxFieldProps<T extends FieldValues = FieldValues> {
   control: Control<T>
   clients: Client[] | undefined
+  name?: Path<T>
+  label?: string
   onSelect?: (clientId: string) => void
 }
 
 export function ClientComboboxField<T extends FieldValues = FieldValues>({
   control,
   clients,
+  name,
+  label,
   onSelect,
 }: ClientComboboxFieldProps<T>) {
   const [open, setOpen] = useState(false)
@@ -41,10 +45,10 @@ export function ClientComboboxField<T extends FieldValues = FieldValues>({
   return (
     <FormField
       control={control}
-      name={'client_id' as Path<T>}
+      name={name ?? ('client_id' as Path<T>)}
       render={({ field }) => (
         <FormItem className="flex flex-col">
-          <FormLabel>Client / Project Name</FormLabel>
+          <FormLabel>{label ?? 'Client / Project Name'}</FormLabel>
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <FormControl>
