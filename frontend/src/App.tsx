@@ -126,7 +126,11 @@ function AppRoutes() {
           <Route path="prospects" element={<ProspectsPage />} />
         </Route>
 
-        <Route element={<PermissionGuard require="manage_surveys" />}>
+        <Route
+          element={
+            <PermissionGuard requireAny={['view_surveys', 'manage_surveys']} />
+          }
+        >
           <Route path="survey" element={<SurveyPage />} />
         </Route>
 

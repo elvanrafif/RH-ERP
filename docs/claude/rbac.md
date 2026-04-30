@@ -35,6 +35,8 @@
 | `view_index_project_interior` | Halaman proyek interior |
 | `manage_clients` | Edit & buat client |
 | `manage_prospects` | Kelola data prospek |
+| `view_surveys` | Lihat halaman & daftar survey (read-only) |
+| `manage_surveys` | Buat, edit & hapus survey (include view) |
 | `manage_quotations` | Buat & edit quotation penuh |
 | `manage_quotations_restricted` | Buat quotation tapi field finansial disembunyikan |
 | `view_revenue` | Lihat data revenue di dashboard & invoice |

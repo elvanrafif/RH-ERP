@@ -63,7 +63,7 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 
 | Modul | Status | Catatan |
 |---|---|---|
-| Survey & Measurement | ✅ | Table, search by client name, filter PIC & status; kolom Surveyor/Schedule/Status rata kanan, Schedule tampil 2 baris (datetime + remaining days); form CRUD (client, surveyor, schedule, status, notes); status: `pending` \| `done`; klik baris → detail dialog (client name, status, phone, email, address, maps; surveyor + phone, schedule + remaining; notes section terpisah di bawah) |
+| Survey & Measurement | ✅ | Table, search by client name, filter PIC & status; kolom Surveyor/Schedule/Status rata kanan, Schedule tampil 2 baris (datetime + remaining days); form CRUD (client, surveyor, schedule, status, notes); status: `pending` \| `done`; klik baris → detail dialog (client name, status, phone, email, address, maps; surveyor + phone, schedule + remaining; notes section terpisah di bawah); RBAC: `view_surveys` (read-only, no create/edit/delete) \| `manage_surveys` (full access) |
 
 ---
 

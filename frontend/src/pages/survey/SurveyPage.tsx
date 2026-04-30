@@ -26,12 +26,17 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { ClipboardList, Plus, Search } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function SurveyPage() {
+  const { can } = useAuth()
+  const canManage = can('manage_surveys')
   const queryClient = useQueryClient()
   const [deleteTarget, setDeleteTarget] = useState<Survey | null>(null)
   const [filterPic, setFilterPic] = useState('all')
-  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'done'>('all')
+  const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'done'>(
+    'all'
+  )
 
   const {
     open,
@@ -75,9 +80,11 @@ export default function SurveyPage() {
         title="Survey & Measurement"
         description="Manage survey and measurement appointments"
         action={
-          <Button onClick={handleCreate}>
-            <Plus className="mr-2 h-4 w-4" /> New Survey
-          </Button>
+          canManage ? (
+            <Button onClick={handleCreate}>
+              <Plus className="mr-2 h-4 w-4" /> New Survey
+            </Button>
+          ) : undefined
         }
       />
 
@@ -117,7 +124,9 @@ export default function SurveyPage() {
           <div className="relative">
             <Select
               value={filterStatus}
-              onValueChange={(v) => setFilterStatus(v as 'all' | 'pending' | 'done')}
+              onValueChange={(v) =>
+                setFilterStatus(v as 'all' | 'pending' | 'done')
+              }
             >
               <SelectTrigger
                 className={`h-9 bg-white shadow-sm w-[140px] ${filterStatus !== 'all' ? 'border-primary/50 ring-1 ring-primary/30 text-primary' : ''}`}
@@ -140,8 +149,8 @@ export default function SurveyPage() {
           surveys={paginatedData}
           isLoading={isLoading}
           onView={handleView}
-          onEdit={handleEdit}
-          onDelete={setDeleteTarget}
+          onEdit={canManage ? handleEdit : undefined}
+          onDelete={canManage ? setDeleteTarget : undefined}
         />
         <TablePagination
           page={page}

@@ -88,9 +88,10 @@ const PERMISSION_GROUPS = [
   {
     title: 'Survey & Measurement',
     permissions: [
+      { id: 'view_surveys', label: 'View Surveys' },
       {
         id: 'manage_surveys',
-        label: 'Manage Surveys (View/Create/Edit/Delete)',
+        label: 'Create/Edit/Delete Surveys',
       },
     ],
   },

@@ -165,7 +165,7 @@ export function SidebarNav({
         />
       </Guard>
 
-      <Guard require="manage_surveys">
+      <Guard requireAny={['view_surveys', 'manage_surveys']}>
         <NavItem
           to="/survey"
           icon={ClipboardList}

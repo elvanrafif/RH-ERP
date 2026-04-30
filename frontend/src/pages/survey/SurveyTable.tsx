@@ -18,8 +18,8 @@ interface SurveyTableProps {
   surveys: Survey[]
   isLoading: boolean
   onView: (survey: Survey) => void
-  onEdit: (survey: Survey) => void
-  onDelete: (survey: Survey) => void
+  onEdit?: (survey: Survey) => void
+  onDelete?: (survey: Survey) => void
 }
 
 function StatusBadge({ status }: { status: string }) {
@@ -44,6 +44,9 @@ export function SurveyTable({
   onEdit,
   onDelete,
 }: SurveyTableProps) {
+  const hasActions = !!(onEdit || onDelete)
+  const colSpan = hasActions ? 6 : 5
+
   return (
     <div className="flex flex-col h-full bg-white">
       <div className="flex-1 overflow-auto">
@@ -53,18 +56,24 @@ export function SurveyTable({
               <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
                 <TableHead className="w-[40px]">#</TableHead>
                 <TableHead>Client</TableHead>
-                <TableHead className="w-[200px] text-right pr-6">Surveyor</TableHead>
-                <TableHead className="w-[220px] text-right pr-6">Schedule</TableHead>
-                <TableHead className="w-[130px] text-right pr-6">Status</TableHead>
-                <TableHead className="w-[60px]"></TableHead>
+                <TableHead className="w-[200px] text-right pr-6">
+                  Surveyor
+                </TableHead>
+                <TableHead className="w-[220px] text-right pr-6">
+                  Schedule
+                </TableHead>
+                <TableHead className="w-[130px] text-right pr-6">
+                  Status
+                </TableHead>
+                {hasActions && <TableHead className="w-[60px]"></TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRowsSkeleton rows={5} columns={6} />
+                <TableRowsSkeleton rows={5} columns={colSpan} />
               ) : surveys.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-60">
+                  <TableCell colSpan={colSpan} className="h-60">
                     <EmptyState
                       icon={
                         <ClipboardList className="h-8 w-8 text-slate-400" />
@@ -103,23 +112,33 @@ export function SurveyTable({
                         <StatusBadge status={survey.status} />
                       </div>
                     </TableCell>
-                    <TableCell onClick={(e) => e.stopPropagation()}>
-                      <RowActions
-                        actions={[
-                          {
-                            label: 'Edit',
-                            icon: Pencil,
-                            onClick: () => onEdit(survey),
-                          },
-                          {
-                            label: 'Delete',
-                            icon: Trash2,
-                            onClick: () => onDelete(survey),
-                            variant: 'destructive',
-                          },
-                        ]}
-                      />
-                    </TableCell>
+                    {hasActions && (
+                      <TableCell onClick={(e) => e.stopPropagation()}>
+                        <RowActions
+                          actions={[
+                            ...(onEdit
+                              ? [
+                                  {
+                                    label: 'Edit',
+                                    icon: Pencil,
+                                    onClick: () => onEdit(survey),
+                                  },
+                                ]
+                              : []),
+                            ...(onDelete
+                              ? [
+                                  {
+                                    label: 'Delete',
+                                    icon: Trash2,
+                                    onClick: () => onDelete(survey),
+                                    variant: 'destructive' as const,
+                                  },
+                                ]
+                              : []),
+                          ]}
+                        />
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))
               )}
