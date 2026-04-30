@@ -59,6 +59,14 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 
 ---
 
+## Survey
+
+| Modul | Status | Catatan |
+|---|---|---|
+| Survey & Measurement | ✅ | Table, search by client name, form CRUD (client, surveyor, schedule, status, notes); status: `pending` \| `done`; klik baris → detail dialog |
+
+---
+
 ## Backlog / Planned
 
 | Modul | Status | Catatan |

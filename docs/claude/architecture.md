@@ -36,7 +36,7 @@ frontend/src/
 │   ├── constant.ts            # Semua konstanta global
 │   ├── booleans.ts            # Boolean utility helpers
 │   ├── masking.ts             # Display label helpers: MaskingTextByDivision, MaskingTextByInvoiceType, MaskingTextByArchitectureStatus
-│   ├── validations/           # Zod schemas: client, user, project, role, vendor, prospect
+│   ├── validations/           # Zod schemas: client, user, project, role, vendor, prospect, survey
 │   ├── invoicing/             # dateFilter, termCalculation, revenueStats, quotationStats
 │   ├── projects/              # statistics, permissions, deadline, status
 │   └── formatting/            # currency
@@ -64,6 +64,7 @@ frontend/src/
     │   ├── profile/           # ProfilePage
     │   │   └── components/    # ProfileAvatar, ProfileEditForm, SecurityForm
     │   └── roleManagement/    # roleManagement, roleForm
+    ├── survey/                # SurveyPage, SurveyTable, SurveyForm, SurveyDetailDialog
     ├── verification/          # PublicVerificationPage
     └── Dashboard.tsx
 ```
@@ -76,6 +77,7 @@ Satu hook = satu tanggung jawab. Return object (bukan array) kecuali state seder
 |---|---|
 | `useInvoices` | Fetch & mutate invoices |
 | `useQuotations` | Fetch & mutate quotations |
+| `useSurveys` | Fetch surveys dengan filter searchTerm (by client name), expand `client,surveyor` |
 | `useProjects` | Fetch & mutate projects |
 | `useClients` | Fetch & mutate clients |
 | `useVendors` | Fetch & mutate vendors |
@@ -116,4 +118,4 @@ Satu hook = satu tanggung jawab. Return object (bukan array) kecuali state seder
 
 ## Validasi Schema
 
-Semua Zod schema di `lib/validations/`. Schema yang tersedia: `client.ts`, `user.ts`, `project.ts`, `role.ts`, `vendor.ts`, `prospect.ts`
+Semua Zod schema di `lib/validations/`. Schema yang tersedia: `client.ts`, `user.ts`, `project.ts`, `role.ts`, `vendor.ts`, `prospect.ts`, `survey.ts`
