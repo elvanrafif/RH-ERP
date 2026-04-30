@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import listPlugin from '@fullcalendar/list'
@@ -29,6 +29,7 @@ export function DashboardCalendar() {
   const { events, isLoading } = useDashboardCalendarEvents()
   const [popoverState, setPopoverState] = useState<PopoverState | null>(null)
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
+  const calendarRef = useRef<FullCalendar>(null)
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)')
@@ -36,6 +37,12 @@ export function DashboardCalendar() {
     mq.addEventListener('change', handler)
     return () => mq.removeEventListener('change', handler)
   }, [])
+
+  useEffect(() => {
+    calendarRef.current
+      ?.getApi()
+      .changeView(isMobile ? 'listMonth' : 'dayGridMonth')
+  }, [isMobile])
 
   const popoverEvents = useMemo(() => {
     if (!popoverState) return []
@@ -109,12 +116,17 @@ export function DashboardCalendar() {
           <div className="h-[400px] animate-pulse rounded-md bg-slate-100" />
         ) : (
           <FullCalendar
+            ref={calendarRef}
             plugins={[dayGridPlugin, listPlugin, interactionPlugin]}
             initialView={isMobile ? 'listMonth' : 'dayGridMonth'}
             headerToolbar={
               isMobile
                 ? { left: 'prev,next today', center: 'title', right: '' }
-                : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,dayGridWeek' }
+                : {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,dayGridWeek',
+                  }
             }
             buttonText={{ today: 'Today', month: 'Month', week: 'Week' }}
             events={events}
