@@ -77,7 +77,7 @@ Satu hook = satu tanggung jawab. Return object (bukan array) kecuali state seder
 |---|---|
 | `useInvoices` | Fetch & mutate invoices |
 | `useQuotations` | Fetch & mutate quotations |
-| `useSurveys` | Fetch surveys dengan filter searchTerm (by client name), expand `client,surveyor` |
+| `useSurveys` | Fetch surveys dengan filter searchTerm (by client name), filterPic (surveyor ID), filterStatus (`all`\|`pending`\|`done`), expand `client,surveyor` |
 | `useProjects` | Fetch & mutate projects |
 | `useClients` | Fetch & mutate clients |
 | `useVendors` | Fetch & mutate vendors |
