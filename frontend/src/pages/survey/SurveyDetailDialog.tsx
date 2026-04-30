@@ -1,16 +1,13 @@
 import type { Survey } from '@/types'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { formatDateTime, getRemainingTime } from '@/lib/helpers'
 import { SURVEY_STATUS } from '@/lib/constant'
-import { Pencil, ExternalLink } from 'lucide-react'
 
 interface SurveyDetailDialogProps {
   survey: Survey | null
   open: boolean
   onOpenChange: (open: boolean) => void
-  onEdit: (survey: Survey) => void
 }
 
 function Field({
@@ -55,7 +52,6 @@ export function SurveyDetailDialog({
   survey,
   open,
   onOpenChange,
-  onEdit,
 }: SurveyDetailDialogProps) {
   if (!survey) return null
 
@@ -105,12 +101,12 @@ export function SurveyDetailDialog({
                       href={client.maps_link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs font-medium text-blue-600 hover:underline flex items-center gap-1"
+                      className="text-sm font-medium text-slate-800 hover:underline truncate block"
                     >
-                      Open Maps <ExternalLink className="h-3 w-3 shrink-0" />
+                      {client.maps_link}
                     </a>
                   ) : (
-                    <p className="text-sm font-medium text-slate-800">—</p>
+                    <TextValue />
                   )}
                 </Field>
               </div>
@@ -142,32 +138,22 @@ export function SurveyDetailDialog({
                   <TextValue value={remaining} />
                 </Field>
               </div>
-
-              {survey.notes && (
-                <Field label="Notes">
-                  <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap">
-                    {survey.notes}
-                  </p>
-                </Field>
-              )}
             </div>
           </div>
-        </div>
 
-        <Separator />
-
-        <div className="flex justify-end">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={() => {
-              onOpenChange(false)
-              onEdit(survey)
-            }}
-          >
-            <Pencil className="mr-2 h-3.5 w-3.5" />
-            Edit
-          </Button>
+          {survey.notes && (
+            <>
+              <Separator />
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-3">
+                  Notes
+                </p>
+                <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap">
+                  {survey.notes}
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>
