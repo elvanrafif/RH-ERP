@@ -48,7 +48,9 @@ export function SurveyTable({
                 <TableRow>
                   <TableCell colSpan={6} className="h-60">
                     <EmptyState
-                      icon={ClipboardList}
+                      icon={
+                        <ClipboardList className="h-8 w-8 text-slate-400" />
+                      }
                       title="No surveys yet"
                       description="Create your first survey appointment to get started"
                     />

@@ -12,10 +12,11 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
-import { FormSubmitButton } from '@/components/shared/FormSubmitButton'
 import { ClientComboboxField } from '@/components/forms/ClientComboboxField'
+import { Loader2 } from 'lucide-react'
 import { UserComboboxField } from '@/components/forms/UserComboboxField'
 
 interface SurveyFormProps {
@@ -25,7 +26,12 @@ interface SurveyFormProps {
   users: User[]
 }
 
-export function SurveyForm({ onSuccess, initialData, clients, users }: SurveyFormProps) {
+export function SurveyForm({
+  onSuccess,
+  initialData,
+  clients,
+  users,
+}: SurveyFormProps) {
   const { mutate, isPending } = useFormMutation<SurveyFormValues>({
     collection: 'surveys',
     queryKey: ['surveys'],
@@ -36,16 +42,20 @@ export function SurveyForm({ onSuccess, initialData, clients, users }: SurveyFor
   const form = useForm<SurveyFormValues>({
     resolver: zodResolver(surveySchema),
     defaultValues: {
-      client:   initialData?.client ?? '',
+      client: initialData?.client ?? '',
       surveyor: initialData?.surveyor ?? '',
       schedule: toLocalDateTimeInput(initialData?.schedule),
-      notes:    initialData?.notes ?? '',
+      notes: initialData?.notes ?? '',
     },
   })
 
   function handleSubmit(values: SurveyFormValues) {
     const schedule = values.schedule
-      ? new Date(values.schedule.length === 16 ? values.schedule + ':00' : values.schedule).toISOString()
+      ? new Date(
+          values.schedule.length === 16
+            ? values.schedule + ':00'
+            : values.schedule
+        ).toISOString()
       : values.schedule
     mutate({ ...values, schedule })
   }
@@ -100,10 +110,12 @@ export function SurveyForm({ onSuccess, initialData, clients, users }: SurveyFor
           )}
         />
 
-        <FormSubmitButton
-          isPending={isPending}
-          label={initialData ? 'Save Changes' : 'Create Survey'}
-        />
+        <div className="flex justify-end pt-2">
+          <Button type="submit" disabled={isPending}>
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {initialData ? 'Save Changes' : 'Create Survey'}
+          </Button>
+        </div>
       </form>
     </Form>
   )
