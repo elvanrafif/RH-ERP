@@ -125,3 +125,21 @@ export const RENOVATION_TYPE_OPTIONS = [
 ] as const
 
 export const QUOTATION_OPTIONS = ['design', 'civil', 'civil + design'] as const
+
+/** Tailwind badge classes untuk event type — dipakai di badge/chip komponen */
+export const PROJECT_TYPE_COLORS: Record<string, string> = {
+  architecture: 'bg-blue-100 text-blue-800 border-blue-200',
+  civil: 'bg-amber-100 text-amber-800 border-amber-200',
+  interior: 'bg-violet-100 text-violet-800 border-violet-200',
+  survey: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+  meeting: 'bg-rose-100 text-rose-800 border-rose-200',
+}
+
+/** Hex colors untuk FullCalendar event backgroundColor */
+export const CALENDAR_EVENT_COLORS: Record<string, string> = {
+  architecture: '#2563eb',
+  civil: '#d97706',
+  interior: '#7c3aed',
+  survey: '#059669',
+  meeting: '#e11d48',
+}
