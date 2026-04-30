@@ -1,14 +1,11 @@
-import { useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { pb } from '@/lib/pocketbase'
-import { AnimatePresence } from 'framer-motion'
 
 // Components
 import AppLayout from '@/components/layout/AppLayout'
-import SplashScreen from '@/components/layout/SplashScreen'
 import Login from '@/pages/Login'
 import Dashboard from './pages/Dashboard'
 import { Button } from '@/components/ui/button' // Tambahkan import Button untuk fallback
@@ -153,22 +150,14 @@ function AppRoutes() {
 }
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true)
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <AnimatePresence mode="wait">
-          {isLoading ? (
-            <SplashScreen key="splash" onComplete={() => setIsLoading(false)} />
-          ) : (
-            <AuthProvider>
-              <BrowserRouter>
-                <AppRoutes />
-              </BrowserRouter>
-            </AuthProvider>
-          )}
-        </AnimatePresence>
+        <AuthProvider>
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </AuthProvider>
 
         <Toaster position="top-center" richColors />
       </TooltipProvider>

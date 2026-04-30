@@ -43,9 +43,9 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 
 | Modul | Status | Catatan |
 |---|---|---|
-| Quotations | ✅ | Table, editor A4, print/download, WhatsApp share |
+| Quotations | ✅ | Table, editor A4, print/download, WhatsApp share (pesan formal profesional); QR code di paper dilabeli "Scan to Verify" |
 | Quotation — Restricted Access | ✅ | Role socmed: bisa buat quotation tapi field finansial disembunyikan |
-| Invoices | ✅ | Table, editor A4, payment terms, print/download, WhatsApp share |
+| Invoices | ✅ | Table, editor A4, payment terms, print/download, WhatsApp share (pesan formal profesional); QR code di paper dilabeli "Scan to Verify" |
 | Public Verification | ✅ | Halaman publik untuk verifikasi dokumen via QR/link |
 
 ---

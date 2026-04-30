@@ -5,10 +5,11 @@ import {
   useMemo,
   useState,
   useEffect,
-} from 'react' // Tambahkan useState & useEffect
+} from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
-import { Loader2 } from 'lucide-react'
+import { motion } from 'framer-motion'
+import Logo from '@/assets/rh-studio-transparent.png'
 
 interface AuthContextType {
   user: any
@@ -64,15 +65,42 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return permissions.includes(permission)
   }
 
-  // Tampilkan loading HANYA JIKA sedang mencari data role
   if (isLoading && authModel) {
     return (
-      <div className="flex h-screen w-screen items-center justify-center bg-slate-50/50 backdrop-blur-sm z-50 fixed inset-0">
-        <div className="flex flex-col items-center gap-3 text-slate-500">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm font-medium animate-pulse">
-            Memverifikasi hak akses...
-          </p>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-white">
+        <div className="flex flex-col items-center">
+          <motion.img
+            src={Logo}
+            alt="RH Studio"
+            className="w-36 md:w-48 object-contain"
+            initial={{ opacity: 0, scale: 0.85 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+          />
+          <motion.div
+            className="mt-8 h-0.5 w-40 overflow-hidden rounded-full bg-slate-100 relative"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <motion.div
+              className="absolute h-full w-14 bg-primary rounded-full"
+              animate={{ x: [-56, 160] }}
+              transition={{
+                duration: 1.1,
+                ease: 'easeInOut',
+                repeat: Infinity,
+              }}
+            />
+          </motion.div>
+          <motion.p
+            className="mt-4 text-xs text-slate-400 tracking-wide"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+          >
+            Verifying access...
+          </motion.p>
         </div>
       </div>
     )
