@@ -199,3 +199,12 @@
 .fc .fc-daygrid-day-frame {
   min-height: 80px;
 }
+.fc .fc-daygrid-day:not(.fc-day-today):hover .fc-daygrid-day-frame {
+  background-color: #f8fafc;
+  transition: background-color 0.15s ease;
+}
+.fc .fc-daygrid-day,
+.fc .fc-daygrid-event,
+.fc .fc-more-link {
+  cursor: pointer;
+}
