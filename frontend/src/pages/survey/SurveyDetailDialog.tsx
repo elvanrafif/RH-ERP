@@ -1,9 +1,5 @@
 import type { Survey } from '@/types'
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { formatDateTime, getRemainingTime } from '@/lib/helpers'
@@ -17,7 +13,13 @@ interface SurveyDetailDialogProps {
   onEdit: (survey: Survey) => void
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  children,
+}: {
+  label: string
+  children: React.ReactNode
+}) {
   return (
     <div className="min-w-0">
       <p className="text-[10px] text-muted-foreground mb-0.5">{label}</p>
@@ -28,7 +30,9 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 function TextValue({ value }: { value?: string | null }) {
   return (
-    <p className="text-sm font-medium text-slate-800 truncate">{value ?? '—'}</p>
+    <p className="text-sm font-medium text-slate-800 truncate">
+      {value ?? '—'}
+    </p>
   )
 }
 
@@ -75,7 +79,7 @@ export function SurveyDetailDialog({
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-x-4">
                 <Field label="Client Name">
-                  <TextValue value={client?.contact_person} />
+                  <TextValue value={client?.company_name} />
                 </Field>
                 <Field label="Status">
                   <StatusBadge status={survey.status} />
