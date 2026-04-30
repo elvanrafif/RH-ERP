@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Instagram,
   TrendingUp,
+  ClipboardList,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NavItem } from './NavItem'
@@ -160,6 +161,17 @@ export function SidebarNav({
           label="Prospects"
           collapsed={collapsed}
           isActive={isActive('/prospects')}
+          onClick={onLinkClick}
+        />
+      </Guard>
+
+      <Guard require="manage_surveys">
+        <NavItem
+          to="/survey"
+          icon={ClipboardList}
+          label="Survey & Measurement"
+          collapsed={collapsed}
+          isActive={isActive('/survey')}
           onClick={onLinkClick}
         />
       </Guard>
