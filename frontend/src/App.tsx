@@ -39,6 +39,7 @@ import { SuperAdminGuard } from './components/ui/SuperAdminGuard'
 import VendorsPage from './pages/vendors/VendorsPage'
 import BuildConversionPage from './pages/buildConversion/BuildConversionPage'
 import ProspectsPage from './pages/prospects/ProspectsPage'
+import SurveyPage from './pages/survey/SurveyPage'
 import {
   FallbackDecider,
   ProtectedRoute,
@@ -123,6 +124,10 @@ function AppRoutes() {
 
         <Route element={<PermissionGuard require="manage_prospects" />}>
           <Route path="prospects" element={<ProspectsPage />} />
+        </Route>
+
+        <Route element={<PermissionGuard require="manage_surveys" />}>
+          <Route path="survey" element={<SurveyPage />} />
         </Route>
 
         {/* --- SETTINGS (Only for those who can manage users) --- */}
