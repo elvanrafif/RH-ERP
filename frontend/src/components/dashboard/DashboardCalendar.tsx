@@ -62,7 +62,10 @@ export function DashboardCalendar() {
           {/* Legend */}
           <div className="flex flex-wrap gap-3">
             {LEGEND_ITEMS.map((item) => (
-              <span key={item.label} className="flex items-center gap-1.5 text-xs text-slate-600">
+              <span
+                key={item.label}
+                className="flex items-center gap-1.5 text-xs text-slate-600"
+              >
                 <span
                   className="inline-block w-2.5 h-2.5 rounded-sm shrink-0"
                   style={{ backgroundColor: item.color }}
@@ -107,8 +110,10 @@ export function DashboardCalendar() {
             <div
               className="fixed z-50"
               style={{
+                // 300 = w-72 (288px) + 12px safety margin
                 left: Math.min(popoverState.x, window.innerWidth - 300),
-                top: popoverState.y + 10,
+                // 320 = max-h-72 (288px) + 32px header clearance
+                top: Math.min(popoverState.y + 10, window.innerHeight - 320),
               }}
             >
               <DashboardCalendarPopover

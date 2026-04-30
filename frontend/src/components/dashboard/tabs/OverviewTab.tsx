@@ -5,10 +5,10 @@ import {
   CardTitle,
   CardDescription,
 } from '@/components/ui/card'
-import { Users, DollarSign, TrendingUp, HardHat, FileText } from 'lucide-react'
+import { Users, HardHat, UserSearch, ClipboardList } from 'lucide-react'
 import { Overview } from '@/components/dashboard/Overview'
 import { RecentSales } from '@/components/dashboard/RecentSales'
-import { formatRupiah } from '@/lib/helpers'
+import { DashboardCalendar } from '@/components/dashboard/DashboardCalendar'
 
 interface OverviewTabProps {
   data: any
@@ -20,23 +20,22 @@ export function OverviewTab({ data, isLoading }: OverviewTabProps) {
     <div className="space-y-6">
       {/* KPI CARDS GRID */}
       <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        {/* Actual Revenue */}
+        {/* Total Prospects */}
         <Card className="border-slate-200/60 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-600">
-              Actual Revenue
+              Total Prospects
             </CardTitle>
             <div className="p-2 bg-blue-50 rounded-md">
-              <DollarSign className="h-4 w-4 text-blue-600" />
+              <UserSearch className="h-4 w-4 text-blue-600" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoading ? '...' : formatRupiah(data?.totalOmzet || 0)}
+              {isLoading ? '...' : (data?.totalProspects ?? 0)}
             </div>
-            <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
-              <TrendingUp className="h-3 w-3 text-emerald-500" /> Settled
-              Invoices (Term 4 + Paid)
+            <p className="text-[10px] text-muted-foreground mt-1">
+              Potential clients in pipeline
             </p>
           </CardContent>
         </Card>
@@ -81,26 +80,29 @@ export function OverviewTab({ data, isLoading }: OverviewTabProps) {
           </CardContent>
         </Card>
 
-        {/* Quotations Sent */}
+        {/* Pending Surveys */}
         <Card className="border-slate-200/60 shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-slate-600">
-              Quotations Sent
+              Pending Surveys
             </CardTitle>
             <div className="p-2 bg-purple-50 rounded-md">
-              <FileText className="h-4 w-4 text-purple-600" />
+              <ClipboardList className="h-4 w-4 text-purple-600" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {isLoading ? '...' : data?.totalQuotations || 0}
+              {isLoading ? '...' : (data?.pendingSurveys ?? 0)}
             </div>
             <p className="text-[10px] text-muted-foreground mt-1">
-              Ready for conversion
+              Surveys awaiting completion
             </p>
           </CardContent>
         </Card>
       </div>
+
+      {/* TEAM CALENDAR */}
+      <DashboardCalendar />
 
       {/* CHARTS SECTION */}
       <div className="grid gap-6 grid-cols-1 lg:grid-cols-7">
