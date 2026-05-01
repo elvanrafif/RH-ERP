@@ -2,18 +2,10 @@
 import { useDashboardStats } from '@/hooks/useDashboard'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import {
-  Download,
-  Plus,
-  LayoutDashboard,
-  UsersRound,
-  Wallet,
-  CalendarDays,
-} from 'lucide-react'
+import { Download, Plus, LayoutDashboard, UsersRound } from 'lucide-react'
+
 import { OverviewTab } from '@/components/dashboard/tabs/OverviewTab'
 import { ResourceMonitoringTab } from '@/components/dashboard/tabs/ResourceMonitoringTab'
-import { DocumentRevenueTab } from '@/components/dashboard/tabs/DocumentRevenueTab'
-import { ClientTrackingTab } from '@/components/dashboard/tabs/ClientTrackingTab'
 
 export function ExecutiveDashboard() {
   const { data, isLoading, error } = useDashboardStats()
@@ -65,20 +57,6 @@ export function ExecutiveDashboard() {
               <UsersRound className="w-4 h-4" />
               <span className="font-medium text-sm">Resource Monitoring</span>
             </TabsTrigger>
-            <TabsTrigger
-              value="revenue"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all text-muted-foreground hover:text-foreground"
-            >
-              <Wallet className="w-4 h-4" />
-              <span className="font-medium text-sm">Document Revenue</span>
-            </TabsTrigger>
-            <TabsTrigger
-              value="client-tracking"
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all text-muted-foreground hover:text-foreground"
-            >
-              <CalendarDays className="w-4 h-4" />
-              <span className="font-medium text-sm">Client Tracking</span>
-            </TabsTrigger>
           </TabsList>
         </div>
 
@@ -93,18 +71,6 @@ export function ExecutiveDashboard() {
           className="space-y-6 animate-in fade-in-50"
         >
           <ResourceMonitoringTab />
-        </TabsContent>
-        <TabsContent
-          value="revenue"
-          className="space-y-6 animate-in fade-in-50"
-        >
-          <DocumentRevenueTab />
-        </TabsContent>
-        <TabsContent
-          value="client-tracking"
-          className="space-y-6 animate-in fade-in-50"
-        >
-          <ClientTrackingTab />
         </TabsContent>
       </Tabs>
     </div>

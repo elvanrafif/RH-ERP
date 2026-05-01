@@ -12,7 +12,7 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 |---|---|---|
 | Login / Auth | ✅ | Session timeout 1 jam, auto logout, show/hide password toggle |
 | RBAC (Role & Permission) | ✅ | Custom roles dengan permission granular via PocketBase |
-| Dashboard | ✅ | Role-based: superadmin → Executive Overview (workload, revenue, client tracking, **Team Calendar** — deadline project civil/architecture/interior, jadwal meeting prospect & survey, monthly/weekly view, color-coded events, day-detail popover; responsive: mobile → list view + bottom sheet, desktop → grid + floating popover); employee → My Projects (active assigned projects, deadline stats); civil role → Civil Team Dashboard (Gantt chart per vendor, responsive 1–3 month window, Today label, color-coded deadlines) |
+| Dashboard | ✅ | Role-based: superadmin → Executive Overview (workload, client tracking, **Team Calendar** — deadline project civil/architecture/interior, jadwal meeting prospect & survey, monthly/weekly view, color-coded events, day-detail popover; responsive: mobile → list view + bottom sheet, desktop → grid + floating popover); employee → My Projects (active assigned projects, deadline stats); civil role → Civil Team Dashboard (Gantt chart per vendor, responsive 1–3 month window, Today label, color-coded deadlines) |
 | Profile & Security | ✅ | Edit profil, ganti password, upload avatar |
 
 ---
@@ -67,9 +67,16 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 
 ---
 
+## Laporan
+
+| Modul | Status | Catatan |
+|---|---|---|
+| Financial Reporting | ✅ | `/reports` (requires `view_revenue`) — stat cards (Total Revenue, Invoice Revenue, Quotation Paid) dengan % change vs periode sebelumnya; bar chart per bulan/kuartal/tahun dengan highlight periode aktif; tabel detail dua tab Invoice + Quotation dengan row total; filter granularitas (Monthly/Quarterly/Yearly), tahun, bulan/kuartal, tipe proyek — semua di-sync ke URL params; Export PDF via jsPDF + html-to-image; sidebar nav item "Reports" |
+
+---
+
 ## Backlog / Planned
 
 | Modul | Status | Catatan |
 |---|---|---|
-| Laporan / Reporting | ⬜ | Export rekap per periode |
 | Notifikasi | ✅ | Sidebar bell — overdue & upcoming tabs; civil projects tampil ke user divisi civil saja (bukan semua user); arsitektur/interior filter by assignee; label tipe dalam English |

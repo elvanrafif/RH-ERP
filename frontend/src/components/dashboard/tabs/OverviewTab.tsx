@@ -6,8 +6,6 @@ import {
   CardDescription,
 } from '@/components/ui/card'
 import { Users, HardHat, UserSearch, ClipboardList } from 'lucide-react'
-import { Overview } from '@/components/dashboard/Overview'
-import { RecentSales } from '@/components/dashboard/RecentSales'
 import { DashboardCalendar } from '@/components/dashboard/DashboardCalendar'
 
 interface OverviewTabProps {
@@ -103,38 +101,6 @@ export function OverviewTab({ data, isLoading }: OverviewTabProps) {
 
       {/* TEAM CALENDAR */}
       <DashboardCalendar />
-
-      {/* CHARTS SECTION */}
-      <div className="grid gap-6 grid-cols-1 lg:grid-cols-7">
-        <Card className="col-span-1 lg:col-span-4 border-slate-200/60 shadow-sm bg-white">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">
-              Revenue Analytics
-            </CardTitle>
-            <CardDescription>
-              Visual growth of your company's income over time.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pl-2">
-            <div className="h-[300px] md:h-[350px]">
-              <Overview />
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="col-span-1 lg:col-span-3 border-slate-200/60 shadow-sm bg-white">
-          <CardHeader>
-            <CardTitle className="text-base font-semibold">
-              Recent Transactions
-            </CardTitle>
-            <CardDescription>
-              Latest invoice payments and quotation updates.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <RecentSales />
-          </CardContent>
-        </Card>
-      </div>
     </div>
   )
 }
