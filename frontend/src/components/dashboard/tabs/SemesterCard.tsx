@@ -71,7 +71,8 @@ function ClientRow({ group }: ClientRowProps) {
           {group.clientName}
         </span>
         <span className="text-xs text-muted-foreground mr-2">
-          {group.projects.length} {group.projects.length === 1 ? 'project' : 'projects'}
+          {group.projects.length}{' '}
+          {group.projects.length === 1 ? 'project' : 'projects'}
         </span>
         <span className="text-sm font-semibold text-slate-700 tabular-nums">
           {formatRupiah(group.totalValue)}
@@ -85,7 +86,9 @@ function ClientRow({ group }: ClientRowProps) {
             <div
               key={project.id}
               onClick={() =>
-                navigate(`${PROJECT_TYPE_ROUTES[project.type]}?open=${project.id}`)
+                navigate(
+                  `${PROJECT_TYPE_ROUTES[project.type]}?open=${project.id}`
+                )
               }
               className="flex items-center gap-3 pl-11 pr-4 py-2.5 border-t border-slate-100 hover:bg-slate-100/60 transition-colors cursor-pointer"
             >
@@ -95,10 +98,14 @@ function ClientRow({ group }: ClientRowProps) {
               >
                 {TYPE_LABELS[project.type]}
               </Badge>
-              <span className="flex-1 text-sm text-slate-600 capitalize">
+              <Badge
+                variant="secondary"
+                className="text-xs capitalize shrink-0"
+              >
                 {project.status.replace(/_/g, ' ')}
-              </span>
-              <span className="text-sm text-slate-600 tabular-nums whitespace-nowrap">
+              </Badge>
+              <span className="flex-1" />
+              <span className="text-xs text-slate-500 tabular-nums whitespace-nowrap">
                 {formatRupiah(project.contract_value)}
               </span>
             </div>
@@ -116,8 +123,16 @@ interface SemesterCardProps {
   isLoading: boolean
 }
 
-export function SemesterCard({ title, dateRange, projects, isLoading }: SemesterCardProps) {
-  const totalValue = projects.reduce((sum, p) => sum + (p.contract_value ?? 0), 0)
+export function SemesterCard({
+  title,
+  dateRange,
+  projects,
+  isLoading,
+}: SemesterCardProps) {
+  const totalValue = projects.reduce(
+    (sum, p) => sum + (p.contract_value ?? 0),
+    0
+  )
   const groups = groupByClient(projects)
 
   return (
@@ -125,7 +140,9 @@ export function SemesterCard({ title, dateRange, projects, isLoading }: Semester
       <CardHeader className="pb-3 bg-slate-50/50 border-b border-slate-200">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-base font-semibold text-slate-800">{title}</CardTitle>
+            <CardTitle className="text-base font-semibold text-slate-800">
+              {title}
+            </CardTitle>
             <p className="text-xs text-muted-foreground mt-0.5">{dateRange}</p>
           </div>
           <div className="flex items-center gap-2">
