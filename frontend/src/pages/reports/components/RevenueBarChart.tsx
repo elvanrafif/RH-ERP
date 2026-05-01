@@ -8,18 +8,23 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts'
-import type { TooltipProps } from 'recharts'
 import type { BarChartEntry } from '@/lib/invoicing/reportCalculations'
 
 interface RevenueBarChartProps {
   data: BarChartEntry[]
 }
 
-const CustomTooltip = ({
-  active,
-  payload,
-  label,
-}: TooltipProps<number, string>) => {
+interface TooltipPayload {
+  value?: number
+}
+
+interface CustomTooltipProps {
+  active?: boolean
+  payload?: TooltipPayload[]
+  label?: string
+}
+
+const CustomTooltip = ({ active, payload, label }: CustomTooltipProps) => {
   if (!active || !payload?.length) return null
   const fmt = (v: number) => `Rp ${(v / 1_000_000).toFixed(1)}M`
   return (
