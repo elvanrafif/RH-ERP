@@ -1,4 +1,3 @@
-// frontend/src/components/dashboard/tabs/SemesterCard.tsx
 import type { Project } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -24,6 +23,28 @@ const PROJECT_TYPE_ROUTES: Record<Project['type'], string> = {
   interior: '/projects/interior',
 }
 
+interface ClientGroup {
+  clientId: string
+  clientName: string
+  projects: Project[]
+  totalValue: number
+}
+
+function groupByClient(projects: Project[]): ClientGroup[] {
+  const map = new Map<string, ClientGroup>()
+  for (const p of projects) {
+    const clientId = p.client ?? 'unknown'
+    const clientName = p.expand?.client?.company_name ?? p.expand?.client?.contact_person ?? '—'
+    if (!map.has(clientId)) {
+      map.set(clientId, { clientId, clientName, projects: [], totalValue: 0 })
+    }
+    const group = map.get(clientId)!
+    group.projects.push(p)
+    group.totalValue += p.contract_value ?? 0
+  }
+  return Array.from(map.values()).sort((a, b) => b.totalValue - a.totalValue)
+}
+
 interface SemesterCardProps {
   title: string
   dateRange: string
@@ -31,25 +52,17 @@ interface SemesterCardProps {
   isLoading: boolean
 }
 
-export function SemesterCard({
-  title,
-  dateRange,
-  projects,
-  isLoading,
-}: SemesterCardProps) {
+export function SemesterCard({ title, dateRange, projects, isLoading }: SemesterCardProps) {
   const navigate = useNavigate()
-  const totalValue = projects.reduce(
-    (sum, p) => sum + (p.contract_value ?? 0),
-    0
-  )
+  const totalValue = projects.reduce((sum, p) => sum + (p.contract_value ?? 0), 0)
+  const groups = groupByClient(projects)
+
   return (
     <Card className="border-slate-200/60 shadow-sm overflow-hidden">
       <CardHeader className="pb-3 bg-slate-50/50 border-b border-slate-200">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-base font-semibold text-slate-800">
-              {title}
-            </CardTitle>
+            <CardTitle className="text-base font-semibold text-slate-800">{title}</CardTitle>
             <p className="text-xs text-muted-foreground mt-0.5">{dateRange}</p>
           </div>
           <div className="flex items-center gap-2">
@@ -78,51 +91,51 @@ export function SemesterCard({
             <table className="w-full text-sm">
               <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 z-10">
                 <tr>
-                  <th className="text-left px-4 py-2.5 font-medium text-slate-600">
-                    Client
-                  </th>
-                  <th className="text-left px-4 py-2.5 font-medium text-slate-600">
-                    Status
-                  </th>
-                  <th className="text-right px-4 py-2.5 font-medium text-slate-600">
-                    Contract
-                  </th>
+                  <th className="text-left px-4 py-2.5 font-medium text-slate-600">Client / Project</th>
+                  <th className="text-left px-4 py-2.5 font-medium text-slate-600">Type</th>
+                  <th className="text-right px-4 py-2.5 font-medium text-slate-600">Contract</th>
                 </tr>
               </thead>
               <tbody>
-                {projects.map((project) => (
-                  <tr
-                    key={project.id}
-                    onClick={() =>
-                      navigate(
-                        `${PROJECT_TYPE_ROUTES[project.type]}?open=${project.id}`
-                      )
-                    }
-                    className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60 transition-colors cursor-pointer"
-                  >
-                    <td className="px-4 py-2.5 text-slate-800 font-medium">
-                      {project.expand?.client?.company_name ?? '—'}
-                    </td>
-                    <td className="px-4 py-2.5 w-px whitespace-nowrap">
-                      <div className="flex flex-col items-end gap-1">
-                        <Badge
-                          variant="outline"
-                          className={`text-xs ${TYPE_BADGE_CLASS[project.type]}`}
-                        >
-                          {TYPE_LABELS[project.type]}
-                        </Badge>
-                        <Badge
-                          variant="secondary"
-                          className="text-xs capitalize"
-                        >
+                {groups.map((group) => (
+                  <>
+                    {/* Client group header */}
+                    <tr key={`group-${group.clientId}`} className="bg-slate-50/80 border-b border-slate-200">
+                      <td className="px-4 py-2 font-semibold text-slate-800" colSpan={1}>
+                        {group.clientName}
+                        <span className="ml-2 text-xs font-normal text-muted-foreground">
+                          {group.projects.length} {group.projects.length === 1 ? 'project' : 'projects'}
+                        </span>
+                      </td>
+                      <td />
+                      <td className="px-4 py-2 text-right font-semibold text-slate-700 tabular-nums whitespace-nowrap">
+                        {formatRupiah(group.totalValue)}
+                      </td>
+                    </tr>
+                    {/* Project rows */}
+                    {group.projects.map((project) => (
+                      <tr
+                        key={project.id}
+                        onClick={() => navigate(`${PROJECT_TYPE_ROUTES[project.type]}?open=${project.id}`)}
+                        className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60 transition-colors cursor-pointer"
+                      >
+                        <td className="pl-8 pr-4 py-2.5 text-slate-600">
                           {project.status.replace(/_/g, ' ')}
-                        </Badge>
-                      </div>
-                    </td>
-                    <td className="px-4 py-2.5 text-right text-slate-700 tabular-nums w-px whitespace-nowrap">
-                      {formatRupiah(project.contract_value)}
-                    </td>
-                  </tr>
+                        </td>
+                        <td className="px-4 py-2.5 w-px whitespace-nowrap">
+                          <Badge
+                            variant="outline"
+                            className={`text-xs ${TYPE_BADGE_CLASS[project.type]}`}
+                          >
+                            {TYPE_LABELS[project.type]}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-2.5 text-right text-slate-600 tabular-nums w-px whitespace-nowrap">
+                          {formatRupiah(project.contract_value)}
+                        </td>
+                      </tr>
+                    ))}
+                  </>
                 ))}
               </tbody>
             </table>
