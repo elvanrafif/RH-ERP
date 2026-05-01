@@ -13,6 +13,7 @@ import {
   TrendingUp,
   ClipboardList,
   BarChart2,
+  UsersRound,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NavItem } from './NavItem'
@@ -150,6 +151,17 @@ export function SidebarNav({
           onClick={onLinkClick}
         />
       </Guard>
+
+      {isSuperAdmin && (
+        <NavItem
+          to="/client-tracking"
+          icon={UsersRound}
+          label="Client Tracking"
+          collapsed={collapsed}
+          isActive={isActive('/client-tracking')}
+          onClick={onLinkClick}
+        />
+      )}
 
       {!collapsed && (
         <div className="mt-6 mb-2 px-2 text-[10px] font-bold text-muted-foreground tracking-wider uppercase">
