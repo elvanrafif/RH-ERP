@@ -7,8 +7,8 @@ import type {
 } from '@/lib/invoicing/reportTypes'
 
 const TYPE_LABELS: Record<string, string> = {
-  design: 'Arsitektur',
-  sipil: 'Sipil',
+  design: 'Architecture',
+  sipil: 'Civil',
   interior: 'Interior',
 }
 
@@ -50,16 +50,16 @@ export function RevenueDetailTable({
               <thead className="bg-slate-50/50">
                 <tr>
                   <th className="text-left px-4 py-3 font-semibold text-slate-700">
-                    No. Invoice
+                    Invoice No.
                   </th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-700">
                     Client
                   </th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-700">
-                    Tipe
+                    Type
                   </th>
                   <th className="text-right px-4 py-3 font-semibold text-slate-700">
-                    Nilai Termin
+                    Term Value
                   </th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-700">
                     Status
@@ -73,7 +73,7 @@ export function RevenueDetailTable({
                       colSpan={5}
                       className="text-center py-10 text-muted-foreground"
                     >
-                      Tidak ada data invoice pada periode ini
+                      No invoice data for this period
                     </td>
                   </tr>
                 ) : (
@@ -97,8 +97,8 @@ export function RevenueDetailTable({
                           className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${row.status === INVOICE_STATUS.PAID ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}
                         >
                           {row.status === INVOICE_STATUS.PAID
-                            ? 'Lunas'
-                            : 'Belum Bayar'}
+                            ? 'Paid'
+                            : 'Unpaid'}
                         </span>
                       </td>
                     </tr>
@@ -131,16 +131,16 @@ export function RevenueDetailTable({
               <thead className="bg-slate-50/50">
                 <tr>
                   <th className="text-left px-4 py-3 font-semibold text-slate-700">
-                    No. Quotation
+                    Quotation No.
                   </th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-700">
                     Client
                   </th>
                   <th className="text-right px-4 py-3 font-semibold text-slate-700">
-                    Nilai Total
+                    Total Value
                   </th>
                   <th className="text-left px-4 py-3 font-semibold text-slate-700">
-                    Tanggal Paid
+                    Date Paid
                   </th>
                 </tr>
               </thead>
@@ -151,7 +151,7 @@ export function RevenueDetailTable({
                       colSpan={4}
                       className="text-center py-10 text-muted-foreground"
                     >
-                      Tidak ada quotation paid pada periode ini
+                      No paid quotations for this period
                     </td>
                   </tr>
                 ) : (

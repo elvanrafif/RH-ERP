@@ -144,7 +144,7 @@ export function SidebarNav({
         <NavItem
           to="/reports"
           icon={BarChart2}
-          label="Laporan"
+          label="Reports"
           collapsed={collapsed}
           isActive={isActive('/reports')}
           onClick={onLinkClick}

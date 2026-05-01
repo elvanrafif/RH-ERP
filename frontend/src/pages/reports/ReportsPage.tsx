@@ -23,14 +23,14 @@ const MONTH_LABELS = [
   'Feb',
   'Mar',
   'Apr',
-  'Mei',
+  'May',
   'Jun',
   'Jul',
-  'Agu',
+  'Aug',
   'Sep',
-  'Okt',
+  'Oct',
   'Nov',
-  'Des',
+  'Dec',
 ]
 const CURRENT_YEAR = new Date().getFullYear()
 const YEAR_OPTIONS = Array.from({ length: 5 }, (_, i) => CURRENT_YEAR - i)
@@ -63,8 +63,8 @@ export default function ReportsPage() {
     <div className="flex-1 h-full p-4 md:p-8 pt-6 flex flex-col gap-6 overflow-y-auto bg-background/50">
       <PageHeader
         icon={<BarChart2 className="w-6 h-6" />}
-        title="Laporan Keuangan"
-        description="Rekap revenue dari invoice aktif dan quotation paid berdasarkan periode."
+        title="Financial Report"
+        description="Revenue summary from active invoices and paid quotations by period."
         action={<ReportExportButton contentRef={contentRef} />}
       />
 
@@ -75,9 +75,9 @@ export default function ReportsPage() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="monthly">Bulanan</SelectItem>
-            <SelectItem value="quarterly">Kuartalan</SelectItem>
-            <SelectItem value="yearly">Tahunan</SelectItem>
+            <SelectItem value="monthly">Monthly</SelectItem>
+            <SelectItem value="quarterly">Quarterly</SelectItem>
+            <SelectItem value="yearly">Yearly</SelectItem>
           </SelectContent>
         </Select>
 
@@ -135,21 +135,21 @@ export default function ReportsPage() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Semua Tipe</SelectItem>
-            <SelectItem value="architecture">Arsitektur</SelectItem>
-            <SelectItem value="civil">Sipil</SelectItem>
+            <SelectItem value="all">All Types</SelectItem>
+            <SelectItem value="architecture">Architecture</SelectItem>
+            <SelectItem value="civil">Civil</SelectItem>
             <SelectItem value="interior">Interior</SelectItem>
           </SelectContent>
         </Select>
 
         {projectType !== 'all' && (
           <span className="text-xs text-muted-foreground">
-            Filter tipe hanya berlaku untuk data invoice
+            Type filter applies to invoice data only
           </span>
         )}
 
         <span className="text-sm text-muted-foreground ml-auto hidden sm:block">
-          Periode: <strong>{periodLabel()}</strong>
+          Period: <strong>{periodLabel()}</strong>
         </span>
       </div>
 

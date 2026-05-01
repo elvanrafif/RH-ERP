@@ -44,7 +44,7 @@ export function RevenueBarChart({ data }: RevenueBarChartProps) {
   return (
     <div className="bg-white rounded-lg border border-border shadow-sm p-4">
       <h3 className="text-sm font-semibold text-slate-700 mb-4">
-        Revenue per Periode
+        Revenue by Period
       </h3>
       <ResponsiveContainer width="100%" height={240}>
         <BarChart data={chartData} barCategoryGap="20%">
