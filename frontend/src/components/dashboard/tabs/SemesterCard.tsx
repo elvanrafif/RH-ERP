@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import type { Project } from '@/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { formatRupiah } from '@/lib/helpers'
 import { useNavigate } from 'react-router-dom'
+import { ChevronRight } from 'lucide-react'
 
 const TYPE_LABELS: Record<Project['type'], string> = {
   architecture: 'Architecture',
@@ -34,7 +36,8 @@ function groupByClient(projects: Project[]): ClientGroup[] {
   const map = new Map<string, ClientGroup>()
   for (const p of projects) {
     const clientId = p.client ?? 'unknown'
-    const clientName = p.expand?.client?.company_name ?? p.expand?.client?.contact_person ?? '—'
+    const clientName =
+      p.expand?.client?.company_name ?? p.expand?.client?.contact_person ?? '—'
     if (!map.has(clientId)) {
       map.set(clientId, { clientId, clientName, projects: [], totalValue: 0 })
     }
@@ -45,6 +48,67 @@ function groupByClient(projects: Project[]): ClientGroup[] {
   return Array.from(map.values()).sort((a, b) => b.totalValue - a.totalValue)
 }
 
+interface ClientRowProps {
+  group: ClientGroup
+}
+
+function ClientRow({ group }: ClientRowProps) {
+  const [open, setOpen] = useState(false)
+  const navigate = useNavigate()
+
+  return (
+    <div className="border-b border-slate-100 last:border-0">
+      {/* Client header — clickable to toggle */}
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors text-left"
+      >
+        <ChevronRight
+          className={`h-4 w-4 text-slate-400 shrink-0 transition-transform duration-200 ${open ? 'rotate-90' : ''}`}
+        />
+        <span className="flex-1 font-medium text-slate-800 text-sm">
+          {group.clientName}
+        </span>
+        <span className="text-xs text-muted-foreground mr-2">
+          {group.projects.length} {group.projects.length === 1 ? 'project' : 'projects'}
+        </span>
+        <span className="text-sm font-semibold text-slate-700 tabular-nums">
+          {formatRupiah(group.totalValue)}
+        </span>
+      </button>
+
+      {/* Project rows — shown when open */}
+      {open && (
+        <div className="bg-slate-50/50">
+          {group.projects.map((project) => (
+            <div
+              key={project.id}
+              onClick={() =>
+                navigate(`${PROJECT_TYPE_ROUTES[project.type]}?open=${project.id}`)
+              }
+              className="flex items-center gap-3 pl-11 pr-4 py-2.5 border-t border-slate-100 hover:bg-slate-100/60 transition-colors cursor-pointer"
+            >
+              <Badge
+                variant="outline"
+                className={`text-xs shrink-0 ${TYPE_BADGE_CLASS[project.type]}`}
+              >
+                {TYPE_LABELS[project.type]}
+              </Badge>
+              <span className="flex-1 text-sm text-slate-600 capitalize">
+                {project.status.replace(/_/g, ' ')}
+              </span>
+              <span className="text-sm text-slate-600 tabular-nums whitespace-nowrap">
+                {formatRupiah(project.contract_value)}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 interface SemesterCardProps {
   title: string
   dateRange: string
@@ -53,7 +117,6 @@ interface SemesterCardProps {
 }
 
 export function SemesterCard({ title, dateRange, projects, isLoading }: SemesterCardProps) {
-  const navigate = useNavigate()
   const totalValue = projects.reduce((sum, p) => sum + (p.contract_value ?? 0), 0)
   const groups = groupByClient(projects)
 
@@ -79,7 +142,7 @@ export function SemesterCard({ title, dateRange, projects, isLoading }: Semester
         {isLoading ? (
           <div className="p-4 space-y-2">
             {Array.from({ length: 4 }).map((_, i) => (
-              <Skeleton key={i} className="h-8 w-full" />
+              <Skeleton key={i} className="h-10 w-full" />
             ))}
           </div>
         ) : projects.length === 0 ? (
@@ -87,58 +150,10 @@ export function SemesterCard({ title, dateRange, projects, isLoading }: Semester
             No projects this semester
           </div>
         ) : (
-          <div className="overflow-auto max-h-96">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-slate-50 border-b border-slate-200 z-10">
-                <tr>
-                  <th className="text-left px-4 py-2.5 font-medium text-slate-600">Client / Project</th>
-                  <th className="text-left px-4 py-2.5 font-medium text-slate-600">Type</th>
-                  <th className="text-right px-4 py-2.5 font-medium text-slate-600">Contract</th>
-                </tr>
-              </thead>
-              <tbody>
-                {groups.map((group) => (
-                  <>
-                    {/* Client group header */}
-                    <tr key={`group-${group.clientId}`} className="bg-slate-50/80 border-b border-slate-200">
-                      <td className="px-4 py-2 font-semibold text-slate-800" colSpan={1}>
-                        {group.clientName}
-                        <span className="ml-2 text-xs font-normal text-muted-foreground">
-                          {group.projects.length} {group.projects.length === 1 ? 'project' : 'projects'}
-                        </span>
-                      </td>
-                      <td />
-                      <td className="px-4 py-2 text-right font-semibold text-slate-700 tabular-nums whitespace-nowrap">
-                        {formatRupiah(group.totalValue)}
-                      </td>
-                    </tr>
-                    {/* Project rows */}
-                    {group.projects.map((project) => (
-                      <tr
-                        key={project.id}
-                        onClick={() => navigate(`${PROJECT_TYPE_ROUTES[project.type]}?open=${project.id}`)}
-                        className="border-b border-slate-100 last:border-0 hover:bg-slate-50/60 transition-colors cursor-pointer"
-                      >
-                        <td className="pl-8 pr-4 py-2.5 text-slate-600">
-                          {project.status.replace(/_/g, ' ')}
-                        </td>
-                        <td className="px-4 py-2.5 w-px whitespace-nowrap">
-                          <Badge
-                            variant="outline"
-                            className={`text-xs ${TYPE_BADGE_CLASS[project.type]}`}
-                          >
-                            {TYPE_LABELS[project.type]}
-                          </Badge>
-                        </td>
-                        <td className="px-4 py-2.5 text-right text-slate-600 tabular-nums w-px whitespace-nowrap">
-                          {formatRupiah(project.contract_value)}
-                        </td>
-                      </tr>
-                    ))}
-                  </>
-                ))}
-              </tbody>
-            </table>
+          <div className="overflow-auto max-h-96 divide-y divide-slate-100">
+            {groups.map((group) => (
+              <ClientRow key={group.clientId} group={group} />
+            ))}
           </div>
         )}
       </CardContent>
