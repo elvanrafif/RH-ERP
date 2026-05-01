@@ -27,10 +27,9 @@ frontend/src/
 │                              # CivilTeamDashboard (civil role) — Gantt chart per vendor,
 │                              # CivilGanttChart, CivilGanttBar, CivilVendorSection,
 │                              # DashboardCalendar (responsive: mobile→listMonth+bottom sheet, desktop→dayGrid+floating popover), DashboardCalendarPopover
-│       └── tabs/              # OverviewTab, ResourceMonitoringTab, DocumentRevenueTab,
-│                              # ClientTrackingTab, SemesterCard,
-│                              # WorkloadChart, RevenuePieChart, InvoiceRevenue,
-│                              # QuotationRevenue, TopInvoicesList, TopQuotationsList
+│       └── tabs/              # OverviewTab, ResourceMonitoringTab, ClientTrackingTab,
+│                              # SemesterCard, WorkloadChart, RevenuePieChart,
+│                              # TopInvoicesList, TopQuotationsList
 ├── hooks/                     # Custom hooks — satu hook satu tanggung jawab
 ├── lib/
 │   ├── helpers.ts             # Format tanggal, rupiah, avatar, formatDateTime, formatDateLongEn, getRemainingTime
@@ -59,6 +58,9 @@ frontend/src/
     ├── invoices/              # InvoicesPage, InvoiceDetailPage, InvoicePaper,
     │                          # InvoiceTable, InvoiceCreateDialog, InvoiceToolbar,
     │                          # InvoiceEditorSettings, PaymentTermsEditor
+    ├── reports/               # ReportsPage
+    │   └── components/        # RevenueStatCards, RevenueBarChart, RevenueDetailTable,
+    │                          # ReportExportButton
     ├── settings/
     │   ├── users/             # UserManagement
     │   │   └── components/    # UserForm, UserList, PasswordSection
@@ -94,8 +96,8 @@ Satu hook = satu tanggung jawab. Return object (bukan array) kecuali state seder
 | `useInvoiceFilters` | Filter state untuk invoice table |
 | `useQuotationFilters` | Filter state untuk quotation table |
 | `useDateRangeFilter` | Filter state range tanggal |
-| `useInvoiceRevenue` | Kalkulasi revenue dari invoices |
-| `useQuotationRevenue` | Kalkulasi revenue dari quotations |
+| `useRevenueReport` | Fetch semua invoices + quotations (expand `client_id`), jalankan `buildRevenueReportData` — return `{ reportData, isLoading }` untuk halaman `/reports` |
+| `useReportFilters` | Filter state halaman `/reports` (granularity, year, month, quarter, projectType) di-sync ke URL params via `useSearchParams` |
 | `useWorkloadData` | Data workload per PIC |
 | `useDashboard` | Agregasi data dashboard |
 | `useDeadlineProjects` | Proyek yang mendekati deadline |
