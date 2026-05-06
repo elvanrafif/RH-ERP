@@ -70,7 +70,7 @@ export function ProspectPropertyFields({
                 <SelectContent>
                   {FLOOR_OPTIONS.map((f) => (
                     <SelectItem key={f} value={f}>
-                      {f} Lantai
+                      {f} Floor{f !== '1' ? 's' : ''}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -27,10 +27,12 @@ export default function PublicVerificationPage() {
   const handleDownloadAsPdf = async () => {
     if (!doc?.document_file) return
     setIsDownloadingPdf(true)
-    const toastId = toast.loading('Mengompres & Menyusun PDF...')
+    const toastId = toast.loading('Compressing & building PDF...')
 
     try {
-      const fileUrl = pb.files.getUrl(doc, doc.document_file, { download: true })
+      const fileUrl = pb.files.getUrl(doc, doc.document_file, {
+        download: true,
+      })
       const response = await fetch(fileUrl)
       const blob = await response.blob()
       const reader = new FileReader()
@@ -44,13 +46,13 @@ export default function PublicVerificationPage() {
         const fileName = `RH-STUDIO-${docType?.toUpperCase()}-${doc?.invoice_number || doc?.quotation_number}.pdf`
         pdf.save(fileName)
         toast.dismiss(toastId)
-        toast.success('PDF Berhasil didownload')
+        toast.success('PDF downloaded successfully')
         setIsDownloadingPdf(false)
       }
     } catch (error) {
       console.error(error)
       toast.dismiss(toastId)
-      toast.error('Gagal mendownload PDF')
+      toast.error('Failed to download PDF')
       setIsDownloadingPdf(false)
     }
   }
@@ -62,7 +64,7 @@ export default function PublicVerificationPage() {
   }, [isCapturing])
 
   const runShareProcess = async () => {
-    const toastId = toast.loading('Memproses dokumen...')
+    const toastId = toast.loading('Processing document...')
     try {
       const element = captureRef.current
       if (!element) throw new Error('Missing element')
@@ -74,11 +76,19 @@ export default function PublicVerificationPage() {
         pixelRatio: isMobile ? 1.5 : 2,
         skipAutoScale: true,
       })
-      if (!blob) throw new Error('Gagal')
+      if (!blob) throw new Error('Failed')
       const fileName = `Invoice-${doc?.invoice_number}.png`
       const file = new File([blob], fileName, { type: 'image/png' })
-      if (navigator.canShare && navigator.share && navigator.canShare({ files: [file] })) {
-        await navigator.share({ files: [file], title: 'Invoice', text: doc?.invoice_number })
+      if (
+        navigator.canShare &&
+        navigator.share &&
+        navigator.canShare({ files: [file] })
+      ) {
+        await navigator.share({
+          files: [file],
+          title: 'Invoice',
+          text: doc?.invoice_number,
+        })
       } else {
         const link = document.createElement('a')
         link.href = URL.createObjectURL(blob)
@@ -88,7 +98,7 @@ export default function PublicVerificationPage() {
       toast.dismiss(toastId)
     } catch (e: unknown) {
       toast.dismiss(toastId)
-      if (e instanceof Error && e.name !== 'AbortError') toast.error('Gagal')
+      if (e instanceof Error && e.name !== 'AbortError') toast.error('Failed')
     } finally {
       setIsCapturing(false)
     }
@@ -139,7 +149,7 @@ export default function PublicVerificationPage() {
     )
 
   if (isError || !doc)
-    return <div className="p-10 text-center">Dokumen Tidak Ditemukan</div>
+    return <div className="p-10 text-center">Document Not Found</div>
 
   return (
     <div className="min-h-screen bg-slate-100 py-8 px-0 flex flex-col items-center overflow-x-hidden relative">
@@ -147,8 +157,8 @@ export default function PublicVerificationPage() {
         <div className="flex items-center gap-3 bg-slate-800 text-white px-6 py-3 rounded-lg shadow-lg w-full md:w-auto">
           <CheckCircle2 className="h-6 w-6" />
           <div>
-            <h2 className="font-bold text-sm text-white">DOKUMEN RESMI</h2>
-            <p className="text-[10px] text-slate-300">Valid & Terverifikasi</p>
+            <h2 className="font-bold text-sm text-white">OFFICIAL DOCUMENT</h2>
+            <p className="text-[10px] text-slate-300">Valid & Verified</p>
           </div>
         </div>
 
@@ -171,18 +181,18 @@ export default function PublicVerificationPage() {
             <Share2 className="mr-2 h-4 w-4 text-white" />
           )}
           {isCapturing || isDownloadingPdf
-            ? 'Memproses...'
+            ? 'Processing...'
             : hasDbFile
-              ? 'Download PDF Resmi'
-              : 'Simpan / Share'}
+              ? 'Download Official PDF'
+              : 'Save / Share'}
         </Button>
       </div>
 
-      <div 
+      <div
         ref={containerRef}
         className="w-full flex-1 flex flex-col justify-center items-center overflow-hidden pb-10 relative z-10 px-4 md:px-0 min-h-[50vh] max-h-[75vh] md:max-h-none"
       >
-        <div 
+        <div
           className="relative shadow-2xl bg-white shrink-0 origin-center transform-gpu transition-all duration-500 mx-auto"
           style={{
             width: A4_BASE_WIDTH * scale,
@@ -196,7 +206,7 @@ export default function PublicVerificationPage() {
               return false
             }}
           />
-          <div 
+          <div
             className="origin-top-left transform-gpu"
             style={{ transform: `scale(${scale})` }}
           >

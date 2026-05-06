@@ -33,7 +33,7 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 
 | Modul | Status | Catatan |
 |---|---|---|
-| Clients | ✅ | Table, search, detail dialog, form CRUD; klik baris → detail dialog |
+| Clients | ✅ | Table, search, detail dialog, form CRUD; klik baris → detail dialog; email opsional, phone minimal 8 digit |
 | Prospects | ✅ | Table, search, status filter (7 values), month filter (created date via MonthYearPicker), form multi-section (contact, property, schedule); status kolom dihapus dari table — filter via dropdown; status badge berwarna di detail dialog; meeting schedule bisa diedit semua user; quotation options: design · civil · civil + design |
 | Vendors | ✅ | Table, search, filter project type, hanya superadmin; klik baris → detail dialog |
 

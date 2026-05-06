@@ -36,9 +36,9 @@ export function ReportExportButton({ contentRef }: ReportExportButtonProps) {
       })
       pdf.addImage(dataUrl, 'PNG', 0, 0, w, h)
       pdf.save(`laporan-keuangan-${new Date().toISOString().slice(0, 10)}.pdf`)
-      toast.success('PDF berhasil diunduh')
+      toast.success('PDF downloaded successfully')
     } catch {
-      toast.error('Gagal mengekspor PDF')
+      toast.error('Failed to export PDF')
     } finally {
       setExporting(false)
     }

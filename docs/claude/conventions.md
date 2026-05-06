@@ -7,6 +7,7 @@
 - **Magic numbers** — tidak boleh tersebar. Semua konstanta dan status string ke `lib/constant.ts`.
 - **Zod schema** — selalu di `lib/validations/`, tidak boleh inline di komponen.
 - **Error handling** — selalu `try/catch` dengan `toast.success` / `toast.error` dan pesan informatif.
+- **Bahasa UI** — semua teks user-facing (label, placeholder, toast, button, error message) wajib dalam **English**. Dokumen resmi (QuotationPaper, InvoicePaper) dikecualikan.
 - **TypeScript** — tidak ada `any`. Gunakan `import type` untuk import yang hanya dipakai sebagai tipe.
 
 ## Checklist Sebelum Commit

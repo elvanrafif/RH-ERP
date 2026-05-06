@@ -88,7 +88,12 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>
+                  Email{' '}
+                  <span className="text-muted-foreground font-normal">
+                    (optional)
+                  </span>
+                </FormLabel>
                 <FormControl>
                   <Input placeholder="email@example.com" {...field} />
                 </FormControl>

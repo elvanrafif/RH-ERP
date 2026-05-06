@@ -76,10 +76,10 @@ export function useInvoices({ filters, page }: UseInvoicesOptions) {
       })
     },
     onSuccess: () => {
-      toast.success('Invoice dibuat!')
+      toast.success('Invoice created!')
       queryClient.invalidateQueries({ queryKey: ['invoices'] })
     },
-    onError: () => toast.error('Gagal membuat invoice'),
+    onError: () => toast.error('Failed to create invoice'),
   })
 
   return {

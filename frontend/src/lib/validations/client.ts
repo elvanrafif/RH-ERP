@@ -2,31 +2,32 @@ import { z } from 'zod'
 
 export const clientSchema = z.object({
   company_name: z.string().min(2, {
-    message: 'Nama perusahaan/klien minimal 2 karakter.',
+    message: 'Company/client name must be at least 2 characters.',
   }),
-  email: z.string().email({
-    message: 'Format email tidak valid.',
-  }),
-  phone: z.string().min(10, {
-    message: 'Nomor telepon minimal 10 digit.',
+  email: z
+    .string()
+    .email({ message: 'Invalid email format.' })
+    .optional()
+    .or(z.literal('')),
+  phone: z.string().min(8, {
+    message: 'Phone number must be at least 8 digits.',
   }),
   address: z.string().min(5, {
-    message: 'Alamat minimal 5 karakter.',
+    message: 'Address must be at least 5 characters.',
   }),
   maps_link: z
     .string()
-    .url({ message: 'Format URL tidak valid.' })
+    .url({ message: 'Invalid URL format.' })
     .refine(
       (val) =>
         val === '' ||
         val.includes('google.com/maps') ||
         val.includes('maps.app.goo.gl') ||
         val.includes('goo.gl/maps'),
-      { message: 'Harus berupa link Google Maps.' }
+      { message: 'Must be a Google Maps link.' }
     )
     .optional()
     .or(z.literal('')),
 })
 
-// Kita export tipe datanya otomatis dari schema di atas
 export type ClientFormValues = z.infer<typeof clientSchema>
