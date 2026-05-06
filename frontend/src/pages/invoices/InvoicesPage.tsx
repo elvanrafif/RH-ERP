@@ -22,6 +22,8 @@ export default function InvoicesPage() {
     setFilterClient,
     activeTab,
     setActiveTab,
+    filterTermin,
+    setFilterTermin,
     page,
     setPage,
     resetFilters,
@@ -71,6 +73,8 @@ export default function InvoicesPage() {
             onSearchChange={setSearchTerm}
             filterClient={filterClient}
             onClientFilterChange={setFilterClient}
+            filterTermin={filterTermin}
+            onTerminFilterChange={setFilterTermin}
             onResetFilter={resetFilters}
             clients={clients}
           />

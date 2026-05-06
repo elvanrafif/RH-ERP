@@ -31,6 +31,7 @@ export function useInvoices({ filters, page }: UseInvoicesOptions) {
       filters.debouncedSearch,
       filters.filterClient,
       filters.activeTab,
+      filters.filterTermin,
     ],
     queryFn: () => {
       const filterParts: string[] = []
@@ -45,6 +46,9 @@ export function useInvoices({ filters, page }: UseInvoicesOptions) {
       }
       if (filters.activeTab !== 'all') {
         filterParts.push(`type = "${filters.activeTab}"`)
+      }
+      if (filters.filterTermin !== 'all') {
+        filterParts.push(`active_termin = "${filters.filterTermin}"`)
       }
 
       return pb.collection('invoices').getList(page, 50, {

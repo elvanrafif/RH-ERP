@@ -30,6 +30,7 @@ interface DocumentToolbarProps {
   clients: { id: string; company_name: string }[]
   hasActiveFilter: boolean
   typeFilter?: TypeFilterConfig
+  secondFilter?: TypeFilterConfig
 }
 
 export function DocumentToolbar({
@@ -42,6 +43,7 @@ export function DocumentToolbar({
   clients,
   hasActiveFilter,
   typeFilter,
+  secondFilter,
 }: DocumentToolbarProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-3 w-full items-start sm:items-center">
@@ -68,6 +70,26 @@ export function DocumentToolbar({
               </SelectTrigger>
               <SelectContent>
                 {typeFilter.options.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {secondFilter && (
+          <div className="flex-1 sm:w-[140px] sm:flex-none">
+            <Select
+              value={secondFilter.value}
+              onValueChange={secondFilter.onChange}
+            >
+              <SelectTrigger className="h-9 bg-white shadow-sm w-full">
+                <SelectValue placeholder={secondFilter.options[0]?.label} />
+              </SelectTrigger>
+              <SelectContent>
+                {secondFilter.options.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
                   </SelectItem>

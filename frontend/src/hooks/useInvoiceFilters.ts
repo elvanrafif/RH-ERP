@@ -5,6 +5,7 @@ export interface InvoiceFilters {
   debouncedSearch: string
   filterClient: string
   activeTab: string
+  filterTermin: string
 }
 
 /**
@@ -15,18 +16,20 @@ export function useInvoiceFilters() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterClient, setFilterClient] = useState('all')
   const [activeTab, setActiveTab] = useState('all')
+  const [filterTermin, setFilterTermin] = useState('all')
   const [page, setPage] = useState(1)
 
   const debouncedSearch = useDebounce(searchTerm, 500)
 
   useEffect(() => {
     setPage(1)
-  }, [debouncedSearch, filterClient, activeTab])
+  }, [debouncedSearch, filterClient, activeTab, filterTermin])
 
   const resetFilters = () => {
     setSearchTerm('')
     setFilterClient('all')
     setActiveTab('all')
+    setFilterTermin('all')
     setPage(1)
   }
 
@@ -37,9 +40,11 @@ export function useInvoiceFilters() {
     setFilterClient,
     activeTab,
     setActiveTab,
+    filterTermin,
+    setFilterTermin,
     page,
     setPage,
     resetFilters,
-    filters: { debouncedSearch, filterClient, activeTab } satisfies InvoiceFilters,
+    filters: { debouncedSearch, filterClient, activeTab, filterTermin } satisfies InvoiceFilters,
   }
 }

@@ -101,13 +101,13 @@ export function PaymentTermsEditor({
               className={`p-3 rounded border text-xs shadow-sm transition-all ${isActive ? 'bg-blue-50/50 border-blue-300 ring-1 ring-blue-100' : 'bg-white border-slate-200 hover:border-slate-300'}`}
             >
               <div className="flex flex-row items-center justify-between gap-2 mb-2 pb-2 border-b border-dashed border-slate-200">
-                <div className="group flex items-center gap-1.5 min-w-0">
+                <div className="group flex items-center gap-1.5 min-w-0 overflow-hidden">
                   <Input
                     value={item.name}
                     onChange={(e) =>
                       onUpdateItem(index, 'name', e.target.value)
                     }
-                    className={`h-6 w-28 px-1 text-xs font-bold border-transparent bg-transparent shadow-none focus-visible:ring-1 focus-visible:ring-slate-400 hover:border-dashed hover:border-slate-300 ${isActive ? 'text-blue-700' : 'text-slate-700'} ${isPastTerm ? 'opacity-70' : ''}`}
+                    className={`h-6 w-24 shrink-0 px-1 text-xs font-bold border-transparent bg-transparent shadow-none focus-visible:ring-1 focus-visible:ring-slate-400 hover:border-dashed hover:border-slate-300 ${isActive ? 'text-blue-700' : 'text-slate-700'} ${isPastTerm ? 'opacity-70' : ''}`}
                   />
                   <Pencil className="h-3 w-3 text-slate-400 opacity-0 group-hover:opacity-60 transition-opacity shrink-0" />
                   {isActive && (
@@ -120,22 +120,22 @@ export function PaymentTermsEditor({
                       Past
                     </span>
                   )}
+                </div>
+
+                <div className="flex items-center gap-1 shrink-0">
                   {!isActive && (
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="h-6 px-1.5 text-[10px] text-slate-400 hover:text-blue-600 hover:bg-blue-50 gap-0.5 shrink-0"
+                      className="h-6 px-1.5 text-[10px] text-slate-400 hover:text-blue-600 hover:bg-blue-50 gap-0.5"
                       onClick={() => onActiveTerminChange(String(index + 1))}
                     >
                       Set Active
                       <ChevronRight className="h-3 w-3" />
                     </Button>
                   )}
-                </div>
-
-                <div className="flex items-center gap-1 shrink-0">
-                  <div className="w-28">
+                  <div className="w-24">
                     <Select
                       value={item.status || 'empty'}
                       onValueChange={(val) =>
