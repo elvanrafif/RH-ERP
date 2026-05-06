@@ -9,12 +9,6 @@ import {
 } from '@/components/ui/select'
 import { NumberInput } from '@/components/shared/NumberInput'
 
-interface TermItem {
-  percent: string
-  amount: number
-  [key: string]: unknown
-}
-
 interface Client {
   id: string
   company_name: string
@@ -23,15 +17,12 @@ interface Client {
 
 interface InvoiceEditorSettingsProps {
   type: string
-  activeTermin: string
-  items: TermItem[]
   selectedClientId: string
   date: string
   projectArea: number
   pricePerMeter: number
   manualTotal: number
   clientsList: Client[] | undefined
-  onActiveTerminChange: (val: string) => void
   onClientChange: (val: string) => void
   onDateChange: (val: string) => void
   onProjectAreaChange: (val: number) => void
@@ -41,15 +32,12 @@ interface InvoiceEditorSettingsProps {
 
 export function InvoiceEditorSettings({
   type,
-  activeTermin,
-  items,
   selectedClientId,
   date,
   projectArea,
   pricePerMeter,
   manualTotal,
   clientsList,
-  onActiveTerminChange,
   onClientChange,
   onDateChange,
   onProjectAreaChange,
@@ -58,28 +46,9 @@ export function InvoiceEditorSettings({
 }: InvoiceEditorSettingsProps) {
   return (
     <div className="space-y-4 border-b pb-6">
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-xs uppercase tracking-wide text-slate-500">
-          Invoice Details
-        </h3>
-        <div className="flex items-center gap-2">
-          <Label className="text-[10px] sm:text-xs uppercase font-bold text-yellow-700 whitespace-nowrap">
-            Active Term:
-          </Label>
-          <Select value={activeTermin} onValueChange={onActiveTerminChange}>
-            <SelectTrigger className="h-7 w-24 text-xs bg-yellow-50 border-yellow-200 text-yellow-800">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {items.map((_, i) => (
-                <SelectItem key={i} value={String(i + 1)}>
-                  Term {i + 1}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
+      <h3 className="font-semibold text-xs uppercase tracking-wide text-slate-500">
+        Invoice Details
+      </h3>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="space-y-1">

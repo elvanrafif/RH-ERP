@@ -18,7 +18,10 @@ import { useWhatsAppShare } from '@/hooks/useWhatsAppShare'
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges'
 import { recalculateTermItems } from '@/lib/invoicing/termCalculation'
 import type { TermItem } from '@/lib/invoicing/termCalculation'
-import { DEFAULT_DESIGN_PRICE_PER_METER } from '@/lib/constant'
+import {
+  DEFAULT_DESIGN_PRICE_PER_METER,
+  PAYMENT_ITEM_STATUS,
+} from '@/lib/constant'
 
 export default function InvoiceDetailPage() {
   const { id } = useParams()
@@ -47,7 +50,6 @@ export default function InvoiceDetailPage() {
   const [items, setItems] = useState<TermItem[]>([])
   const [date, setDate] = useState('')
   const [activeTermin, setActiveTermin] = useState('1')
-  const [status, setStatus] = useState('unpaid')
   const [bankDetails, setBankDetails] = useState('')
   const [type, setType] = useState('design')
   const [notes, setNotes] = useState('')
@@ -60,6 +62,7 @@ export default function InvoiceDetailPage() {
   const [manualTotal, setManualTotal] = useState(0)
 
   const qrLink = `${import.meta.env.VITE_FE_LINK_URL}/verify/invoices/${id}`
+
   const grandTotal =
     type === 'design' ? projectArea * pricePerMeter : manualTotal
 
@@ -77,7 +80,6 @@ export default function InvoiceDetailPage() {
       invoice.items?.length > 0 ? invoice.items : getTemplateByType(currentType)
     setDate(invoice.date ? invoice.date.substring(0, 10) : '')
     setActiveTermin(invoice.active_termin || '1')
-    setStatus(invoice.status || 'unpaid')
     setBankDetails(invoice.bank_details || '')
     setNotes(invoice.notes || '')
     if (invoice.client_id) {
@@ -150,7 +152,6 @@ export default function InvoiceDetailPage() {
       const formData = new FormData()
       formData.append('client_id', selectedClientId)
       formData.append('date', new Date(date).toISOString())
-      formData.append('status', status)
       formData.append('items', JSON.stringify(items))
       formData.append('bank_details', bankDetails)
       formData.append('notes', notes)
@@ -163,6 +164,12 @@ export default function InvoiceDetailPage() {
         'price_per_meter',
         String(type === 'design' ? pricePerMeter : 0)
       )
+      const derivedStatus = items.every(
+        (i) => i.status === PAYMENT_ITEM_STATUS.SUCCESS
+      )
+        ? 'paid'
+        : 'unpaid'
+      formData.append('status', derivedStatus)
       formData.append('active_termin', activeTermin)
       const blob = await generateJpeg()
       if (blob) {
@@ -207,18 +214,12 @@ export default function InvoiceDetailPage() {
         <div className="p-4 sm:p-6 space-y-6">
           <InvoiceEditorSettings
             type={type}
-            activeTermin={activeTermin}
-            items={items}
             selectedClientId={selectedClientId}
             date={date}
             projectArea={projectArea}
             pricePerMeter={pricePerMeter}
             manualTotal={manualTotal}
             clientsList={clientsList as any}
-            onActiveTerminChange={(val) => {
-              setActiveTermin(val)
-              markAsDirty()
-            }}
             onClientChange={handleClientChange}
             onDateChange={(val) => {
               setDate(val)
@@ -271,9 +272,12 @@ export default function InvoiceDetailPage() {
           <PaymentTermsEditor
             items={items}
             activeTermin={activeTermin}
-            grandTotal={grandTotal}
             onUpdateItem={handleUpdateItem}
             onPercentChange={handlePercentChange}
+            onActiveTerminChange={(val) => {
+              setActiveTermin(val)
+              markAsDirty()
+            }}
           />
         </div>
       }
