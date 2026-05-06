@@ -8,6 +8,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Search, X, Filter } from 'lucide-react'
+import { ClientCombobox } from '@/components/forms/ClientCombobox'
 
 interface TypeFilterOption {
   label: string
@@ -27,7 +28,6 @@ interface DocumentToolbarProps {
   filterClient: string
   onClientFilterChange: (val: string) => void
   onResetFilter: () => void
-  clients: { id: string; company_name: string }[]
   hasActiveFilter: boolean
   typeFilter?: TypeFilterConfig
   secondFilter?: TypeFilterConfig
@@ -40,7 +40,6 @@ export function DocumentToolbar({
   filterClient,
   onClientFilterChange,
   onResetFilter,
-  clients,
   hasActiveFilter,
   typeFilter,
   secondFilter,
@@ -100,19 +99,13 @@ export function DocumentToolbar({
         )}
 
         <div className="flex-1 sm:w-[180px] sm:flex-none">
-          <Select value={filterClient} onValueChange={onClientFilterChange}>
-            <SelectTrigger className="h-9 bg-white shadow-sm w-full">
-              <SelectValue placeholder="All Clients" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Clients</SelectItem>
-              {clients?.map((client) => (
-                <SelectItem key={client.id} value={client.id}>
-                  {client.company_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <ClientCombobox
+            value={filterClient}
+            onChange={onClientFilterChange}
+            showAllOption
+            className="h-9 bg-white shadow-sm text-sm"
+            popoverClassName="w-[260px]"
+          />
         </div>
 
         {hasActiveFilter && (

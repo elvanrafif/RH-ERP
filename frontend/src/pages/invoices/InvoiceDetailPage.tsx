@@ -35,12 +35,6 @@ export default function InvoiceDetailPage() {
   const { hasUnsavedChanges, markAsDirty, markAsClean, handleBack } =
     useUnsavedChanges('/invoices')
 
-  const { data: clientsList } = useQuery({
-    queryKey: ['clients'],
-    queryFn: () =>
-      pb.collection('clients').getFullList({ sort: 'company_name' }),
-  })
-
   const { data: invoice, isLoading } = useQuery({
     queryKey: ['invoice', id],
     queryFn: () =>
@@ -106,8 +100,6 @@ export default function InvoiceDetailPage() {
   const handleClientChange = (newClientId: string) => {
     markAsDirty()
     setSelectedClientId(newClientId)
-    const clientObj = clientsList?.find((c: any) => c.id === newClientId)
-    if (clientObj) setSelectedClientData(clientObj)
   }
 
   const handlePercentChange = (index: number, val: string) => {
@@ -247,8 +239,11 @@ export default function InvoiceDetailPage() {
             projectArea={projectArea}
             pricePerMeter={pricePerMeter}
             manualTotal={manualTotal}
-            clientsList={clientsList as any}
             onClientChange={handleClientChange}
+            onClientSelect={(client) => {
+              setSelectedClientData(client)
+              markAsDirty()
+            }}
             onDateChange={(val) => {
               setDate(val)
               markAsDirty()

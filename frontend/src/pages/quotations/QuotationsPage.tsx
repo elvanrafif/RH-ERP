@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { FileText, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useClients } from '@/hooks/useClients'
 import { useQuotations } from '@/hooks/useQuotations'
 import { useQuotationFilters } from '@/hooks/useQuotationFilters'
 import { QuotationTable } from './components/QuotationTable'
@@ -28,7 +27,6 @@ export default function QuotationsPage() {
     filters,
   } = useQuotationFilters()
 
-  const { clients } = useClients()
   const {
     quotations,
     isLoading,
@@ -69,7 +67,6 @@ export default function QuotationsPage() {
             filterArea={filterArea}
             onAreaFilterChange={setFilterArea}
             onResetFilter={resetFilters}
-            clients={clients}
           />
         </div>
         <QuotationTable
@@ -86,7 +83,6 @@ export default function QuotationsPage() {
       <QuotationCreateDialog
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        clients={clients}
         onSubmit={handleCreateQuotation}
         isSubmitting={isCreating}
       />

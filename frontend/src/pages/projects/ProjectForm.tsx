@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
-import type { Project, Client, User } from '@/types'
+import type { Project, User } from '@/types'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -50,13 +50,6 @@ export function ProjectForm({
   const { isSuperAdmin, user } = useRole()
   const { isArchitecture, isCivil, isInterior } = TypeProjectsBoolean(fixedType)
 
-  const { data: clients } = useQuery({
-    queryKey: ['clients-list'],
-    queryFn: async () =>
-      await pb
-        .collection('clients')
-        .getFullList<Client>({ sort: 'company_name' }),
-  })
   const { data: users } = useQuery({
     queryKey: ['users-list'],
     queryFn: async () => await pb.collection('users').getFullList<User>(),
@@ -194,7 +187,7 @@ export function ProjectForm({
         className="space-y-4"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <ClientComboboxField control={form.control} clients={clients} />
+          <ClientComboboxField control={form.control} name="client_id" />
 
           <FormField
             control={form.control}

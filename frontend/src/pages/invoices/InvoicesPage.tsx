@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Receipt, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useClients } from '@/hooks/useClients'
 import { useInvoices } from '@/hooks/useInvoices'
 import { useInvoiceFilters } from '@/hooks/useInvoiceFilters'
 import { InvoiceToolbar } from './components/InvoiceToolbar'
@@ -30,7 +29,6 @@ export default function InvoicesPage() {
     filters,
   } = useInvoiceFilters()
 
-  const { clients } = useClients()
   const {
     invoices,
     isLoading,
@@ -76,7 +74,6 @@ export default function InvoicesPage() {
             filterTermin={filterTermin}
             onTerminFilterChange={setFilterTermin}
             onResetFilter={resetFilters}
-            clients={clients}
           />
         </div>
         <InvoiceTable
@@ -93,7 +90,6 @@ export default function InvoicesPage() {
       <InvoiceCreateDialog
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
-        clients={clients}
         onSubmit={handleCreateInvoice}
         isSubmitting={isCreating}
       />

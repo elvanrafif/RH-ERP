@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { surveySchema, type SurveyFormValues } from '@/lib/validations/survey'
-import type { Survey, Client, User } from '@/types'
+import type { Survey, User } from '@/types'
 import { useFormMutation } from '@/hooks/useFormMutation'
 import { toLocalDateTimeInput } from '@/lib/helpers'
 import {
@@ -30,16 +30,10 @@ import { SURVEY_STATUS } from '@/lib/constant'
 interface SurveyFormProps {
   onSuccess?: () => void
   initialData?: Survey | null
-  clients: Client[]
   users: User[]
 }
 
-export function SurveyForm({
-  onSuccess,
-  initialData,
-  clients,
-  users,
-}: SurveyFormProps) {
+export function SurveyForm({ onSuccess, initialData, users }: SurveyFormProps) {
   const { mutate, isPending } = useFormMutation<SurveyFormValues>({
     collection: 'surveys',
     queryKey: ['surveys'],
@@ -76,7 +70,6 @@ export function SurveyForm({
           control={form.control}
           name="client"
           label="Client"
-          clients={clients}
         />
 
         <UserComboboxField
@@ -86,41 +79,45 @@ export function SurveyForm({
           users={users}
         />
 
-        <FormField
-          control={form.control}
-          name="schedule"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Schedule</FormLabel>
-              <FormControl>
-                <Input type="datetime-local" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="status"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Status</FormLabel>
-              <Select onValueChange={field.onChange} value={field.value}>
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="schedule"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Schedule</FormLabel>
                 <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select status..." />
-                  </SelectTrigger>
+                  <Input type="datetime-local" {...field} />
                 </FormControl>
-                <SelectContent>
-                  <SelectItem value={SURVEY_STATUS.PENDING}>Pending</SelectItem>
-                  <SelectItem value={SURVEY_STATUS.DONE}>Done</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Status</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select status..." />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value={SURVEY_STATUS.PENDING}>
+                      Pending
+                    </SelectItem>
+                    <SelectItem value={SURVEY_STATUS.DONE}>Done</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <FormField
           control={form.control}

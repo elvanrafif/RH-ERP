@@ -11,7 +11,6 @@ const INVOICE_TYPE_OPTIONS = [
 interface InvoiceCreateDialogProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
-  clients: any[]
   onSubmit: (payload: { type: InvoiceType; clientId: string }) => void
   isSubmitting: boolean
 }
@@ -19,7 +18,6 @@ interface InvoiceCreateDialogProps {
 export function InvoiceCreateDialog({
   isOpen,
   onOpenChange,
-  clients,
   onSubmit,
   isSubmitting,
 }: InvoiceCreateDialogProps) {
@@ -28,8 +26,9 @@ export function InvoiceCreateDialog({
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       title="Create New Invoice"
-      clients={clients}
-      onSubmit={({ clientId, type }) => onSubmit({ type: (type as InvoiceType) || 'design', clientId })}
+      onSubmit={({ clientId, type }) =>
+        onSubmit({ type: (type as InvoiceType) || 'design', clientId })
+      }
       isSubmitting={isSubmitting}
       typeOptions={INVOICE_TYPE_OPTIONS}
       defaultType="design"

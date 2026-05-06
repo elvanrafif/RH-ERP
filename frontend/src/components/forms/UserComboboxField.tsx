@@ -22,7 +22,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { Check, ChevronsUpDown } from 'lucide-react'
+import { Check, ChevronDown } from 'lucide-react'
 import type { User } from '@/types'
 
 interface UserComboboxFieldProps<T extends FieldValues = FieldValues> {
@@ -62,11 +62,11 @@ export function UserComboboxField<T extends FieldValues = FieldValues>({
                   {field.value
                     ? users?.find((u) => u.id === field.value)?.name
                     : 'Search & Select User...'}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </FormControl>
             </PopoverTrigger>
-            <PopoverContent className="w-[300px] p-0">
+            <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
               <Command>
                 <CommandInput placeholder="Type name..." />
                 <CommandList>
@@ -84,7 +84,9 @@ export function UserComboboxField<T extends FieldValues = FieldValues>({
                         <Check
                           className={cn(
                             'mr-2 h-4 w-4',
-                            user.id === field.value ? 'opacity-100' : 'opacity-0'
+                            user.id === field.value
+                              ? 'opacity-100'
+                              : 'opacity-0'
                           )}
                         />
                         {user.name}

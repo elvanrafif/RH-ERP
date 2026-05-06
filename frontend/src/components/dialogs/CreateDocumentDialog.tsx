@@ -11,6 +11,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { FormDialog } from '@/components/shared/FormDialog'
+import { ClientCombobox } from '@/components/forms/ClientCombobox'
 
 interface TypeOption {
   label: string
@@ -21,7 +22,6 @@ interface CreateDocumentDialogProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
   title: string
-  clients: { id: string; company_name: string }[]
   onSubmit: (payload: { clientId: string; type?: string }) => void
   isSubmitting: boolean
   typeOptions?: TypeOption[]
@@ -33,15 +33,24 @@ export function CreateDocumentDialog({
   isOpen,
   onOpenChange,
   title,
-  clients,
   onSubmit,
   isSubmitting,
   typeOptions,
   defaultType,
   maxWidth,
 }: CreateDocumentDialogProps) {
-  const [selectedType, setSelectedType] = useState(defaultType ?? typeOptions?.[0]?.value ?? '')
+  const [selectedType, setSelectedType] = useState(
+    defaultType ?? typeOptions?.[0]?.value ?? ''
+  )
   const [selectedClient, setSelectedClient] = useState('')
+
+  const handleOpenChange = (next: boolean) => {
+    onOpenChange(next)
+    if (!next) {
+      setSelectedClient('')
+      setSelectedType(defaultType ?? typeOptions?.[0]?.value ?? '')
+    }
+  }
 
   const handleSubmit = () => {
     if (!selectedClient) {
@@ -52,11 +61,19 @@ export function CreateDocumentDialog({
       toast.error('Please select a document type')
       return
     }
-    onSubmit({ clientId: selectedClient, type: typeOptions ? selectedType : undefined })
+    onSubmit({
+      clientId: selectedClient,
+      type: typeOptions ? selectedType : undefined,
+    })
   }
 
   return (
-    <FormDialog open={isOpen} onOpenChange={onOpenChange} title={title} maxWidth={maxWidth}>
+    <FormDialog
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+      title={title}
+      maxWidth={maxWidth}
+    >
       <div className="space-y-4 py-4">
         {typeOptions && (
           <div className="space-y-2">
@@ -78,21 +95,17 @@ export function CreateDocumentDialog({
 
         <div className="space-y-2">
           <Label>Client</Label>
-          <Select onValueChange={setSelectedClient} value={selectedClient}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a client..." />
-            </SelectTrigger>
-            <SelectContent>
-              {clients?.map((client) => (
-                <SelectItem key={client.id} value={client.id}>
-                  {client.company_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <ClientCombobox
+            value={selectedClient}
+            onChange={setSelectedClient}
+          />
         </div>
 
-        <Button className="w-full mt-4" onClick={handleSubmit} disabled={isSubmitting}>
+        <Button
+          className="w-full mt-4"
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+        >
           {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Create & Open Editor
         </Button>

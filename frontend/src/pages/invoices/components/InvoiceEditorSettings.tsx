@@ -1,19 +1,8 @@
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { NumberInput } from '@/components/shared/NumberInput'
-
-interface Client {
-  id: string
-  company_name: string
-  [key: string]: unknown
-}
+import { ClientCombobox } from '@/components/forms/ClientCombobox'
+import type { Client } from '@/types'
 
 interface InvoiceEditorSettingsProps {
   type: string
@@ -22,8 +11,8 @@ interface InvoiceEditorSettingsProps {
   projectArea: number
   pricePerMeter: number
   manualTotal: number
-  clientsList: Client[] | undefined
   onClientChange: (val: string) => void
+  onClientSelect?: (client: Client) => void
   onDateChange: (val: string) => void
   onProjectAreaChange: (val: number) => void
   onPricePerMeterChange: (val: number) => void
@@ -37,8 +26,8 @@ export function InvoiceEditorSettings({
   projectArea,
   pricePerMeter,
   manualTotal,
-  clientsList,
   onClientChange,
+  onClientSelect,
   onDateChange,
   onProjectAreaChange,
   onPricePerMeterChange,
@@ -53,18 +42,13 @@ export function InvoiceEditorSettings({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div className="space-y-1">
           <Label className="text-[10px] text-slate-500">Client</Label>
-          <Select value={selectedClientId} onValueChange={onClientChange}>
-            <SelectTrigger className="h-8 text-xs bg-white">
-              <SelectValue placeholder="Select Client" />
-            </SelectTrigger>
-            <SelectContent>
-              {clientsList?.map((c) => (
-                <SelectItem key={c.id} value={c.id}>
-                  {c.company_name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <ClientCombobox
+            value={selectedClientId}
+            onChange={onClientChange}
+            onClientSelect={onClientSelect}
+            className="h-8 text-xs bg-white"
+            clearable={false}
+          />
         </div>
         <div className="space-y-1">
           <Label className="text-[10px] text-slate-500">Invoice Date</Label>

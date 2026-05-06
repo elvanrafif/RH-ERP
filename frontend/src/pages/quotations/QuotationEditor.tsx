@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { NumberInput } from '@/components/shared/NumberInput'
+import { ClientCombobox } from '@/components/forms/ClientCombobox'
 
 import { QuotationPaper } from './QuotationPaper'
 import { DocumentEditorLayout } from '@/components/editors/DocumentEditorLayout'
@@ -39,12 +40,6 @@ export default function QuotationEditor() {
   const { can } = useAuth()
   const isRestricted =
     can('manage_quotations_restricted') && !can('manage_quotations')
-
-  const { data: clientsList } = useQuery({
-    queryKey: ['clients'],
-    queryFn: () =>
-      pb.collection('clients').getFullList({ sort: 'company_name' }),
-  })
 
   const { data: quotation, isLoading } = useQuery({
     queryKey: ['quotation', id],
@@ -94,11 +89,6 @@ export default function QuotationEditor() {
   const handleClientChange = (newClientId: string) => {
     markAsDirty()
     setSelectedClientId(newClientId)
-    const clientObj = clientsList?.find((c: any) => c.id === newClientId)
-    if (clientObj) {
-      setSelectedClientData(clientObj)
-      setAddress(clientObj.address || '')
-    }
   }
 
   const handleShareWA = () => {
@@ -193,21 +183,17 @@ export default function QuotationEditor() {
 
             <div className="space-y-1">
               <Label className="text-[10px] text-slate-500">Client</Label>
-              <Select
+              <ClientCombobox
                 value={selectedClientId}
-                onValueChange={handleClientChange}
-              >
-                <SelectTrigger className="h-8 text-xs bg-white">
-                  <SelectValue placeholder="Select Client" />
-                </SelectTrigger>
-                <SelectContent>
-                  {clientsList?.map((c: any) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.company_name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                onChange={handleClientChange}
+                className="h-8 text-xs bg-white"
+                clearable={false}
+                onClientSelect={(client) => {
+                  setSelectedClientData(client)
+                  setAddress(client.address || '')
+                  markAsDirty()
+                }}
+              />
             </div>
 
             <div className="space-y-1">

@@ -9,7 +9,6 @@ interface QuotationToolbarProps {
   filterArea: 'all' | 'filled' | 'missing'
   onAreaFilterChange: (val: 'all' | 'filled' | 'missing') => void
   onResetFilter: () => void
-  clients: any[]
 }
 
 const AREA_FILTER_OPTIONS = [
@@ -26,7 +25,6 @@ export function QuotationToolbar({
   filterArea,
   onAreaFilterChange,
   onResetFilter,
-  clients,
 }: QuotationToolbarProps) {
   const { isSuperAdmin } = useAuth()
 
@@ -41,7 +39,6 @@ export function QuotationToolbar({
       filterClient={filterClient}
       onClientFilterChange={onClientFilterChange}
       onResetFilter={onResetFilter}
-      clients={clients}
       hasActiveFilter={hasActiveFilter}
       typeFilter={
         isSuperAdmin

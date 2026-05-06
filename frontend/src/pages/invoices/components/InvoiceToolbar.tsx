@@ -27,7 +27,6 @@ interface InvoiceToolbarProps {
   filterTermin: string
   onTerminFilterChange: (val: string) => void
   onResetFilter: () => void
-  clients: any[]
 }
 
 export function InvoiceToolbar({
@@ -40,7 +39,6 @@ export function InvoiceToolbar({
   filterTermin,
   onTerminFilterChange,
   onResetFilter,
-  clients,
 }: InvoiceToolbarProps) {
   const hasActiveFilter =
     searchTerm !== '' ||
@@ -56,7 +54,6 @@ export function InvoiceToolbar({
       filterClient={filterClient}
       onClientFilterChange={onClientFilterChange}
       onResetFilter={onResetFilter}
-      clients={clients}
       hasActiveFilter={hasActiveFilter}
       typeFilter={{
         value: activeTab,

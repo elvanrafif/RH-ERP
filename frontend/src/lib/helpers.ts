@@ -183,3 +183,7 @@ export const formatRupiahDisplay = (value: number | string) => {
   }
   return split[1] !== undefined ? rupiah + ',' + split[1] : rupiah
 }
+
+export function escapePbFilter(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
+}

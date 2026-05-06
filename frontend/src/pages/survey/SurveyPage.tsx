@@ -4,7 +4,6 @@ import { toast } from 'sonner'
 import { pb } from '@/lib/pocketbase'
 import type { Survey } from '@/types'
 import { useSurveys } from '@/hooks/useSurveys'
-import { useClients } from '@/hooks/useClients'
 import { useUsers } from '@/hooks/useUsers'
 import { useDebounce } from '@/hooks/useDebounce'
 import { usePagination } from '@/hooks/usePagination'
@@ -58,7 +57,6 @@ export default function SurveyPage() {
     filterPic,
     filterStatus,
   })
-  const { clients } = useClients()
   const { users } = useUsers()
   const { page, setPage, totalItems, totalPages, paginatedData } =
     usePagination(surveys, [debouncedSearch, filterPic, filterStatus])
@@ -184,7 +182,6 @@ export default function SurveyPage() {
           key={editing ? editing.id : 'new-survey'}
           initialData={editing}
           onSuccess={handleCloseForm}
-          clients={clients ?? []}
           users={users ?? []}
         />
       </FormDialog>
