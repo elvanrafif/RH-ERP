@@ -1,7 +1,8 @@
 # Invoice Payment Terms — Improvement Todos
 
 > Dicatat: 2026-05-06
-> Status: Backlog — belum dikerjakan
+> Terakhir diupdate: 2026-05-06
+> Status: Sebagian selesai — lihat checklist di bawah
 
 Hasil review dan diskusi terhadap sistem payment terms di invoice editor. Dibagi per kategori, masing-masing dengan keputusan yang sudah disepakati.
 
@@ -9,34 +10,29 @@ Hasil review dan diskusi terhadap sistem payment terms di invoice editor. Dibagi
 
 ## A. UX Editor
 
-### A1. Dead prop `grandTotal` di `PaymentTermsEditor`
-**File:** `frontend/src/pages/invoices/components/PaymentTermsEditor.tsx:21`
-**Masalah:** `grandTotal` ada di interface tapi tidak pernah di-destructure atau dipakai di dalam komponen. Recalculation sudah ditangani di parent.
-**Fix:** Hapus dari `PaymentTermsEditorProps` interface.
+### ✅ A1. Dead prop `grandTotal` di `PaymentTermsEditor`
+**File:** `frontend/src/pages/invoices/components/PaymentTermsEditor.tsx`
+**Fix:** Dihapus dari `PaymentTermsEditorProps` interface. *(done: a645e25)*
 
-### A2. Term name editable tapi tidak obvious
-**File:** `frontend/src/pages/invoices/components/PaymentTermsEditor.tsx:52-56`
-**Masalah:** Input `name` di-style `border-none bg-transparent shadow-none` — kelihatan seperti teks biasa, bukan input yang bisa diedit.
-**Fix yang disepakati:** Tambah `hover:border-dashed hover:border-slate-300 focus-visible:ring-1 focus-visible:ring-slate-400` + ikon `<Pencil>` kecil yang muncul saat hover (opacity-0 → opacity-40).
+### ✅ A2. Term name editable tapi tidak obvious
+**File:** `frontend/src/pages/invoices/components/PaymentTermsEditor.tsx`
+**Fix:** Hover border dashed + ikon `<Pencil>` yang muncul saat hover. *(done: a645e25)*
 
-### A3. "Active Term" selector terpisah secara visual dari PaymentTermsEditor
-**File:** `frontend/src/pages/invoices/components/InvoiceEditorSettings.tsx:69` vs `PaymentTermsEditor`
-**Masalah:** Selector "Active Term:" ada di bagian atas (InvoiceEditorSettings), efeknya terlihat di bagian bawah (PaymentTermsEditor). Jauh secara visual, membingungkan.
-**Fix:** Lihat C1 — setelah `activeTermin` di-derive otomatis dari item status, selector ini tidak diperlukan lagi dan bisa dihapus.
+### ✅ A3. "Active Term" selector terpisah secara visual dari PaymentTermsEditor
+**File:** `frontend/src/pages/invoices/components/InvoiceEditorSettings.tsx`
+**Fix:** Selector dihapus dari InvoiceEditorSettings. Kontrol activeTermin dipindah ke tombol "Set Active" per term card di PaymentTermsEditor. *(done: a645e25)*
 
-### A4. Label "Desc / %" ambigu
-**File:** `frontend/src/pages/invoices/components/PaymentTermsEditor.tsx:95`
-**Masalah:** Free-text input untuk hal yang sebenarnya punya tipe terbatas (DP, persentase, pelunasan). User baru tidak tahu keyword yang valid.
-**Fix yang disepakati:** Ganti dengan Select + conditional input. Lihat detail di D4.
+### ✅ A4. Label "Desc / %" ambigu
+**File:** `frontend/src/pages/invoices/components/PaymentTermsEditor.tsx`
+**Fix:** Diganti Select (Percentage/Fixed DP/Settlement/Custom Amount) + conditional number input. *(done: a645e25)*
 
 ---
 
 ## B. Logika Kalkulasi
 
-### B1. Magic strings yang fragile
-**File:** `frontend/src/lib/invoicing/termCalculation.ts:36-38`
-**Masalah:** Keyword "dp", "pelunasan", "settlement" di-parse dari free text. Typo → amount 0 tanpa warning.
-**Fix:** Dieliminasi setelah A4/D4 diimplementasi — type payment term akan jadi enum, bukan free text.
+### ✅ B1. Magic strings yang fragile
+**File:** `frontend/src/lib/invoicing/termCalculation.ts`
+**Fix:** Dieliminasi — UI sekarang pakai Select typed, bukan free text. *(done: a645e25)*
 
 ### B2. Tidak ada validasi total 100%
 **File:** `frontend/src/lib/invoicing/termCalculation.ts`
@@ -57,24 +53,17 @@ Hasil review dan diskusi terhadap sistem payment terms di invoice editor. Dibagi
 
 ## C. Konsistensi Data
 
-### C1. Dua sistem tracking progress yang tidak terhubung *(paling kritis)*
-**File:** `InvoiceDetailPage.tsx:49` (`activeTermin` state) + `PaymentTermsEditor` (`item.status`)
-**Masalah:**
-- `activeTermin` (string "1"/"2"/...) dan `item.status` per-term bisa out of sync
-- `Remaining Payment` dihitung dari `item.status`, invoice paper bergantung pada `activeTermin`
-- Hasilnya bisa kontradiktif tanpa user sadar
+### ✅ C1. activeTermin dan item.status terpisah tapi bisa konflik
+**File:** `InvoiceDetailPage.tsx`, `PaymentTermsEditor`
+**Fix yang diimplementasi:**
+- `activeTermin` tetap sebagai manual state (tidak di-derive otomatis) karena ada kebutuhan bisnis: marking Paid tidak harus langsung advance active term
+- Kontrol activeTermin dipindah ke tombol "Set Active" per card — user memutuskan kapan advance
+- `active_termin` tetap disimpan ke DB (dipakai InvoiceTable), nilai yang disimpan adalah state manual ini
+*(done: a645e25)*
 
-**Fix yang disepakati:**
-- Hapus `activeTermin` sebagai state yang dikontrol manual
-- Derive otomatis: `activeTermin = items.findIndex(i => i.status !== 'Success') + 1`
-- Jika semua paid → activeTermin = items.length
-- Field `active_termin` di DB bisa deprecated (tidak perlu disimpan, dihitung ulang dari `items` tiap load)
-- Selector "Active Term:" di InvoiceEditorSettings dihapus
-
-### C2. Invoice-level `status` tidak sync
-**File:** `InvoiceDetailPage.tsx:50`
-**Masalah:** Ada `status` di level invoice (`unpaid`/`paid`) terpisah dari per-item status.
-**Fix:** Derive otomatis — invoice `status = 'paid'` jika semua item.status === 'Success', sebaliknya `'unpaid'`. Tidak perlu user set manual.
+### ✅ C2. Invoice-level `status` tidak sync
+**File:** `InvoiceDetailPage.tsx`
+**Fix:** Derive otomatis saat save — `status = 'paid'` jika semua item Paid, sebaliknya `'unpaid'`. Tidak perlu user set manual. *(done: a645e25)*
 
 ---
 
@@ -110,13 +99,17 @@ Template existing (`template.ts`) default ke `percentage` sesuai nilai yang suda
 
 ---
 
-## Urutan Pengerjaan yang Disarankan
+## Checklist Pengerjaan
 
-1. **C1 + C2** — derive `activeTermin` & invoice status (menghilangkan root cause banyak bug)
-2. **A4 + D4** — ganti free-text dengan Select (eliminasi magic strings + B1)
-3. **A1** — hapus dead prop (trivial, 1 menit)
-4. **A2** — term name editable indicator (polish)
-5. **B4** — fix display "Success" di invoice paper
-6. **B2 + B3** — validasi total % + cap DP amount
-7. **D1** — add/remove term
-8. **A3 + D2** — cleanup setelah C1 done (hapus selector, rename template)
+- [x] C1 — pisahkan activeTermin dari item.status, tombol "Set Active" per card
+- [x] C2 — derive invoice status otomatis saat save
+- [x] A4 + D4 — Select typed (Percentage/Fixed DP/Settlement/Custom Amount)
+- [x] B1 — eliminasi magic strings
+- [x] A1 — hapus dead prop `grandTotal`
+- [x] A2 — term name editable indicator (hover border + pencil icon)
+- [x] A3 — hapus "Active Term" selector dari InvoiceEditorSettings
+- [ ] B4 — fix display "Success" → "Paid" di invoice paper
+- [ ] B2 — validasi warning jika total % ≠ 100
+- [ ] B3 — cap DP amount: `Math.min(DEFAULT_DP_AMOUNT, grandTotal)`
+- [ ] D1 — add/remove term di PaymentTermsEditor
+- [ ] D2 — rename template names ke English ("Term 1", dst)
