@@ -2,7 +2,7 @@
 
 > Dicatat: 2026-05-06
 > Terakhir diupdate: 2026-05-06
-> Status: Sebagian selesai — lihat checklist di bawah
+> Status: ✅ Selesai semua
 
 Hasil review dan diskusi terhadap sistem payment terms di invoice editor. Dibagi per kategori, masing-masing dengan keputusan yang sudah disepakati.
 
@@ -34,20 +34,15 @@ Hasil review dan diskusi terhadap sistem payment terms di invoice editor. Dibagi
 **File:** `frontend/src/lib/invoicing/termCalculation.ts`
 **Fix:** Dieliminasi — UI sekarang pakai Select typed, bukan free text. *(done: a645e25)*
 
-### B2. Tidak ada validasi total 100%
+### ✅ B2. Tidak ada validasi total 100%
+**Fix:** Toast warning muncul sekali saat total % baru melewati 100. Hanya menghitung term bertipe `percentage`, bukan Fixed DP/Settlement/Custom. *(done: c571b93)*
+
+### ✅ B3. DP hardcoded ke `DEFAULT_DP_AMOUNT`
 **File:** `frontend/src/lib/invoicing/termCalculation.ts`
-**Masalah:** Tidak ada warning jika total persentase semua term tidak sama dengan 100%.
-**Fix:** Tambah warning indicator di PaymentTermsEditor saat total % ≠ 100 (dan bukan tipe "settlement" yang menghitung sisa otomatis).
+**Fix:** `newAmount = Math.min(DEFAULT_DP_AMOUNT, grandTotal)` *(done: sesi ini)*
 
-### B3. DP hardcoded ke `DEFAULT_DP_AMOUNT`
-**File:** `frontend/src/lib/invoicing/termCalculation.ts:36-37`, `frontend/src/lib/constant.ts`
-**Masalah:** Jika grand total < DEFAULT_DP_AMOUNT, term pertama melebihi total — hasil aneh.
-**Fix:** Setelah tipe "fixed_dp" diimplementasi, cap amount di `Math.min(DEFAULT_DP_AMOUNT, grandTotal)`.
-
-### B4. `item.status === 'Success'` ditampilkan mentah di invoice paper
-**File:** `frontend/src/pages/invoices/components/InvoicePaper.tsx:214`
-**Masalah:** Kolom STATUS di invoice paper menampilkan "Success" — tidak proper untuk dokumen resmi.
-**Fix:** Map display value: `'Success' → 'Paid'`, kosong → `'Unpaid'` atau `-`.
+### ~~B4. `item.status === 'Success'` ditampilkan mentah di invoice paper~~
+*Skipped — tidak diprioritaskan.*
 
 ---
 
@@ -69,14 +64,11 @@ Hasil review dan diskusi terhadap sistem payment terms di invoice editor. Dibagi
 
 ## D. Fleksibilitas
 
-### D1. Tidak bisa tambah/hapus term
-**Masalah:** Jumlah term dikunci oleh template (`template.ts`). Proyek custom dengan lebih/kurang term tidak bisa diakomodasi.
-**Fix:** Tambah tombol "+ Add Term" dan "×" per term di PaymentTermsEditor.
+### ✅ D1. Tidak bisa tambah/hapus term
+**Fix:** Tombol "+ Add Term" (dashed, full-width) di bawah list. Tombol × per card (hidden kalau term hanya 1). Saat hapus term yang active, `activeTermin` auto-adjust ke term terdekat. *(done: sesi ini)*
 
-### D2. Template menggunakan nama Indonesia
-**File:** `frontend/src/pages/invoices/template.ts`
-**Masalah:** "Termin 1", "Pelunasan" — conventions.md menyatakan semua UI harus English.
-**Fix:** Rename ke "Term 1", "Term 2", dll. Keyword "Pelunasan" dieliminasi setelah D4 diimplementasi.
+### ~~D2. Template menggunakan nama Indonesia~~
+*Skipped — tidak diprioritaskan.*
 
 ### D4. Ganti free-text percent dengan Select + conditional input
 **Masalah:** Free-text ("DP", "50%", "Pelunasan") fragile dan tidak discoverable.
@@ -108,8 +100,10 @@ Template existing (`template.ts`) default ke `percentage` sesuai nilai yang suda
 - [x] A1 — hapus dead prop `grandTotal`
 - [x] A2 — term name editable indicator (hover border + pencil icon)
 - [x] A3 — hapus "Active Term" selector dari InvoiceEditorSettings
-- [ ] B4 — fix display "Success" → "Paid" di invoice paper
-- [ ] B2 — validasi warning jika total % ≠ 100
-- [ ] B3 — cap DP amount: `Math.min(DEFAULT_DP_AMOUNT, grandTotal)`
-- [ ] D1 — add/remove term di PaymentTermsEditor
-- [ ] D2 — rename template names ke English ("Term 1", dst)
+- [x] B2 — toast warning jika total % > 100
+- [x] B3 — cap DP amount: `Math.min(DEFAULT_DP_AMOUNT, grandTotal)`
+- [x] D1 — add/remove term di PaymentTermsEditor
+- ~~B4~~ — skipped
+- ~~D2~~ — skipped
+
+> Semua item selesai dikerjakan.

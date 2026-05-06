@@ -34,7 +34,7 @@ export function recalculateTermItems(
       .toLowerCase()
 
     if (cleanVal === 'dp' && type === 'design') {
-      newAmount = DEFAULT_DP_AMOUNT
+      newAmount = Math.min(DEFAULT_DP_AMOUNT, grandTotal)
     } else if (cleanVal === 'pelunasan' || cleanVal === 'settlement') {
       newAmount = Math.max(0, grandTotal - runningTotal)
     } else {

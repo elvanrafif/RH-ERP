@@ -1,4 +1,6 @@
-import { Pencil, ChevronRight } from 'lucide-react'
+import { useEffect, useRef } from 'react'
+import { Pencil, ChevronRight, X, Plus } from 'lucide-react'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -28,6 +30,8 @@ interface PaymentTermsEditorProps {
   onUpdateItem: (index: number, field: string, value: unknown) => void
   onPercentChange: (index: number, val: string) => void
   onActiveTerminChange: (val: string) => void
+  onAddTerm: () => void
+  onRemoveTerm: (index: number) => void
 }
 
 function parsePercentType(percent: string): {
@@ -57,7 +61,27 @@ export function PaymentTermsEditor({
   onUpdateItem,
   onPercentChange,
   onActiveTerminChange,
+  onAddTerm,
+  onRemoveTerm,
 }: PaymentTermsEditorProps) {
+  const totalPercentage = items.reduce((sum, item) => {
+    const { type, value } = parsePercentType(item.percent)
+    if (type !== 'percentage') return sum
+    const n = parseFloat(value)
+    return sum + (isNaN(n) ? 0 : n)
+  }, 0)
+  const isOverAllocated = totalPercentage > 100
+  const wasOverAllocated = useRef(false)
+
+  useEffect(() => {
+    if (isOverAllocated && !wasOverAllocated.current) {
+      toast.warning(
+        `Total percentage exceeds 100% (${totalPercentage}%). Check your term allocations.`
+      )
+    }
+    wasOverAllocated.current = isOverAllocated
+  }, [isOverAllocated, totalPercentage])
+
   return (
     <div>
       <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide text-slate-500">
@@ -110,27 +134,44 @@ export function PaymentTermsEditor({
                   )}
                 </div>
 
-                <div className="shrink-0 w-28">
-                  <Select
-                    value={item.status || 'empty'}
-                    onValueChange={(val) =>
-                      onUpdateItem(index, 'status', val === 'empty' ? '' : val)
-                    }
-                  >
-                    <SelectTrigger
-                      className={`h-6 text-[10px] w-full ${item.status === 'Success' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-white'}`}
+                <div className="flex items-center gap-1 shrink-0">
+                  <div className="w-28">
+                    <Select
+                      value={item.status || 'empty'}
+                      onValueChange={(val) =>
+                        onUpdateItem(
+                          index,
+                          'status',
+                          val === 'empty' ? '' : val
+                        )
+                      }
                     >
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="empty">
-                        <span className="text-slate-400">Unpaid</span>
-                      </SelectItem>
-                      <SelectItem value="Success">
-                        <span className="font-bold text-green-600">Paid</span>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                      <SelectTrigger
+                        className={`h-6 text-[10px] w-full ${item.status === 'Success' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-white'}`}
+                      >
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="empty">
+                          <span className="text-slate-400">Unpaid</span>
+                        </SelectItem>
+                        <SelectItem value="Success">
+                          <span className="font-bold text-green-600">Paid</span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {items.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0 text-slate-300 hover:text-red-500 hover:bg-red-50"
+                      onClick={() => onRemoveTerm(index)}
+                    >
+                      <X className="h-3 w-3" />
+                    </Button>
+                  )}
                 </div>
               </div>
 
@@ -180,7 +221,7 @@ export function PaymentTermsEditor({
                         )
                       }
                       placeholder="50"
-                      className="h-7 text-xs bg-white text-center"
+                      className="h-7 text-xs bg-white text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                   </div>
                 )}
@@ -220,7 +261,7 @@ export function PaymentTermsEditor({
                     onChange={(e) =>
                       onUpdateItem(index, 'paymentDate', e.target.value)
                     }
-                    className="h-7 text-[10px] px-1 bg-white w-full"
+                    className="h-7 text-[10px] bg-white w-full flex justify-center [&::-webkit-datetime-edit]:flex-none [&::-webkit-datetime-edit-fields-wrapper]:p-0"
                   />
                 </div>
               </div>
@@ -228,6 +269,17 @@ export function PaymentTermsEditor({
           )
         })}
       </div>
+
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="mt-3 w-full h-7 text-xs text-slate-500 border-dashed hover:text-slate-700 gap-1"
+        onClick={onAddTerm}
+      >
+        <Plus className="h-3 w-3" />
+        Add Term
+      </Button>
     </div>
   )
 }

@@ -124,6 +124,34 @@ export default function InvoiceDetailPage() {
     setItems(newItems)
   }
 
+  const handleAddTerm = () => {
+    markAsDirty()
+    const newItems = [
+      ...items,
+      {
+        name: `Term ${items.length + 1}`,
+        percent: '',
+        amount: 0,
+        status: '',
+        paymentDate: '',
+      },
+    ]
+    setItems(recalcItems(newItems, grandTotal))
+  }
+
+  const handleRemoveTerm = (index: number) => {
+    markAsDirty()
+    const newItems = items.filter((_, i) => i !== index)
+    const removedWasActive = String(index + 1) === activeTermin
+    if (removedWasActive) {
+      const nextActive = Math.min(Number(activeTermin), newItems.length)
+      setActiveTermin(String(nextActive))
+    } else if (index + 1 < Number(activeTermin)) {
+      setActiveTermin(String(Number(activeTermin) - 1))
+    }
+    setItems(recalcItems(newItems, grandTotal))
+  }
+
   const handleShareWA = () => {
     const message = `Dear ${selectedClientData?.company_name},\n\nYour invoice from RH Studio is ready! Please find the document through the link below:\n${qrLink}\n\nDon't hesitate to reach out if you have any questions — we're happy to help.\n\nBest,\nRH Studio`
     shareViaWhatsApp(selectedClientData?.phone, message)
@@ -278,6 +306,8 @@ export default function InvoiceDetailPage() {
               setActiveTermin(val)
               markAsDirty()
             }}
+            onAddTerm={handleAddTerm}
+            onRemoveTerm={handleRemoveTerm}
           />
         </div>
       }
