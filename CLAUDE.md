@@ -23,6 +23,7 @@
 @docs/claude/rbac.md
 @docs/claude/solid.md
 @docs/claude/conventions.md
+@docs/claude/branching.md
 @docs/modules.md
 @docs/decisions/
 @docs/security.md
