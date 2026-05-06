@@ -1,3 +1,4 @@
+import { useAuth } from '@/contexts/AuthContext'
 import { DocumentToolbar } from '@/components/filters/DocumentToolbar'
 
 interface QuotationToolbarProps {
@@ -5,19 +6,32 @@ interface QuotationToolbarProps {
   onSearchChange: (val: string) => void
   filterClient: string
   onClientFilterChange: (val: string) => void
+  filterArea: 'all' | 'filled' | 'missing'
+  onAreaFilterChange: (val: 'all' | 'filled' | 'missing') => void
   onResetFilter: () => void
   clients: any[]
 }
+
+const AREA_FILTER_OPTIONS = [
+  { label: 'All Areas', value: 'all' },
+  { label: 'Area Filled', value: 'filled' },
+  { label: 'Area Missing', value: 'missing' },
+]
 
 export function QuotationToolbar({
   searchTerm,
   onSearchChange,
   filterClient,
   onClientFilterChange,
+  filterArea,
+  onAreaFilterChange,
   onResetFilter,
   clients,
 }: QuotationToolbarProps) {
-  const hasActiveFilter = searchTerm !== '' || filterClient !== 'all'
+  const { isSuperAdmin } = useAuth()
+
+  const hasActiveFilter =
+    searchTerm !== '' || filterClient !== 'all' || filterArea !== 'all'
 
   return (
     <DocumentToolbar
@@ -29,6 +43,15 @@ export function QuotationToolbar({
       onResetFilter={onResetFilter}
       clients={clients}
       hasActiveFilter={hasActiveFilter}
+      typeFilter={
+        isSuperAdmin
+          ? {
+              value: filterArea,
+              onChange: onAreaFilterChange as (val: string) => void,
+              options: AREA_FILTER_OPTIONS,
+            }
+          : undefined
+      }
     />
   )
 }
