@@ -26,6 +26,7 @@ export function useQuotations({ filters, page }: UseQuotationsOptions) {
       page,
       filters.debouncedSearch,
       filters.filterClient,
+      filters.filterArea,
     ],
     queryFn: () => {
       const filterParts: string[] = []
@@ -35,6 +36,11 @@ export function useQuotations({ filters, page }: UseQuotationsOptions) {
       }
       if (filters.filterClient !== 'all') {
         filterParts.push(`client_id = "${filters.filterClient}"`)
+      }
+      if (filters.filterArea === 'filled') {
+        filterParts.push(`project_area > 0`)
+      } else if (filters.filterArea === 'missing') {
+        filterParts.push(`project_area = 0`)
       }
 
       return pb.collection('quotations').getList(page, 50, {
