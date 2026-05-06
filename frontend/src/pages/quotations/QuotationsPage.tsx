@@ -20,6 +20,8 @@ export default function QuotationsPage() {
     setSearchTerm,
     filterClient,
     setFilterClient,
+    filterArea,
+    setFilterArea,
     page,
     setPage,
     resetFilters,
@@ -64,6 +66,8 @@ export default function QuotationsPage() {
             onSearchChange={setSearchTerm}
             filterClient={filterClient}
             onClientFilterChange={setFilterClient}
+            filterArea={filterArea}
+            onAreaFilterChange={setFilterArea}
             onResetFilter={resetFilters}
             clients={clients}
           />
