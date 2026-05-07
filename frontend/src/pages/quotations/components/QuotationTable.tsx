@@ -8,7 +8,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ArrowRight } from 'lucide-react'
-import { formatRupiah } from '@/lib/helpers'
+import { formatRupiah, formatDate } from '@/lib/helpers'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { TablePagination } from '@/components/shared/TablePagination'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
@@ -45,6 +45,7 @@ export function QuotationTable({
               <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
                 <TableHead className="w-[40px]">#</TableHead>
                 <TableHead className="w-[140px]">No. Quotation</TableHead>
+                <TableHead className="w-[100px]">Created</TableHead>
                 <TableHead className="w-[500px]">Client</TableHead>
                 <TableHead>Status</TableHead>
                 {!isRestricted && (
@@ -59,10 +60,10 @@ export function QuotationTable({
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRowsSkeleton rows={5} columns={isRestricted ? 6 : 8} />
+                <TableRowsSkeleton rows={5} columns={isRestricted ? 7 : 9} />
               ) : quotations?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={isRestricted ? 6 : 8} className="h-60">
+                  <TableCell colSpan={isRestricted ? 7 : 9} className="h-60">
                     <EmptyState title="No quotations found." />
                   </TableCell>
                 </TableRow>
@@ -78,6 +79,9 @@ export function QuotationTable({
                     </TableCell>
                     <TableCell className="font-mono text-xs text-slate-500">
                       {q.quotation_number}
+                    </TableCell>
+                    <TableCell className="text-xs text-slate-400 tabular-nums">
+                      {formatDate(q.created)}
                     </TableCell>
                     <TableCell className="text-slate-600">
                       {q.expand?.client_id?.company_name || '-'}

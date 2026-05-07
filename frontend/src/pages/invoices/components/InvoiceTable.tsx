@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { ArrowRight } from 'lucide-react'
 import { MaskingTextByInvoiceType } from '@/lib/masking'
 import { cn } from '@/lib/utils'
-import { formatRupiah } from '@/lib/helpers'
+import { formatRupiah, formatDate } from '@/lib/helpers'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { TablePagination } from '@/components/shared/TablePagination'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
@@ -60,6 +60,7 @@ export function InvoiceTable({
               <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
                 <TableHead className="w-[40px]">#</TableHead>
                 <TableHead className="w-[150px]">Invoice No.</TableHead>
+                <TableHead className="w-[100px]">Created</TableHead>
                 <TableHead className="w-[300px]">Client</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Specification</TableHead>
@@ -70,10 +71,10 @@ export function InvoiceTable({
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRowsSkeleton rows={5} columns={8} />
+                <TableRowsSkeleton rows={5} columns={9} />
               ) : invoices?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-60">
+                  <TableCell colSpan={9} className="h-60">
                     <EmptyState title="No invoices found." />
                   </TableCell>
                 </TableRow>
@@ -89,6 +90,9 @@ export function InvoiceTable({
                     </TableCell>
                     <TableCell className="font-mono text-xs text-slate-500">
                       {inv.invoice_number}
+                    </TableCell>
+                    <TableCell className="text-xs text-slate-400 tabular-nums">
+                      {formatDate(inv.created)}
                     </TableCell>
                     <TableCell>
                       {inv.expand?.client_id?.company_name || '-'}

@@ -144,7 +144,7 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
 
           <div>
             <h2 className="text-yellow-600 text-lg font-bold">
-              NILAI KONTRAK : {formatRupiah(grandTotal)}
+              CONTRACT VALUE : {formatRupiah(grandTotal)}
             </h2>
           </div>
         </div>
@@ -235,11 +235,11 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
           <div className="flex justify-between items-end">
             <div className="w-2/3 pr-10">
               <h2 className="font-bold uppercase text-md">
-                INFORMASI PEMBAYARAN
+                PAYMENT INFORMATION
               </h2>
               <div className="text-gray-700">
                 <p className="whitespace-pre-line font-medium text-md">
-                  {bankDetails || 'Belum ada info rekening.'}
+                  {bankDetails || 'No bank account info.'}
                 </p>
               </div>
             </div>
