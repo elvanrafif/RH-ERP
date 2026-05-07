@@ -80,14 +80,14 @@ export const QuotationPaper = React.forwardRef<
       <div className="px-6">
         {/* --- 2. INTRO TEXT --- */}
         <div className="mt-6 mb-1 text-sm text-slate-900 leading-relaxed font-light pr-10">
-          Menindak lanjuti pembicaraan dengan bapak/ibu, kami menyanggupi untuk
-          mengerjakan pembuatan design renovasi rumah tinggal{' '}
-          <span>{client?.company_name || 'Ibu Laura'}</span> di{' '}
-          <span>{address || 'Jln. Tebet Barat X No. 42'}</span>
+          With reference to our prior discussions, we are pleased to present
+          this design quotation for the residential renovation of{' '}
+          <span>{client?.company_name || 'Client'}</span>, located at{' '}
+          <span>{address || 'Project Address'}</span>
           .
           <br />
           <br />
-          adapun perincian pekerjaan kami adalah sebagai berikut :
+          The detailed scope of services is as follows:
         </div>
 
         {/* --- 3. TABEL UTAMA --- */}
@@ -95,13 +95,13 @@ export const QuotationPaper = React.forwardRef<
           <thead>
             <tr className="border-b-[3px] border-[#ce9c2b]">
               <th className="text-left py-3 font-black tracking-widest text-[17px] w-[45%] text-slate-900">
-                DESKRIPSI
+                DESCRIPTION
               </th>
               <th className="text-center py-3 font-black tracking-widest text-[17px] text-slate-900">
                 QTY
               </th>
               <th className="text-center py-3 font-black tracking-widest text-[17px] text-slate-900">
-                HARGA
+                PRICE
               </th>
               <th className="text-center py-3 font-black tracking-widest text-[17px] text-slate-900">
                 TOTAL
@@ -112,14 +112,19 @@ export const QuotationPaper = React.forwardRef<
             <tr>
               <td className="py-6 pr-4 align-top">
                 <ul className="list-disc pl-5 space-y-3 font-light text-slate-900 leading-tight">
-                  <li>Perencanaan Layout/Denah</li>
-                  <li>Perencanaan 3D Facade</li>
-                  <li>Rendering 3D Facade</li>
-                  <li>Detail Drawing/Gambar Kerja</li>
-                  <li>Draft Skematik Interior</li>
-                  <li>Rencana Anggaran Biaya (RAB)</li>
-                  <li>DIscount 50% jika include build</li>
-                  <li>Gratis Design interior by request jika include build</li>
+                  <li>Layout / Floor Plan Design</li>
+                  <li>3D Facade Planning</li>
+                  <li>3D Facade Rendering</li>
+                  <li>Detail Drawing / Working Drawing</li>
+                  <li>Interior Schematic Draft</li>
+                  <li>Budget Estimation (RAB)</li>
+                  <li>
+                    50% Discount applicable upon inclusion of construction works
+                  </li>
+                  <li>
+                    Complimentary interior design upon request, subject to
+                    inclusion of construction works
+                  </li>
                 </ul>
               </td>
               <td className="py-6 text-center align-middle font-medium text-slate-900 text-[14px]">
@@ -135,32 +140,34 @@ export const QuotationPaper = React.forwardRef<
           </tbody>
         </table>
         <p className="text-xs italic mt-1 text-slate-800 font-light tracking-tight">
-          catatan : perhitungan luas area yang terbangun akan dihitung
-          menggunakan program autocad dan dapat dievaluasi bersama
+          Note: The total built area shall be measured and verified using
+          AutoCAD and is subject to mutual review and agreement.
         </p>
 
         {/* --- 4. SYARAT & KETENTUAN --- */}
         <div className="mt-12 text-sm text-slate-900 font-light">
           <h4 className="font-bold text-[15px] mb-2">
-            Syarat & Ketentuan Pembayaran :
+            Payment Terms & Conditions:
           </h4>
           <div className="leading-5">
             <p>
-              <span className="font-bold">Termin 1</span> sebesar Rp. 2.500.000,
-              dibayarkan sebelum perencanaan dimulai.
+              <span className="font-bold">Term 1</span> — IDR 2,500,000, payable
+              prior to the commencement of design work.
             </p>
             <p>
-              <span className="font-bold">Termin 2</span> sebesar 50% dibayarkan
-              setelah final denah atau sebelum perencanaan 3D Facade.
+              <span className="font-bold">Term 2</span> — 50% of the total fee,
+              payable upon finalization of the Floor Plan or prior to the
+              commencement of 3D Facade design.
             </p>
             <p>
-              <span className="font-bold">Termin 3</span> sebesar 30% dibayarkan
-              setelah final 3D Facade atau sebelum perencaan Gambar Kerja dan
-              Draft Skematik Interior.
+              <span className="font-bold">Term 3</span> — 30% of the total fee,
+              payable upon finalization of the 3D Facade or prior to the
+              commencement of Working Drawings and Interior Schematic.
             </p>
             <p>
-              <span className="font-bold">Termin 4</span> atau pelunasan,
-              dibayarkan setelah Gambar Struktur dan RAB selesai.
+              <span className="font-bold">Term 4</span> — remaining balance,
+              payable upon completion of Structural Drawings and Budget
+              Estimation.
             </p>
           </div>
         </div>
