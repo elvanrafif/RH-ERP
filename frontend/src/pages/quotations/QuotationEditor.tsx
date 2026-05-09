@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useTransition } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
@@ -32,7 +32,8 @@ export default function QuotationEditor() {
 
   const { containerRef: previewContainerRef, scale: previewScale } =
     useDocumentScaling()
-  const { generateJpeg } = useDocumentExport(componentRef)
+  const { generateJpeg, generatePdf } = useDocumentExport(componentRef)
+  const [isDownloading, startDownload] = useTransition()
   const { share: shareViaWhatsApp } = useWhatsAppShare()
   const { hasUnsavedChanges, markAsDirty, markAsClean, handleBack } =
     useUnsavedChanges('/quotations')
@@ -97,21 +98,14 @@ export default function QuotationEditor() {
   }
 
   const handleDownloadOfficial = () => {
-    const fileName = quotation?.document_file
-    if (!fileName) {
-      toast.error(
-        "Document not available. Please click 'Save' first to generate the document."
-      )
-      return
-    }
-    const fileUrl = pb.files.getUrl(quotation, fileName, { download: true })
-    const link = document.createElement('a')
-    link.href = fileUrl
-    link.download = `Quotation-${quotationNumber}.jpg`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    toast.success('Downloading Official Document...')
+    startDownload(async () => {
+      try {
+        await generatePdf(`Quotation-${quotationNumber || 'document'}.pdf`)
+        toast.success('PDF downloaded successfully')
+      } catch {
+        toast.error('Failed to generate PDF')
+      }
+    })
   }
 
   const saveMutation = useMutation({
@@ -169,6 +163,7 @@ export default function QuotationEditor() {
       totalLabel="Grand Total"
       total={grandTotal}
       isSaving={saveMutation.isPending}
+      isDownloading={isDownloading}
       onSave={() => saveMutation.mutate()}
       onShareWA={handleShareWA}
       onDownload={handleDownloadOfficial}

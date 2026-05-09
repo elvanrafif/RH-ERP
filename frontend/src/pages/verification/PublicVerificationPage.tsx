@@ -1,13 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { pb } from '@/lib/pocketbase'
-import { Loader2, Share2, Download, FileText, CheckCircle2 } from 'lucide-react'
+import { Loader2, Download, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
-import { toBlob } from 'html-to-image'
-import jsPDF from 'jspdf'
 import { usePublicDocument } from '@/hooks/usePublicDocument'
 import { useDocumentScaling } from '@/hooks/useDocumentScaling'
+import { useDocumentExport } from '@/hooks/useDocumentExport'
 import { A4_BASE_WIDTH } from '@/lib/constant'
 
 import { InvoicePaper } from '../invoices/components/InvoicePaper'
@@ -16,89 +14,30 @@ import { QuotationPaper } from '../quotations/QuotationPaper'
 export default function PublicVerificationPage() {
   const { docType, id } = useParams()
   const [isCapturing, setIsCapturing] = useState(false)
-  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false)
   const captureRef = useRef<HTMLDivElement>(null)
 
   const { data: doc, isLoading, isError } = usePublicDocument(docType, id)
   const { containerRef, scale } = useDocumentScaling()
-
-  const hasDbFile = !!doc?.document_file
-
-  const handleDownloadAsPdf = async () => {
-    if (!doc?.document_file) return
-    setIsDownloadingPdf(true)
-    const toastId = toast.loading('Compressing & building PDF...')
-
-    try {
-      const fileUrl = pb.files.getUrl(doc, doc.document_file, {
-        download: true,
-      })
-      const response = await fetch(fileUrl)
-      const blob = await response.blob()
-      const reader = new FileReader()
-      reader.readAsDataURL(blob)
-      reader.onloadend = () => {
-        const base64data = reader.result as string
-        const pdf = new jsPDF('p', 'mm', 'a4')
-        const width = pdf.internal.pageSize.getWidth()
-        const height = pdf.internal.pageSize.getHeight()
-        pdf.addImage(base64data, 'JPEG', 0, 0, width, height, undefined, 'FAST')
-        const fileName = `RH-STUDIO-${docType?.toUpperCase()}-${doc?.invoice_number || doc?.quotation_number}.pdf`
-        pdf.save(fileName)
-        toast.dismiss(toastId)
-        toast.success('PDF downloaded successfully')
-        setIsDownloadingPdf(false)
-      }
-    } catch (error) {
-      console.error(error)
-      toast.dismiss(toastId)
-      toast.error('Failed to download PDF')
-      setIsDownloadingPdf(false)
-    }
-  }
+  const { generatePdf } = useDocumentExport(captureRef)
 
   useEffect(() => {
     if (isCapturing && captureRef.current) {
-      setTimeout(() => runShareProcess(), 500)
+      setTimeout(() => runDownloadProcess(), 500)
     }
   }, [isCapturing])
 
-  const runShareProcess = async () => {
-    const toastId = toast.loading('Processing document...')
+  const runDownloadProcess = async () => {
+    const toastId = toast.loading('Generating PDF...')
     try {
-      const element = captureRef.current
-      if (!element) throw new Error('Missing element')
       await document.fonts.ready
-      const isMobile = window.innerWidth < 768
-      const blob = await toBlob(element, {
-        cacheBust: false,
-        backgroundColor: '#ffffff',
-        pixelRatio: isMobile ? 1.5 : 2,
-        skipAutoScale: true,
-      })
-      if (!blob) throw new Error('Failed')
-      const fileName = `Invoice-${doc?.invoice_number}.png`
-      const file = new File([blob], fileName, { type: 'image/png' })
-      if (
-        navigator.canShare &&
-        navigator.share &&
-        navigator.canShare({ files: [file] })
-      ) {
-        await navigator.share({
-          files: [file],
-          title: 'Invoice',
-          text: doc?.invoice_number,
-        })
-      } else {
-        const link = document.createElement('a')
-        link.href = URL.createObjectURL(blob)
-        link.download = fileName
-        link.click()
-      }
+      const docNumber = doc?.invoice_number || doc?.quotation_number || id
+      const fileName = `RH-STUDIO-${docType?.toUpperCase()}-${docNumber}.pdf`
+      await generatePdf(fileName)
       toast.dismiss(toastId)
-    } catch (e: unknown) {
+      toast.success('PDF downloaded successfully')
+    } catch {
       toast.dismiss(toastId)
-      if (e instanceof Error && e.name !== 'AbortError') toast.error('Failed')
+      toast.error('Failed to generate PDF')
     } finally {
       setIsCapturing(false)
     }
@@ -163,28 +102,16 @@ export default function PublicVerificationPage() {
         </div>
 
         <Button
-          onClick={() => {
-            if (hasDbFile) {
-              handleDownloadAsPdf()
-            } else {
-              setIsCapturing(true)
-            }
-          }}
-          disabled={isCapturing || isDownloadingPdf}
+          onClick={() => setIsCapturing(true)}
+          disabled={isCapturing}
           className="bg-slate-800 hover:bg-slate-900 shadow-lg w-full md:w-auto text-white"
         >
-          {isCapturing || isDownloadingPdf ? (
+          {isCapturing ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin text-white" />
-          ) : hasDbFile ? (
-            <Download className="mr-2 h-4 w-4 text-white" />
           ) : (
-            <Share2 className="mr-2 h-4 w-4 text-white" />
+            <Download className="mr-2 h-4 w-4 text-white" />
           )}
-          {isCapturing || isDownloadingPdf
-            ? 'Processing...'
-            : hasDbFile
-              ? 'Download Official PDF'
-              : 'Save / Share'}
+          {isCapturing ? 'Generating PDF...' : 'Download PDF'}
         </Button>
       </div>
 

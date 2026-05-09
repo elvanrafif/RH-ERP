@@ -21,6 +21,7 @@ interface DocumentEditorLayoutProps {
   totalLabel?: string
   total: number
   isSaving: boolean
+  isDownloading?: boolean
   onSave: () => void
   onShareWA: () => void
   onDownload: () => void
@@ -37,6 +38,7 @@ export function DocumentEditorLayout({
   totalLabel = 'Total',
   total,
   isSaving,
+  isDownloading = false,
   onSave,
   onShareWA,
   onDownload,
@@ -80,10 +82,15 @@ export function DocumentEditorLayout({
       <Button
         size="sm"
         onClick={onDownload}
+        disabled={isDownloading}
         className="whitespace-nowrap h-8 text-[11px] px-3"
       >
-        <Download className="mr-1.5 h-3.5 w-3.5" />
-        <span>Download</span>
+        {isDownloading ? (
+          <Loader2 className="animate-spin mr-1.5 h-3.5 w-3.5" />
+        ) : (
+          <Download className="mr-1.5 h-3.5 w-3.5" />
+        )}
+        <span>{isDownloading ? 'Generating...' : 'Download PDF'}</span>
       </Button>
     </div>
   )
