@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useTransition } from 'react'
 import { useParams } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
@@ -30,7 +30,8 @@ export default function InvoiceDetailPage() {
 
   const { containerRef: previewContainerRef, scale: previewScale } =
     useDocumentScaling()
-  const { generateJpeg } = useDocumentExport(componentRef)
+  const { generateJpeg, generatePdf } = useDocumentExport(componentRef)
+  const [isDownloading, startDownload] = useTransition()
   const { share: shareViaWhatsApp } = useWhatsAppShare()
   const { hasUnsavedChanges, markAsDirty, markAsClean, handleBack } =
     useUnsavedChanges('/invoices')
@@ -150,21 +151,16 @@ export default function InvoiceDetailPage() {
   }
 
   const handleDownloadOfficial = () => {
-    const fileName = invoice?.document_file
-    if (!fileName) {
-      toast.error(
-        "Document not available. Please click 'Save' first to generate the document."
-      )
-      return
-    }
-    const fileUrl = pb.files.getUrl(invoice, fileName, { download: true })
-    const link = document.createElement('a')
-    link.href = fileUrl
-    link.download = `Invoice-${invoice.invoice_number}.jpg`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    toast.success('Downloading Official Document...')
+    startDownload(async () => {
+      try {
+        await generatePdf(
+          `Invoice-${invoice?.invoice_number || 'document'}.pdf`
+        )
+        toast.success('PDF downloaded successfully')
+      } catch {
+        toast.error('Failed to generate PDF')
+      }
+    })
   }
 
   const saveMutation = useMutation({
@@ -225,6 +221,7 @@ export default function InvoiceDetailPage() {
       totalLabel="Total"
       total={grandTotal}
       isSaving={saveMutation.isPending}
+      isDownloading={isDownloading}
       onSave={() => saveMutation.mutate()}
       onShareWA={handleShareWA}
       onDownload={handleDownloadOfficial}
