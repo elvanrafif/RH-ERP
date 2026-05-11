@@ -117,10 +117,10 @@ export default function PublicVerificationPage() {
 
       <div
         ref={containerRef}
-        className="w-full flex-1 flex flex-col justify-center items-center overflow-hidden pb-10 relative z-10 px-4 md:px-0 min-h-[50vh] max-h-[75vh] md:max-h-none"
+        className="w-full flex-1 flex flex-col justify-center items-center p-6 relative z-10"
       >
         <div
-          className="relative shadow-2xl bg-white shrink-0 origin-center transform-gpu transition-all duration-500 mx-auto"
+          className="relative shadow-2xl bg-white shrink-0 overflow-hidden"
           style={{
             width: A4_BASE_WIDTH * scale,
             height: (297 / 210) * A4_BASE_WIDTH * scale,
@@ -134,7 +134,7 @@ export default function PublicVerificationPage() {
             }}
           />
           <div
-            className="origin-top-left transform-gpu"
+            className="absolute top-0 left-0 origin-top-left transform-gpu"
             style={{ transform: `scale(${scale})` }}
           >
             {renderPaper(false)}
