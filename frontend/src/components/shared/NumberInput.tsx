@@ -12,11 +12,17 @@ interface NumberInputProps {
   className?: string
   inputClassName?: string
   disabled?: boolean
+  decimal?: boolean
 }
 
 function formatWithSeparator(val: number): string {
   if (!val && val !== 0) return ''
   return new Intl.NumberFormat('id-ID').format(val)
+}
+
+function clamp(val: number, min: number, max?: number): number {
+  const lo = Math.max(min, val)
+  return max !== undefined ? Math.min(max, lo) : lo
 }
 
 export function NumberInput({
@@ -29,35 +35,55 @@ export function NumberInput({
   className,
   inputClassName,
   disabled = false,
+  decimal = false,
 }: NumberInputProps) {
   const [isFocused, setIsFocused] = useState(false)
+  const [rawDecimal, setRawDecimal] = useState('')
 
-  const displayValue = isFocused
-    ? value === 0
-      ? ''
-      : String(value)
-    : value === 0
-      ? ''
-      : formatWithSeparator(value)
+  const displayValue = (() => {
+    if (decimal && isFocused) return rawDecimal
+    if (isFocused) return value === 0 ? '' : String(value)
+    if (value === 0) return ''
+    return decimal ? String(value) : formatWithSeparator(value)
+  })()
+
+  const handleFocus = () => {
+    setIsFocused(true)
+    if (decimal) setRawDecimal(value === 0 ? '' : String(value))
+  }
+
+  const handleBlur = () => {
+    setIsFocused(false)
+    if (decimal) {
+      const normalized = rawDecimal.replace(',', '.')
+      const parsed = normalized === '' ? 0 : parseFloat(normalized)
+      onChange(isNaN(parsed) ? 0 : clamp(parsed, min, max))
+      setRawDecimal('')
+    }
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (decimal) {
+      // Allow digits, one dot or comma as decimal separator
+      const raw = e.target.value.replace(/[^\d.,]/g, '')
+      const firstSep = raw.search(/[.,]/)
+      const cleaned =
+        firstSep === -1
+          ? raw
+          : raw.slice(0, firstSep + 1) + raw.slice(firstSep + 1).replace(/[.,]/g, '')
+      setRawDecimal(cleaned)
+      const normalized = cleaned.replace(',', '.')
+      const parsed = normalized === '' || normalized.endsWith('.') ? 0 : parseFloat(normalized)
+      if (!isNaN(parsed)) onChange(clamp(parsed, min, max))
+      return
+    }
     const raw = e.target.value.replace(/\D/g, '')
     const parsed = raw === '' ? 0 : Number(raw)
-    onChange(
-      max !== undefined
-        ? Math.min(max, Math.max(min, parsed))
-        : Math.max(min, parsed)
-    )
+    onChange(clamp(parsed, min, max))
   }
 
-  const increment = () => {
-    const next = value + step
-    onChange(max !== undefined ? Math.min(max, next) : next)
-  }
-
-  const decrement = () => {
-    onChange(Math.max(min, value - step))
-  }
+  const increment = () => onChange(clamp(value + step, min, max))
+  const decrement = () => onChange(clamp(value - step, min, max))
 
   return (
     <div
@@ -69,11 +95,11 @@ export function NumberInput({
     >
       <input
         type="text"
-        inputMode="numeric"
+        inputMode={decimal ? 'decimal' : 'numeric'}
         value={displayValue}
         placeholder={isFocused ? '' : placeholder}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
         onChange={handleChange}
         disabled={disabled}
         className={cn(

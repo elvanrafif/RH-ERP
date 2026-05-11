@@ -102,8 +102,9 @@ export function ProjectTypeFields({
                   <NumberInput
                     value={field.value ?? 0}
                     onChange={field.onChange}
-                    step={1}
+                    step={0.5}
                     min={0}
+                    decimal
                     placeholder="0"
                   />
                 </FormControl>
@@ -120,8 +121,9 @@ export function ProjectTypeFields({
                   <NumberInput
                     value={field.value ?? 0}
                     onChange={field.onChange}
-                    step={1}
+                    step={0.5}
                     min={0}
+                    decimal
                     placeholder="0"
                   />
                 </FormControl>

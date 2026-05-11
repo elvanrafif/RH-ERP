@@ -345,26 +345,28 @@ function KanbanCard({
         )}
 
         {/* Arsitektur: luas tanah & bangunan */}
-        {isArchitecture && (task.luas_tanah || task.luas_bangunan) && (
-          <div className="flex justify-center gap-2 flex-wrap text-xs text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100">
-            {task.luas_tanah && (
-              <span className="flex items-center gap-1" title="Land Area">
-                <Maximize2 className="h-3 w-3 text-slate-400" />
-                Land: <span className="font-medium">{task.luas_tanah}m²</span>
-              </span>
-            )}
-            {task.luas_tanah && task.luas_bangunan && (
-              <span className="text-slate-300">|</span>
-            )}
-            {task.luas_bangunan && (
-              <span className="flex items-center gap-1" title="Building Area">
-                <Ruler className="h-3 w-3 text-slate-400" />
-                Building:{' '}
-                <span className="font-medium">{task.luas_bangunan}m²</span>
-              </span>
-            )}
-          </div>
-        )}
+        {isArchitecture &&
+          (Number(task.luas_tanah) > 0 || Number(task.luas_bangunan) > 0) && (
+            <div className="flex justify-center gap-2 flex-wrap text-xs text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100">
+              {Number(task.luas_tanah) > 0 && (
+                <span className="flex items-center gap-1" title="Land Area">
+                  <Maximize2 className="h-3 w-3 text-slate-400" />
+                  Land: <span className="font-medium">{task.luas_tanah}m²</span>
+                </span>
+              )}
+              {Number(task.luas_tanah) > 0 &&
+                Number(task.luas_bangunan) > 0 && (
+                  <span className="text-slate-300">|</span>
+                )}
+              {Number(task.luas_bangunan) > 0 && (
+                <span className="flex items-center gap-1" title="Building Area">
+                  <Ruler className="h-3 w-3 text-slate-400" />
+                  Building:{' '}
+                  <span className="font-medium">{task.luas_bangunan}m²</span>
+                </span>
+              )}
+            </div>
+          )}
 
         {/* Notes: toggle eksplisit */}
         {notes && (
