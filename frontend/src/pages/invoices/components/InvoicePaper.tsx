@@ -150,7 +150,7 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
             <h2
               className={
                 discountPercent > 0
-                  ? 'text-yellow-600 text-sm font-semibold'
+                  ? 'text-yellow-600 text-base font-semibold'
                   : 'text-yellow-600 text-lg font-bold'
               }
             >
