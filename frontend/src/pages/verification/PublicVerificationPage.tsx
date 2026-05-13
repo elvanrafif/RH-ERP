@@ -62,15 +62,26 @@ export default function PublicVerificationPage() {
         />
       )
     }
+
+    // Derive contractValue and discountPercent for invoices
+    const invoiceType = doc?.type || 'design'
+    const contractValue =
+      invoiceType === 'design'
+        ? (doc?.project_area || 0) * (doc?.price_per_meter || 0)
+        : doc?.total_amount || 0
+    const discountPercent = doc?.discount_percent || 0
+
     return (
       <InvoicePaper
-        type={doc?.type || 'design'}
+        type={invoiceType}
         activeTermin={doc?.active_termin || '1'}
         invoiceNumber={doc?.invoice_number}
         date={doc?.date}
         client={client}
         projectArea={doc?.project_area}
         pricePerMeter={doc?.price_per_meter}
+        contractValue={contractValue}
+        discountPercent={discountPercent}
         grandTotal={doc?.total_amount}
         items={doc?.items}
         bankDetails={doc?.bank_details}
