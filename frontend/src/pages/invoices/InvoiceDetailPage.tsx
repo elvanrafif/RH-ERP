@@ -159,9 +159,12 @@ export default function InvoiceDetailPage() {
   const handleDownloadOfficial = () => {
     startDownload(async () => {
       try {
-        await generatePdf(
-          `Invoice-${invoice?.invoice_number || 'document'}.pdf`
-        )
+        const clientName = (selectedClientData?.company_name || 'document')
+          .toUpperCase()
+          .replace(/\s+/g, '_')
+        const typePart = type.toUpperCase()
+        const terminPart = `TERMIN${activeTermin}`
+        await generatePdf(`INVOICE_${typePart}_${terminPart}_${clientName}.pdf`)
         toast.success('PDF downloaded successfully')
       } catch {
         toast.error('Failed to generate PDF')
@@ -196,10 +199,15 @@ export default function InvoiceDetailPage() {
       formData.append('active_termin', activeTermin)
       const blob = await generateJpeg()
       if (blob) {
+        const clientName = (selectedClientData?.company_name || 'Update')
+          .toUpperCase()
+          .replace(/\s+/g, '_')
+        const typePart = type.toUpperCase()
+        const terminPart = `TERMIN${activeTermin}`
         formData.append(
           'document_file',
           blob,
-          `Invoice-${invoice?.invoice_number || 'Update'}.jpg`
+          `INVOICE_${typePart}_${terminPart}_${clientName}.jpg`
         )
       }
       return await pb.collection('invoices').update(id as string, formData)

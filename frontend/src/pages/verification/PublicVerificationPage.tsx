@@ -30,8 +30,17 @@ export default function PublicVerificationPage() {
     const toastId = toast.loading('Generating PDF...')
     try {
       await document.fonts.ready
-      const docNumber = doc?.invoice_number || doc?.quotation_number || id
-      const fileName = `RH-STUDIO-${docType?.toUpperCase()}-${docNumber}.pdf`
+      const clientName = (doc?.expand?.client_id?.company_name || 'document')
+        .toUpperCase()
+        .replace(/\s+/g, '_')
+      let fileName: string
+      if (docType === 'invoices') {
+        const typePart = (doc?.type || 'design').toUpperCase()
+        const terminPart = `TERMIN${doc?.active_termin || '1'}`
+        fileName = `INVOICE_${typePart}_${terminPart}_${clientName}.pdf`
+      } else {
+        fileName = `QUOTATION_${clientName}.pdf`
+      }
       await generatePdf(fileName)
       toast.dismiss(toastId)
       toast.success('PDF downloaded successfully')

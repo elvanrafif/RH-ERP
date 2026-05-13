@@ -106,7 +106,10 @@ export default function QuotationEditor() {
   const handleDownloadOfficial = () => {
     startDownload(async () => {
       try {
-        await generatePdf(`Quotation-${quotationNumber || 'document'}.pdf`)
+        const clientName = (selectedClientData?.company_name || 'document')
+          .toUpperCase()
+          .replace(/\s+/g, '_')
+        await generatePdf(`QUOTATION_${clientName}.pdf`)
         toast.success('PDF downloaded successfully')
       } catch {
         toast.error('Failed to generate PDF')
@@ -138,11 +141,10 @@ export default function QuotationEditor() {
       )
       const blob = await generateJpeg()
       if (blob) {
-        formData.append(
-          'document_file',
-          blob,
-          `Quotation-${quotationNumber || 'Update'}.jpg`
-        )
+        const clientName = (selectedClientData?.company_name || 'Update')
+          .toUpperCase()
+          .replace(/\s+/g, '_')
+        formData.append('document_file', blob, `QUOTATION_${clientName}.jpg`)
       }
       return await pb.collection('quotations').update(id as string, formData)
     },
