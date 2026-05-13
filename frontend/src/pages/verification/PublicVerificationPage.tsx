@@ -70,6 +70,10 @@ export default function PublicVerificationPage() {
         ? (doc?.project_area || 0) * (doc?.price_per_meter || 0)
         : doc?.total_amount || 0
     const discountPercent = doc?.discount_percent || 0
+    const grandTotal =
+      discountPercent > 0
+        ? contractValue * (1 - discountPercent / 100)
+        : contractValue
 
     return (
       <InvoicePaper
@@ -82,7 +86,7 @@ export default function PublicVerificationPage() {
         pricePerMeter={doc?.price_per_meter}
         contractValue={contractValue}
         discountPercent={discountPercent}
-        grandTotal={doc?.total_amount}
+        grandTotal={grandTotal}
         items={doc?.items}
         bankDetails={doc?.bank_details}
         qrLink={qrLink}
