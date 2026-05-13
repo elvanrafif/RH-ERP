@@ -66,28 +66,26 @@ export function InvoiceEditorSettings({
       </div>
 
       {type === 'design' ? (
-        <>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label className="text-[10px] text-slate-500">Area (m²)</Label>
-              <NumberInput
-                value={projectArea}
-                onChange={onProjectAreaChange}
-                step={1}
-                min={0}
-                placeholder="0"
-              />
-            </div>
-            <div className="space-y-1">
-              <Label className="text-[10px] text-slate-500">Price / m²</Label>
-              <NumberInput
-                value={pricePerMeter}
-                onChange={onPricePerMeterChange}
-                step={10000}
-                min={0}
-                placeholder="0"
-              />
-            </div>
+        <div className="grid grid-cols-3 gap-3">
+          <div className="space-y-1">
+            <Label className="text-[10px] text-slate-500">Area (m²)</Label>
+            <NumberInput
+              value={projectArea}
+              onChange={onProjectAreaChange}
+              step={1}
+              min={0}
+              placeholder="0"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[10px] text-slate-500">Price / m²</Label>
+            <NumberInput
+              value={pricePerMeter}
+              onChange={onPricePerMeterChange}
+              step={10000}
+              min={0}
+              placeholder="0"
+            />
           </div>
           <div className="space-y-1">
             <Label className="text-[10px] text-slate-500">Discount (%)</Label>
@@ -100,7 +98,7 @@ export function InvoiceEditorSettings({
               placeholder="0"
             />
           </div>
-        </>
+        </div>
       ) : (
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
