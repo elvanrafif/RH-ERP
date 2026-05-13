@@ -9,9 +9,11 @@ interface QuotationPaperProps {
   address: string
   projectArea: number
   pricePerMeter: number
+  contractValue: number
+  discountPercent: number
   grandTotal: number
   bankDetails: string
-  qrLink: string // <-- Tambahkan tipe qrLink
+  qrLink: string
   isPublicView?: boolean
 }
 
@@ -24,9 +26,11 @@ export const QuotationPaper = React.forwardRef<
     address,
     projectArea,
     pricePerMeter,
+    contractValue,
+    discountPercent,
     grandTotal,
     bankDetails,
-    qrLink, // <-- Panggil qrLink dari props
+    qrLink,
     isPublicView,
   } = props
 
@@ -134,7 +138,25 @@ export const QuotationPaper = React.forwardRef<
                 {formatRupiah(pricePerMeter)}
               </td>
               <td className="py-6 text-center align-middle font-medium text-slate-900 text-[14px]">
-                {projectArea > 0 ? formatRupiah(grandTotal) : ''}
+                {projectArea > 0 ? (
+                  discountPercent > 0 ? (
+                    <div className="flex flex-col items-center gap-0.5 mt-10">
+                      <span className="line-through text-slate-400">
+                        {formatRupiah(contractValue)}
+                      </span>
+                      <span className="text-[12px] text-slate-500">
+                        Disc {discountPercent}%
+                      </span>
+                      <span className="font-bold">
+                        {formatRupiah(grandTotal)}
+                      </span>
+                    </div>
+                  ) : (
+                    formatRupiah(grandTotal)
+                  )
+                ) : (
+                  ''
+                )}
               </td>
             </tr>
           </tbody>
@@ -145,7 +167,7 @@ export const QuotationPaper = React.forwardRef<
         </p>
 
         {/* --- 4. SYARAT & KETENTUAN --- */}
-        <div className="mt-12 text-sm text-slate-900 font-light">
+        <div className="mt-6 text-sm text-slate-900 font-light">
           <h4 className="font-bold text-[15px] mb-2">
             Payment Terms & Conditions:
           </h4>
@@ -173,7 +195,7 @@ export const QuotationPaper = React.forwardRef<
         </div>
 
         {/* --- 5. PAYMENT INFORMATION & QR CODE --- */}
-        <div className="mt-12 flex justify-between items-end">
+        <div className="mt-6 flex justify-between items-end">
           <div className="w-2/3 pr-10">
             <h4 className="font-black text-[20px] tracking-[0.1em] uppercase mb-3 text-slate-900">
               PAYMENT INFORMATION

@@ -123,6 +123,13 @@ export function QuotationTable({
                     {!isRestricted && (
                       <TableCell className="text-right font-bold text-slate-700">
                         {formatRupiah(q.total_price || 0)}
+                        {q.discount_percent > 0 && (
+                          <p className="text-xs text-slate-400 line-through font-normal">
+                            {formatRupiah(
+                              (q.project_area || 0) * (q.price_per_meter || 0)
+                            )}
+                          </p>
+                        )}
                       </TableCell>
                     )}
                     <TableCell className="text-right">

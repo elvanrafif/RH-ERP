@@ -48,6 +48,13 @@ export default function PublicVerificationPage() {
 
   const renderPaper = (forCapture = false) => {
     if (docType === 'quotations') {
+      const quotationContractValue =
+        (doc?.project_area || 0) * (doc?.price_per_meter || 0)
+      const quotationDiscountPercent = doc?.discount_percent || 0
+      const quotationGrandTotal =
+        quotationDiscountPercent > 0
+          ? quotationContractValue * (1 - quotationDiscountPercent / 100)
+          : quotationContractValue
       return (
         <QuotationPaper
           qrLink={qrLink}
@@ -56,7 +63,9 @@ export default function PublicVerificationPage() {
           address={doc?.expand?.client_id?.address}
           projectArea={doc?.project_area}
           pricePerMeter={doc?.price_per_meter}
-          grandTotal={doc?.total_price}
+          contractValue={quotationContractValue}
+          discountPercent={quotationDiscountPercent}
+          grandTotal={quotationGrandTotal}
           bankDetails={doc?.bank_details}
           isPublicView={!forCapture}
         />

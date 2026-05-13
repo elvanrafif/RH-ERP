@@ -55,6 +55,7 @@ export default function QuotationEditor() {
   const [pricePerMeter, setPricePerMeter] = useState(
     DEFAULT_QUOTATION_PRICE_PER_METER
   )
+  const [discountPercent, setDiscountPercent] = useState(0)
   const [bankDetails, setBankDetails] = useState(
     `Name : Ismail Deyrian Anugrah\nAccount Number : BNI ${import.meta.env.VITE_BANK_ACCOUNT_NUMBER}`
   )
@@ -62,7 +63,11 @@ export default function QuotationEditor() {
   const [selectedClientData, setSelectedClientData] = useState<any>(null)
 
   const qrLink = `${import.meta.env.VITE_FE_LINK_URL}/verify/quotations/${id}`
-  const grandTotal = projectArea * pricePerMeter
+  const contractValue = projectArea * pricePerMeter
+  const grandTotal =
+    discountPercent > 0
+      ? contractValue * (1 - discountPercent / 100)
+      : contractValue
 
   useEffect(() => {
     if (!quotation) return
@@ -83,6 +88,7 @@ export default function QuotationEditor() {
     setPricePerMeter(
       quotation.price_per_meter || DEFAULT_QUOTATION_PRICE_PER_METER
     )
+    setDiscountPercent(quotation.discount_percent || 0)
     if (quotation.bank_details) setBankDetails(quotation.bank_details)
     markAsClean()
   }, [quotation, id])
@@ -117,6 +123,7 @@ export default function QuotationEditor() {
       formData.append('address', address)
       formData.append('project_area', String(projectArea))
       formData.append('price_per_meter', String(pricePerMeter))
+      formData.append('discount_percent', String(discountPercent))
       formData.append('total_price', String(grandTotal))
       formData.append('bank_details', bankDetails)
       formData.append(
@@ -227,7 +234,7 @@ export default function QuotationEditor() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <div className="space-y-1">
                 <Label className="text-[10px] text-slate-500">Area (m²)</Label>
                 <NumberInput
@@ -252,6 +259,22 @@ export default function QuotationEditor() {
                   }}
                   step={10000}
                   min={0}
+                  placeholder="0"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="text-[10px] text-slate-500">
+                  Discount (%)
+                </Label>
+                <NumberInput
+                  value={discountPercent}
+                  onChange={(val) => {
+                    setDiscountPercent(val)
+                    markAsDirty()
+                  }}
+                  step={0.5}
+                  min={0}
+                  max={100}
                   placeholder="0"
                 />
               </div>
@@ -285,6 +308,8 @@ export default function QuotationEditor() {
           address={address}
           projectArea={projectArea}
           pricePerMeter={pricePerMeter}
+          contractValue={contractValue}
+          discountPercent={discountPercent}
           grandTotal={grandTotal}
           bankDetails={bankDetails}
         />
