@@ -146,7 +146,7 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
             )}
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-0.5">
             <h2
               className={
                 discountPercent > 0
@@ -158,7 +158,7 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
             </h2>
             {discountPercent > 0 && (
               <p className="text-yellow-600 text-lg font-bold">
-                After discount {discountPercent}%: {formatRupiah(grandTotal)}
+                AFTER DISCOUNT {discountPercent}% : {formatRupiah(grandTotal)}
               </p>
             )}
           </div>
