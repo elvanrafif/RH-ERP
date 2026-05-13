@@ -113,8 +113,20 @@ export function InvoiceTable({
                     <TableCell className="text-center">
                       {inv.active_termin}
                     </TableCell>
-                    <TableCell className="text-right font-bold text-slate-700">
-                      {formatRupiah(inv.total_amount || 0)}
+                    <TableCell className="text-right">
+                      <span className="font-bold text-slate-700">
+                        {formatRupiah(
+                          inv.discount_percent > 0
+                            ? (inv.total_amount || 0) *
+                                (1 - inv.discount_percent / 100)
+                            : inv.total_amount || 0
+                        )}
+                      </span>
+                      {inv.discount_percent > 0 && (
+                        <p className="text-xs text-slate-400 line-through">
+                          {formatRupiah(inv.total_amount || 0)}
+                        </p>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <ArrowRight className="h-3.5 w-3.5 text-slate-300 ml-auto" />
