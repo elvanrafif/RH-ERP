@@ -50,10 +50,10 @@ export const QuotationPaper = React.forwardRef<
         </div>
       )}
       {/* --- 1. HEADER (LOGO & KOP) --- */}
-      <div className="flex justify-between items-start mb-8 relative">
-        <div className="mt-8">
+      <div className="flex justify-between items-start mb-4 relative">
+        <div className="mt-4">
           {/* Ribbon Hitam & Emas menempel ke kiri margin */}
-          <div className="bg-black text-[#ce9c2b] inline-block pl-[20mm] pr-8 py-2 mb-6 ml-[-15mm]">
+          <div className="bg-black text-[#ce9c2b] inline-block pl-[20mm] pr-8 py-2 mb-3 ml-[-15mm]">
             <h1 className="text-6xl font-black tracking-tighter">Quotation</h1>
           </div>
 
@@ -83,15 +83,12 @@ export const QuotationPaper = React.forwardRef<
 
       <div className="px-6">
         {/* --- 2. INTRO TEXT --- */}
-        <div className="mt-6 mb-1 text-sm text-slate-900 leading-relaxed font-light pr-10">
+        <div className="mt-5 mb-3 text-sm text-slate-900 leading-relaxed font-light pr-10">
           With reference to our prior discussions, we are pleased to present
           this design quotation for the residential renovation of{' '}
           <span>{client?.company_name || 'Client'}</span>, located at{' '}
-          <span>{address || 'Project Address'}</span>
-          .
-          <br />
-          <br />
-          The detailed scope of services is as follows:
+          <span>{address || 'Project Address'}</span>. The detailed scope of
+          services is as follows:
         </div>
 
         {/* --- 3. TABEL UTAMA --- */}
@@ -114,8 +111,8 @@ export const QuotationPaper = React.forwardRef<
           </thead>
           <tbody className="border-b-[3px] border-[#ce9c2b]">
             <tr>
-              <td className="py-6 pr-4 align-top">
-                <ul className="list-disc pl-5 space-y-3 font-light text-slate-900 leading-tight">
+              <td className="py-5 pr-4 align-top">
+                <ul className="list-disc pl-5 space-y-1.5 font-light text-slate-900 leading-tight">
                   <li>Layout / Floor Plan Design</li>
                   <li>3D Facade Planning</li>
                   <li>3D Facade Rendering</li>
@@ -131,13 +128,13 @@ export const QuotationPaper = React.forwardRef<
                   </li>
                 </ul>
               </td>
-              <td className="py-6 text-center align-middle font-medium text-slate-900 text-[14px]">
+              <td className="py-5 text-center align-middle font-medium text-slate-900 text-[14px]">
                 {projectArea > 0 ? `${projectArea} m2` : ''}
               </td>
-              <td className="py-6 text-center align-middle font-medium text-slate-900 text-[14px]">
+              <td className="py-5 text-center align-middle font-medium text-slate-900 text-[14px]">
                 {formatRupiah(pricePerMeter)}
               </td>
-              <td className="py-6 text-center align-middle font-medium text-slate-900 text-[14px]">
+              <td className="py-5 text-center align-middle font-medium text-slate-900 text-[14px]">
                 {projectArea > 0 ? (
                   discountPercent > 0 ? (
                     <div className="flex flex-col items-center gap-0.5 mt-10">
@@ -197,7 +194,7 @@ export const QuotationPaper = React.forwardRef<
         {/* --- 5. PAYMENT INFORMATION & QR CODE --- */}
         <div className="mt-6 flex justify-between items-end">
           <div className="w-2/3 pr-10">
-            <h4 className="font-black text-[20px] tracking-[0.1em] uppercase mb-3 text-slate-900">
+            <h4 className="font-black text-[20px] tracking-[0.1em] uppercase mb-1 text-slate-900">
               PAYMENT INFORMATION
             </h4>
             <div className="text-sm font-light text-slate-900 space-y-1 tracking-wide whitespace-pre-line">
