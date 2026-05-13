@@ -147,15 +147,18 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
           </div>
 
           <div className="space-y-1">
-            <h2 className="text-yellow-600 text-lg font-bold">
+            <h2
+              className={
+                discountPercent > 0
+                  ? 'text-yellow-600 text-sm font-semibold'
+                  : 'text-yellow-600 text-lg font-bold'
+              }
+            >
               CONTRACT VALUE : {formatRupiah(contractValue)}
             </h2>
             {discountPercent > 0 && (
-              <p className="text-slate-700 text-base font-semibold">
-                After discount {discountPercent}%:{' '}
-                <span className="text-yellow-600">
-                  {formatRupiah(grandTotal)}
-                </span>
+              <p className="text-yellow-600 text-lg font-bold">
+                After discount {discountPercent}%: {formatRupiah(grandTotal)}
               </p>
             )}
           </div>
