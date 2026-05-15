@@ -32,11 +32,13 @@ export function ClientDetailDialog({
             </div>
             <div>
               <DialogTitle className="text-lg font-semibold text-slate-900">
+                {client.salutation && (
+                  <span className="text-muted-foreground font-normal text-sm mr-1">
+                    {client.salutation}
+                  </span>
+                )}
                 {client.company_name}
               </DialogTitle>
-              <p className="text-sm text-muted-foreground">
-                {client.contact_person || '—'}
-              </p>
             </div>
           </div>
         </DialogHeader>

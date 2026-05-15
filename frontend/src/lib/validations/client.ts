@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 export const clientSchema = z.object({
+  salutation: z.string().optional(),
   company_name: z.string().min(2, {
     message: 'Company/client name must be at least 2 characters.',
   }),

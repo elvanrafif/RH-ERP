@@ -16,7 +16,16 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import { Loader2, MapPin } from 'lucide-react'
+
+const SALUTATIONS = ['Mr.', 'Mrs.', 'Ms.', 'Miss', 'Dr.'] as const
 
 interface ClientFormProps {
   onSuccess?: () => void
@@ -27,17 +36,19 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
-      company_name: '',
-      email: '',
-      phone: '',
-      address: '',
-      maps_link: '',
+      salutation: initialData?.salutation ?? '',
+      company_name: initialData?.company_name ?? '',
+      email: initialData?.email ?? '',
+      phone: initialData?.phone ?? '',
+      address: initialData?.address ?? '',
+      maps_link: initialData?.maps_link ?? '',
     },
   })
 
   useEffect(() => {
     if (initialData) {
       form.reset({
+        salutation: initialData.salutation ?? '',
         company_name: initialData.company_name,
         email: initialData.email,
         phone: initialData.phone,
@@ -46,6 +57,7 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
       })
     } else {
       form.reset({
+        salutation: '',
         company_name: '',
         email: '',
         phone: '',
@@ -68,19 +80,55 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
         onSubmit={form.handleSubmit((values) => mutation.mutate(values))}
         className="space-y-4"
       >
-        <FormField
-          control={form.control}
-          name="company_name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Company / Client Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Acme Corp" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid grid-cols-[3fr_7fr] gap-4">
+          <FormField
+            control={form.control}
+            name="salutation"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Title{' '}
+                  <span className="text-muted-foreground font-normal">
+                    (optional)
+                  </span>
+                </FormLabel>
+                <Select
+                  onValueChange={(v) => field.onChange(v === 'none' ? '' : v)}
+                  value={field.value || 'none'}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select..." />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="none">None</SelectItem>
+                    {SALUTATIONS.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="company_name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Client Name</FormLabel>
+                <FormControl>
+                  <Input placeholder="Ismail Deyrian A" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <div className="grid grid-cols-2 gap-4">
           <FormField

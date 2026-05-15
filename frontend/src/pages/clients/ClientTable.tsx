@@ -76,6 +76,11 @@ export function ClientTable({
                           {getInitials(client.company_name)}
                         </div>
                         <span className="font-medium text-slate-900">
+                          {client.salutation && (
+                            <span className="text-muted-foreground font-normal text-xs mr-1">
+                              {client.salutation}
+                            </span>
+                          )}
                           {client.company_name}
                         </span>
                       </div>
