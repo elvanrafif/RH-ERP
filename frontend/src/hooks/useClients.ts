@@ -17,7 +17,7 @@ export function useClients(searchTerm = '') {
         ? `company_name ~ "${searchTerm}" || email ~ "${searchTerm}" || phone ~ "${searchTerm}" || address ~ "${searchTerm}"`
         : ''
       return await pb.collection('clients').getFullList<Client>({
-        sort: searchTerm ? '-created' : 'company_name',
+        sort: '-created',
         filter,
       })
     },
