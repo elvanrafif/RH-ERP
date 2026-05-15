@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/select'
 import { Loader2, MapPin } from 'lucide-react'
 
-const SALUTATIONS = ['Mr.', 'Mrs.', 'Ms.', 'Miss', 'Dr.'] as const
+const SALUTATIONS = ['Mr.', 'Mrs.', 'Ms.', 'Miss'] as const
 
 interface ClientFormProps {
   onSuccess?: () => void

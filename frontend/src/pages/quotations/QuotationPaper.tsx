@@ -1,6 +1,7 @@
 import React from 'react'
 import RHStudioKopImg from '@/assets/rh-studio-kop.png'
 import { formatRupiah } from '@/lib/helpers'
+import { formatClientName } from '@/components/shared/ClientName'
 import QRCode from 'react-qr-code' // <-- Tambahkan import ini
 
 interface QuotationPaperProps {
@@ -86,8 +87,8 @@ export const QuotationPaper = React.forwardRef<
         <div className="mt-5 mb-3 text-sm text-slate-900 leading-relaxed font-light pr-10">
           With reference to our previous discussions, we are pleased to present
           this design quotation for the residential renovation project of{' '}
-          <span>{client?.company_name || 'Client'}</span>, located in{' '}
-          <span>{address || 'Project Address'}</span>. The detailed scope of
+          <span>{client ? formatClientName(client) : 'Client'}</span>, located
+          in <span>{address || 'Project Address'}</span>. The detailed scope of
           services is as follows:
         </div>
 
