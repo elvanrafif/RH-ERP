@@ -17,6 +17,7 @@ import { StatCard } from '@/components/shared/StatCard'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { TablePagination } from '@/components/shared/TablePagination'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { ClientName } from '@/components/shared/ClientName'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
 import {
   Table,
@@ -88,7 +89,14 @@ function ConversionTable({
                     {index + 1}
                   </TableCell>
                   <TableCell className="font-medium text-slate-900">
-                    {arch.expand?.client?.company_name ?? '—'}
+                    {arch.expand?.client ? (
+                      <ClientName
+                        name={arch.expand.client.company_name}
+                        salutation={arch.expand.client.salutation}
+                      />
+                    ) : (
+                      '—'
+                    )}
                   </TableCell>
                   <TableCell className="text-slate-600">
                     {arch.expand?.assignee?.name ?? '—'}

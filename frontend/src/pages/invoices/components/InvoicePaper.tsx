@@ -18,6 +18,8 @@ interface InvoicePaperProps {
   } | null
   projectArea: number
   pricePerMeter: number
+  contractValue: number
+  discountPercent: number
   grandTotal: number
   items: any[]
   bankDetails: string
@@ -36,6 +38,8 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
       client,
       projectArea,
       pricePerMeter,
+      contractValue,
+      discountPercent,
       grandTotal,
       items = [], // Default empty array biar gak crash
       bankDetails,
@@ -142,10 +146,24 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
             )}
           </div>
 
-          <div>
-            <h2 className="text-yellow-600 text-lg font-bold">
-              CONTRACT VALUE : {formatRupiah(grandTotal)}
+          <div className="space-y-0.5">
+            <h2
+              className={
+                discountPercent > 0
+                  ? 'text-yellow-600 text-base font-semibold'
+                  : 'text-yellow-600 text-lg font-bold'
+              }
+            >
+              CONTRACT VALUE :{' '}
+              <span className={discountPercent > 0 ? 'line-through' : ''}>
+                {formatRupiah(contractValue)}
+              </span>
             </h2>
+            {discountPercent > 0 && (
+              <p className="text-yellow-600 text-lg font-bold">
+                AFTER DISCOUNT {discountPercent}% : {formatRupiah(grandTotal)}
+              </p>
+            )}
           </div>
         </div>
 

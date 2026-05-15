@@ -11,12 +11,14 @@ interface InvoiceEditorSettingsProps {
   projectArea: number
   pricePerMeter: number
   manualTotal: number
+  discountPercent: number
   onClientChange: (val: string) => void
   onClientSelect?: (client: Client) => void
   onDateChange: (val: string) => void
   onProjectAreaChange: (val: number) => void
   onPricePerMeterChange: (val: number) => void
   onManualTotalChange: (val: number) => void
+  onDiscountPercentChange: (val: number) => void
 }
 
 export function InvoiceEditorSettings({
@@ -26,12 +28,14 @@ export function InvoiceEditorSettings({
   projectArea,
   pricePerMeter,
   manualTotal,
+  discountPercent,
   onClientChange,
   onClientSelect,
   onDateChange,
   onProjectAreaChange,
   onPricePerMeterChange,
   onManualTotalChange,
+  onDiscountPercentChange,
 }: InvoiceEditorSettingsProps) {
   return (
     <div className="space-y-4 border-b pb-6">
@@ -62,7 +66,7 @@ export function InvoiceEditorSettings({
       </div>
 
       {type === 'design' ? (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <div className="space-y-1">
             <Label className="text-[10px] text-slate-500">Area (m²)</Label>
             <NumberInput
@@ -83,20 +87,44 @@ export function InvoiceEditorSettings({
               placeholder="0"
             />
           </div>
+          <div className="space-y-1">
+            <Label className="text-[10px] text-slate-500">Discount (%)</Label>
+            <NumberInput
+              value={discountPercent}
+              onChange={onDiscountPercentChange}
+              step={0.5}
+              min={0}
+              max={100}
+              placeholder="0"
+            />
+          </div>
         </div>
       ) : (
-        <div className="space-y-1">
-          <Label className="text-[10px] text-slate-500 font-bold uppercase text-blue-600">
-            Total Contract Value (IDR)
-          </Label>
-          <NumberInput
-            value={manualTotal}
-            onChange={onManualTotalChange}
-            step={1000000}
-            min={0}
-            placeholder="Enter total value..."
-            inputClassName="font-mono border-blue-200"
-          />
+        <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <Label className="text-[10px] text-slate-500 font-bold uppercase text-blue-600">
+              Total Contract Value (IDR)
+            </Label>
+            <NumberInput
+              value={manualTotal}
+              onChange={onManualTotalChange}
+              step={1000000}
+              min={0}
+              placeholder="Enter total value..."
+              inputClassName="font-mono border-blue-200"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label className="text-[10px] text-slate-500">Discount (%)</Label>
+            <NumberInput
+              value={discountPercent}
+              onChange={onDiscountPercentChange}
+              step={0.5}
+              min={0}
+              max={100}
+              placeholder="0"
+            />
+          </div>
         </div>
       )}
     </div>

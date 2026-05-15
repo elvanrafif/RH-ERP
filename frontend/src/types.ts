@@ -12,6 +12,7 @@ export interface User {
 
 export interface Client {
   id: string
+  salutation?: string
   company_name: string
   contact_person: string
   email: string

@@ -19,6 +19,7 @@ import {
 import { Check, ChevronDown, Loader2, X } from 'lucide-react'
 import { useClientSearch } from '@/hooks/useClientSearch'
 import type { Client } from '@/types'
+import { formatClientName } from '@/components/shared/ClientName'
 
 interface ClientComboboxProps {
   value: string
@@ -66,7 +67,9 @@ export function ClientCombobox({
     if (!value || value === 'all') setSelectedName(null)
   }, [value])
 
-  const displayName = selectedName ?? preselectedClient?.company_name ?? null
+  const displayName =
+    selectedName ??
+    (preselectedClient ? formatClientName(preselectedClient) : null)
 
   const handleOpenChange = (next: boolean) => {
     setOpen(next)
@@ -149,23 +152,26 @@ export function ClientCombobox({
                     All Clients
                   </CommandItem>
                 )}
-                {clients?.map((client) => (
-                  <CommandItem
-                    value={`${client.id}__${client.company_name}`}
-                    key={client.id}
-                    onSelect={() =>
-                      handleSelect(client.id, client.company_name, client)
-                    }
-                  >
-                    <Check
-                      className={cn(
-                        'mr-2 h-4 w-4',
-                        client.id === value ? 'opacity-100' : 'opacity-0'
-                      )}
-                    />
-                    {client.company_name}
-                  </CommandItem>
-                ))}
+                {clients?.map((client) => {
+                  const displayLabel = formatClientName(client)
+                  return (
+                    <CommandItem
+                      value={`${client.id}__${displayLabel}`}
+                      key={client.id}
+                      onSelect={() =>
+                        handleSelect(client.id, displayLabel, client)
+                      }
+                    >
+                      <Check
+                        className={cn(
+                          'mr-2 h-4 w-4',
+                          client.id === value ? 'opacity-100' : 'opacity-0'
+                        )}
+                      />
+                      {displayLabel}
+                    </CommandItem>
+                  )
+                })}
                 {!isLoading && clients?.length === 0 && !showAllOption && (
                   <CommandEmpty>No client found.</CommandEmpty>
                 )}

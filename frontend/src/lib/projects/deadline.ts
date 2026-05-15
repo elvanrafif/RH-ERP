@@ -1,5 +1,6 @@
 import type { Project } from '@/types'
 import { DONE_STATUSES } from '@/lib/constant'
+import { formatClientName } from '@/components/shared/ClientName'
 
 export type DeadlineStatus = 'overdue' | 'warning'
 
@@ -82,7 +83,9 @@ export function toDeadlineProjects(
 
       acc.push({
         id: project.id,
-        clientName: project.expand?.client?.company_name ?? 'Unknown Client',
+        clientName: project.expand?.client
+          ? formatClientName(project.expand.client)
+          : 'Unknown Client',
         picName: getPicName(project),
         type: project.type,
         daysRemaining,

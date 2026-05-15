@@ -77,6 +77,14 @@ export const formatTimeUntil = (dateStr?: string): TimeUntilResult | null => {
   return { label: '< 1h left', isOverdue: false }
 }
 
+export const formatClientName = (client: {
+  company_name: string
+  salutation?: string
+}) =>
+  client.salutation
+    ? `${client.salutation} ${client.company_name}`
+    : client.company_name
+
 export const getInitials = (name?: string) =>
   name
     ? name

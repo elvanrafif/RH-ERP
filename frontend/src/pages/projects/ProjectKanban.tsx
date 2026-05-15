@@ -18,6 +18,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import { RowActions } from '@/components/shared/RowActions'
+import { ClientName } from '@/components/shared/ClientName'
 import {
   CalendarClock,
   Pencil,
@@ -272,7 +273,7 @@ function KanbanCard({
   const [showNotes, setShowNotes] = useState(false)
   const { isInterior, isArchitecture } = TypeProjectsBoolean(task.type)
   const assignee = task.expand?.assignee
-  const clientName = task.expand?.client?.company_name || 'Unknown Client'
+  const clientData = task.expand?.client
   const contractValue = task.contract_value || task.value
   const meta = task.meta_data || {}
   const notes = task.notes
@@ -325,9 +326,20 @@ function KanbanCard({
         <div>
           <h4
             className="font-semibold text-sm leading-snug text-slate-900 line-clamp-2"
-            title={clientName}
+            title={
+              clientData
+                ? `${clientData.salutation ? clientData.salutation + ' ' : ''}${clientData.company_name}`
+                : 'Unknown Client'
+            }
           >
-            {clientName}
+            {clientData ? (
+              <ClientName
+                name={clientData.company_name}
+                salutation={clientData.salutation}
+              />
+            ) : (
+              'Unknown Client'
+            )}
           </h4>
           {isSuperAdmin && contractValue > 0 && (
             <p className="text-xs text-slate-400 mt-0.5 font-normal">

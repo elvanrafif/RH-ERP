@@ -8,6 +8,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { RowActions } from '@/components/shared/RowActions'
+import { ClientName } from '@/components/shared/ClientName'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
 import { formatDateTime, getRemainingTime } from '@/lib/helpers'
@@ -94,7 +95,14 @@ export function SurveyTable({
                       {index + 1}
                     </TableCell>
                     <TableCell className="font-medium text-slate-900">
-                      {survey.expand?.client?.company_name ?? '—'}
+                      {survey.expand?.client ? (
+                        <ClientName
+                          name={survey.expand.client.company_name}
+                          salutation={survey.expand.client.salutation}
+                        />
+                      ) : (
+                        '—'
+                      )}
                     </TableCell>
                     <TableCell className="text-slate-600 text-right pr-6">
                       {survey.expand?.surveyor?.name ?? '—'}

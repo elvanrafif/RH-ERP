@@ -35,14 +35,24 @@ export const getColumns = (
   {
     accessorKey: 'company_name',
     header: 'Nama Perusahaan / Klien',
-    cell: ({ row }) => (
-      <div className="flex items-center gap-3">
-        <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-          {getInitials(row.getValue('company_name'))}
+    cell: ({ row }) => {
+      const client = row.original
+      return (
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+            {getInitials(row.getValue('company_name'))}
+          </div>
+          <div className="font-medium">
+            {client.salutation && (
+              <span className="text-muted-foreground font-normal mr-1">
+                {client.salutation}
+              </span>
+            )}
+            {row.getValue('company_name')}
+          </div>
         </div>
-        <div className="font-medium">{row.getValue('company_name')}</div>
-      </div>
-    ),
+      )
+    },
   },
   {
     accessorKey: 'email',

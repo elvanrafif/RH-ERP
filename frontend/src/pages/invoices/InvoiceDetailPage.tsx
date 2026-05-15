@@ -55,11 +55,16 @@ export default function InvoiceDetailPage() {
     DEFAULT_DESIGN_PRICE_PER_METER
   )
   const [manualTotal, setManualTotal] = useState(0)
+  const [discountPercent, setDiscountPercent] = useState(0)
 
   const qrLink = `${import.meta.env.VITE_FE_LINK_URL}/verify/invoices/${id}`
 
-  const grandTotal =
+  const contractValue =
     type === 'design' ? projectArea * pricePerMeter : manualTotal
+  const grandTotal =
+    discountPercent > 0
+      ? contractValue * (1 - discountPercent / 100)
+      : contractValue
 
   const recalcItems = useCallback(
     (currentItems: TermItem[], currentTotal: number) =>
@@ -86,6 +91,7 @@ export default function InvoiceDetailPage() {
     setProjectArea(area)
     setPricePerMeter(price)
     setManualTotal(invoice.total_amount || 0)
+    setDiscountPercent(invoice.discount_percent || 0)
     const total =
       currentType === 'design' ? area * price : invoice.total_amount || 0
     setItems(total > 0 ? recalcItems(loadedItems, total) : loadedItems)
@@ -153,9 +159,12 @@ export default function InvoiceDetailPage() {
   const handleDownloadOfficial = () => {
     startDownload(async () => {
       try {
-        await generatePdf(
-          `Invoice-${invoice?.invoice_number || 'document'}.pdf`
-        )
+        const clientName = (selectedClientData?.company_name || 'document')
+          .toUpperCase()
+          .replace(/\s+/g, '_')
+        const typePart = type.toUpperCase()
+        const terminPart = `TERMIN${activeTermin}`
+        await generatePdf(`INVOICE_${typePart}_${terminPart}_${clientName}.pdf`)
         toast.success('PDF downloaded successfully')
       } catch {
         toast.error('Failed to generate PDF')
@@ -171,7 +180,8 @@ export default function InvoiceDetailPage() {
       formData.append('items', JSON.stringify(items))
       formData.append('bank_details', bankDetails)
       formData.append('notes', notes)
-      formData.append('total_amount', String(grandTotal))
+      formData.append('total_amount', String(contractValue))
+      formData.append('discount_percent', String(discountPercent))
       formData.append(
         'project_area',
         String(type === 'design' ? projectArea : 0)
@@ -189,10 +199,15 @@ export default function InvoiceDetailPage() {
       formData.append('active_termin', activeTermin)
       const blob = await generateJpeg()
       if (blob) {
+        const clientName = (selectedClientData?.company_name || 'Update')
+          .toUpperCase()
+          .replace(/\s+/g, '_')
+        const typePart = type.toUpperCase()
+        const terminPart = `TERMIN${activeTermin}`
         formData.append(
           'document_file',
           blob,
-          `Invoice-${invoice?.invoice_number || 'Update'}.jpg`
+          `INVOICE_${typePart}_${terminPart}_${clientName}.jpg`
         )
       }
       return await pb.collection('invoices').update(id as string, formData)
@@ -236,6 +251,7 @@ export default function InvoiceDetailPage() {
             projectArea={projectArea}
             pricePerMeter={pricePerMeter}
             manualTotal={manualTotal}
+            discountPercent={discountPercent}
             onClientChange={handleClientChange}
             onClientSelect={(client) => {
               setSelectedClientData(client)
@@ -255,6 +271,10 @@ export default function InvoiceDetailPage() {
             }}
             onManualTotalChange={(val) => {
               setManualTotal(val)
+              markAsDirty()
+            }}
+            onDiscountPercentChange={(val) => {
+              setDiscountPercent(val)
               markAsDirty()
             }}
           />
@@ -313,6 +333,8 @@ export default function InvoiceDetailPage() {
           client={selectedClientData}
           projectArea={projectArea}
           pricePerMeter={pricePerMeter}
+          contractValue={contractValue}
+          discountPercent={discountPercent}
           grandTotal={grandTotal}
           items={items}
           bankDetails={bankDetails}

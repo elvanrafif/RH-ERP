@@ -10,6 +10,7 @@ import {
 import { ArrowRight } from 'lucide-react'
 import { formatRupiah, formatDate } from '@/lib/helpers'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { ClientName } from '@/components/shared/ClientName'
 import { TablePagination } from '@/components/shared/TablePagination'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
 import { useAuth } from '@/contexts/AuthContext'
@@ -84,7 +85,14 @@ export function QuotationTable({
                       {formatDate(q.created)}
                     </TableCell>
                     <TableCell className="text-slate-600">
-                      {q.expand?.client_id?.company_name || '-'}
+                      {q.expand?.client_id ? (
+                        <ClientName
+                          name={q.expand.client_id.company_name}
+                          salutation={q.expand.client_id.salutation}
+                        />
+                      ) : (
+                        '-'
+                      )}
                     </TableCell>
                     <TableCell>
                       {(() => {
@@ -123,6 +131,13 @@ export function QuotationTable({
                     {!isRestricted && (
                       <TableCell className="text-right font-bold text-slate-700">
                         {formatRupiah(q.total_price || 0)}
+                        {q.discount_percent > 0 && (
+                          <p className="text-xs text-slate-400 line-through font-normal">
+                            {formatRupiah(
+                              (q.project_area || 0) * (q.price_per_meter || 0)
+                            )}
+                          </p>
+                        )}
                       </TableCell>
                     )}
                     <TableCell className="text-right">

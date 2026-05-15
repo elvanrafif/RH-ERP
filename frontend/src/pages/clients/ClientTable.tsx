@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/tooltip'
 import { Eye, Pencil } from 'lucide-react'
 import { RowActions } from '@/components/shared/RowActions'
+import { ClientName } from '@/components/shared/ClientName'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
 import { getInitials } from '@/lib/helpers'
@@ -75,9 +76,11 @@ export function ClientTable({
                         <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs shrink-0">
                           {getInitials(client.company_name)}
                         </div>
-                        <span className="font-medium text-slate-900">
-                          {client.company_name}
-                        </span>
+                        <ClientName
+                          name={client.company_name}
+                          salutation={client.salutation}
+                          className="font-medium text-slate-900"
+                        />
                       </div>
                     </TableCell>
                     <TableCell className="text-slate-600">

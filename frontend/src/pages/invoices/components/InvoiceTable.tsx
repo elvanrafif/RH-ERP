@@ -13,6 +13,7 @@ import { MaskingTextByInvoiceType } from '@/lib/masking'
 import { cn } from '@/lib/utils'
 import { formatRupiah, formatDate } from '@/lib/helpers'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { ClientName } from '@/components/shared/ClientName'
 import { TablePagination } from '@/components/shared/TablePagination'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
 
@@ -95,7 +96,14 @@ export function InvoiceTable({
                       {formatDate(inv.created)}
                     </TableCell>
                     <TableCell>
-                      {inv.expand?.client_id?.company_name || '-'}
+                      {inv.expand?.client_id ? (
+                        <ClientName
+                          name={inv.expand.client_id.company_name}
+                          salutation={inv.expand.client_id.salutation}
+                        />
+                      ) : (
+                        '-'
+                      )}
                     </TableCell>
                     <TableCell>{getTypeBadge(inv.type)}</TableCell>
                     <TableCell className="font-medium">
@@ -113,8 +121,20 @@ export function InvoiceTable({
                     <TableCell className="text-center">
                       {inv.active_termin}
                     </TableCell>
-                    <TableCell className="text-right font-bold text-slate-700">
-                      {formatRupiah(inv.total_amount || 0)}
+                    <TableCell className="text-right">
+                      <span className="font-bold text-slate-700">
+                        {formatRupiah(
+                          inv.discount_percent > 0
+                            ? (inv.total_amount || 0) *
+                                (1 - inv.discount_percent / 100)
+                            : inv.total_amount || 0
+                        )}
+                      </span>
+                      {inv.discount_percent > 0 && (
+                        <p className="text-xs text-slate-400 line-through">
+                          {formatRupiah(inv.total_amount || 0)}
+                        </p>
+                      )}
                     </TableCell>
                     <TableCell className="text-right">
                       <ArrowRight className="h-3.5 w-3.5 text-slate-300 ml-auto" />

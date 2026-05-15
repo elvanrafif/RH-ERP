@@ -8,6 +8,7 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { Mail, Phone, MapPin } from 'lucide-react'
 import { getInitials } from '@/lib/helpers'
+import { ClientName } from '@/components/shared/ClientName'
 
 interface ClientDetailDialogProps {
   client: Client | null
@@ -32,11 +33,11 @@ export function ClientDetailDialog({
             </div>
             <div>
               <DialogTitle className="text-lg font-semibold text-slate-900">
-                {client.company_name}
+                <ClientName
+                  name={client.company_name}
+                  salutation={client.salutation}
+                />
               </DialogTitle>
-              <p className="text-sm text-muted-foreground">
-                {client.contact_person || '—'}
-              </p>
             </div>
           </div>
         </DialogHeader>

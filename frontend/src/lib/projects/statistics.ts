@@ -1,4 +1,5 @@
 import { formatCompactCurrency } from '@/lib/formatting/currency'
+import { formatClientName } from '@/components/shared/ClientName'
 import {
   WORKLOAD_OVERLOAD_THRESHOLD,
   DIVISION,
@@ -16,7 +17,10 @@ interface StatProject {
   contract_value?: number
   value?: number
   total_amount?: number
-  expand?: { vendor?: { name: string }; client?: { company_name: string } }
+  expand?: {
+    vendor?: { name: string }
+    client?: { company_name: string; salutation?: string }
+  }
   assignee?: string | string[]
 }
 
@@ -102,7 +106,9 @@ export function buildWorkloadData(
   projects.forEach((p) => {
     const type = p.type
     const projectValue = p.contract_value || p.value || p.total_amount || 0
-    const clientName = p.expand?.client?.company_name ?? '—'
+    const clientName = p.expand?.client
+      ? formatClientName(p.expand.client)
+      : '—'
 
     if (type === PROJECT_TYPE.CIVIL || type === DIVISION.CIVIL) {
       civilTotal.count++

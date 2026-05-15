@@ -7,6 +7,7 @@ import { Banknote } from 'lucide-react'
 import { TypeProjectsBoolean } from '@/lib/booleans'
 import { useRole } from '@/hooks/useRole'
 import { formatRupiah } from '@/lib/helpers'
+import { ClientName } from '@/components/shared/ClientName'
 import { ProjectClientCard } from './components/ProjectClientCard'
 import { ProjectPicTimelineCard } from './components/ProjectPicTimelineCard'
 import { ProjectSpecsCard } from './components/ProjectSpecsCard'
@@ -78,7 +79,14 @@ export function ProjectDetailsModal({
           </div>
 
           <h2 className="text-xl font-bold text-foreground leading-tight">
-            {client?.company_name || 'Unknown Client'}
+            {client ? (
+              <ClientName
+                name={client.company_name}
+                salutation={client.salutation}
+              />
+            ) : (
+              'Unknown Client'
+            )}
           </h2>
 
           {isSuperAdmin && (
