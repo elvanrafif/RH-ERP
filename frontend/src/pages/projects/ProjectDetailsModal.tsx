@@ -52,6 +52,8 @@ export function ProjectDetailsModal({
     ? project.expand?.vendor?.name
     : project.expand?.assignee?.name
 
+  const managedByData = isCivil ? project.expand?.assignee?.name : undefined
+
   const vendorData = isInterior ? project.expand?.vendor?.name : undefined
 
   const statusColor =
@@ -114,6 +116,7 @@ export function ProjectDetailsModal({
                 picData={picData}
                 isCivil={isCivil}
                 isInterior={isInterior}
+                managedByData={managedByData}
                 vendorData={vendorData}
                 project={project}
               />
