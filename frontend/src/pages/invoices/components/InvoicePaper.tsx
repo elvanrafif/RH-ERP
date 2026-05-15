@@ -154,7 +154,10 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
                   : 'text-yellow-600 text-lg font-bold'
               }
             >
-              CONTRACT VALUE : {formatRupiah(contractValue)}
+              CONTRACT VALUE :{' '}
+              <span className={discountPercent > 0 ? 'line-through' : ''}>
+                {formatRupiah(contractValue)}
+              </span>
             </h2>
             {discountPercent > 0 && (
               <p className="text-yellow-600 text-lg font-bold">

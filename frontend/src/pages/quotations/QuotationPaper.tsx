@@ -84,9 +84,9 @@ export const QuotationPaper = React.forwardRef<
       <div className="px-6">
         {/* --- 2. INTRO TEXT --- */}
         <div className="mt-5 mb-3 text-sm text-slate-900 leading-relaxed font-light pr-10">
-          With reference to our prior discussions, we are pleased to present
-          this design quotation for the residential renovation of{' '}
-          <span>{client?.company_name || 'Client'}</span>, located at{' '}
+          With reference to our previous discussions, we are pleased to present
+          this design quotation for the residential renovation project of{' '}
+          <span>{client?.company_name || 'Client'}</span>, located in{' '}
           <span>{address || 'Project Address'}</span>. The detailed scope of
           services is as follows:
         </div>
@@ -114,10 +114,10 @@ export const QuotationPaper = React.forwardRef<
               <td className="py-5 pr-4 align-top">
                 <ul className="list-disc pl-5 space-y-1.5 font-light text-slate-900 leading-tight">
                   <li>Layout / Floor Plan Design</li>
-                  <li>3D Facade Planning</li>
+                  <li>3D Facade Design</li>
                   <li>3D Facade Rendering</li>
                   <li>Detail Drawing / Working Drawing</li>
-                  <li>Interior Schematic Draft</li>
+                  <li>Draft Interior Schematic Design</li>
                   <li>Budget Estimation (RAB)</li>
                   <li>
                     50% Discount applicable upon inclusion of construction works
