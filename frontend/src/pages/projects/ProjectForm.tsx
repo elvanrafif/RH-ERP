@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
 import type { Project, User } from '@/types'
+import { DIVISION } from '@/lib/constant'
 import { toast } from 'sonner'
 
 import { Button } from '@/components/ui/button'
@@ -82,12 +83,18 @@ export function ProjectForm({
       ? [...interiorVendors, assignedVendor]
       : interiorVendors
 
+  const civilUsers = users?.filter(
+    (u) => u.division?.toLowerCase() === DIVISION.CIVIL
+  )
+
   const form = useForm({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       client_id: initialData?.client || '',
       assignee:
-        initialData?.assignee || (!isSuperAdmin && !isCivil ? user?.id : ''),
+        initialData?.assignee ||
+        (isCivil && !isSuperAdmin ? user?.id : '') ||
+        '',
       status: initialData?.status || statusOptions[0]?.value || '',
       contract_value: initialData?.contract_value || 0,
       deadline: initialData?.deadline
@@ -130,6 +137,14 @@ export function ProjectForm({
       if (isCivil) form.setValue('source_architecture', '__none__')
     }
   }, [clientId])
+
+  useEffect(() => {
+    if (isCivil && isSuperAdmin && !initialData && civilUsers?.length) {
+      if (!form.getValues('assignee')) {
+        form.setValue('assignee', civilUsers[0].id)
+      }
+    }
+  }, [civilUsers?.length])
 
   const mutation = useMutation({
     mutationFn: async (values: ProjectFormValues) => {
@@ -227,6 +242,7 @@ export function ProjectForm({
           isSuperAdmin={isSuperAdmin}
           user={user}
           users={users}
+          civilUsers={civilUsers}
           civilVendors={resolvedCivilVendors}
           interiorVendors={resolvedInteriorVendors}
           fixedType={fixedType}

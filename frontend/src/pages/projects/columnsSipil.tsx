@@ -80,19 +80,23 @@ export const getSipilColumns = (
       )
     },
   },
-  // PIC
+  // TEAM (Field PIC + Managed By)
   {
     id: 'pic',
-    header: 'PIC',
+    header: 'Team',
     cell: ({ row }) => {
-      const picName = row.original.expand?.vendor?.name
+      const fieldPic = row.original.expand?.vendor?.name
+      const managedBy = row.original.expand?.assignee?.name
       return (
-        <div className="flex flex-col gap-1.5 min-w-[70px]">
-          <div className="flex items-center gap-1.5 text-xs text-slate-600">
-            <span className="font-medium truncate max-w-[100px]">
-              {picName || 'Unassigned'}
+        <div className="flex flex-col gap-0.5 min-w-[100px]">
+          <span className="text-xs font-medium text-slate-700 truncate max-w-[120px]">
+            {fieldPic || '—'}
+          </span>
+          {managedBy && (
+            <span className="text-xs text-muted-foreground truncate max-w-[120px]">
+              {managedBy}
             </span>
-          </div>
+          )}
         </div>
       )
     },

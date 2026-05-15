@@ -28,6 +28,7 @@ interface ProjectTypeFieldsProps {
   isSuperAdmin: boolean
   user: User | null | undefined
   users: User[] | undefined
+  civilUsers?: User[]
   civilVendors: Vendor[]
   interiorVendors: Vendor[]
   fixedType: string
@@ -42,6 +43,7 @@ export function ProjectTypeFields({
   isSuperAdmin,
   user,
   users,
+  civilUsers = [],
   civilVendors,
   interiorVendors,
   fixedType,
@@ -415,6 +417,38 @@ export function ProjectTypeFields({
         <div className="grid grid-cols-2 gap-4">
           <FormField
             control={control}
+            name="assignee"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Managed By</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value as string}
+                  disabled={!isSuperAdmin}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select PIC" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {isSuperAdmin && (
+                      <SelectItem value="unassigned">
+                        -- Unassigned --
+                      </SelectItem>
+                    )}
+                    {civilUsers.map((u) => (
+                      <SelectItem key={u.id} value={u.id}>
+                        {u.name || u.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
             name="vendor"
             render={({ field }) => (
               <FormItem>
@@ -439,30 +473,28 @@ export function ProjectTypeFields({
               </FormItem>
             )}
           />
-          <div>
-            {isSuperAdmin && (
-              <FormField
-                control={control}
-                name="contract_value"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contract Value (Rp)</FormLabel>
-                    <FormControl>
-                      <NumberInput
-                        value={field.value ?? 0}
-                        onChange={field.onChange}
-                        step={1000000}
-                        min={0}
-                        placeholder="0"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
-          </div>
         </div>
+      )}
+      {isCivil && isSuperAdmin && (
+        <FormField
+          control={control}
+          name="contract_value"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Contract Value (Rp)</FormLabel>
+              <FormControl>
+                <NumberInput
+                  value={field.value ?? 0}
+                  onChange={field.onChange}
+                  step={1000000}
+                  min={0}
+                  placeholder="0"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       )}
     </>
   )

@@ -8,6 +8,7 @@ interface ProjectPicTimelineCardProps {
   picData: string | undefined
   isCivil: boolean
   isInterior: boolean
+  managedByData?: string
   vendorData?: string
   project: Project
 }
@@ -16,27 +17,68 @@ export function ProjectPicTimelineCard({
   picData,
   isCivil,
   isInterior,
+  managedByData,
   vendorData,
   project,
 }: ProjectPicTimelineCardProps) {
   return (
     <div className="space-y-3">
-      {/* PIC */}
-      <div>
-        <p className="text-xs font-semibold text-foreground mb-2">
-          Person In Charge
-        </p>
-        <div className="flex items-center gap-2.5">
-          <Avatar className="h-8 w-8 border border-border">
-            <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
-              {getInitials(picData)}
-            </AvatarFallback>
-          </Avatar>
-          <span className="text-sm font-semibold text-foreground">
-            {picData || 'Unassigned'}
-          </span>
+      {/* Managed By — Civil only, hidden when unassigned */}
+      {isCivil && managedByData && (
+        <div>
+          <p className="text-xs font-semibold text-foreground mb-2">
+            Managed By
+          </p>
+          <div className="flex items-center gap-2.5">
+            <Avatar className="h-8 w-8 border border-border">
+              <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
+                {getInitials(managedByData)}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-sm font-semibold text-foreground">
+              {managedByData || 'Unassigned'}
+            </span>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* PIC */}
+      {!isCivil && (
+        <div>
+          <p className="text-xs font-semibold text-foreground mb-2">
+            Person In Charge
+          </p>
+          <div className="flex items-center gap-2.5">
+            <Avatar className="h-8 w-8 border border-border">
+              <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
+                {getInitials(picData)}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-sm font-semibold text-foreground">
+              {picData || 'Unassigned'}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Field PIC — Civil only */}
+      {isCivil && (
+        <div>
+          <p className="text-xs font-semibold text-foreground mb-2">
+            Field PIC
+          </p>
+          <div className="flex items-center gap-2.5">
+            <Avatar className="h-8 w-8 border border-border">
+              <AvatarFallback className="bg-muted text-muted-foreground font-bold text-xs">
+                {getInitials(picData)}
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-sm font-semibold text-foreground">
+              {picData || '—'}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Vendor — Interior only */}
       {isInterior && (
