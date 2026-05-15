@@ -2,6 +2,7 @@ import type { Survey } from '@/types'
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { formatDateTime, getRemainingTime } from '@/lib/helpers'
+import { ClientName, formatClientName } from '@/components/shared/ClientName'
 import { SURVEY_STATUS } from '@/lib/constant'
 
 interface SurveyDetailDialogProps {
@@ -63,7 +64,7 @@ export function SurveyDetailDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogTitle className="sr-only">
-          {client?.company_name ?? 'Survey Detail'}
+          {client ? formatClientName(client) : 'Survey Detail'}
         </DialogTitle>
 
         <div className="space-y-4 pt-2">
@@ -75,7 +76,15 @@ export function SurveyDetailDialog({
             <div className="space-y-3">
               <div className="grid grid-cols-2 gap-x-4">
                 <Field label="Client Name">
-                  <TextValue value={client?.company_name} />
+                  {client ? (
+                    <ClientName
+                      name={client.company_name}
+                      salutation={client.salutation}
+                      className="text-sm font-medium text-slate-800"
+                    />
+                  ) : (
+                    <TextValue value={undefined} />
+                  )}
                 </Field>
                 <Field label="Status">
                   <StatusBadge status={survey.status} />

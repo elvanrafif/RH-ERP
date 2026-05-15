@@ -13,6 +13,7 @@ import { MaskingTextByInvoiceType } from '@/lib/masking'
 import { cn } from '@/lib/utils'
 import { formatRupiah, formatDate } from '@/lib/helpers'
 import { EmptyState } from '@/components/shared/EmptyState'
+import { ClientName } from '@/components/shared/ClientName'
 import { TablePagination } from '@/components/shared/TablePagination'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
 
@@ -95,7 +96,14 @@ export function InvoiceTable({
                       {formatDate(inv.created)}
                     </TableCell>
                     <TableCell>
-                      {inv.expand?.client_id?.company_name || '-'}
+                      {inv.expand?.client_id ? (
+                        <ClientName
+                          name={inv.expand.client_id.company_name}
+                          salutation={inv.expand.client_id.salutation}
+                        />
+                      ) : (
+                        '-'
+                      )}
                     </TableCell>
                     <TableCell>{getTypeBadge(inv.type)}</TableCell>
                     <TableCell className="font-medium">

@@ -4,6 +4,7 @@ import { useProjects } from './useProjects'
 import { useProspects } from './useProspects'
 import { useSurveys } from './useSurveys'
 import { CALENDAR_EVENT_COLORS, DONE_STATUSES } from '@/lib/constant'
+import { formatClientName } from '@/components/shared/ClientName'
 
 export interface CalendarEvent {
   id: string
@@ -69,14 +70,18 @@ export function useDashboardCalendarEvents() {
         continue
       result.push({
         id: `arch-${p.id}`,
-        title: p.expand?.client?.company_name ?? 'Architecture',
+        title: p.expand?.client
+          ? formatClientName(p.expand.client)
+          : 'Architecture',
         date: toDateStr(p.deadline),
         backgroundColor: color.architecture,
         borderColor: color.architecture,
         textColor: '#ffffff',
         extendedProps: {
           eventType: 'architecture',
-          clientName: p.expand?.client?.company_name ?? '—',
+          clientName: p.expand?.client
+            ? formatClientName(p.expand.client)
+            : '—',
           assignee: p.expand?.assignee?.name,
         },
       })
@@ -90,14 +95,16 @@ export function useDashboardCalendarEvents() {
         continue
       result.push({
         id: `civil-${p.id}`,
-        title: p.expand?.client?.company_name ?? 'Civil',
+        title: p.expand?.client ? formatClientName(p.expand.client) : 'Civil',
         date: toDateStr(p.end_date),
         backgroundColor: color.civil,
         borderColor: color.civil,
         textColor: '#ffffff',
         extendedProps: {
           eventType: 'civil',
-          clientName: p.expand?.client?.company_name ?? '—',
+          clientName: p.expand?.client
+            ? formatClientName(p.expand.client)
+            : '—',
           assignee: p.expand?.vendor?.name,
         },
       })
@@ -111,14 +118,18 @@ export function useDashboardCalendarEvents() {
         continue
       result.push({
         id: `int-${p.id}`,
-        title: p.expand?.client?.company_name ?? 'Interior',
+        title: p.expand?.client
+          ? formatClientName(p.expand.client)
+          : 'Interior',
         date: toDateStr(p.deadline),
         backgroundColor: color.interior,
         borderColor: color.interior,
         textColor: '#ffffff',
         extendedProps: {
           eventType: 'interior',
-          clientName: p.expand?.client?.company_name ?? '—',
+          clientName: p.expand?.client
+            ? formatClientName(p.expand.client)
+            : '—',
           assignee: p.expand?.assignee?.name,
         },
       })
@@ -128,14 +139,16 @@ export function useDashboardCalendarEvents() {
       if (!s.schedule) continue
       result.push({
         id: `survey-${s.id}`,
-        title: s.expand?.client?.company_name ?? 'Survey',
+        title: s.expand?.client ? formatClientName(s.expand.client) : 'Survey',
         date: toDateStr(s.schedule),
         backgroundColor: color.survey,
         borderColor: color.survey,
         textColor: '#ffffff',
         extendedProps: {
           eventType: 'survey',
-          clientName: s.expand?.client?.company_name ?? '—',
+          clientName: s.expand?.client
+            ? formatClientName(s.expand.client)
+            : '—',
           assignee: s.expand?.surveyor?.name,
           time: toTimeStr(s.schedule),
         },

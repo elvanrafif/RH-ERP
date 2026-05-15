@@ -4,6 +4,7 @@ import {
   QUOTATION_STATUS,
   INVOICE_DOC_TYPE,
 } from '@/lib/constant'
+import { formatClientName } from '@/components/shared/ClientName'
 import type { TermItem } from './termCalculation'
 import type {
   Granularity,
@@ -228,7 +229,7 @@ export function buildInvoiceRows(
     rows.push({
       id: inv.id,
       invoiceNumber: inv.invoice_number ?? '—',
-      clientName: client?.company_name ?? client?.contact_person ?? '—',
+      clientName: client ? formatClientName(client) : '—',
       projectType: inv.type ?? '—',
       terminValue,
       status: inv.status ?? '—',
@@ -250,7 +251,7 @@ export function buildQuotationRows(
       return {
         id: q.id,
         quotationNumber: q.quotation_number ?? '—',
-        clientName: client?.company_name ?? client?.contact_person ?? '—',
+        clientName: client ? formatClientName(client) : '—',
         totalValue: Number(q.total_price) || 0,
         paidAt: q.created ?? '',
       }

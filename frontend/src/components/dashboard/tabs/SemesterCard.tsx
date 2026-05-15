@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
 import { formatRupiah } from '@/lib/helpers'
+import { formatClientName } from '@/components/shared/ClientName'
 import { useNavigate } from 'react-router-dom'
 import { ChevronRight } from 'lucide-react'
 
@@ -36,8 +37,9 @@ function groupByClient(projects: Project[]): ClientGroup[] {
   const map = new Map<string, ClientGroup>()
   for (const p of projects) {
     const clientId = p.client ?? 'unknown'
-    const clientName =
-      p.expand?.client?.company_name ?? p.expand?.client?.contact_person ?? '—'
+    const clientName = p.expand?.client
+      ? formatClientName(p.expand.client)
+      : '—'
     if (!map.has(clientId)) {
       map.set(clientId, { clientId, clientName, projects: [], totalValue: 0 })
     }

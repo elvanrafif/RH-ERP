@@ -10,6 +10,7 @@ import {
   ArrowRight,
 } from 'lucide-react'
 import { RowActions } from '@/components/shared/RowActions'
+import { ClientName, formatClientName } from '@/components/shared/ClientName'
 import { formatDate, formatRupiah, calculateDuration } from '@/lib/helpers'
 import { getCivilRawStatusConfig } from '@/lib/projects/status'
 
@@ -34,16 +35,21 @@ export const getSipilColumns = (
     enableSorting: false,
     cell: ({ row }) => {
       const client = row.original.expand?.client
-      const clientName = client?.company_name || 'Client Not Found'
-      // const contact = client?.contact_person; // Optional: hide contact for cleaner look
 
       return (
         <div className="flex flex-col min-w-[250px]">
           <span
             className="font-bold text-sm text-slate-800 line-clamp-1"
-            title={clientName}
+            title={client ? formatClientName(client) : 'Client Not Found'}
           >
-            {clientName}
+            {client ? (
+              <ClientName
+                name={client.company_name}
+                salutation={client.salutation}
+              />
+            ) : (
+              'Client Not Found'
+            )}
           </span>
         </div>
       )
