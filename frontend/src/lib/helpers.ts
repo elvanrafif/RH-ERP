@@ -86,9 +86,9 @@ export const formatClientName = (client: {
     : client.company_name
 
 export const getSalutationLabel = (salutation?: string): string => {
-  if (salutation === 'mr') return 'BAPAK'
-  if (salutation === 'mrs' || salutation === 'ms' || salutation === 'miss')
-    return 'IBU'
+  const s = salutation?.toLowerCase().replace(/\./g, '')
+  if (s === 'mr') return 'BAPAK'
+  if (s === 'mrs' || s === 'ms' || s === 'miss') return 'IBU'
   return ''
 }
 
