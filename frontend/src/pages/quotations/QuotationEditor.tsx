@@ -110,7 +110,7 @@ export default function QuotationEditor() {
         const fileName = buildQuotationFileName(
           selectedClientData?.company_name || 'document',
           selectedClientData?.salutation,
-          projectArea
+          quotation?.project_area
         )
         await generatePdf(`${fileName}.pdf`)
         toast.success('PDF downloaded successfully')
@@ -147,7 +147,7 @@ export default function QuotationEditor() {
         const jpegName = buildQuotationFileName(
           selectedClientData?.company_name || 'document',
           selectedClientData?.salutation,
-          projectArea
+          quotation?.project_area
         )
         formData.append('document_file', blob, `${jpegName}.jpg`)
       }
