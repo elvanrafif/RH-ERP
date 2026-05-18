@@ -23,6 +23,7 @@ import { useDocumentExport } from '@/hooks/useDocumentExport'
 import { useWhatsAppShare } from '@/hooks/useWhatsAppShare'
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges'
 import { DEFAULT_QUOTATION_PRICE_PER_METER } from '@/lib/constant'
+import { buildQuotationFileName } from '@/lib/helpers'
 import { useAuth } from '@/contexts/AuthContext'
 
 export default function QuotationEditor() {
@@ -106,10 +107,12 @@ export default function QuotationEditor() {
   const handleDownloadOfficial = () => {
     startDownload(async () => {
       try {
-        const clientName = (selectedClientData?.company_name || 'document')
-          .toUpperCase()
-          .replace(/\s+/g, '_')
-        await generatePdf(`QUOTATION_${clientName}.pdf`)
+        const fileName = buildQuotationFileName(
+          selectedClientData?.company_name || 'document',
+          selectedClientData?.salutation,
+          projectArea
+        )
+        await generatePdf(`${fileName}.pdf`)
         toast.success('PDF downloaded successfully')
       } catch {
         toast.error('Failed to generate PDF')
@@ -141,10 +144,12 @@ export default function QuotationEditor() {
       )
       const blob = await generateJpeg()
       if (blob) {
-        const clientName = (selectedClientData?.company_name || 'Update')
-          .toUpperCase()
-          .replace(/\s+/g, '_')
-        formData.append('document_file', blob, `QUOTATION_${clientName}.jpg`)
+        const jpegName = buildQuotationFileName(
+          selectedClientData?.company_name || 'document',
+          selectedClientData?.salutation,
+          projectArea
+        )
+        formData.append('document_file', blob, `${jpegName}.jpg`)
       }
       return await pb.collection('quotations').update(id as string, formData)
     },

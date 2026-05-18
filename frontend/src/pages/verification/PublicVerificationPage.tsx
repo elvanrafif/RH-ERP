@@ -7,6 +7,7 @@ import { usePublicDocument } from '@/hooks/usePublicDocument'
 import { useDocumentScaling } from '@/hooks/useDocumentScaling'
 import { useDocumentExport } from '@/hooks/useDocumentExport'
 import { A4_BASE_WIDTH } from '@/lib/constant'
+import { buildQuotationFileName } from '@/lib/helpers'
 
 import { InvoicePaper } from '../invoices/components/InvoicePaper'
 import { QuotationPaper } from '../quotations/QuotationPaper'
@@ -30,7 +31,8 @@ export default function PublicVerificationPage() {
     const toastId = toast.loading('Generating PDF...')
     try {
       await document.fonts.ready
-      const clientName = (doc?.expand?.client_id?.company_name || 'document')
+      const client = doc?.expand?.client_id
+      const clientName = (client?.company_name || 'document')
         .toUpperCase()
         .replace(/\s+/g, '_')
       let fileName: string
@@ -39,7 +41,7 @@ export default function PublicVerificationPage() {
         const terminPart = `TERMIN${doc?.active_termin || '1'}`
         fileName = `INVOICE_${typePart}_${terminPart}_${clientName}.pdf`
       } else {
-        fileName = `QUOTATION_${clientName}.pdf`
+        fileName = `${buildQuotationFileName(client?.company_name || 'document', client?.salutation, doc?.project_area)}.pdf`
       }
       await generatePdf(fileName)
       toast.dismiss(toastId)
