@@ -243,7 +243,9 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
           <div className="flex justify-end gap-10">
             <span className="text-xl font-bold">Remaining Payment</span>
             <span className="text-xl font-bold">
-              {formatRupiah(remainingPayment)}
+              {activeTermin === '1' && items[0]?.percent?.toLowerCase() === 'dp'
+                ? ''
+                : formatRupiah(remainingPayment)}
             </span>
           </div>
         </div>
