@@ -85,6 +85,26 @@ export const formatClientName = (client: {
     ? `${client.salutation} ${client.company_name}`
     : client.company_name
 
+export const getSalutationLabel = (salutation?: string): string => {
+  if (salutation === 'mr') return 'BAPAK'
+  if (salutation === 'mrs' || salutation === 'ms' || salutation === 'miss')
+    return 'IBU'
+  return ''
+}
+
+export const buildQuotationFileName = (
+  clientName: string,
+  salutation?: string,
+  projectArea?: number
+): string => {
+  const prefix = projectArea ? 'QUOTATION_UPDATE_DESIGN' : 'QUOTATION_DESIGN'
+  const salutationLabel = getSalutationLabel(salutation)
+  const name = clientName.toUpperCase().replace(/\s+/g, '_')
+  return salutationLabel
+    ? `${prefix}_${salutationLabel}_${name}`
+    : `${prefix}_${name}`
+}
+
 export const getInitials = (name?: string) =>
   name
     ? name
