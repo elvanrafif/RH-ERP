@@ -92,6 +92,27 @@ export const getSalutationLabel = (salutation?: string): string => {
   return ''
 }
 
+export const buildInvoiceFileName = (
+  clientName: string,
+  type: string,
+  activeTermin: string | number,
+  items: { status?: string; paymentDate?: string }[],
+  salutation?: string
+): string => {
+  const activeItem = items[Number(activeTermin) - 1]
+  const isUpdate = !!(
+    activeItem?.status === 'Success' && activeItem?.paymentDate
+  )
+  const prefix = isUpdate ? 'INVOICE_UPDATE' : 'INVOICE'
+  const typePart = type.toUpperCase()
+  const terminPart = `TERMIN${activeTermin}`
+  const salutationLabel = getSalutationLabel(salutation)
+  const name = clientName.toUpperCase().replace(/\s+/g, '_')
+  return salutationLabel
+    ? `${prefix}_${typePart}_${terminPart}_${salutationLabel}_${name}`
+    : `${prefix}_${typePart}_${terminPart}_${name}`
+}
+
 export const buildQuotationFileName = (
   clientName: string,
   salutation?: string,

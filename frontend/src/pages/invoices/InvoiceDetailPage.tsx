@@ -18,6 +18,7 @@ import { useWhatsAppShare } from '@/hooks/useWhatsAppShare'
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges'
 import { recalculateTermItems } from '@/lib/invoicing/termCalculation'
 import type { TermItem } from '@/lib/invoicing/termCalculation'
+import { buildInvoiceFileName } from '@/lib/helpers'
 import {
   DEFAULT_DESIGN_PRICE_PER_METER,
   PAYMENT_ITEM_STATUS,
@@ -159,12 +160,14 @@ export default function InvoiceDetailPage() {
   const handleDownloadOfficial = () => {
     startDownload(async () => {
       try {
-        const clientName = (selectedClientData?.company_name || 'document')
-          .toUpperCase()
-          .replace(/\s+/g, '_')
-        const typePart = type.toUpperCase()
-        const terminPart = `TERMIN${activeTermin}`
-        await generatePdf(`INVOICE_${typePart}_${terminPart}_${clientName}.pdf`)
+        const fileName = buildInvoiceFileName(
+          selectedClientData?.company_name || 'document',
+          type,
+          activeTermin,
+          invoice?.items ?? [],
+          selectedClientData?.salutation
+        )
+        await generatePdf(`${fileName}.pdf`)
         toast.success('PDF downloaded successfully')
       } catch {
         toast.error('Failed to generate PDF')
@@ -199,16 +202,14 @@ export default function InvoiceDetailPage() {
       formData.append('active_termin', activeTermin)
       const blob = await generateJpeg()
       if (blob) {
-        const clientName = (selectedClientData?.company_name || 'Update')
-          .toUpperCase()
-          .replace(/\s+/g, '_')
-        const typePart = type.toUpperCase()
-        const terminPart = `TERMIN${activeTermin}`
-        formData.append(
-          'document_file',
-          blob,
-          `INVOICE_${typePart}_${terminPart}_${clientName}.jpg`
+        const jpegFileName = buildInvoiceFileName(
+          selectedClientData?.company_name || 'document',
+          type,
+          activeTermin,
+          items,
+          selectedClientData?.salutation
         )
+        formData.append('document_file', blob, `${jpegFileName}.jpg`)
       }
       return await pb.collection('invoices').update(id as string, formData)
     },
