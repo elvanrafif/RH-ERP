@@ -75,6 +75,7 @@ export function InvoiceEditorSettings({
               step={1}
               min={0}
               placeholder="0"
+              decimal
             />
           </div>
           <div className="space-y-1">

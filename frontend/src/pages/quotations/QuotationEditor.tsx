@@ -253,6 +253,7 @@ export default function QuotationEditor() {
                   step={1}
                   min={0}
                   placeholder="0"
+                  decimal
                   disabled={isRestricted}
                 />
               </div>
