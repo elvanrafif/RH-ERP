@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback, useTransition } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
 import { toast } from 'sonner'
@@ -12,6 +12,8 @@ import { InvoicePaper } from './components/InvoicePaper'
 import { InvoiceEditorSettings } from './components/InvoiceEditorSettings'
 import { PaymentTermsEditor } from './components/PaymentTermsEditor'
 import { DocumentEditorLayout } from '@/components/editors/DocumentEditorLayout'
+import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog'
+import { useAuth } from '@/contexts/AuthContext'
 import { useDocumentScaling } from '@/hooks/useDocumentScaling'
 import { useDocumentExport } from '@/hooks/useDocumentExport'
 import { useWhatsAppShare } from '@/hooks/useWhatsAppShare'
@@ -26,7 +28,9 @@ import {
 
 export default function InvoiceDetailPage() {
   const { id } = useParams()
+  const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { isSuperAdmin } = useAuth()
   const componentRef = useRef<HTMLDivElement>(null)
 
   const { containerRef: previewContainerRef, scale: previewScale } =
@@ -57,6 +61,7 @@ export default function InvoiceDetailPage() {
   )
   const [manualTotal, setManualTotal] = useState(0)
   const [discountPercent, setDiscountPercent] = useState(0)
+  const [deleteOpen, setDeleteOpen] = useState(false)
 
   const qrLink = `${import.meta.env.VITE_FE_LINK_URL}/verify/invoices/${id}`
 
@@ -222,6 +227,16 @@ export default function InvoiceDetailPage() {
     onError: () => toast.error('Failed to save changes'),
   })
 
+  const deleteMutation = useMutation({
+    mutationFn: () => pb.collection('invoices').delete(id as string),
+    onSuccess: () => {
+      toast.success('Invoice deleted')
+      queryClient.invalidateQueries({ queryKey: ['invoices'] })
+      navigate('/invoices')
+    },
+    onError: () => toast.error('Failed to delete invoice'),
+  })
+
   if (isLoading)
     return (
       <div className="flex h-screen items-center justify-center">
@@ -230,118 +245,130 @@ export default function InvoiceDetailPage() {
     )
 
   return (
-    <DocumentEditorLayout
-      documentNumber={invoice?.invoice_number || ''}
-      hasUnsavedChanges={hasUnsavedChanges}
-      onBack={handleBack}
-      totalLabel="Total"
-      total={grandTotal}
-      isSaving={saveMutation.isPending}
-      isDownloading={isDownloading}
-      onSave={() => saveMutation.mutate()}
-      onShareWA={handleShareWA}
-      onDownload={handleDownloadOfficial}
-      previewContainerRef={previewContainerRef}
-      previewScale={previewScale}
-      leftPanel={
-        <div className="p-4 sm:p-6 space-y-6">
-          <InvoiceEditorSettings
+    <>
+      <DocumentEditorLayout
+        documentNumber={invoice?.invoice_number || ''}
+        hasUnsavedChanges={hasUnsavedChanges}
+        onBack={handleBack}
+        totalLabel="Total"
+        total={grandTotal}
+        isSaving={saveMutation.isPending}
+        isDownloading={isDownloading}
+        onSave={() => saveMutation.mutate()}
+        onShareWA={handleShareWA}
+        onDownload={handleDownloadOfficial}
+        onDelete={isSuperAdmin ? () => setDeleteOpen(true) : undefined}
+        isDeleting={deleteMutation.isPending}
+        previewContainerRef={previewContainerRef}
+        previewScale={previewScale}
+        leftPanel={
+          <div className="p-4 sm:p-6 space-y-6">
+            <InvoiceEditorSettings
+              type={type}
+              selectedClientId={selectedClientId}
+              date={date}
+              projectArea={projectArea}
+              pricePerMeter={pricePerMeter}
+              manualTotal={manualTotal}
+              discountPercent={discountPercent}
+              onClientChange={handleClientChange}
+              onClientSelect={(client) => {
+                setSelectedClientData(client)
+                markAsDirty()
+              }}
+              onDateChange={(val) => {
+                setDate(val)
+                markAsDirty()
+              }}
+              onProjectAreaChange={(val) => {
+                setProjectArea(val)
+                markAsDirty()
+              }}
+              onPricePerMeterChange={(val) => {
+                setPricePerMeter(val)
+                markAsDirty()
+              }}
+              onManualTotalChange={(val) => {
+                setManualTotal(val)
+                markAsDirty()
+              }}
+              onDiscountPercentChange={(val) => {
+                setDiscountPercent(val)
+                markAsDirty()
+              }}
+            />
+
+            <div className="space-y-4 border-b pb-6">
+              <div>
+                <Label className="text-xs mb-2 font-semibold text-slate-500 block">
+                  Internal Notes
+                </Label>
+                <Textarea
+                  value={notes}
+                  onChange={(e) => {
+                    setNotes(e.target.value)
+                    markAsDirty()
+                  }}
+                  className="text-xs min-h-[60px]"
+                  placeholder="e.g. Revised twice, additional fees applied..."
+                />
+              </div>
+              <div>
+                <Label className="text-xs mb-2 font-semibold text-slate-500 block">
+                  Bank Details (PDF Footer)
+                </Label>
+                <Textarea
+                  value={bankDetails}
+                  onChange={(e) => {
+                    setBankDetails(e.target.value)
+                    markAsDirty()
+                  }}
+                  className="text-xs min-h-[60px] resize-none"
+                />
+              </div>
+            </div>
+
+            <PaymentTermsEditor
+              items={items}
+              activeTermin={activeTermin}
+              onUpdateItem={handleUpdateItem}
+              onPercentChange={handlePercentChange}
+              onActiveTerminChange={(val) => {
+                setActiveTermin(val)
+                markAsDirty()
+              }}
+              onAddTerm={handleAddTerm}
+              onRemoveTerm={handleRemoveTerm}
+            />
+          </div>
+        }
+        preview={
+          <InvoicePaper
+            ref={componentRef}
             type={type}
-            selectedClientId={selectedClientId}
+            invoiceNumber={invoice?.invoice_number}
             date={date}
+            activeTermin={activeTermin}
+            client={selectedClientData}
             projectArea={projectArea}
             pricePerMeter={pricePerMeter}
-            manualTotal={manualTotal}
+            contractValue={contractValue}
             discountPercent={discountPercent}
-            onClientChange={handleClientChange}
-            onClientSelect={(client) => {
-              setSelectedClientData(client)
-              markAsDirty()
-            }}
-            onDateChange={(val) => {
-              setDate(val)
-              markAsDirty()
-            }}
-            onProjectAreaChange={(val) => {
-              setProjectArea(val)
-              markAsDirty()
-            }}
-            onPricePerMeterChange={(val) => {
-              setPricePerMeter(val)
-              markAsDirty()
-            }}
-            onManualTotalChange={(val) => {
-              setManualTotal(val)
-              markAsDirty()
-            }}
-            onDiscountPercentChange={(val) => {
-              setDiscountPercent(val)
-              markAsDirty()
-            }}
-          />
-
-          <div className="space-y-4 border-b pb-6">
-            <div>
-              <Label className="text-xs mb-2 font-semibold text-slate-500 block">
-                Internal Notes
-              </Label>
-              <Textarea
-                value={notes}
-                onChange={(e) => {
-                  setNotes(e.target.value)
-                  markAsDirty()
-                }}
-                className="text-xs min-h-[60px]"
-                placeholder="e.g. Revised twice, additional fees applied..."
-              />
-            </div>
-            <div>
-              <Label className="text-xs mb-2 font-semibold text-slate-500 block">
-                Bank Details (PDF Footer)
-              </Label>
-              <Textarea
-                value={bankDetails}
-                onChange={(e) => {
-                  setBankDetails(e.target.value)
-                  markAsDirty()
-                }}
-                className="text-xs min-h-[60px] resize-none"
-              />
-            </div>
-          </div>
-
-          <PaymentTermsEditor
+            grandTotal={grandTotal}
             items={items}
-            activeTermin={activeTermin}
-            onUpdateItem={handleUpdateItem}
-            onPercentChange={handlePercentChange}
-            onActiveTerminChange={(val) => {
-              setActiveTermin(val)
-              markAsDirty()
-            }}
-            onAddTerm={handleAddTerm}
-            onRemoveTerm={handleRemoveTerm}
+            bankDetails={bankDetails}
+            qrLink={qrLink}
           />
-        </div>
-      }
-      preview={
-        <InvoicePaper
-          ref={componentRef}
-          type={type}
-          invoiceNumber={invoice?.invoice_number}
-          date={date}
-          activeTermin={activeTermin}
-          client={selectedClientData}
-          projectArea={projectArea}
-          pricePerMeter={pricePerMeter}
-          contractValue={contractValue}
-          discountPercent={discountPercent}
-          grandTotal={grandTotal}
-          items={items}
-          bankDetails={bankDetails}
-          qrLink={qrLink}
-        />
-      }
-    />
+        }
+      />
+      <DeleteConfirmDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        title="Delete Invoice?"
+        description={`This will permanently delete invoice ${invoice?.invoice_number ?? ''}. This action cannot be undone and all data will be lost.`}
+        onConfirm={() => deleteMutation.mutate()}
+        isLoading={deleteMutation.isPending}
+      />
+    </>
   )
 }

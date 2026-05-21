@@ -8,6 +8,7 @@ import {
   Loader2,
   Save,
   Share2,
+  Trash2,
 } from 'lucide-react'
 import { formatRupiah } from '@/lib/helpers'
 import { A4_BASE_WIDTH } from '@/lib/constant'
@@ -25,6 +26,8 @@ interface DocumentEditorLayoutProps {
   onSave: () => void
   onShareWA: () => void
   onDownload: () => void
+  onDelete?: () => void
+  isDeleting?: boolean
   previewContainerRef: RefObject<HTMLDivElement | null>
   previewScale: number
   leftPanel: ReactNode
@@ -42,6 +45,8 @@ export function DocumentEditorLayout({
   onSave,
   onShareWA,
   onDownload,
+  onDelete,
+  isDeleting = false,
   previewContainerRef,
   previewScale,
   leftPanel,
@@ -50,14 +55,14 @@ export function DocumentEditorLayout({
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit')
 
   const actionButtons = () => (
-    <div className="flex gap-2 w-full lg:w-auto overflow-x-auto pb-1 lg:pb-0 scrollbar-hide justify-center lg:justify-start">
+    <div className="flex gap-2 w-full lg:w-auto overflow-x-auto pb-1 lg:pb-0 scrollbar-hide justify-start lg:justify-start px-0.5">
       <Button
         variant="outline"
         size="sm"
         onClick={onSave}
         disabled={isSaving}
         className={cn(
-          'whitespace-nowrap h-8 text-[11px] px-3 flex-1 lg:flex-none max-w-[120px] lg:max-w-none',
+          'whitespace-nowrap h-8 text-[11px] px-3 shrink-0',
           hasUnsavedChanges ? 'border-blue-500 text-blue-600' : ''
         )}
       >
@@ -92,6 +97,25 @@ export function DocumentEditorLayout({
         )}
         <span>{isDownloading ? 'Generating...' : 'Download PDF'}</span>
       </Button>
+      {onDelete && (
+        <>
+          <div className="lg:hidden h-8 w-px bg-slate-200 shrink-0 self-center" />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onDelete}
+            disabled={isDeleting}
+            className="lg:hidden text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 whitespace-nowrap h-8 text-[11px] px-3 shrink-0"
+          >
+            {isDeleting ? (
+              <Loader2 className="animate-spin mr-1.5 h-3.5 w-3.5" />
+            ) : (
+              <Trash2 className="mr-1.5 h-3.5 w-3.5" />
+            )}
+            <span>Delete</span>
+          </Button>
+        </>
+      )}
     </div>
   )
 
@@ -116,6 +140,25 @@ export function DocumentEditorLayout({
               <ArrowLeft className="h-4 w-4 mr-1 md:mr-2" />
               <span className="hidden sm:inline">Back</span>
             </Button>
+            {onDelete && (
+              <>
+                <div className="hidden lg:block h-6 w-px bg-slate-200" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={onDelete}
+                  disabled={isDeleting}
+                  className="hidden lg:flex h-8 px-2 text-red-500 hover:text-red-600 hover:bg-red-50"
+                  title="Delete"
+                >
+                  {isDeleting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
+                </Button>
+              </>
+            )}
             <div className="h-6 w-px bg-slate-200 hidden md:block" />
             <div className="flex items-center gap-1.5">
               <span className="font-semibold text-xs sm:text-sm font-mono truncate max-w-[120px] sm:max-w-none">
