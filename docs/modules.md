@@ -43,9 +43,9 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 
 | Modul | Status | Catatan |
 |---|---|---|
-| Quotations | ✅ | Table, editor A4, print/download, WhatsApp share (pesan formal profesional); QR code di paper dilabeli "Scan to Verify" |
+| Quotations | ✅ | Table, editor A4, print/download, WhatsApp share (pesan formal profesional); QR code di paper dilabeli "Scan to Verify"; area m² mendukung decimal; file name format: `QUOTATION_<SALUTATION>_<CLIENT>_<AREA>m2`; delete (superadmin only) dari editor dengan konfirmasi dialog |
 | Quotation — Restricted Access | ✅ | Role socmed: bisa buat quotation tapi field finansial disembunyikan |
-| Invoices | ✅ | Table, editor A4, payment terms, print/download, WhatsApp share (pesan formal profesional); QR code di paper dilabeli "Scan to Verify"; filter active termin (1–6) di table; payment terms editor: term name editable, Set Active per card, Select term type (Percentage/Fixed DP/Settlement/Custom Amount), toast warning jika total % > 100 |
+| Invoices | ✅ | Table, editor A4, payment terms, print/download, WhatsApp share (pesan formal profesional); QR code di paper dilabeli "Scan to Verify"; filter active termin (1–6) di table; payment terms editor: term name editable, Set Active per card, Select term type (Percentage/Fixed DP/Settlement/Custom Amount), toast warning jika total % > 100; area m² mendukung decimal; file name format: `INVOICE_<TYPE>_TERMIN<N>_<SALUTATION>_<CLIENT>` (prefix `INVOICE_UPDATE` jika termin sudah paid); delete (superadmin only) dari editor dengan konfirmasi dialog |
 | Public Verification | ✅ | Halaman publik untuk verifikasi dokumen via QR/link |
 
 ---

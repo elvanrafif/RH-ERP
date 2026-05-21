@@ -13,7 +13,7 @@ frontend/src/
 │   │   └── route.tsx          # ProtectedRoute, PublicRoute, FallbackDecider
 │   ├── layout/                # AppLayout, Sidebar, SplashScreen
 │   │   └── Sidebar/           # SidebarNav, NavItem, DeadlineNotificationBell/Item/Popover
-│   ├── editors/               # DocumentEditorLayout
+│   ├── editors/               # DocumentEditorLayout — shared layout untuk quotation & invoice editor; props: onDelete? + isDeleting? untuk tombol delete superadmin (desktop: icon di header kiri, mobile: tombol di action row)
 │   ├── dialogs/               # CreateDocumentDialog
 │   ├── filters/               # DocumentToolbar
 │   ├── forms/                 # ClientComboboxField
@@ -32,7 +32,7 @@ frontend/src/
 │                              # TopInvoicesList, TopQuotationsList
 ├── hooks/                     # Custom hooks — satu hook satu tanggung jawab
 ├── lib/
-│   ├── helpers.ts             # Format tanggal, rupiah, avatar, formatDateTime, formatDateLongEn, getRemainingTime
+│   ├── helpers.ts             # Format tanggal, rupiah, avatar, formatDateTime, formatDateLongEn, getRemainingTime, buildInvoiceFileName, buildQuotationFileName, getSalutationLabel
 │   ├── constant.ts            # Semua konstanta global
 │   ├── booleans.ts            # Boolean utility helpers
 │   ├── masking.ts             # Display label helpers: MaskingTextByDivision, MaskingTextByInvoiceType, MaskingTextByArchitectureStatus
