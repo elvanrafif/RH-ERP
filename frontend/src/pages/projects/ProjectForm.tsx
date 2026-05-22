@@ -91,10 +91,7 @@ export function ProjectForm({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       client_id: initialData?.client || '',
-      assignee:
-        initialData?.assignee ||
-        (isCivil && !isSuperAdmin ? user?.id : '') ||
-        '',
+      assignee: initialData?.assignee || (!isSuperAdmin ? user?.id : '') || '',
       status: initialData?.status || statusOptions[0]?.value || '',
       contract_value: initialData?.contract_value || 0,
       deadline: initialData?.deadline
