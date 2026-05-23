@@ -69,6 +69,9 @@ export interface Project {
   luas_tanah?: number
   luas_bangunan?: number
   notes?: string
+  is_on_hold?: boolean
+  hold_reason?: string
+  held_at?: string
 
   meta_data: {
     area_scope?: string // Interior only
