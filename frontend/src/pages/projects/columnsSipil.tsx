@@ -119,7 +119,7 @@ export const getSipilColumns = (
     },
     cell: ({ row }) => {
       // 1. Fetch Data
-      const value = row.original.contract_value
+      const value = row.original.expand?.invoice_id?.total_amount
       const start = row.original.start_date
       const end = row.original.end_date
 

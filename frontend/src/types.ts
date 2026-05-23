@@ -59,7 +59,7 @@ export interface Project {
   type: 'architecture' | 'civil' | 'interior'
   status: string
   value: number
-  contract_value: number
+  contract_value?: number
   deadline: string
   start_date?: string
   end_date?: string

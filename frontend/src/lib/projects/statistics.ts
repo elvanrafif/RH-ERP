@@ -14,12 +14,12 @@ interface StatUser {
 
 interface StatProject {
   type: string
-  contract_value?: number
   value?: number
   total_amount?: number
   expand?: {
     vendor?: { name: string }
     client?: { company_name: string; salutation?: string }
+    invoice_id?: { total_amount?: number }
   }
   assignee?: string | string[]
 }
@@ -105,7 +105,8 @@ export function buildWorkloadData(
 
   projects.forEach((p) => {
     const type = p.type
-    const projectValue = p.contract_value || p.value || p.total_amount || 0
+    const projectValue =
+      p.expand?.invoice_id?.total_amount || p.value || p.total_amount || 0
     const clientName = p.expand?.client
       ? formatClientName(p.expand.client)
       : '—'

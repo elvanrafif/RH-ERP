@@ -45,7 +45,7 @@ function groupByClient(projects: Project[]): ClientGroup[] {
     }
     const group = map.get(clientId)!
     group.projects.push(p)
-    group.totalValue += p.contract_value ?? 0
+    group.totalValue += p.expand?.invoice_id?.total_amount ?? 0
   }
   return Array.from(map.values()).sort((a, b) => b.totalValue - a.totalValue)
 }
@@ -108,7 +108,7 @@ function ClientRow({ group }: ClientRowProps) {
               </Badge>
               <span className="flex-1" />
               <span className="text-xs text-slate-500 tabular-nums whitespace-nowrap">
-                {formatRupiah(project.contract_value)}
+                {formatRupiah(project.expand?.invoice_id?.total_amount ?? 0)}
               </span>
             </div>
           ))}
@@ -132,7 +132,7 @@ export function SemesterCard({
   isLoading,
 }: SemesterCardProps) {
   const totalValue = projects.reduce(
-    (sum, p) => sum + (p.contract_value ?? 0),
+    (sum, p) => sum + (p.expand?.invoice_id?.total_amount ?? 0),
     0
   )
   const groups = groupByClient(projects)

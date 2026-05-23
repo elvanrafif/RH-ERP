@@ -255,27 +255,6 @@ export function ProjectTypeFields({
                 </FormItem>
               )}
             />
-            {isSuperAdmin && (
-              <FormField
-                control={control}
-                name="contract_value"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Contract Value (Rp)</FormLabel>
-                    <FormControl>
-                      <NumberInput
-                        value={field.value ?? 0}
-                        onChange={field.onChange}
-                        step={1000000}
-                        min={0}
-                        placeholder="0"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
           </div>
         </>
       )}
@@ -351,27 +330,6 @@ export function ProjectTypeFields({
               )}
             />
           </div>
-          {isSuperAdmin && (
-            <FormField
-              control={control}
-              name="contract_value"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contract Value (Rp)</FormLabel>
-                  <FormControl>
-                    <NumberInput
-                      value={field.value ?? 0}
-                      onChange={field.onChange}
-                      step={1000000}
-                      min={0}
-                      placeholder="0"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          )}
         </>
       )}
 
@@ -474,27 +432,6 @@ export function ProjectTypeFields({
             )}
           />
         </div>
-      )}
-      {isCivil && isSuperAdmin && (
-        <FormField
-          control={control}
-          name="contract_value"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Contract Value (Rp)</FormLabel>
-              <FormControl>
-                <NumberInput
-                  value={field.value ?? 0}
-                  onChange={field.onChange}
-                  step={1000000}
-                  min={0}
-                  placeholder="0"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
       )}
     </>
   )

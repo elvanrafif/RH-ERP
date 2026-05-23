@@ -17,7 +17,6 @@ interface UseProjectFiltersOptions {
 }
 
 interface ProjectStats {
-  totalValue: number
   activeCount: number
 }
 
@@ -34,16 +33,14 @@ export function useProjectFilters({
 
   const { isCivil, isInterior } = TypeProjectsBoolean(projectType)
 
-  // Stats always computed from raw projects — unaffected by filters
   const stats: ProjectStats = useMemo(
     () =>
       projects.reduce(
-        (acc, p) => {
-          acc.totalValue += p.contract_value || 0
+        (acc) => {
           acc.activeCount++
           return acc
         },
-        { totalValue: 0, activeCount: 0 }
+        { activeCount: 0 }
       ),
     [projects]
   )

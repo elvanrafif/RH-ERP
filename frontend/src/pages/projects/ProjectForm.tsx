@@ -70,18 +70,6 @@ export function ProjectForm({
   }
   const invoiceType = invoiceTypeMap[fixedType]
 
-  const { data: linkedInvoices = [] } = useQuery({
-    queryKey: ['invoices-for-project', invoiceType],
-    queryFn: () =>
-      pb.collection('invoices').getFullList({
-        filter: `type = "${invoiceType}"`,
-        expand: 'client_id',
-        fields: 'id,invoice_number,expand.client_id.company_name',
-        sort: '-created',
-      }),
-    enabled: isSuperAdmin,
-  })
-
   // Saat edit, pastikan vendor yang sudah tersimpan tetap muncul walau tidak aktif
   const assignedVendorId = initialData?.vendor
   const assignedVendor = initialData?.expand?.vendor
@@ -112,7 +100,6 @@ export function ProjectForm({
       client_id: initialData?.client || '',
       assignee: initialData?.assignee || (!isSuperAdmin ? user?.id : '') || '',
       status: initialData?.status || statusOptions[0]?.value || '',
-      contract_value: initialData?.contract_value || 0,
       deadline: initialData?.deadline
         ? initialData.deadline.substring(0, 10)
         : '',
@@ -144,6 +131,19 @@ export function ProjectForm({
   })
 
   const clientId = form.watch('client_id')
+
+  const { data: linkedInvoices = [] } = useQuery({
+    queryKey: ['invoices-for-project', invoiceType, clientId],
+    queryFn: () =>
+      pb.collection('invoices').getFullList({
+        filter: `type = "${invoiceType}" && client_id = "${clientId}"`,
+        expand: 'client_id',
+        fields: 'id,invoice_number,expand.client_id.company_name',
+        sort: '-created',
+      }),
+    enabled: isSuperAdmin && !!clientId,
+  })
+
   const prevClientRef = useRef(clientId)
   const { architectureProjects } = useProjectArchitectureByClient(
     isCivil ? clientId : undefined
@@ -170,7 +170,6 @@ export function ProjectForm({
         assignee: values.assignee || null,
         status: values.status,
         type: fixedType,
-        contract_value: values.contract_value,
         deadline: values.deadline || null,
         start_date: values.start_date || null,
         end_date: values.end_date || null,
