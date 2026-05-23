@@ -1,13 +1,19 @@
-import { useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
 import type { Project, User } from '@/types'
-import { DIVISION } from '@/lib/constant'
+import { PROJECT_TYPE_TO_DIVISION } from '@/lib/constant'
+import { MaskingTextByArchitectureStatus } from '@/lib/masking'
 import { toast } from 'sonner'
-
+import { useRole } from '@/hooks/useRole'
+import { projectSchema } from '@/lib/validations/project'
+import type { ProjectFormValues } from '@/lib/validations/project'
+import { ClientComboboxField } from '@/components/forms/ClientComboboxField'
+import { AdditionalLinksField } from '@/components/forms/AdditionalLinksField'
+import { NumberInput } from '@/components/shared/NumberInput'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Form,
@@ -15,6 +21,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from '@/components/ui/form'
 import {
   Select,
@@ -24,96 +31,39 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Loader2 } from 'lucide-react'
-import { TypeProjectsBoolean } from '@/lib/booleans'
-import { useRole } from '@/hooks/useRole'
-import { projectSchema } from '@/lib/validations/project'
-import type { ProjectFormValues } from '@/lib/validations/project'
-import { ClientComboboxField } from '@/components/forms/ClientComboboxField'
-import { ProjectTypeFields } from './components/ProjectTypeFields'
-import { AdditionalLinksField } from './components/AdditionalLinksField'
-import { useVendors } from '@/hooks/useVendors'
-import { useProjectArchitectureByClient } from '@/hooks/useProjectArchitectureByClient'
 
-interface ProjectFormProps {
+const STATUS_OPTIONS = ['denah', 'fasad', 'detail_drawing', 'finish'].map(
+  (value) => ({ value, label: MaskingTextByArchitectureStatus(value) })
+)
+
+interface ProjectArchitectureFormProps {
   onSuccess?: () => void
   initialData?: Project | null
-  fixedType: 'architecture' | 'civil' | 'interior'
-  statusOptions: { value: string; label: string }[]
 }
 
-export function ProjectForm({
+export function ProjectArchitectureForm({
   onSuccess,
   initialData,
-  fixedType,
-  statusOptions,
-}: ProjectFormProps) {
+}: ProjectArchitectureFormProps) {
   const queryClient = useQueryClient()
   const { isSuperAdmin, user } = useRole()
-  const { isArchitecture, isCivil, isInterior } = TypeProjectsBoolean(fixedType)
 
   const { data: users } = useQuery({
     queryKey: ['users-list'],
     queryFn: async () => await pb.collection('users').getFullList<User>(),
   })
 
-  const { vendors: civilVendors } = useVendors(
-    isCivil ? { projectType: 'civil', activeOnly: true } : {}
-  )
-  const { vendors: interiorVendors } = useVendors(
-    isInterior ? { projectType: 'interior', activeOnly: true } : {}
-  )
-
-  const invoiceTypeMap: Record<string, string> = {
-    architecture: 'design',
-    civil: 'sipil',
-    interior: 'interior',
-  }
-  const invoiceType = invoiceTypeMap[fixedType]
-
-  // Saat edit, pastikan vendor yang sudah tersimpan tetap muncul walau tidak aktif
-  const assignedVendorId = initialData?.vendor
-  const assignedVendor = initialData?.expand?.vendor
-
-  const resolvedCivilVendors =
-    isCivil &&
-    assignedVendorId &&
-    assignedVendor &&
-    !civilVendors.find((v) => v.id === assignedVendorId)
-      ? [...civilVendors, assignedVendor]
-      : civilVendors
-
-  const resolvedInteriorVendors =
-    isInterior &&
-    assignedVendorId &&
-    assignedVendor &&
-    !interiorVendors.find((v) => v.id === assignedVendorId)
-      ? [...interiorVendors, assignedVendor]
-      : interiorVendors
-
-  const civilUsers = users?.filter(
-    (u) => u.division?.toLowerCase() === DIVISION.CIVIL
-  )
-
   const form = useForm({
     resolver: zodResolver(projectSchema),
     defaultValues: {
       client_id: initialData?.client || '',
       assignee: initialData?.assignee || (!isSuperAdmin ? user?.id : '') || '',
-      status: initialData?.status || statusOptions[0]?.value || '',
+      status: initialData?.status || STATUS_OPTIONS[0].value,
       deadline: initialData?.deadline
         ? initialData.deadline.substring(0, 10)
         : '',
-      start_date: initialData?.start_date
-        ? initialData.start_date.substring(0, 10)
-        : '',
-      end_date: initialData?.end_date
-        ? initialData.end_date.substring(0, 10)
-        : '',
       luas_tanah: initialData?.luas_tanah || 0,
       luas_bangunan: initialData?.luas_bangunan || 0,
-      vendor: initialData?.vendor || '',
-      source_architecture: initialData?.source_architecture || '__none__',
-      area_scope: initialData?.meta_data?.area_scope || '',
       notes: initialData?.notes || '',
       invoice_id: initialData?.invoice_id || '__none__',
       additional_links: initialData?.meta_data?.additional_links?.length
@@ -133,10 +83,10 @@ export function ProjectForm({
   const clientId = form.watch('client_id')
 
   const { data: linkedInvoices = [] } = useQuery({
-    queryKey: ['invoices-for-project', invoiceType, clientId],
+    queryKey: ['invoices-for-project', 'design', clientId],
     queryFn: () =>
       pb.collection('invoices').getFullList({
-        filter: `type = "${invoiceType}" && client_id = "${clientId}"`,
+        filter: `type = "design" && client_id = "${clientId}"`,
         expand: 'client_id',
         fields: 'id,invoice_number,expand.client_id.company_name',
         sort: '-created',
@@ -144,24 +94,14 @@ export function ProjectForm({
     enabled: isSuperAdmin && !!clientId,
   })
 
-  const prevClientRef = useRef(clientId)
-  const { architectureProjects } = useProjectArchitectureByClient(
-    isCivil ? clientId : undefined
-  )
-  useEffect(() => {
-    if (prevClientRef.current !== clientId) {
-      prevClientRef.current = clientId
-      if (isCivil) form.setValue('source_architecture', '__none__')
-    }
-  }, [clientId])
-
-  useEffect(() => {
-    if (isCivil && isSuperAdmin && !initialData && civilUsers?.length) {
-      if (!form.getValues('assignee')) {
-        form.setValue('assignee', civilUsers[0].id)
-      }
-    }
-  }, [civilUsers?.length])
+  const availableUsers =
+    users?.filter(
+      (u) =>
+        u.division?.toLowerCase() === PROJECT_TYPE_TO_DIVISION['architecture']
+    ) ?? []
+  if (!isSuperAdmin && user && !availableUsers.find((u) => u.id === user.id)) {
+    availableUsers.push(user)
+  }
 
   const mutation = useMutation({
     mutationFn: async (values: ProjectFormValues) => {
@@ -169,22 +109,14 @@ export function ProjectForm({
         client: values.client_id,
         assignee: values.assignee || null,
         status: values.status,
-        type: fixedType,
+        type: 'architecture' as const,
         deadline: values.deadline || null,
-        start_date: values.start_date || null,
-        end_date: values.end_date || null,
         luas_tanah: values.luas_tanah || null,
         luas_bangunan: values.luas_bangunan || null,
-        vendor: values.vendor || null,
-        source_architecture:
-          values.source_architecture === '__none__'
-            ? null
-            : values.source_architecture || null,
         notes: values.notes || null,
         invoice_id:
           values.invoice_id === '__none__' ? null : values.invoice_id || null,
         meta_data: {
-          area_scope: values.area_scope,
           additional_links:
             values.additional_links
               ?.filter((l) => l.url.trim())
@@ -201,9 +133,7 @@ export function ProjectForm({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['projects'] })
       toast.success(
-        initialData
-          ? 'Project updated successfully'
-          : 'Project created successfully'
+        initialData ? 'Project updated successfully' : 'Project created successfully'
       )
       onSuccess?.()
     },
@@ -221,15 +151,12 @@ export function ProjectForm({
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ClientComboboxField control={form.control} name="client_id" />
-
           <FormField
             control={form.control}
             name="status"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>
-                  {isCivil ? 'Project Status' : 'Status / Stage'}
-                </FormLabel>
+                <FormLabel>Status / Stage</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   value={field.value as string}
@@ -240,7 +167,7 @@ export function ProjectForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {statusOptions.map((opt) => (
+                    {STATUS_OPTIONS.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
                         {opt.label}
                       </SelectItem>
@@ -252,20 +179,97 @@ export function ProjectForm({
           />
         </div>
 
-        <ProjectTypeFields
-          control={form.control}
-          isCivil={isCivil}
-          isArchitecture={isArchitecture}
-          isInterior={isInterior}
-          isSuperAdmin={isSuperAdmin}
-          user={user}
-          users={users}
-          civilUsers={civilUsers}
-          civilVendors={resolvedCivilVendors}
-          interiorVendors={resolvedInteriorVendors}
-          fixedType={fixedType}
-          architectureProjects={architectureProjects}
-        />
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="luas_tanah"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Land Area (m²)</FormLabel>
+                <FormControl>
+                  <NumberInput
+                    value={field.value ?? 0}
+                    onChange={field.onChange}
+                    step={0.5}
+                    min={0}
+                    decimal
+                    placeholder="0"
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="luas_bangunan"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Building Area (m²)</FormLabel>
+                <FormControl>
+                  <NumberInput
+                    value={field.value ?? 0}
+                    onChange={field.onChange}
+                    step={0.5}
+                    min={0}
+                    decimal
+                    placeholder="0"
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <FormField
+            control={form.control}
+            name="assignee"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>PIC Design / Drafter</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value as string}
+                  disabled={!isSuperAdmin}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select PIC" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {isSuperAdmin && (
+                      <SelectItem value="unassigned">-- Unassigned --</SelectItem>
+                    )}
+                    {availableUsers.map((u) => (
+                      <SelectItem key={u.id} value={u.id}>
+                        {u.name || u.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="deadline"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Target Deadline</FormLabel>
+                <FormControl>
+                  <Input
+                    type="date"
+                    {...field}
+                    value={field.value || ''}
+                    className="block w-full bg-white [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <AdditionalLinksField control={form.control} />
 

@@ -23,7 +23,9 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { useMyProjects } from '@/hooks/useMyProjects'
 import { useMyCalendarEvents } from '@/hooks/useMyCalendarEvents'
 import { DashboardCalendar } from '@/components/dashboard/DashboardCalendar'
-import { ProjectDetailsModal } from '@/pages/projects/ProjectDetailsModal'
+import { ProjectArchitectureDetailsModal } from '@/pages/projects/projectArchitecture/ProjectArchitectureDetailsModal'
+import { ProjectCivilDetailsModal } from '@/pages/projects/projectCivil/ProjectCivilDetailsModal'
+import { ProjectInteriorDetailsModal } from '@/pages/projects/projectInterior/ProjectInteriorDetailsModal'
 import {
   getProjectDeadlineDate,
   getDaysRemaining,
@@ -294,9 +296,25 @@ export function MyProjectsDashboard() {
         </TabsContent>
       </Tabs>
 
-      <ProjectDetailsModal
-        project={selectedProject}
-        open={!!selectedProject}
+      <ProjectArchitectureDetailsModal
+        project={
+          selectedProject?.type === 'architecture' ? selectedProject : null
+        }
+        open={selectedProject?.type === 'architecture'}
+        onOpenChange={(open) => {
+          if (!open) setSelectedProject(null)
+        }}
+      />
+      <ProjectCivilDetailsModal
+        project={selectedProject?.type === 'civil' ? selectedProject : null}
+        open={selectedProject?.type === 'civil'}
+        onOpenChange={(open) => {
+          if (!open) setSelectedProject(null)
+        }}
+      />
+      <ProjectInteriorDetailsModal
+        project={selectedProject?.type === 'interior' ? selectedProject : null}
+        open={selectedProject?.type === 'interior'}
         onOpenChange={(open) => {
           if (!open) setSelectedProject(null)
         }}

@@ -6,7 +6,6 @@ import type {
   DraggableProvidedDragHandleProps,
 } from '@hello-pangea/dnd'
 import type { Project } from '@/types'
-
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -23,7 +22,6 @@ import {
   CalendarClock,
   Pencil,
   Trash2,
-  MapPin,
   Ruler,
   Maximize2,
   StickyNote,
@@ -31,8 +29,6 @@ import {
   ChevronUp,
   FolderOpen,
 } from 'lucide-react'
-
-import { ProjectDetailsModal } from './ProjectDetailsModal'
 import {
   formatDateShort,
   formatRupiah,
@@ -40,23 +36,12 @@ import {
   getInitials,
   getRemainingTime,
 } from '@/lib/helpers'
-import { TypeProjectsBoolean } from '@/lib/booleans'
 import { useRole } from '@/hooks/useRole'
 import { canEditProject } from '@/lib/projects/permissions'
 
-// --- TYPES ---
 export type KanbanColumnDefinition = {
   id: string
   title: string
-  colorClass?: string
-}
-
-interface KanbanProps {
-  data: Project[]
-  columnsConfig: KanbanColumnDefinition[]
-  onEdit: (project: Project) => void
-  onDelete: (project: Project) => void
-  onStatusChange: (id: string, status: string) => void
 }
 
 interface KanbanState {
@@ -65,7 +50,6 @@ interface KanbanState {
   columnOrder: string[]
 }
 
-// --- HELPERS ---
 function buildKanbanState(
   data: Project[],
   columnsConfig: KanbanColumnDefinition[]
@@ -93,21 +77,29 @@ function buildKanbanState(
   return { tasks, columns, columnOrder }
 }
 
-// --- MAIN COMPONENT ---
-export default function ProjectKanban({
+interface ProjectArchitectureKanbanProps {
+  data: Project[]
+  columnsConfig: KanbanColumnDefinition[]
+  onView: (project: Project) => void
+  onEdit: (project: Project) => void
+  onDelete: (project: Project) => void
+  onStatusChange: (id: string, status: string) => void
+}
+
+export default function ProjectArchitectureKanban({
   data,
   columnsConfig,
+  onView,
   onEdit,
   onDelete,
   onStatusChange,
-}: KanbanProps) {
+}: ProjectArchitectureKanbanProps) {
   const { isSuperAdmin, user } = useRole()
   const [boardData, setBoardData] = useState<KanbanState>({
     tasks: {},
     columns: {},
     columnOrder: [],
   })
-  const [projectToView, setProjectToView] = useState<Project | null>(null)
 
   useEffect(() => {
     if (data && columnsConfig)
@@ -167,9 +159,7 @@ export default function ProjectKanban({
           {boardData.columnOrder.map((columnId) => {
             const column = boardData.columns[columnId]
             if (!column) return null
-            const tasksInColumn = column.taskIds.map(
-              (id) => boardData.tasks[id]
-            )
+            const tasksInColumn = column.taskIds.map((id) => boardData.tasks[id])
 
             return (
               <div
@@ -191,13 +181,12 @@ export default function ProjectKanban({
                       ref={provided.innerRef}
                       className={`flex-1 p-2 space-y-3 overflow-y-auto min-h-[100px] transition-colors ${snapshot.isDraggingOver ? 'bg-blue-50/50' : ''}`}
                     >
-                      {tasksInColumn.length === 0 &&
-                        !snapshot.isDraggingOver && (
-                          <div className="flex flex-col items-center justify-center h-24 gap-2 text-slate-300 border-2 border-dashed border-slate-200 rounded-lg mx-0.5">
-                            <FolderOpen className="h-5 w-5" />
-                            <p className="text-xs">No projects</p>
-                          </div>
-                        )}
+                      {tasksInColumn.length === 0 && !snapshot.isDraggingOver && (
+                        <div className="flex flex-col items-center justify-center h-24 gap-2 text-slate-300 border-2 border-dashed border-slate-200 rounded-lg mx-0.5">
+                          <FolderOpen className="h-5 w-5" />
+                          <p className="text-xs">No projects</p>
+                        </div>
+                      )}
                       {tasksInColumn.map((task, index) => {
                         if (!task) return null
                         const canEdit = canEditProject(task, user, isSuperAdmin)
@@ -217,7 +206,7 @@ export default function ProjectKanban({
                                 draggableProps={provided.draggableProps}
                                 dragHandleProps={provided.dragHandleProps}
                                 innerRef={provided.innerRef}
-                                onView={() => setProjectToView(task)}
+                                onView={() => onView(task)}
                                 onEdit={() => onEdit(task)}
                                 onDelete={() => onDelete(task)}
                               />
@@ -234,17 +223,10 @@ export default function ProjectKanban({
           })}
         </div>
       </DragDropContext>
-
-      <ProjectDetailsModal
-        project={projectToView}
-        open={!!projectToView}
-        onOpenChange={(open) => !open && setProjectToView(null)}
-      />
     </TooltipProvider>
   )
 }
 
-// --- KANBAN CARD SUB-COMPONENT ---
 interface KanbanCardProps {
   task: Project
   canEdit: boolean
@@ -271,11 +253,8 @@ function KanbanCard({
   onDelete,
 }: KanbanCardProps) {
   const [showNotes, setShowNotes] = useState(false)
-  const { isInterior, isArchitecture } = TypeProjectsBoolean(task.type)
   const assignee = task.expand?.assignee
-  const clientData = task.expand?.client
   const contractValue = task.expand?.invoice_id?.total_amount
-  const meta = task.meta_data || {}
   const notes = task.notes
 
   return (
@@ -286,29 +265,17 @@ function KanbanCard({
       onClick={onView}
       className={`shadow-sm hover:shadow-md transition-all duration-200 group border-l-4
         ${canEdit && !task.is_on_hold ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
-        ${
-          task.is_on_hold
-            ? 'border-l-orange-300 border-dashed opacity-70'
-            : isInterior
-              ? 'border-l-violet-400'
-              : 'border-l-blue-400'
-        }
+        ${task.is_on_hold ? 'border-l-orange-300 border-dashed opacity-70' : 'border-l-blue-400'}
         ${isDragging ? 'rotate-2 shadow-xl ring-2 ring-primary/20 z-50' : ''}`}
     >
       <CardContent className="p-3 space-y-2.5">
-        {/* Header: badge tipe + menu */}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-1.5">
             <Badge
               variant="secondary"
-              className={`text-[10px] px-1.5 py-0 h-5 font-medium uppercase border
-                ${
-                  isInterior
-                    ? 'bg-violet-50 text-violet-700 border-violet-200'
-                    : 'bg-blue-50 text-blue-700 border-blue-200'
-                }`}
+              className="text-[10px] px-1.5 py-0 h-5 font-medium uppercase border bg-blue-50 text-blue-700 border-blue-200"
             >
-              {task.type}
+              architecture
             </Badge>
             {task.is_on_hold && (
               <Badge
@@ -324,11 +291,11 @@ function KanbanCard({
             actions={
               canEdit
                 ? [
-                    { label: 'Edit', icon: Pencil, onClick: () => onEdit() },
+                    { label: 'Edit', icon: Pencil, onClick: onEdit },
                     {
                       label: 'Delete',
                       icon: Trash2,
-                      onClick: () => onDelete(),
+                      onClick: onDelete,
                       variant: 'destructive',
                       separator: true,
                     },
@@ -338,20 +305,19 @@ function KanbanCard({
           />
         </div>
 
-        {/* Identitas proyek */}
         <div>
           <h4
             className="font-semibold text-sm leading-snug text-slate-900 line-clamp-2"
             title={
-              clientData
-                ? `${clientData.salutation ? clientData.salutation + ' ' : ''}${clientData.company_name}`
+              task.expand?.client
+                ? `${task.expand.client.salutation ? task.expand.client.salutation + ' ' : ''}${task.expand.client.company_name}`
                 : 'Unknown Client'
             }
           >
-            {clientData ? (
+            {task.expand?.client ? (
               <ClientName
-                name={clientData.company_name}
-                salutation={clientData.salutation}
+                name={task.expand.client.company_name}
+                salutation={task.expand.client.salutation}
               />
             ) : (
               'Unknown Client'
@@ -364,39 +330,27 @@ function KanbanCard({
           )}
         </div>
 
-        {/* Interior: area scope */}
-        {isInterior && meta.area_scope && (
-          <div className="flex items-start text-xs text-violet-700 bg-violet-50 px-2 py-1.5 rounded-md border border-violet-100">
-            <MapPin className="h-3 w-3 mr-1.5 mt-0.5 shrink-0" />
-            <span className="line-clamp-2 font-medium">{meta.area_scope}</span>
+        {(Number(task.luas_tanah) > 0 || Number(task.luas_bangunan) > 0) && (
+          <div className="flex justify-center gap-2 flex-wrap text-xs text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100">
+            {Number(task.luas_tanah) > 0 && (
+              <span className="flex items-center gap-1" title="Land Area">
+                <Maximize2 className="h-3 w-3 text-slate-400" />
+                Land: <span className="font-medium">{task.luas_tanah}m²</span>
+              </span>
+            )}
+            {Number(task.luas_tanah) > 0 && Number(task.luas_bangunan) > 0 && (
+              <span className="text-slate-300">|</span>
+            )}
+            {Number(task.luas_bangunan) > 0 && (
+              <span className="flex items-center gap-1" title="Building Area">
+                <Ruler className="h-3 w-3 text-slate-400" />
+                Building:{' '}
+                <span className="font-medium">{task.luas_bangunan}m²</span>
+              </span>
+            )}
           </div>
         )}
 
-        {/* Arsitektur: luas tanah & bangunan */}
-        {isArchitecture &&
-          (Number(task.luas_tanah) > 0 || Number(task.luas_bangunan) > 0) && (
-            <div className="flex justify-center gap-2 flex-wrap text-xs text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100">
-              {Number(task.luas_tanah) > 0 && (
-                <span className="flex items-center gap-1" title="Land Area">
-                  <Maximize2 className="h-3 w-3 text-slate-400" />
-                  Land: <span className="font-medium">{task.luas_tanah}m²</span>
-                </span>
-              )}
-              {Number(task.luas_tanah) > 0 &&
-                Number(task.luas_bangunan) > 0 && (
-                  <span className="text-slate-300">|</span>
-                )}
-              {Number(task.luas_bangunan) > 0 && (
-                <span className="flex items-center gap-1" title="Building Area">
-                  <Ruler className="h-3 w-3 text-slate-400" />
-                  Building:{' '}
-                  <span className="font-medium">{task.luas_bangunan}m²</span>
-                </span>
-              )}
-            </div>
-          )}
-
-        {/* Notes: toggle eksplisit */}
         {notes && (
           <div className="rounded border border-yellow-100 overflow-hidden bg-yellow-50/40">
             <button
@@ -408,9 +362,7 @@ function KanbanCard({
             >
               <div className="flex items-center gap-1.5">
                 <StickyNote className="h-3 w-3 text-yellow-500 shrink-0" />
-                <span className="text-xs text-yellow-600 font-medium">
-                  Notes
-                </span>
+                <span className="text-xs text-yellow-600 font-medium">Notes</span>
               </div>
               {showNotes ? (
                 <ChevronUp className="h-3 w-3 text-yellow-500" />
@@ -426,7 +378,6 @@ function KanbanCard({
           </div>
         )}
 
-        {/* Footer: deadline + assignee */}
         <div className="pt-2 border-t flex items-center justify-between">
           <div
             className="flex items-center gap-1.5 text-xs text-slate-400"
@@ -444,20 +395,13 @@ function KanbanCard({
             <TooltipTrigger>
               <Avatar className="h-6 w-6 border border-white shadow-sm cursor-pointer">
                 <AvatarImage src={getAvatarUrl(assignee) || ''} />
-                <AvatarFallback
-                  className={`text-[10px] ${isInterior ? 'bg-violet-100 text-violet-700' : 'bg-blue-100 text-blue-700'}`}
-                >
+                <AvatarFallback className="text-[10px] bg-blue-100 text-blue-700">
                   {getInitials(assignee?.name)}
                 </AvatarFallback>
               </Avatar>
             </TooltipTrigger>
             <TooltipContent>
               <p>PIC: {assignee?.name || 'Unassigned'}</p>
-              {isInterior && task.expand?.vendor && (
-                <p className="text-[10px] text-slate-300">
-                  Vendor: {task.expand.vendor.name}
-                </p>
-              )}
             </TooltipContent>
           </Tooltip>
         </div>

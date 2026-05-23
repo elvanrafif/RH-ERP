@@ -18,6 +18,8 @@ interface UseProjectFiltersOptions {
 
 interface ProjectStats {
   activeCount: number
+  overdueCount: number
+  nearDeadlineCount: number
 }
 
 export function useProjectFilters({
@@ -33,17 +35,20 @@ export function useProjectFilters({
 
   const { isCivil, isInterior } = TypeProjectsBoolean(projectType)
 
-  const stats: ProjectStats = useMemo(
-    () =>
-      projects.reduce(
-        (acc) => {
-          acc.activeCount++
-          return acc
-        },
-        { activeCount: 0 }
-      ),
-    [projects]
-  )
+  const stats: ProjectStats = useMemo(() => {
+    let activeCount = 0
+    let overdueCount = 0
+    let nearDeadlineCount = 0
+    for (const p of projects) {
+      activeCount++
+      const date = getProjectDeadlineDate(p)
+      if (!date) continue
+      const days = getDaysRemaining(date)
+      if (days < 0) overdueCount++
+      else if (days <= deadlineWarningDays) nearDeadlineCount++
+    }
+    return { activeCount, overdueCount, nearDeadlineCount }
+  }, [projects, deadlineWarningDays])
 
   const filteredProjects = useMemo(() => {
     let result = [...projects]

@@ -2,11 +2,11 @@ import { useState } from 'react'
 import type { Project } from '@/types'
 import { Separator } from '@/components/ui/separator'
 import { HardHat, PencilRuler, ArrowRight, User, Ruler } from 'lucide-react'
-import { useProjectCivilByClient } from '@/hooks/useProjectCivilByClient'
-import { useProjectArchitectureByClient } from '@/hooks/useProjectArchitectureByClient'
+import { useProjectCivilByClient } from '../hooks/useProjectCivilByClient'
+import { useProjectArchitectureByClient } from '../../projectArchitecture/hooks/useProjectArchitectureByClient'
 import { TypeProjectsBoolean } from '@/lib/booleans'
 import { MaskingTextByArchitectureStatus } from '@/lib/masking'
-import { ProjectDetailsModal } from '../ProjectDetailsModal'
+import { ProjectArchitectureDetailsModal } from '../../projectArchitecture/ProjectArchitectureDetailsModal'
 
 interface ProjectConversionBadgeProps {
   project: Project
@@ -110,7 +110,7 @@ export function ProjectConversionBadge({
             </div>
           </div>
 
-          <ProjectDetailsModal
+          <ProjectArchitectureDetailsModal
             project={viewingArch}
             open={!!viewingArch}
             onOpenChange={(open) => !open && setViewingArch(null)}

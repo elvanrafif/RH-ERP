@@ -10,10 +10,9 @@ import Login from '@/pages/Login'
 import Dashboard from './pages/Dashboard'
 import { Button } from '@/components/ui/button' // Tambahkan import Button untuk fallback
 
-// --- NEW PAGES IMPORTS ---
-import ArsitekturPage from './pages/projects/ArsitekturPage'
-import SipilPage from './pages/projects/SipilPage'
-import InteriorPage from './pages/projects/InteriorPage'
+import ArsitekturPage from './pages/projects/projectArchitecture'
+import SipilPage from './pages/projects/projectCivil'
+import InteriorPage from './pages/projects/projectInterior'
 
 import ClientsPage from './pages/clients/ClientsPage'
 import QuotationsPage from './pages/quotations/QuotationsPage'

@@ -1,83 +1,54 @@
 import { useState, useMemo } from 'react'
-import type { ReactNode } from 'react'
-import { useAutoOpenProject } from '@/hooks/useAutoOpenProject'
 import type { Project } from '@/types'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRole } from '@/hooks/useRole'
 import { useUsers } from '@/hooks/useUsers'
-import { useProjects } from '@/hooks/useProjects'
 import { useVendors } from '@/hooks/useVendors'
+import { useProjects } from '@/hooks/useProjects'
 import type { ProjectStatusFilter } from '@/hooks/useProjects'
 import { useProjectFilters } from '@/hooks/useProjectFilters'
 import { useProjectInvoiceStats } from '@/hooks/useProjectInvoiceStats'
-import { TypeProjectsBoolean } from '@/lib/booleans'
-import { formatRupiah } from '@/lib/helpers'
+import { useAutoOpenProject } from '@/hooks/useAutoOpenProject'
+import { usePagination } from '@/hooks/usePagination'
 import { DEADLINE_WARNING_DAYS } from '@/lib/constant'
-import {
-  getDaysRemaining,
-  getProjectDeadlineDate,
-} from '@/lib/projects/deadline'
-
+import { formatRupiah } from '@/lib/helpers'
 import { Button } from '@/components/ui/button'
 import { Plus, Banknote, Activity, AlertTriangle } from 'lucide-react'
 import { ProjectFilterBar } from '@/components/projects/ProjectFilterBar'
-import type { KanbanColumnDefinition } from './ProjectKanban'
-import ProjectKanban from './ProjectKanban'
-import { ProjectTable } from './ProjectTable'
-import { ProjectForm } from './ProjectForm'
-import { ProjectDetailsModal } from './ProjectDetailsModal'
+import { ProjectStatCard } from '@/components/shared/ProjectStatCard'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
 import { PageTableSkeleton } from '@/components/shared/TableSkeleton'
 import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog'
 import { TablePagination } from '@/components/shared/TablePagination'
-import { usePagination } from '@/hooks/usePagination'
+import { ProjectCivilForm } from './ProjectCivilForm'
+import { ProjectCivilDetailsModal } from './ProjectCivilDetailsModal'
+import { ProjectCivilTable } from './ProjectCivilTable'
 
-interface TemplateProps {
-  pageTitle: string
-  projectType: 'architecture' | 'civil' | 'interior'
-  kanbanColumns: KanbanColumnDefinition[]
-  statusOptions: { value: string; label: string }[]
-  enableKanban?: boolean
-}
+const DEADLINE_DAYS = DEADLINE_WARNING_DAYS['civil']
 
-export default function ProjectPageTemplate({
-  pageTitle,
-  projectType,
-  kanbanColumns,
-  statusOptions,
-  enableKanban = true,
-}: TemplateProps) {
+export default function SipilPage() {
   const { can } = useAuth()
   const { isSuperAdmin } = useRole()
-  const { isCivil, isInterior } = TypeProjectsBoolean(projectType)
-  const deadlineWarningDays = DEADLINE_WARNING_DAYS[projectType]
+  const { users } = useUsers()
+  const { vendors: civilVendors } = useVendors({ projectType: 'civil' })
 
-  // UI state
-  const [statusFilter, setStatusFilter] =
-    useState<ProjectStatusFilter>('active')
+  const [statusFilter, setStatusFilter] = useState<ProjectStatusFilter>('active')
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [deleteId, setDeleteId] = useState<string | null>(null)
-  // Data hooks
-  const { users } = useUsers()
-  const { vendors: civilVendors } = useVendors(
-    isCivil ? { projectType: 'civil' } : {}
-  )
-  const { vendors: interiorVendors } = useVendors(
-    isInterior ? { projectType: 'interior' } : {}
-  )
-  const { projects, isLoading, updateStatus, deleteProject } = useProjects({
-    projectType,
+  const [viewingProject, setViewingProject] = useState<Project | null>(null)
+
+  const { projects, isLoading, deleteProject } = useProjects({
+    projectType: 'civil',
     statusFilter,
   })
+
   const {
     searchQuery,
     setSearchQuery,
     filterPic,
     setFilterPic,
-    filterVendor,
-    setFilterVendor,
     filterManagedBy,
     setFilterManagedBy,
     filterDeadline,
@@ -87,23 +58,14 @@ export default function ProjectPageTemplate({
     resultCount,
     hasActiveFilters,
     resetFilters,
-  } = useProjectFilters({ projects, projectType, deadlineWarningDays })
-
-  const atRiskStats = useMemo(() => {
-    let overdueCount = 0
-    let nearDeadlineCount = 0
-    for (const p of projects) {
-      const date = getProjectDeadlineDate(p)
-      if (!date) continue
-      const days = getDaysRemaining(date)
-      if (days < 0) overdueCount++
-      else if (days <= deadlineWarningDays) nearDeadlineCount++
-    }
-    return { overdueCount, nearDeadlineCount }
-  }, [projects, deadlineWarningDays])
+  } = useProjectFilters({
+    projects,
+    projectType: 'civil',
+    deadlineWarningDays: DEADLINE_DAYS,
+  })
 
   const { potentialRevenue, realizationRevenue } =
-    useProjectInvoiceStats(projectType)
+    useProjectInvoiceStats('civil')
 
   const {
     page,
@@ -114,41 +76,45 @@ export default function ProjectPageTemplate({
   } = usePagination(filteredProjects, [
     searchQuery,
     filterPic,
-    filterVendor,
     filterManagedBy,
     filterDeadline,
     statusFilter,
   ])
 
-  const { projectToView, setProjectToView } = useAutoOpenProject(
-    projects,
-    isLoading
-  )
+  const { projectToView: autoOpenProject, setProjectToView: setAutoOpenProject } =
+    useAutoOpenProject(projects, isLoading)
 
-  const handleCreate = () => {
+  const openProject = viewingProject ?? autoOpenProject
+
+  function handleCreate() {
     setEditingProject(null)
     setIsDialogOpen(true)
   }
 
-  const handleEdit = (project: Project) => {
+  function handleEdit(project: Project) {
     setEditingProject(project)
     setIsDialogOpen(true)
   }
 
-  const handleDelete = () => {
+  function handleDelete() {
     if (!deleteId) return
-    deleteProject(deleteId, {
-      onSuccess: () => setDeleteId(null),
-    })
+    deleteProject(deleteId, { onSuccess: () => setDeleteId(null) })
+  }
+
+  function handleCloseViewModal(open: boolean) {
+    if (!open) {
+      setViewingProject(null)
+      setAutoOpenProject(null)
+    }
   }
 
   return (
     <div className="flex-1 h-full p-4 md:p-8 pt-6 flex flex-col overflow-hidden bg-background/50">
       <PageHeader
-        title={pageTitle}
-        description={`Monitoring ${projectType} projects.`}
+        title="Civil Construction"
+        description="Monitoring civil construction projects."
         action={
-          can(`manage_${projectType}`) ? (
+          can('manage_civil') ? (
             <Button
               onClick={handleCreate}
               className="bg-primary shadow-sm h-9 text-sm"
@@ -159,7 +125,7 @@ export default function ProjectPageTemplate({
         }
       />
 
-      {/* STATS BAR */}
+      {/* STATS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-row gap-2 md:gap-3 mb-4 shrink-0">
         {isSuperAdmin && (
           <ProjectStatCard
@@ -201,7 +167,7 @@ export default function ProjectPageTemplate({
               </span>
             </p>
           }
-          description="Projects with active status currently in progress. Count stays fixed regardless of search or filter."
+          description="Projects with active status currently in progress."
         />
         <ProjectStatCard
           icon={<AlertTriangle />}
@@ -212,57 +178,51 @@ export default function ProjectPageTemplate({
             <div className="flex items-baseline gap-3 md:gap-4">
               <div className="flex items-baseline gap-1">
                 <span className="text-base md:text-2xl font-bold text-red-500 leading-tight">
-                  {atRiskStats.overdueCount}
+                  {stats.overdueCount}
                 </span>
-                <span className="text-xs md:text-sm text-slate-400">
-                  overdue
-                </span>
+                <span className="text-xs md:text-sm text-slate-400">overdue</span>
               </div>
               <span className="text-slate-200 font-light select-none">/</span>
               <div className="flex items-baseline gap-1">
                 <span className="text-base md:text-2xl font-bold text-amber-500 leading-tight">
-                  {atRiskStats.nearDeadlineCount}
+                  {stats.nearDeadlineCount}
                 </span>
-                <span className="text-xs md:text-sm text-slate-400">
-                  near deadline
-                </span>
+                <span className="text-xs md:text-sm text-slate-400">near deadline</span>
               </div>
             </div>
           }
-          description={`Overdue projects plus those within ${deadlineWarningDays} days of their deadline. Needs immediate follow-up.`}
+          description={`Overdue or within ${DEADLINE_DAYS} days of deadline. Needs immediate follow-up.`}
         />
       </div>
 
       {/* MAIN CONTENT */}
       <div className="flex-1 overflow-hidden relative bg-card/50 rounded-lg border border-border shadow-inner flex flex-col">
-        {/* INTEGRATED TOOLBAR */}
         <div className="flex flex-col md:flex-row md:items-center gap-2 px-3 py-2 border-b bg-white/80 backdrop-blur-sm shrink-0">
           <ProjectFilterBar
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             filterPic={filterPic}
             onFilterPicChange={setFilterPic}
-            filterVendor={filterVendor}
-            onFilterVendorChange={setFilterVendor}
+            filterVendor="all"
+            onFilterVendorChange={() => {}}
             filterManagedBy={filterManagedBy}
             onFilterManagedByChange={setFilterManagedBy}
             filterStatus={statusFilter}
             onFilterStatusChange={setStatusFilter}
             filterDeadline={filterDeadline}
             onFilterDeadlineChange={setFilterDeadline}
-            deadlineWarningDays={deadlineWarningDays}
+            deadlineWarningDays={DEADLINE_DAYS}
             resultCount={resultCount}
             hasActiveFilters={hasActiveFilters || statusFilter !== 'active'}
             onResetFilters={() => {
               resetFilters()
               setStatusFilter('active')
             }}
-            isCivil={isCivil}
-            isInterior={isInterior}
+            isCivil={true}
+            isInterior={false}
             users={users}
             civilVendors={civilVendors}
-            interiorVendors={interiorVendors}
-            projectType={projectType}
+            projectType="civil"
             className="flex flex-1 gap-2 items-center"
           />
         </div>
@@ -271,23 +231,12 @@ export default function ProjectPageTemplate({
           <div className="p-4">
             <PageTableSkeleton rows={6} />
           </div>
-        ) : enableKanban ? (
-          <div className="flex-1 overflow-hidden h-full p-2">
-            <ProjectKanban
-              data={filteredProjects}
-              columnsConfig={kanbanColumns}
-              onEdit={handleEdit}
-              onDelete={(p) => setDeleteId(p.id)}
-              onStatusChange={(id, status) => updateStatus({ id, status })}
-            />
-          </div>
         ) : (
           <>
             <div className="flex-1 overflow-auto h-full">
-              <ProjectTable
-                projectType={projectType}
-                onView={(project) => setProjectToView(project)}
+              <ProjectCivilTable
                 data={paginatedProjects}
+                onView={(p) => setViewingProject(p)}
                 onEdit={handleEdit}
                 onDelete={(p) => setDeleteId(p.id)}
               />
@@ -305,10 +254,10 @@ export default function ProjectPageTemplate({
       </div>
 
       {/* MODALS */}
-      <ProjectDetailsModal
-        project={projectToView}
-        open={!!projectToView}
-        onOpenChange={(open) => !open && setProjectToView(null)}
+      <ProjectCivilDetailsModal
+        project={openProject}
+        open={!!openProject}
+        onOpenChange={handleCloseViewModal}
       />
 
       <FormDialog
@@ -318,11 +267,9 @@ export default function ProjectPageTemplate({
         maxWidth="sm:max-w-[600px]"
         scrollable
       >
-        <ProjectForm
+        <ProjectCivilForm
           key={editingProject ? editingProject.id : 'new'}
           initialData={editingProject}
-          fixedType={projectType}
-          statusOptions={statusOptions}
           onSuccess={() => setIsDialogOpen(false)}
         />
       </FormDialog>
@@ -334,69 +281,6 @@ export default function ProjectPageTemplate({
         description="This action cannot be undone."
         onConfirm={handleDelete}
       />
-    </div>
-  )
-}
-
-const colorMap = {
-  emerald: {
-    border: 'border-emerald-100',
-    icon: 'text-emerald-500',
-    label: 'text-emerald-600',
-  },
-  blue: {
-    border: 'border-blue-100',
-    icon: 'text-blue-500',
-    label: 'text-blue-600',
-  },
-  amber: {
-    border: 'border-amber-100',
-    icon: 'text-amber-500',
-    label: 'text-amber-600',
-  },
-}
-
-interface ProjectStatCardProps {
-  icon: ReactNode
-  label: string
-  color: keyof typeof colorMap
-  value: ReactNode
-  description: string
-  className?: string
-}
-
-function ProjectStatCard({
-  icon,
-  label,
-  color,
-  value,
-  description,
-  className,
-}: ProjectStatCardProps) {
-  const c = colorMap[color]
-  return (
-    <div
-      className={`bg-white border ${c.border} rounded-xl shadow-sm px-4 py-3 md:px-5 md:py-4 flex-1 min-w-0 flex flex-row items-center gap-3 md:flex-col md:items-stretch md:gap-0 ${className ?? ''}`}
-    >
-      <div className="flex items-center gap-2 md:mb-3 shrink-0">
-        <span className={`${c.icon} shrink-0 [&>svg]:h-4 [&>svg]:w-4`}>
-          {icon}
-        </span>
-        <span
-          className={`text-xs font-semibold ${c.label} uppercase tracking-wider`}
-        >
-          {label}
-        </span>
-      </div>
-      <div
-        className="md:mb-3 ml-auto md:ml-0"
-        style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-      >
-        {value}
-      </div>
-      <div className="hidden md:block border-t border-slate-100 pt-3">
-        <p className="text-xs text-slate-400 leading-relaxed">{description}</p>
-      </div>
     </div>
   )
 }
