@@ -38,6 +38,7 @@ export function useMyProjects() {
       })
 
       const nearDeadlineCount = projects.filter((p) => {
+        if (p.is_on_hold) return false
         const date = getProjectDeadlineDate(p)
         if (!date) return false
         const days = getDaysRemaining(date)
@@ -46,7 +47,7 @@ export function useMyProjects() {
       }).length
 
       const inProgressCount = projects.filter(
-        (p) => p.status === PROJECT_STATUS.PROGRESS
+        (p) => !p.is_on_hold && p.status === PROJECT_STATUS.PROGRESS
       ).length
 
       return { projects, nearDeadlineCount, inProgressCount }
