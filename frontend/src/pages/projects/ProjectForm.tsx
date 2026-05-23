@@ -128,7 +128,7 @@ export function ProjectForm({
       source_architecture: initialData?.source_architecture || '__none__',
       area_scope: initialData?.meta_data?.area_scope || '',
       notes: initialData?.notes || '',
-      invoice_id: initialData?.invoice_id || '',
+      invoice_id: initialData?.invoice_id || '__none__',
       additional_links: initialData?.meta_data?.additional_links?.length
         ? (
             initialData.meta_data.additional_links as Array<
@@ -182,7 +182,8 @@ export function ProjectForm({
             ? null
             : values.source_architecture || null,
         notes: values.notes || null,
-        invoice_id: values.invoice_id || null,
+        invoice_id:
+          values.invoice_id === '__none__' ? null : values.invoice_id || null,
         meta_data: {
           area_scope: values.area_scope,
           additional_links:
@@ -278,7 +279,7 @@ export function ProjectForm({
                 <FormLabel>Linked Invoice</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  value={(field.value as string) || ''}
+                  value={(field.value as string) || '__none__'}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -286,7 +287,7 @@ export function ProjectForm({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="">None</SelectItem>
+                    <SelectItem value="__none__">None</SelectItem>
                     {linkedInvoices.map((inv) => {
                       const clientName =
                         inv.expand?.client_id?.company_name ?? '—'
