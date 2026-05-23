@@ -21,6 +21,7 @@ export const projectSchema = z.object({
     .array(z.object({ label: z.string().optional(), url: z.string() }))
     .max(5)
     .optional(),
+  invoice_id: z.string().optional(),
 })
 
 export type ProjectFormValues = z.infer<typeof projectSchema>

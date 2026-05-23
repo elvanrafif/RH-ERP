@@ -72,6 +72,7 @@ export interface Project {
   is_on_hold?: boolean
   hold_reason?: string
   held_at?: string
+  invoice_id?: string // Relation ID → invoices
 
   meta_data: {
     area_scope?: string // Interior only
@@ -84,6 +85,13 @@ export interface Project {
     assignee?: User
     vendor?: Vendor
     source_architecture?: Project
+    invoice_id?: {
+      id: string
+      invoice_number: string
+      total_amount: number
+      items: Array<{ amount: number; status?: string; paymentDate?: string }>
+      type: string
+    }
   }
   created: string
   updated: string
