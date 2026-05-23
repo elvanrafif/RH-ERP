@@ -11,7 +11,7 @@ import { ClientName } from '@/components/shared/ClientName'
 import { ProjectClientCard } from '../components/ProjectClientCard'
 import { ProjectPicTimelineCard } from '../components/ProjectPicTimelineCard'
 import { ProjectSpecsCard } from '../components/ProjectSpecsCard'
-import { ProjectConversionBadge } from '../components/ProjectConversionBadge'
+import { ProjectConversionBadge } from '../projectCivil/components/ProjectConversionBadge'
 import { HoldProjectDialog } from '@/components/dialogs/HoldProjectDialog'
 import { canHoldProject } from '@/lib/projects/permissions'
 import { useProjectHold } from '@/hooks/useProjectHold'
@@ -105,7 +105,9 @@ export function ProjectArchitectureDetailsModal({
                     <span className="text-muted-foreground">·</span>
                     <Banknote className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                     <span className="font-semibold text-foreground">
-                      {formatRupiah(project.expand.invoice_id.total_amount || 0)}
+                      {formatRupiah(
+                        project.expand.invoice_id.total_amount || 0
+                      )}
                     </span>
                   </>
                 ) : (
@@ -228,7 +230,9 @@ function HoldBanner({ reason, heldAt }: HoldBannerProps) {
           On Hold
         </p>
         {reason && (
-          <p className="text-sm text-orange-800 mt-0.5 leading-snug">{reason}</p>
+          <p className="text-sm text-orange-800 mt-0.5 leading-snug">
+            {reason}
+          </p>
         )}
         {heldAt && (
           <p className="text-xs text-orange-500 mt-1">
