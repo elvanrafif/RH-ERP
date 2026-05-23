@@ -1,7 +1,4 @@
 import { useState } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
-import { pb } from '@/lib/pocketbase'
 import type { Project } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -18,6 +15,7 @@ import { ProjectSpecsCard } from './components/ProjectSpecsCard'
 import { ProjectConversionBadge } from './components/ProjectConversionBadge'
 import { HoldProjectDialog } from '@/components/dialogs/HoldProjectDialog'
 import { canHoldProject } from '@/lib/projects/permissions'
+import { useProjectHold } from '@/hooks/useProjectHold'
 
 const TYPE_LABEL: Record<Project['type'], string> = {
   architecture: 'Architecture',
@@ -43,45 +41,19 @@ export function ProjectDetailsModal({
   onOpenChange,
 }: ProjectDetailsModalProps) {
   const { isSuperAdmin, user } = useRole()
-  const queryClient = useQueryClient()
   const [holdDialogOpen, setHoldDialogOpen] = useState(false)
+
+  const { holdMutation, resumeMutation } = useProjectHold(project, {
+    onHoldSuccess: () => {
+      setHoldDialogOpen(false)
+      onOpenChange(false)
+    },
+    onResumeSuccess: () => onOpenChange(false),
+  })
 
   const { isCivil, isInterior } = TypeProjectsBoolean(
     project?.type ?? 'architecture'
   )
-
-  const holdMutation = useMutation({
-    mutationFn: async (reason: string) => {
-      return pb.collection('projects').update(project!.id, {
-        is_on_hold: true,
-        hold_reason: reason || null,
-        held_at: new Date().toISOString(),
-      })
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['projects'] })
-      toast.success('Project put on hold')
-      setHoldDialogOpen(false)
-      onOpenChange(false)
-    },
-    onError: () => toast.error('Failed to put project on hold'),
-  })
-
-  const resumeMutation = useMutation({
-    mutationFn: async () => {
-      return pb.collection('projects').update(project!.id, {
-        is_on_hold: false,
-        hold_reason: null,
-        held_at: null,
-      })
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['projects'] })
-      toast.success('Project resumed')
-      onOpenChange(false)
-    },
-    onError: () => toast.error('Failed to resume project'),
-  })
 
   if (!project) return null
 
