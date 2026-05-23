@@ -1,17 +1,23 @@
+import { useState } from 'react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
+import { pb } from '@/lib/pocketbase'
 import type { Project } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
-import { Banknote } from 'lucide-react'
+import { Banknote, PauseCircle } from 'lucide-react'
 import { TypeProjectsBoolean } from '@/lib/booleans'
 import { useRole } from '@/hooks/useRole'
-import { formatRupiah } from '@/lib/helpers'
+import { formatRupiah, formatDateShort } from '@/lib/helpers'
 import { ClientName } from '@/components/shared/ClientName'
 import { ProjectClientCard } from './components/ProjectClientCard'
 import { ProjectPicTimelineCard } from './components/ProjectPicTimelineCard'
 import { ProjectSpecsCard } from './components/ProjectSpecsCard'
 import { ProjectConversionBadge } from './components/ProjectConversionBadge'
+import { HoldProjectDialog } from '@/components/dialogs/HoldProjectDialog'
+import { canHoldProject } from '@/lib/projects/permissions'
 
 const TYPE_LABEL: Record<Project['type'], string> = {
   architecture: 'Architecture',
@@ -36,24 +42,59 @@ export function ProjectDetailsModal({
   open,
   onOpenChange,
 }: ProjectDetailsModalProps) {
-  const { isSuperAdmin } = useRole()
+  const { isSuperAdmin, user } = useRole()
+  const queryClient = useQueryClient()
+  const [holdDialogOpen, setHoldDialogOpen] = useState(false)
 
   const { isCivil, isInterior } = TypeProjectsBoolean(
     project?.type ?? 'architecture'
   )
+
+  const holdMutation = useMutation({
+    mutationFn: async (reason: string) => {
+      return pb.collection('projects').update(project!.id, {
+        is_on_hold: true,
+        hold_reason: reason || null,
+        held_at: new Date().toISOString(),
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
+      toast.success('Project put on hold')
+      setHoldDialogOpen(false)
+      onOpenChange(false)
+    },
+    onError: () => toast.error('Failed to put project on hold'),
+  })
+
+  const resumeMutation = useMutation({
+    mutationFn: async () => {
+      return pb.collection('projects').update(project!.id, {
+        is_on_hold: false,
+        hold_reason: null,
+        held_at: null,
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
+      toast.success('Project resumed')
+      onOpenChange(false)
+    },
+    onError: () => toast.error('Failed to resume project'),
+  })
 
   if (!project) return null
 
   const meta = project.meta_data || {}
   const notes = project.notes
   const client = project.expand?.client
+  const canHold = canHoldProject(project, user ?? null, isSuperAdmin ?? false)
 
   const picData = isCivil
     ? project.expand?.vendor?.name
     : project.expand?.assignee?.name
 
   const managedByData = isCivil ? project.expand?.assignee?.name : undefined
-
   const vendorData = isInterior ? project.expand?.vendor?.name : undefined
 
   const statusColor =
@@ -61,106 +102,169 @@ export function ProjectDetailsModal({
     'bg-secondary text-secondary-foreground border-border'
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-[95vw] sm:max-w-[700px] max-h-[90vh] flex flex-col p-0 gap-0">
-        {/* ── HERO ─────────────────────────────────────── */}
-        <div className="px-6 pt-6 pb-5 shrink-0">
-          <div className="flex items-center gap-2 mb-3">
-            <Badge
-              variant="outline"
-              className="text-[10px] uppercase tracking-wide font-semibold h-5 px-2"
-            >
-              {TYPE_LABEL[project.type]}
-            </Badge>
-            <Badge
-              variant="outline"
-              className={`text-[10px] uppercase tracking-wide font-semibold h-5 px-2 ${statusColor}`}
-            >
-              {project.status.replace(/_/g, ' ')}
-            </Badge>
-          </div>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="w-[95vw] sm:max-w-[700px] max-h-[90vh] flex flex-col p-0 gap-0">
+          {/* ── HERO ─────────────────────────────────────── */}
+          <div className="px-6 pt-6 pb-5 shrink-0">
+            <div className="flex items-center gap-2 mb-3">
+              <Badge
+                variant="outline"
+                className="text-[10px] uppercase tracking-wide font-semibold h-5 px-2"
+              >
+                {TYPE_LABEL[project.type]}
+              </Badge>
+              <Badge
+                variant="outline"
+                className={`text-[10px] uppercase tracking-wide font-semibold h-5 px-2 ${statusColor}`}
+              >
+                {project.status.replace(/_/g, ' ')}
+              </Badge>
+              {project.is_on_hold && (
+                <Badge
+                  variant="outline"
+                  className="text-[10px] uppercase tracking-wide font-semibold h-5 px-2 bg-orange-50 text-orange-700 border-orange-200"
+                >
+                  ⏸ On Hold
+                </Badge>
+              )}
+            </div>
 
-          <h2 className="text-xl font-bold text-foreground leading-tight">
-            {client ? (
-              <ClientName
-                name={client.company_name}
-                salutation={client.salutation}
-              />
-            ) : (
-              'Unknown Client'
+            <h2 className="text-xl font-bold text-foreground leading-tight">
+              {client ? (
+                <ClientName
+                  name={client.company_name}
+                  salutation={client.salutation}
+                />
+              ) : (
+                'Unknown Client'
+              )}
+            </h2>
+
+            {isSuperAdmin && (
+              <div className="flex items-center gap-1.5 mt-2 text-sm text-muted-foreground">
+                <Banknote className="h-3.5 w-3.5 shrink-0" />
+                <span>Contract value:</span>
+                <span className="font-semibold text-foreground">
+                  {formatRupiah(project.contract_value || 0)}
+                </span>
+              </div>
             )}
-          </h2>
-
-          {isSuperAdmin && (
-            <div className="flex items-center gap-1.5 mt-2 text-sm text-muted-foreground">
-              <Banknote className="h-3.5 w-3.5 shrink-0" />
-              <span>Contract value:</span>
-              <span className="font-semibold text-foreground">
-                {formatRupiah(project.contract_value || 0)}
-              </span>
-            </div>
-          )}
-        </div>
-
-        <Separator />
-
-        {/* ── BODY ─────────────────────────────────────── */}
-        <div className="flex-1 overflow-y-auto">
-          {/* Contact + PIC */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border">
-            <div className="px-6 py-5">
-              <ProjectClientCard client={client} />
-            </div>
-            <div className="px-6 py-5">
-              <ProjectPicTimelineCard
-                picData={picData}
-                isCivil={isCivil}
-                isInterior={isInterior}
-                managedByData={managedByData}
-                vendorData={vendorData}
-                project={project}
-              />
-            </div>
           </div>
 
           <Separator />
 
-          {/* Specs + Notes */}
-          <div className="px-6 py-5">
-            <p className="text-xs font-semibold text-foreground mb-4">
-              Specifications
-            </p>
-            <ProjectSpecsCard
-              luasTanah={project.luas_tanah}
-              luasBangunan={project.luas_bangunan}
-              areaScope={meta.area_scope}
-              notes={notes}
-              isInterior={isInterior}
-              additionalLinks={
-                meta.additional_links as
-                  | Array<{ label?: string; url: string } | string>
-                  | undefined
-              }
-            />
+          {/* ── BODY ─────────────────────────────────────── */}
+          <div className="flex-1 overflow-y-auto">
+            {/* Hold banner — shown when project is on hold */}
+            {project.is_on_hold && (
+              <div className="mx-6 mt-5 flex items-start gap-3 rounded-lg border border-orange-200 bg-orange-50 px-4 py-3">
+                <PauseCircle className="h-4 w-4 text-orange-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-orange-700">
+                    On Hold
+                  </p>
+                  {project.hold_reason && (
+                    <p className="text-sm text-orange-800 mt-0.5 leading-snug">
+                      {project.hold_reason}
+                    </p>
+                  )}
+                  {project.held_at && (
+                    <p className="text-xs text-orange-500 mt-1">
+                      Since {formatDateShort(project.held_at)}
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Contact + PIC */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border">
+              <div className="px-6 py-5">
+                <ProjectClientCard client={client} />
+              </div>
+              <div className="px-6 py-5">
+                <ProjectPicTimelineCard
+                  picData={picData}
+                  isCivil={isCivil}
+                  isInterior={isInterior}
+                  managedByData={managedByData}
+                  vendorData={vendorData}
+                  project={project}
+                />
+              </div>
+            </div>
+
+            <Separator />
+
+            {/* Specs + Notes */}
+            <div className="px-6 py-5">
+              <p className="text-xs font-semibold text-foreground mb-4">
+                Specifications
+              </p>
+              <ProjectSpecsCard
+                luasTanah={project.luas_tanah}
+                luasBangunan={project.luas_bangunan}
+                areaScope={meta.area_scope}
+                notes={notes}
+                isInterior={isInterior}
+                additionalLinks={
+                  meta.additional_links as
+                    | Array<{ label?: string; url: string } | string>
+                    | undefined
+                }
+              />
+            </div>
+
+            {/* Conversion badge (superadmin only) */}
+            {isSuperAdmin && <ProjectConversionBadge project={project} />}
           </div>
 
-          {/* ── CONVERSION BADGE (superadmin only) ─────── */}
-          {isSuperAdmin && <ProjectConversionBadge project={project} />}
-        </div>
+          <Separator />
 
-        <Separator />
+          {/* ── FOOTER ───────────────────────────────────── */}
+          <div className="px-6 py-4 shrink-0 flex items-center justify-between gap-2">
+            <div>
+              {canHold && !project.is_on_hold && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-orange-200 text-orange-700 hover:bg-orange-50 hover:text-orange-800"
+                  onClick={() => setHoldDialogOpen(true)}
+                  disabled={holdMutation.isPending || resumeMutation.isPending}
+                >
+                  ⏸ Hold Project
+                </Button>
+              )}
+              {canHold && project.is_on_hold && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+                  onClick={() => resumeMutation.mutate()}
+                  disabled={resumeMutation.isPending || holdMutation.isPending}
+                >
+                  ▶ Resume Project
+                </Button>
+              )}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onOpenChange(false)}
+            >
+              Close
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
-        {/* ── FOOTER ───────────────────────────────────── */}
-        <div className="px-6 py-4 shrink-0 flex justify-end">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onOpenChange(false)}
-          >
-            Close
-          </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+      <HoldProjectDialog
+        open={holdDialogOpen}
+        onOpenChange={setHoldDialogOpen}
+        onConfirm={(reason) => holdMutation.mutate(reason)}
+        isPending={holdMutation.isPending}
+      />
+    </>
   )
 }
