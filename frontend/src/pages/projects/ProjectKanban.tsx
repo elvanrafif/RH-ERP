@@ -274,7 +274,7 @@ function KanbanCard({
   const { isInterior, isArchitecture } = TypeProjectsBoolean(task.type)
   const assignee = task.expand?.assignee
   const clientData = task.expand?.client
-  const contractValue = task.contract_value || task.value
+  const contractValue = task.expand?.invoice_id?.total_amount
   const meta = task.meta_data || {}
   const notes = task.notes
 

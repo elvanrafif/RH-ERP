@@ -37,7 +37,7 @@ export function useProjects({ projectType, statusFilter }: UseProjectsOptions) {
 
       return pb.collection('projects').getFullList<Project>({
         sort: '-created',
-        expand: 'client,assignee,vendor',
+        expand: 'client,assignee,vendor,invoice_id',
         filter: filterRule,
       })
     },

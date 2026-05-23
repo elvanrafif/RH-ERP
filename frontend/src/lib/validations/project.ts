@@ -4,10 +4,6 @@ export const projectSchema = z.object({
   client_id: z.string().min(1, 'Please select a client'),
   assignee: z.string().optional(),
   status: z.string(),
-  contract_value: z.coerce
-    .number()
-    .min(0)
-    .optional() as z.ZodOptional<z.ZodNumber>,
   deadline: z.string().optional(),
   start_date: z.string().optional(),
   end_date: z.string().optional(),

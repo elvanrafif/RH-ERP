@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
-import { Banknote, PauseCircle } from 'lucide-react'
+import { Banknote, Link2, Link2Off, PauseCircle } from 'lucide-react'
 import { TypeProjectsBoolean } from '@/lib/booleans'
 import { useRole } from '@/hooks/useRole'
 import { formatRupiah, formatDateShort } from '@/lib/helpers'
@@ -114,12 +114,27 @@ export function ProjectDetailsModal({
             </h2>
 
             {isSuperAdmin && (
-              <div className="flex items-center gap-1.5 mt-2 text-sm text-muted-foreground">
-                <Banknote className="h-3.5 w-3.5 shrink-0" />
-                <span>Contract value:</span>
-                <span className="font-semibold text-foreground">
-                  {formatRupiah(project.contract_value || 0)}
-                </span>
+              <div className="flex items-center gap-1.5 mt-2 text-sm">
+                {project.expand?.invoice_id ? (
+                  <>
+                    <Link2 className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                    <span className="text-emerald-700 font-medium">
+                      {project.expand.invoice_id.invoice_number}
+                    </span>
+                    <span className="text-muted-foreground">·</span>
+                    <Banknote className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+                    <span className="font-semibold text-foreground">
+                      {formatRupiah(
+                        project.expand.invoice_id.total_amount || 0
+                      )}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Link2Off className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+                    <span className="text-amber-600">No invoice linked</span>
+                  </>
+                )}
               </div>
             )}
           </div>
