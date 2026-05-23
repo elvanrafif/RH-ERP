@@ -63,31 +63,33 @@ export function useMyCalendarEvents() {
     const result: CalendarEvent[] = []
     const color = CALENDAR_EVENT_COLORS
 
-    for (const p of projects) {
-      if ((DONE_STATUSES as readonly string[]).includes(p.status)) continue
-      const dateField = projectType === 'civil' ? p.end_date : p.deadline
-      if (!dateField) continue
+    if (projectType) {
+      for (const p of projects) {
+        if ((DONE_STATUSES as readonly string[]).includes(p.status)) continue
+        const dateField = projectType === 'civil' ? p.end_date : p.deadline
+        if (!dateField) continue
 
-      result.push({
-        id: `${projectType}-${p.id}`,
-        title: p.expand?.client
-          ? formatClientName(p.expand.client)
-          : projectType,
-        date: toDateStr(dateField),
-        backgroundColor: color[projectType],
-        borderColor: color[projectType],
-        textColor: '#ffffff',
-        extendedProps: {
-          eventType: projectType,
-          clientName: p.expand?.client
+        result.push({
+          id: `${projectType}-${p.id}`,
+          title: p.expand?.client
             ? formatClientName(p.expand.client)
-            : '—',
-          assignee:
-            projectType === 'civil'
-              ? p.expand?.vendor?.name
-              : p.expand?.assignee?.name,
-        },
-      })
+            : projectType,
+          date: toDateStr(dateField),
+          backgroundColor: color[projectType],
+          borderColor: color[projectType],
+          textColor: '#ffffff',
+          extendedProps: {
+            eventType: projectType,
+            clientName: p.expand?.client
+              ? formatClientName(p.expand.client)
+              : '—',
+            assignee:
+              projectType === 'civil'
+                ? p.expand?.vendor?.name
+                : p.expand?.assignee?.name,
+          },
+        })
+      }
     }
 
     for (const s of surveys) {
