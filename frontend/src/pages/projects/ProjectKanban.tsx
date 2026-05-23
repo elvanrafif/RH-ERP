@@ -206,7 +206,7 @@ export default function ProjectKanban({
                             key={task.id}
                             draggableId={task.id}
                             index={index}
-                            isDragDisabled={!canEdit}
+                            isDragDisabled={!canEdit || !!task.is_on_hold}
                           >
                             {(provided, snapshot) => (
                               <KanbanCard
@@ -285,24 +285,40 @@ function KanbanCard({
       {...dragHandleProps}
       onClick={onView}
       className={`shadow-sm hover:shadow-md transition-all duration-200 group border-l-4
-        ${canEdit ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer opacity-90'}
-        ${isInterior ? 'border-l-violet-400' : 'border-l-blue-400'}
+        ${canEdit && !task.is_on_hold ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
+        ${
+          task.is_on_hold
+            ? 'border-l-orange-300 border-dashed opacity-70'
+            : isInterior
+              ? 'border-l-violet-400'
+              : 'border-l-blue-400'
+        }
         ${isDragging ? 'rotate-2 shadow-xl ring-2 ring-primary/20 z-50' : ''}`}
     >
       <CardContent className="p-3 space-y-2.5">
         {/* Header: badge tipe + menu */}
         <div className="flex justify-between items-center">
-          <Badge
-            variant="secondary"
-            className={`text-[10px] px-1.5 py-0 h-5 font-medium uppercase border
-              ${
-                isInterior
-                  ? 'bg-violet-50 text-violet-700 border-violet-200'
-                  : 'bg-blue-50 text-blue-700 border-blue-200'
-              }`}
-          >
-            {task.type}
-          </Badge>
+          <div className="flex items-center gap-1.5">
+            <Badge
+              variant="secondary"
+              className={`text-[10px] px-1.5 py-0 h-5 font-medium uppercase border
+                ${
+                  isInterior
+                    ? 'bg-violet-50 text-violet-700 border-violet-200'
+                    : 'bg-blue-50 text-blue-700 border-blue-200'
+                }`}
+            >
+              {task.type}
+            </Badge>
+            {task.is_on_hold && (
+              <Badge
+                variant="secondary"
+                className="text-[10px] px-1.5 py-0 h-5 font-medium uppercase border bg-orange-50 text-orange-700 border-orange-200"
+              >
+                ⏸ On Hold
+              </Badge>
+            )}
+          </div>
           <RowActions
             stopPropagation
             actions={

@@ -82,13 +82,24 @@ export const getColumns = (
     header: 'Status',
     cell: ({ row }) => {
       const status = row.getValue('status') as string
+      const isOnHold = row.original.is_on_hold
       return (
-        <Badge
-          variant="outline"
-          className={`${getStatusColor(status)} uppercase text-[10px]`}
-        >
-          {status}
-        </Badge>
+        <div className="flex items-center gap-1.5 flex-wrap">
+          <Badge
+            variant="outline"
+            className={`${getStatusColor(status)} uppercase text-[10px]`}
+          >
+            {status}
+          </Badge>
+          {isOnHold && (
+            <Badge
+              variant="outline"
+              className="bg-orange-50 text-orange-700 border-orange-200 uppercase text-[10px]"
+            >
+              ⏸ On Hold
+            </Badge>
+          )}
+        </div>
       )
     },
   },

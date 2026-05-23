@@ -9,6 +9,7 @@ import { useProjects } from '@/hooks/useProjects'
 import { useVendors } from '@/hooks/useVendors'
 import type { ProjectStatusFilter } from '@/hooks/useProjects'
 import { useProjectFilters } from '@/hooks/useProjectFilters'
+import { useProjectInvoiceStats } from '@/hooks/useProjectInvoiceStats'
 import { TypeProjectsBoolean } from '@/lib/booleans'
 import { formatRupiah } from '@/lib/helpers'
 import { DEADLINE_WARNING_DAYS } from '@/lib/constant'
@@ -77,6 +78,8 @@ export default function ProjectPageTemplate({
     setFilterPic,
     filterVendor,
     setFilterVendor,
+    filterManagedBy,
+    setFilterManagedBy,
     filterDeadline,
     setFilterDeadline,
     filteredProjects,
@@ -99,6 +102,9 @@ export default function ProjectPageTemplate({
     return { overdueCount, nearDeadlineCount }
   }, [projects, deadlineWarningDays])
 
+  const { potentialRevenue, realizationRevenue } =
+    useProjectInvoiceStats(projectType)
+
   const {
     page,
     setPage,
@@ -109,6 +115,7 @@ export default function ProjectPageTemplate({
     searchQuery,
     filterPic,
     filterVendor,
+    filterManagedBy,
     filterDeadline,
     statusFilter,
   ])
@@ -157,14 +164,29 @@ export default function ProjectPageTemplate({
         {isSuperAdmin && (
           <ProjectStatCard
             icon={<Banknote />}
-            label="Potential Revenue"
+            label="Project Revenue"
             color="emerald"
             value={
-              <p className="text-base md:text-2xl font-bold text-slate-800 leading-tight text-right md:text-left">
-                {formatRupiah(stats.totalValue)}
-              </p>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-baseline justify-between md:justify-start gap-2">
+                  <span className="text-xs text-emerald-600 font-medium w-16 shrink-0">
+                    Realized
+                  </span>
+                  <span className="text-sm md:text-base font-bold text-slate-800">
+                    {formatRupiah(realizationRevenue)}
+                  </span>
+                </div>
+                <div className="flex items-baseline justify-between md:justify-start gap-2">
+                  <span className="text-xs text-slate-400 font-medium w-16 shrink-0">
+                    Potential
+                  </span>
+                  <span className="text-sm md:text-base font-bold text-slate-500">
+                    {formatRupiah(potentialRevenue)}
+                  </span>
+                </div>
+              </div>
             }
-            description="Combined contract value of all active projects — the total income expected upon full completion."
+            description="From linked invoices on active projects."
           />
         )}
         <ProjectStatCard
@@ -222,6 +244,8 @@ export default function ProjectPageTemplate({
             onFilterPicChange={setFilterPic}
             filterVendor={filterVendor}
             onFilterVendorChange={setFilterVendor}
+            filterManagedBy={filterManagedBy}
+            onFilterManagedByChange={setFilterManagedBy}
             filterStatus={statusFilter}
             onFilterStatusChange={setStatusFilter}
             filterDeadline={filterDeadline}

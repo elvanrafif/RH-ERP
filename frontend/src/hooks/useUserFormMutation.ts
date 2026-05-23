@@ -26,7 +26,8 @@ export function useUserFormMutation({
       await pb.collection('users').requestPasswordReset(initialData.email)
       toast.success(`Password reset email sent to ${initialData.email}`)
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Failed to send reset email'
+      const message =
+        err instanceof Error ? err.message : 'Failed to send reset email'
       toast.error(message)
     } finally {
       setIsSendingEmail(false)
@@ -59,7 +60,9 @@ export function useUserFormMutation({
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users-management'] })
-      toast.success(isEdit ? 'User data updated' : 'New user created successfully')
+      toast.success(
+        isEdit ? 'User data updated' : 'New user created successfully'
+      )
       onSuccess()
     },
     onError: (err: unknown) => {
@@ -71,7 +74,8 @@ export function useUserFormMutation({
         }
         if (pbErr.data?.data) {
           const firstKey = Object.keys(pbErr.data.data)[0]
-          if (firstKey) errorMsg = `${firstKey}: ${pbErr.data.data[firstKey].message}`
+          if (firstKey)
+            errorMsg = `${firstKey}: ${pbErr.data.data[firstKey].message}`
         } else if (pbErr.message) {
           errorMsg = pbErr.message
         }

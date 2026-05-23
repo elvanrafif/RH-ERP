@@ -8,7 +8,7 @@ import type { EventClickArg } from '@fullcalendar/core'
 import { AnimatePresence, motion } from 'framer-motion'
 import { CalendarDays } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { useDashboardCalendarEvents } from '@/hooks/useDashboardCalendarEvents'
+import type { CalendarEvent } from '@/hooks/useDashboardCalendarEvents'
 import { DashboardCalendarPopover } from './DashboardCalendarPopover'
 import { CALENDAR_EVENT_COLORS } from '@/lib/constant'
 
@@ -26,8 +26,17 @@ const LEGEND_ITEMS = [
   { label: 'Meeting', color: CALENDAR_EVENT_COLORS.meeting },
 ] as const
 
-export function DashboardCalendar() {
-  const { events, isLoading } = useDashboardCalendarEvents()
+interface DashboardCalendarProps {
+  events: CalendarEvent[]
+  isLoading: boolean
+  title?: string
+}
+
+export function DashboardCalendar({
+  events,
+  isLoading,
+  title = 'Team Calendar',
+}: DashboardCalendarProps) {
   const [popoverState, setPopoverState] = useState<PopoverState | null>(null)
   const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768)
   const calendarRef = useRef<FullCalendar>(null)
@@ -75,7 +84,7 @@ export function DashboardCalendar() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <CalendarDays className="h-4 w-4 text-slate-500" />
-            Team Calendar
+            {title}
           </CardTitle>
 
           {/* Legend — desktop */}

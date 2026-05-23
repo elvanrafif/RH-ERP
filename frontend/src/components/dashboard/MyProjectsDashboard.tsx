@@ -1,5 +1,11 @@
 import { useState } from 'react'
-import { Briefcase, AlertTriangle, Activity } from 'lucide-react'
+import {
+  Briefcase,
+  AlertTriangle,
+  Activity,
+  CalendarDays,
+  FolderOpen,
+} from 'lucide-react'
 import {
   Table,
   TableBody,
@@ -8,12 +14,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { StatCard } from '@/components/shared/StatCard'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { useMyProjects } from '@/hooks/useMyProjects'
+import { useMyCalendarEvents } from '@/hooks/useMyCalendarEvents'
+import { DashboardCalendar } from '@/components/dashboard/DashboardCalendar'
 import { ProjectDetailsModal } from '@/pages/projects/ProjectDetailsModal'
 import {
   getProjectDeadlineDate,
@@ -153,6 +162,8 @@ function ProjectRow({ project, index, onClick }: ProjectRowProps) {
 
 export function MyProjectsDashboard() {
   const { data, isLoading } = useMyProjects()
+  const { events: calendarEvents, isLoading: calendarLoading } =
+    useMyCalendarEvents()
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
 
   if (isLoading) return <LoadingSpinner className="min-h-screen" />
@@ -167,7 +178,7 @@ export function MyProjectsDashboard() {
     <div className="flex-1 space-y-6 p-4 md:p-8 pt-6 min-h-screen">
       <div>
         <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-          My Projects
+          Dashboard
         </h2>
         <p className="text-sm text-muted-foreground mt-1">
           {projects.length} active project{projects.length !== 1 ? 's' : ''} in
@@ -175,76 +186,113 @@ export function MyProjectsDashboard() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className="overflow-hidden">
-          <CardContent className="p-0">
-            <StatCard
-              icon={<Briefcase className="h-5 w-5 text-blue-600" />}
-              iconBg="bg-blue-100"
-              label="Total Active"
-              value={projects.length}
-            />
-          </CardContent>
-        </Card>
-        <Card className="overflow-hidden">
-          <CardContent className="p-0">
-            <StatCard
-              icon={<AlertTriangle className="h-5 w-5 text-red-600" />}
-              iconBg="bg-red-100"
-              label="Near Deadline"
-              value={nearDeadlineCount}
-              urgent={nearDeadlineCount > 0}
-            />
-          </CardContent>
-        </Card>
-        <Card className="overflow-hidden">
-          <CardContent className="p-0">
-            <StatCard
-              icon={<Activity className="h-5 w-5 text-amber-600" />}
-              iconBg="bg-amber-100"
-              label="In Progress"
-              value={inProgressCount}
-            />
-          </CardContent>
-        </Card>
-      </div>
-
-      <Card className="overflow-hidden">
-        <div className="overflow-x-auto w-full">
-          <Table className="min-w-[700px]">
-            <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
-              <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
-                <TableHead className="w-[40px]">#</TableHead>
-                <TableHead>Client</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Deadline</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {projects.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={5} className="h-60">
-                    <EmptyState
-                      title="No active projects"
-                      description="You have no active projects assigned to you."
-                    />
-                  </TableCell>
-                </TableRow>
-              ) : (
-                projects.map((project, index) => (
-                  <ProjectRow
-                    key={project.id}
-                    project={project}
-                    index={index}
-                    onClick={setSelectedProject}
-                  />
-                ))
-              )}
-            </TableBody>
-          </Table>
+      <Tabs defaultValue="calendar" className="space-y-6">
+        <div className="overflow-x-auto pb-4 scrollbar-hide">
+          <TabsList className="bg-muted/60 px-1 py-6 border border-border shadow-inner rounded-lg w-max flex items-center gap-1">
+            <TabsTrigger
+              value="calendar"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all text-muted-foreground hover:text-foreground"
+            >
+              <CalendarDays className="w-4 h-4" />
+              <span className="font-medium text-sm">Calendar</span>
+            </TabsTrigger>
+            <TabsTrigger
+              value="projects"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm transition-all text-muted-foreground hover:text-foreground"
+            >
+              <FolderOpen className="w-4 h-4" />
+              <span className="font-medium text-sm">My Projects</span>
+            </TabsTrigger>
+          </TabsList>
         </div>
-      </Card>
+
+        <TabsContent
+          value="calendar"
+          className="space-y-6 animate-in fade-in-50"
+        >
+          <DashboardCalendar
+            events={calendarEvents}
+            isLoading={calendarLoading}
+            title="My Calendar"
+          />
+        </TabsContent>
+
+        <TabsContent
+          value="projects"
+          className="space-y-6 animate-in fade-in-50"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <Card className="overflow-hidden">
+              <CardContent className="p-0">
+                <StatCard
+                  icon={<Briefcase className="h-5 w-5 text-blue-600" />}
+                  iconBg="bg-blue-100"
+                  label="Total Active"
+                  value={projects.length}
+                />
+              </CardContent>
+            </Card>
+            <Card className="overflow-hidden">
+              <CardContent className="p-0">
+                <StatCard
+                  icon={<AlertTriangle className="h-5 w-5 text-red-600" />}
+                  iconBg="bg-red-100"
+                  label="Near Deadline"
+                  value={nearDeadlineCount}
+                  urgent={nearDeadlineCount > 0}
+                />
+              </CardContent>
+            </Card>
+            <Card className="overflow-hidden">
+              <CardContent className="p-0">
+                <StatCard
+                  icon={<Activity className="h-5 w-5 text-amber-600" />}
+                  iconBg="bg-amber-100"
+                  label="In Progress"
+                  value={inProgressCount}
+                />
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card className="overflow-hidden">
+            <div className="overflow-x-auto w-full">
+              <Table className="min-w-[700px]">
+                <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
+                  <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                    <TableHead className="w-[40px]">#</TableHead>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Deadline</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {projects.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={5} className="h-60">
+                        <EmptyState
+                          title="No active projects"
+                          description="You have no active projects assigned to you."
+                        />
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    projects.map((project, index) => (
+                      <ProjectRow
+                        key={project.id}
+                        project={project}
+                        index={index}
+                        onClick={setSelectedProject}
+                      />
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       <ProjectDetailsModal
         project={selectedProject}

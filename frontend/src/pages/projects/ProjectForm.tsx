@@ -63,6 +63,25 @@ export function ProjectForm({
     isInterior ? { projectType: 'interior', activeOnly: true } : {}
   )
 
+  const invoiceTypeMap: Record<string, string> = {
+    architecture: 'design',
+    civil: 'sipil',
+    interior: 'interior',
+  }
+  const invoiceType = invoiceTypeMap[fixedType]
+
+  const { data: linkedInvoices = [] } = useQuery({
+    queryKey: ['invoices-for-project', invoiceType],
+    queryFn: () =>
+      pb.collection('invoices').getFullList({
+        filter: `type = "${invoiceType}"`,
+        expand: 'client_id',
+        fields: 'id,invoice_number,expand.client_id.company_name',
+        sort: '-created',
+      }),
+    enabled: isSuperAdmin,
+  })
+
   // Saat edit, pastikan vendor yang sudah tersimpan tetap muncul walau tidak aktif
   const assignedVendorId = initialData?.vendor
   const assignedVendor = initialData?.expand?.vendor
@@ -109,6 +128,7 @@ export function ProjectForm({
       source_architecture: initialData?.source_architecture || '__none__',
       area_scope: initialData?.meta_data?.area_scope || '',
       notes: initialData?.notes || '',
+      invoice_id: initialData?.invoice_id || '__none__',
       additional_links: initialData?.meta_data?.additional_links?.length
         ? (
             initialData.meta_data.additional_links as Array<
@@ -162,6 +182,8 @@ export function ProjectForm({
             ? null
             : values.source_architecture || null,
         notes: values.notes || null,
+        invoice_id:
+          values.invoice_id === '__none__' ? null : values.invoice_id || null,
         meta_data: {
           area_scope: values.area_scope,
           additional_links:
@@ -247,6 +269,40 @@ export function ProjectForm({
         />
 
         <AdditionalLinksField control={form.control} />
+
+        {isSuperAdmin && (
+          <FormField
+            control={form.control}
+            name="invoice_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Linked Invoice</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  value={(field.value as string) || '__none__'}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select invoice (optional)" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="__none__">None</SelectItem>
+                    {linkedInvoices.map((inv) => {
+                      const clientName =
+                        inv.expand?.client_id?.company_name ?? '—'
+                      return (
+                        <SelectItem key={inv.id} value={inv.id}>
+                          {inv.invoice_number} — {clientName}
+                        </SelectItem>
+                      )
+                    })}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+        )}
 
         <FormField
           control={form.control}

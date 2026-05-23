@@ -47,6 +47,19 @@ export default function InvoiceDetailPage() {
       pb.collection('invoices').getOne(id as string, { expand: 'client_id' }),
   })
 
+  const { data: linkedProject } = useQuery({
+    queryKey: ['project-by-invoice', id],
+    queryFn: async () => {
+      const results = await pb.collection('projects').getList(1, 1, {
+        filter: `invoice_id = "${id}"`,
+        expand: 'client',
+        fields: 'id,type,expand.client.company_name,expand.client.salutation',
+      })
+      return results.items[0] ?? null
+    },
+    enabled: !!id,
+  })
+
   const [items, setItems] = useState<TermItem[]>([])
   const [date, setDate] = useState('')
   const [activeTermin, setActiveTermin] = useState('1')
@@ -326,6 +339,19 @@ export default function InvoiceDetailPage() {
                   className="text-xs min-h-[60px] resize-none"
                 />
               </div>
+              {linkedProject && (
+                <div className="flex flex-col gap-1">
+                  <Label className="text-xs text-muted-foreground">
+                    Linked Project
+                  </Label>
+                  <p className="text-sm font-medium text-slate-700">
+                    {linkedProject.expand?.client?.company_name ?? '—'}
+                    <span className="ml-2 text-xs text-muted-foreground capitalize">
+                      ({linkedProject.type})
+                    </span>
+                  </p>
+                </div>
+              )}
             </div>
 
             <PaymentTermsEditor

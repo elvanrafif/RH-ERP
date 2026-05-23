@@ -50,7 +50,7 @@ export function InvoiceToolbar({
     <DocumentToolbar
       searchTerm={searchTerm}
       onSearchChange={onSearchChange}
-      searchPlaceholder="Search Inv. Number or Title..."
+      searchPlaceholder="Search by client, title, or inv. number..."
       filterClient={filterClient}
       onClientFilterChange={onClientFilterChange}
       onResetFilter={onResetFilter}

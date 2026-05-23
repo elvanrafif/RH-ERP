@@ -72,7 +72,7 @@ export function toDeadlineProjects(
       : projects.filter((p) => p.assignee === userId)
 
   return filtered
-    .filter((p) => isProjectActive(p.status))
+    .filter((p) => isProjectActive(p.status) && !p.is_on_hold)
     .reduce<DeadlineProject[]>((acc, project) => {
       const date = getProjectDeadlineDate(project)
       if (!date) return acc

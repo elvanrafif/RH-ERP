@@ -12,3 +12,11 @@ export function canEditProject(
   if (isCivil) return false // Civil PIC is a vendor (external), not a system user
   return project.assignee === user.id
 }
+
+export function canHoldProject(
+  project: Project,
+  user: User | null,
+  isSuperAdmin: boolean
+): boolean {
+  return canEditProject(project, user, isSuperAdmin)
+}

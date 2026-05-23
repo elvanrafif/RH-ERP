@@ -1,7 +1,10 @@
 import { useState, useMemo } from 'react'
 import { TypeProjectsBoolean } from '@/lib/booleans'
 import type { Project } from '@/types'
-import { getDaysRemaining, getProjectDeadlineDate } from '@/lib/projects/deadline'
+import {
+  getDaysRemaining,
+  getProjectDeadlineDate,
+} from '@/lib/projects/deadline'
 
 type ProjectType = 'architecture' | 'civil' | 'interior'
 
@@ -26,6 +29,7 @@ export function useProjectFilters({
   const [searchQuery, setSearchQuery] = useState('')
   const [filterPic, setFilterPic] = useState('all')
   const [filterVendor, setFilterVendor] = useState('all')
+  const [filterManagedBy, setFilterManagedBy] = useState('all')
   const [filterDeadline, setFilterDeadline] = useState<DeadlineFilter>('all')
 
   const { isCivil, isInterior } = TypeProjectsBoolean(projectType)
@@ -78,19 +82,37 @@ export function useProjectFilters({
           : result.filter((p) => p.vendor === filterVendor)
     }
 
+    if (isCivil && filterManagedBy !== 'all') {
+      result =
+        filterManagedBy === 'unassigned'
+          ? result.filter((p) => !p.assignee)
+          : result.filter((p) => p.assignee === filterManagedBy)
+    }
+
     if (filterDeadline !== 'all') {
       result = result.filter((p) => {
         const date = getProjectDeadlineDate(p)
         if (!date) return false
         const days = getDaysRemaining(date)
         if (filterDeadline === 'overdue') return days < 0
-        if (filterDeadline === 'near') return days >= 0 && days <= deadlineWarningDays
+        if (filterDeadline === 'near')
+          return days >= 0 && days <= deadlineWarningDays
         return true
       })
     }
 
     return result
-  }, [projects, searchQuery, filterPic, filterVendor, filterDeadline, isCivil, isInterior, deadlineWarningDays])
+  }, [
+    projects,
+    searchQuery,
+    filterPic,
+    filterVendor,
+    filterManagedBy,
+    filterDeadline,
+    isCivil,
+    isInterior,
+    deadlineWarningDays,
+  ])
 
   const resultCount = filteredProjects.length
 
@@ -98,12 +120,14 @@ export function useProjectFilters({
     searchQuery !== '' ||
     filterPic !== 'all' ||
     filterVendor !== 'all' ||
+    filterManagedBy !== 'all' ||
     filterDeadline !== 'all'
 
   const resetFilters = () => {
     setSearchQuery('')
     setFilterPic('all')
     setFilterVendor('all')
+    setFilterManagedBy('all')
     setFilterDeadline('all')
   }
 
@@ -114,6 +138,8 @@ export function useProjectFilters({
     setFilterPic,
     filterVendor,
     setFilterVendor,
+    filterManagedBy,
+    setFilterManagedBy,
     filterDeadline,
     setFilterDeadline,
     filteredProjects,
