@@ -357,7 +357,7 @@ function KanbanCard({
               'Unknown Client'
             )}
           </h4>
-          {isSuperAdmin && contractValue > 0 && (
+          {isSuperAdmin && contractValue != null && contractValue > 0 && (
             <p className="text-xs text-slate-400 mt-0.5 font-normal">
               {formatRupiah(contractValue)}
             </p>
