@@ -7,6 +7,7 @@ import {
 } from '@/components/ui/card'
 import { Users, HardHat, UserSearch, ClipboardList } from 'lucide-react'
 import { DashboardCalendar } from '@/components/dashboard/DashboardCalendar'
+import { useDashboardCalendarEvents } from '@/hooks/useDashboardCalendarEvents'
 
 interface OverviewTabProps {
   data: any
@@ -14,6 +15,9 @@ interface OverviewTabProps {
 }
 
 export function OverviewTab({ data, isLoading }: OverviewTabProps) {
+  const { events: calendarEvents, isLoading: calendarLoading } =
+    useDashboardCalendarEvents()
+
   return (
     <div className="space-y-6">
       {/* KPI CARDS GRID */}
@@ -100,7 +104,7 @@ export function OverviewTab({ data, isLoading }: OverviewTabProps) {
       </div>
 
       {/* TEAM CALENDAR */}
-      <DashboardCalendar />
+      <DashboardCalendar events={calendarEvents} isLoading={calendarLoading} />
     </div>
   )
 }

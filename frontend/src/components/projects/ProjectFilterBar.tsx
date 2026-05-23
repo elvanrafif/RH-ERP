@@ -21,6 +21,8 @@ interface ProjectFilterBarProps {
   onFilterPicChange: (value: string) => void
   filterVendor?: string
   onFilterVendorChange?: (value: string) => void
+  filterManagedBy?: string
+  onFilterManagedByChange?: (value: string) => void
   filterStatus: ProjectStatusFilter
   onFilterStatusChange: (value: ProjectStatusFilter) => void
   filterDeadline: DeadlineFilter
@@ -45,6 +47,8 @@ export function ProjectFilterBar({
   onFilterPicChange,
   filterVendor = 'all',
   onFilterVendorChange,
+  filterManagedBy = 'all',
+  onFilterManagedByChange,
   filterStatus,
   onFilterStatusChange,
   filterDeadline,
@@ -130,6 +134,52 @@ export function ProjectFilterBar({
             </SelectContent>
           </Select>
         </div>
+
+        {isCivil && onFilterManagedByChange && (
+          <div className="flex-1 min-w-[120px] max-w-[180px] relative">
+            {filterManagedBy && filterManagedBy !== 'all' && (
+              <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />
+            )}
+            <Select
+              value={filterManagedBy}
+              onValueChange={onFilterManagedByChange}
+            >
+              <SelectTrigger
+                className={cn(
+                  'h-9 bg-white transition-colors',
+                  filterManagedBy && filterManagedBy !== 'all'
+                    ? 'border-primary/50 ring-1 ring-primary/30 text-primary'
+                    : ''
+                )}
+              >
+                <LayoutList
+                  className={cn(
+                    'w-3.5 h-3.5 mr-2',
+                    filterManagedBy && filterManagedBy !== 'all'
+                      ? 'text-primary'
+                      : 'text-muted-foreground'
+                  )}
+                />
+                <SelectValue placeholder="Managed By" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Managers</SelectItem>
+                <SelectItem value="unassigned">-- Unassigned --</SelectItem>
+                {users
+                  .filter(
+                    (u) =>
+                      u.division?.toLowerCase() ===
+                      PROJECT_TYPE_TO_DIVISION[projectType]
+                  )
+                  .map((u) => (
+                    <SelectItem key={u.id} value={u.id}>
+                      {u.name || u.email}
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {isInterior && onFilterVendorChange && (
           <div className="flex-1 min-w-[120px] max-w-[180px] relative">

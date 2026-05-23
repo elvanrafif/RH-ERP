@@ -38,7 +38,7 @@ export function useInvoices({ filters, page }: UseInvoicesOptions) {
 
       if (filters.debouncedSearch) {
         filterParts.push(
-          `(title ~ "${filters.debouncedSearch}" || invoice_number ~ "${filters.debouncedSearch}")`
+          `(title ~ "${filters.debouncedSearch}" || invoice_number ~ "${filters.debouncedSearch}" || client_id.company_name ~ "${filters.debouncedSearch}")`
         )
       }
       if (filters.filterClient !== 'all') {
