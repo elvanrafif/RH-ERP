@@ -115,3 +115,23 @@ export interface Survey {
   created: string
   updated: string
 }
+
+export interface Invoice {
+  id: string
+  invoice_number: string
+  client_id: string
+  type: string
+  date: string | Date
+  status: string
+  active_termin: string
+  price_per_meter: number
+  project_area: number
+  total_amount: number
+  bank_details?: string
+  items?: any[]
+  expand?: {
+    client_id?: Client
+  }
+  created: string
+  updated: string
+}

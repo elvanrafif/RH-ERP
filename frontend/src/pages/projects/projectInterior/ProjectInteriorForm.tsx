@@ -7,7 +7,7 @@ import { useUsers } from '@/hooks/useUsers'
 import { useVendors } from '@/hooks/useVendors'
 import { useLinkedInvoices } from '@/hooks/useInvoices'
 import { useProjectMutation } from '@/hooks/useProjects'
-import { projectSchema } from '@/lib/validations/project'
+import { projectSchema, type ProjectFormValues } from '@/lib/validations/project'
 import { ClientComboboxField } from '@/components/forms/ClientComboboxField'
 import { AdditionalLinksField } from '@/components/forms/AdditionalLinksField'
 import { LinkedInvoiceSelectField } from '../components/LinkedInvoiceSelectField'
@@ -65,9 +65,9 @@ export function ProjectInteriorForm({
     availableUsers.push(user)
   }
 
-  const form = useForm({
+  const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
-    defaultValues: getInteriorFormDefaults(initialData, isSuperAdmin, user?.id),
+    defaultValues: getInteriorFormDefaults(initialData, isSuperAdmin, user?.id) as any,
   })
 
   const clientId = form.watch('client_id')
@@ -78,7 +78,7 @@ export function ProjectInteriorForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((data) => mutate(buildInteriorPayload(data)))}
+        onSubmit={form.handleSubmit((data) => mutate(buildInteriorPayload(data as any)))}
         className="space-y-4"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

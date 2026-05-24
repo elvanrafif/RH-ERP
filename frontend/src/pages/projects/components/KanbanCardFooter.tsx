@@ -30,10 +30,10 @@ export function KanbanCardFooter({
     <div className="pt-2 border-t flex items-center justify-between">
       <div className="flex items-center gap-1.5 text-xs text-slate-400" title="Deadline">
         <CalendarClock className="h-3 w-3 shrink-0" />
-        <span>{formatDateShort(deadline)}</span>
+        <span>{formatDateShort(deadline || undefined)}</span>
         {deadline && (
           <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1 py-0.5 rounded uppercase leading-none">
-            {getRemainingTime(deadline)}
+            {getRemainingTime(deadline || undefined)}
           </span>
         )}
       </div>

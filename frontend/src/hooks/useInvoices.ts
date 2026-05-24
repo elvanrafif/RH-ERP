@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { pb } from '@/lib/pocketbase'
 import { getTemplateByType } from '@/pages/invoices/template'
 import type { InvoiceFilters } from './useInvoiceFilters'
+import type { Invoice } from '@/types'
 
 export type InvoiceType = 'design' | 'sipil' | 'interior'
 
@@ -104,7 +105,7 @@ export function useLinkedInvoices(
   const { data: linkedInvoices = [] } = useQuery({
     queryKey: ['invoices-for-project', type, clientId],
     queryFn: () =>
-      pb.collection('invoices').getFullList({
+      pb.collection('invoices').getFullList<Invoice>({
         filter: `type = "${type}" && client_id = "${clientId}"`,
         expand: 'client_id',
         fields: 'id,invoice_number,expand.client_id.company_name',

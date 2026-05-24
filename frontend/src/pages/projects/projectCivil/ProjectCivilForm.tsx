@@ -8,7 +8,7 @@ import { useUsers } from '@/hooks/useUsers'
 import { useVendors } from '@/hooks/useVendors'
 import { useLinkedInvoices } from '@/hooks/useInvoices'
 import { useProjectMutation } from '@/hooks/useProjects'
-import { projectSchema } from '@/lib/validations/project'
+import { projectSchema, type ProjectFormValues } from '@/lib/validations/project'
 import { ClientComboboxField } from '@/components/forms/ClientComboboxField'
 import { AdditionalLinksField } from '@/components/forms/AdditionalLinksField'
 import { AreaFields } from '../components/AreaFields'
@@ -56,9 +56,9 @@ export function ProjectCivilForm({
       ? [...civilVendors, assignedVendor]
       : civilVendors
 
-  const form = useForm({
+  const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
-    defaultValues: getCivilFormDefaults(initialData),
+    defaultValues: getCivilFormDefaults(initialData) as any,
   })
 
   const clientId = form.watch('client_id')
@@ -87,7 +87,7 @@ export function ProjectCivilForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((data) => mutate(buildCivilPayload(data)))}
+        onSubmit={form.handleSubmit((data) => mutate(buildCivilPayload(data as any)))}
         className="space-y-4"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

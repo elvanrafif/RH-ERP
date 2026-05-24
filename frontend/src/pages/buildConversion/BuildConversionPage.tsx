@@ -6,6 +6,7 @@ import {
   BarChart2,
 } from 'lucide-react'
 import { useArchitectureToBuildConversion } from '@/hooks/useArchitectureToBuildConversion'
+import type { ConversionProject } from '@/hooks/useArchitectureToBuildConversion'
 import { useUsers } from '@/hooks/useUsers'
 import { useDebounce } from '@/hooks/useDebounce'
 import { usePagination } from '@/hooks/usePagination'
