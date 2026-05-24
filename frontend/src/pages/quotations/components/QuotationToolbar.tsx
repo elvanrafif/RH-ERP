@@ -35,7 +35,7 @@ export function QuotationToolbar({
     <DocumentToolbar
       searchTerm={searchTerm}
       onSearchChange={onSearchChange}
-      searchPlaceholder="Search quotation number..."
+      searchPlaceholder="Search by client or quot. number..."
       filterClient={filterClient}
       onClientFilterChange={onClientFilterChange}
       onResetFilter={onResetFilter}

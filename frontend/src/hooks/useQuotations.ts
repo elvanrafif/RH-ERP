@@ -32,7 +32,9 @@ export function useQuotations({ filters, page }: UseQuotationsOptions) {
       const filterParts: string[] = []
 
       if (filters.debouncedSearch) {
-        filterParts.push(`quotation_number ~ "${filters.debouncedSearch}"`)
+        filterParts.push(
+          `(quotation_number ~ "${filters.debouncedSearch}" || client_id.company_name ~ "${filters.debouncedSearch}")`
+        )
       }
       if (filters.filterClient !== 'all') {
         filterParts.push(`client_id = "${filters.filterClient}"`)
