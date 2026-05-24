@@ -261,7 +261,7 @@ export function formatPhoneNumber(value: string): string {
 }
 
 export function parseStoredPhone(
-  phone: string,
+  phone?: string | null,
   countryList: Array<{ code: string; dial_code: string }> = []
 ): { prefix: string; localNumber: string } {
   if (!phone) return { prefix: '+62', localNumber: '' }
@@ -321,7 +321,7 @@ export function parseStoredPhone(
 }
 
 export function formatFullPhone(
-  phone: string,
+  phone?: string | null,
   countryList: Array<{ code: string; dial_code: string }> = []
 ): string {
   if (!phone) return '—'

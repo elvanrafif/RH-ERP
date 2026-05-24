@@ -7,7 +7,7 @@ import { useRole } from '@/hooks/useRole'
 import { useUsers } from '@/hooks/useUsers'
 import { useLinkedInvoices } from '@/hooks/useInvoices'
 import { useProjectMutation } from '@/hooks/useProjects'
-import { projectSchema } from '@/lib/validations/project'
+import { projectSchema, type ProjectFormValues } from '@/lib/validations/project'
 import { ClientComboboxField } from '@/components/forms/ClientComboboxField'
 import { AdditionalLinksField } from '@/components/forms/AdditionalLinksField'
 import { AreaFields } from '../components/AreaFields'
@@ -38,9 +38,9 @@ export function ProjectArchitectureForm({
   const { isSuperAdmin, user } = useRole()
   const { users } = useUsers()
 
-  const form = useForm({
+  const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
-    defaultValues: getArchitectureFormDefaults(initialData, isSuperAdmin, user?.id),
+    defaultValues: getArchitectureFormDefaults(initialData, isSuperAdmin, user?.id) as any,
   })
 
   const clientId = form.watch('client_id')
@@ -60,7 +60,7 @@ export function ProjectArchitectureForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((data) => mutate(buildArchitecturePayload(data)))}
+        onSubmit={form.handleSubmit((data) => mutate(buildArchitecturePayload(data as any)))}
         className="space-y-4"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
