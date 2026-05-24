@@ -1,9 +1,6 @@
 import { useState } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
-import { pb } from '@/lib/pocketbase'
 import type { Survey } from '@/types'
-import { useSurveys } from '@/hooks/useSurveys'
+import { useSurveys, useDeleteSurvey } from '@/hooks/useSurveys'
 import { useUsers } from '@/hooks/useUsers'
 import { useDebounce } from '@/hooks/useDebounce'
 import { usePagination } from '@/hooks/usePagination'
@@ -30,7 +27,6 @@ import { useAuth } from '@/contexts/AuthContext'
 export default function SurveyPage() {
   const { can } = useAuth()
   const canManage = can('manage_surveys')
-  const queryClient = useQueryClient()
   const [deleteTarget, setDeleteTarget] = useState<Survey | null>(null)
   const [filterPic, setFilterPic] = useState('all')
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'done'>(
@@ -61,15 +57,7 @@ export default function SurveyPage() {
   const { page, setPage, totalItems, totalPages, paginatedData } =
     usePagination(surveys, [debouncedSearch, filterPic, filterStatus])
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: string) => pb.collection('surveys').delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['surveys'] })
-      toast.success('Survey appointment deleted')
-      setDeleteTarget(null)
-    },
-    onError: () => toast.error('Failed to delete survey'),
-  })
+  const deleteMutation = useDeleteSurvey()
 
   return (
     <div className="flex-1 h-full p-4 md:p-8 pt-6 flex flex-col overflow-hidden bg-background/50">
@@ -193,7 +181,12 @@ export default function SurveyPage() {
         }}
         title="Delete Survey"
         description="This action cannot be undone."
-        onConfirm={() => deleteTarget && deleteMutation.mutate(deleteTarget.id)}
+        onConfirm={() =>
+              deleteTarget &&
+              deleteMutation.mutate(deleteTarget.id, {
+                onSuccess: () => setDeleteTarget(null),
+              })
+            }
         isLoading={deleteMutation.isPending}
       />
     </div>

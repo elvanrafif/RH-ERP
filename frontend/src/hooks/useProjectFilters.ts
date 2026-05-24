@@ -1,10 +1,8 @@
 import { useState, useMemo } from 'react'
 import { TypeProjectsBoolean } from '@/lib/booleans'
 import type { Project } from '@/types'
-import {
-  getDaysRemaining,
-  getProjectDeadlineDate,
-} from '@/lib/projects/deadline'
+import { getDaysRemaining, getProjectDeadlineDate } from '@/lib/projects/deadline'
+import { computeProjectStats } from '@/lib/projects/statistics'
 
 type ProjectType = 'architecture' | 'civil' | 'interior'
 
@@ -14,10 +12,6 @@ interface UseProjectFiltersOptions {
   projects: Project[]
   projectType: ProjectType
   deadlineWarningDays: number
-}
-
-interface ProjectStats {
-  activeCount: number
 }
 
 export function useProjectFilters({
@@ -33,16 +27,9 @@ export function useProjectFilters({
 
   const { isCivil, isInterior } = TypeProjectsBoolean(projectType)
 
-  const stats: ProjectStats = useMemo(
-    () =>
-      projects.reduce(
-        (acc) => {
-          acc.activeCount++
-          return acc
-        },
-        { activeCount: 0 }
-      ),
-    [projects]
+  const stats = useMemo(
+    () => computeProjectStats(projects, deadlineWarningDays),
+    [projects, deadlineWarningDays]
   )
 
   const filteredProjects = useMemo(() => {

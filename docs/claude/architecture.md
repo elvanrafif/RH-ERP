@@ -16,12 +16,13 @@ frontend/src/
 │   ├── editors/               # DocumentEditorLayout — shared layout untuk quotation & invoice editor; props: onDelete? + isDeleting? untuk tombol delete superadmin (desktop: icon di header kiri, mobile: tombol di action row)
 │   ├── dialogs/               # CreateDocumentDialog
 │   ├── filters/               # DocumentToolbar
-│   ├── forms/                 # ClientComboboxField
-│   ├── projects/              # ProjectFilterBar
+│   ├── forms/                 # ClientComboboxField, AdditionalLinksField
+│   ├── projects/              # ArchitectureFilterBar, CivilFilterBar, InteriorFilterBar
+│   │                          # (type-specific filter bars — tidak ada shared ProjectFilterBar)
 │   ├── shared/                # EmptyState, FormDialog, LoadingSpinner, PageHeader,
 │   │                          # StatCard, TablePagination, DeleteConfirmDialog,
 │   │                          # NumberInput, RowActions, TableSkeleton, ChartSkeleton,
-│   │                          # SearchInput, FormSubmitButton, EntityAvatar,
+│   │                          # FormSubmitButton, EntityAvatar,
 │   │                          # ActiveBadge, DetailField, CrudPageShell, MonthYearPicker
 │   └── dashboard/             # ExecutiveDashboard (superadmin), MyProjectsDashboard (employee),
 │                              # CivilTeamDashboard (civil role) — Gantt chart per vendor,
@@ -46,12 +47,28 @@ frontend/src/
     ├── prospects/             # ProspectsPage, ProspectTable, ProspectForm,
     │                          # ProspectDetailDialog, ProspectContactFields,
     │                          # ProspectPropertyFields, ProspectScheduleFields
-    ├── projects/              # ArsitekturPage, SipilPage, InteriorPage,
-    │                          # ProjectPageTemplate, ProjectForm, ProjectTable,
-    │                          # ProjectDetailsModal, ProjectKanban
-    │   └── components/        # ProjectClientCard, ProjectPicTimelineCard,
-    │                          # ProjectSpecsCard, ProjectConversionBadge,
-    │                          # ProjectTypeFields, AdditionalLinksField
+    ├── projects/              # ArsitekturPage, SipilPage, InteriorPage
+    │   │                      # formHelpers.ts — normalizeAdditionalLinks, buildAdditionalLinksPayload
+    │   ├── components/        # Shared across all 3 project types:
+    │   │                      # ProjectClientCard, ProjectPicTimelineCard, ProjectSpecsCard,
+    │   │                      # ProjectModalHero, ProjectHoldBanner, ProjectStatsSection,
+    │   │                      # ProjectNotesField, ProjectStatusSelectField,
+    │   │                      # ProjectDeadlineField, ProjectVendorSelectField,
+    │   │                      # ProjectPicSelectField, LinkedInvoiceSelectField, AreaFields,
+    │   │                      # KanbanNotesSection, KanbanCardFooter
+    │   ├── projectArchitecture/ # ProjectArchitectureForm, ProjectArchitectureDetailsModal,
+    │   │   │                    # ProjectArchitectureKanban, ArchKanbanCard,
+    │   │   │                    # ArchitectureHiddenTableView, columns.tsx,
+    │   │   │                    # architectureFormHelpers.ts
+    │   │   └── hooks/           # useProjectArchitectureByClient
+    │   ├── projectCivil/      # ProjectCivilForm, ProjectCivilDetailsModal,
+    │   │   │                  # ProjectCivilTable, columnsSipil.tsx, civilFormHelpers.ts
+    │   │   └── components/    # CivilContractDatesField, SourceArchitectureSelectField,
+    │   │                      # ContractInfoCell, ProjectConversionBadge
+    │   └── projectInterior/   # ProjectInteriorForm, ProjectInteriorDetailsModal,
+    │       │                  # ProjectInteriorKanban, InteriorKanbanCard,
+    │       │                  # columns.tsx, interiorFormHelpers.ts
+    │       └── hooks/         # (reserved)
     ├── buildConversion/       # BuildConversionPage (superadmin only)
     ├── quotations/            # QuotationsPage, QuotationEditor, QuotationPaper,
     │                          # QuotationTable, QuotationCreateDialog, QuotationToolbar
@@ -102,6 +119,7 @@ Satu hook = satu tanggung jawab. Return object (bukan array) kecuali state seder
 | `useDashboard` | Agregasi data dashboard |
 | `useDeadlineProjects` | Proyek yang mendekati deadline |
 | `useAutoOpenProject` | Auto-open project detail dari URL param |
+| `useProjectPageState` | Modal/edit state shared untuk semua 3 project index pages: `isDialogOpen`, `editingProject`, `deleteId`, `viewingProject`, handlers `handleCreate/Edit/Delete/CloseViewModal`, internally calls `useAutoOpenProject` |
 | `useProjectCivilByClient` | Query civil projects by client ID |
 | `useProjectArchitectureByClient` | Query architecture projects by client ID, dengan expand `client,assignee` |
 | `useArchitectureToBuildConversion` | Cross-reference arsitektur vs civil via `source_architecture` field — return converted/potential/notConverted + stats, optional filter by PIC |

@@ -69,3 +69,25 @@ export function useProjects({ projectType, statusFilter }: UseProjectsOptions) {
     isDeleting: deleteMutation.isPending,
   }
 }
+
+export function useProjectMutation(
+  initialData: Project | null | undefined,
+  onSuccess?: () => void
+) {
+  const queryClient = useQueryClient()
+  const mutation = useMutation({
+    mutationFn: (payload: Record<string, unknown>) =>
+      initialData
+        ? pb.collection('projects').update(initialData.id, payload)
+        : pb.collection('projects').create(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projects'] })
+      toast.success(
+        initialData ? 'Project updated successfully' : 'Project created successfully'
+      )
+      onSuccess?.()
+    },
+    onError: () => toast.error('Failed to save project'),
+  })
+  return { mutate: mutation.mutate, isPending: mutation.isPending }
+}

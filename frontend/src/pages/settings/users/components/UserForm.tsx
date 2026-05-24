@@ -7,6 +7,7 @@ import { userFormSchema } from '@/lib/validations/user'
 import type { UserFormValues } from '@/lib/validations/user'
 import { useUserFormMutation } from '@/hooks/useUserFormMutation'
 import { PasswordSection } from './PasswordSection'
+import { PhoneInputField } from '@/components/forms/PhoneInputField'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -84,59 +85,40 @@ export function UserForm({ initialData, onSuccess }: UserFormProps) {
             )}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email (Login ID)</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="name@internal.rh"
-                      {...field}
-                      value={field.value || ''}
-                      disabled={isEdit}
-                      className={
-                        isEdit
-                          ? 'bg-slate-100 text-slate-500 cursor-not-allowed'
-                          : ''
-                      }
-                    />
-                  </FormControl>
-                  {isEdit && (
-                    <p className="text-[10px] text-muted-foreground">
-                      Email address cannot be changed.
-                    </p>
-                  )}
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email (Login ID)</FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="name@internal.rh"
+                    {...field}
+                    value={field.value || ''}
+                    disabled={isEdit}
+                    className={
+                      isEdit
+                        ? 'bg-slate-100 text-slate-500 cursor-not-allowed'
+                        : ''
+                    }
+                  />
+                </FormControl>
+                {isEdit && (
+                  <p className="text-[10px] text-muted-foreground">
+                    Email address cannot be changed.
+                  </p>
+                )}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone / WhatsApp</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      value={field.value || ''}
-                      placeholder="0812xxxxxx"
-                      type="text"
-                      inputMode="numeric"
-                      onChange={(e) =>
-                        field.onChange(e.target.value.replace(/\D/g, ''))
-                      }
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
+          <PhoneInputField
+            control={form.control}
+            setValue={form.setValue}
+            name="phone"
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">

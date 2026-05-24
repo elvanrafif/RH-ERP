@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react'
 import { MAX_AVATAR_SIZE_BYTES } from '@/lib/constant'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
 import type { User } from '@/types'
 import { toast } from 'sonner'
+import { useAvatarMutation } from '@/hooks/useProfile'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -32,42 +32,15 @@ interface ProfileAvatarProps {
 }
 
 export function ProfileAvatar({ user, className }: ProfileAvatarProps) {
-  const queryClient = useQueryClient()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false)
 
+  const { upload: uploadMutation, remove: deleteMutation, isLoading } = useAvatarMutation(user.id)
+
   const getInitials = (name?: string) =>
     name ? name.substring(0, 2).toUpperCase() : '??'
   const avatarUrl = user.avatar ? pb.files.getUrl(user, user.avatar) : null
-
-  const uploadMutation = useMutation({
-    mutationFn: async (file: File) => {
-      const formData = new FormData()
-      formData.append('avatar', file)
-      return await pb.collection('users').update(user.id, formData)
-    },
-    onSuccess: (data) => {
-      pb.authStore.save(pb.authStore.token, data)
-      queryClient.invalidateQueries({ queryKey: ['user-profile'] })
-      toast.success('Profile photo updated')
-    },
-    onError: () => toast.error('Failed to upload photo'),
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: async () => {
-      return await pb.collection('users').update(user.id, { avatar: null })
-    },
-    onSuccess: (data) => {
-      pb.authStore.save(pb.authStore.token, data)
-      queryClient.invalidateQueries({ queryKey: ['user-profile'] })
-      toast.success('Profile photo removed')
-      setIsPreviewOpen(false)
-      setIsDeleteConfirmOpen(false)
-    },
-    onError: () => toast.error('Failed to remove photo'),
-  })
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -81,7 +54,6 @@ export function ProfileAvatar({ user, className }: ProfileAvatarProps) {
   }
 
   const triggerUpload = () => fileInputRef.current?.click()
-  const isLoading = uploadMutation.isPending || deleteMutation.isPending
 
   return (
     <div className={`flex flex-col items-center gap-3 ${className}`}>
@@ -191,7 +163,14 @@ export function ProfileAvatar({ user, className }: ProfileAvatarProps) {
         onOpenChange={setIsDeleteConfirmOpen}
         title="Remove Profile Photo?"
         description="This action cannot be undone."
-        onConfirm={() => deleteMutation.mutate()}
+        onConfirm={() =>
+              deleteMutation.mutate(undefined, {
+                onSuccess: () => {
+                  setIsPreviewOpen(false)
+                  setIsDeleteConfirmOpen(false)
+                },
+              })
+            }
         isLoading={deleteMutation.isPending}
       />
     </div>

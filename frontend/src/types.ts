@@ -19,6 +19,10 @@ export interface Client {
   phone: string
   address?: string
   maps_link?: string
+  pic_users?: string[]
+  expand?: {
+    pic_users?: User[]
+  }
 }
 
 export interface Vendor {

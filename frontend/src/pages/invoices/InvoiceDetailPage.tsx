@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect, useCallback, useTransition } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { pb } from '@/lib/pocketbase'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
+import { useInvoiceEditor } from '@/hooks/useInvoiceEditor'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 
@@ -29,9 +28,10 @@ import {
 export default function InvoiceDetailPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
   const { isSuperAdmin } = useAuth()
   const componentRef = useRef<HTMLDivElement>(null)
+  const { invoice, isLoading, linkedProject, save, isSaving, deleteInvoice, isDeleting } =
+    useInvoiceEditor(id)
 
   const { containerRef: previewContainerRef, scale: previewScale } =
     useDocumentScaling()
@@ -41,24 +41,6 @@ export default function InvoiceDetailPage() {
   const { hasUnsavedChanges, markAsDirty, markAsClean, handleBack } =
     useUnsavedChanges('/invoices')
 
-  const { data: invoice, isLoading } = useQuery({
-    queryKey: ['invoice', id],
-    queryFn: () =>
-      pb.collection('invoices').getOne(id as string, { expand: 'client_id' }),
-  })
-
-  const { data: linkedProject } = useQuery({
-    queryKey: ['project-by-invoice', id],
-    queryFn: async () => {
-      const results = await pb.collection('projects').getList(1, 1, {
-        filter: `invoice_id = "${id}"`,
-        expand: 'client',
-        fields: 'id,type,expand.client.company_name,expand.client.salutation',
-      })
-      return results.items[0] ?? null
-    },
-    enabled: !!id,
-  })
 
   const [items, setItems] = useState<TermItem[]>([])
   const [date, setDate] = useState('')
@@ -193,62 +175,35 @@ export default function InvoiceDetailPage() {
     })
   }
 
-  const saveMutation = useMutation({
-    mutationFn: async () => {
-      const formData = new FormData()
-      formData.append('client_id', selectedClientId)
-      formData.append('date', new Date(date).toISOString())
-      formData.append('items', JSON.stringify(items))
-      formData.append('bank_details', bankDetails)
-      formData.append('notes', notes)
-      formData.append('total_amount', String(contractValue))
-      formData.append('discount_percent', String(discountPercent))
-      formData.append(
-        'project_area',
-        String(type === 'design' ? projectArea : 0)
+  const handleSave = async () => {
+    const formData = new FormData()
+    formData.append('client_id', selectedClientId)
+    formData.append('date', new Date(date).toISOString())
+    formData.append('items', JSON.stringify(items))
+    formData.append('bank_details', bankDetails)
+    formData.append('notes', notes)
+    formData.append('total_amount', String(contractValue))
+    formData.append('discount_percent', String(discountPercent))
+    formData.append('project_area', String(type === 'design' ? projectArea : 0))
+    formData.append('price_per_meter', String(type === 'design' ? pricePerMeter : 0))
+    const derivedStatus = items.every((i) => i.status === PAYMENT_ITEM_STATUS.SUCCESS)
+      ? 'paid'
+      : 'unpaid'
+    formData.append('status', derivedStatus)
+    formData.append('active_termin', activeTermin)
+    const blob = await generateJpeg()
+    if (blob) {
+      const jpegFileName = buildInvoiceFileName(
+        selectedClientData?.company_name || 'document',
+        type,
+        activeTermin,
+        items,
+        selectedClientData?.salutation
       )
-      formData.append(
-        'price_per_meter',
-        String(type === 'design' ? pricePerMeter : 0)
-      )
-      const derivedStatus = items.every(
-        (i) => i.status === PAYMENT_ITEM_STATUS.SUCCESS
-      )
-        ? 'paid'
-        : 'unpaid'
-      formData.append('status', derivedStatus)
-      formData.append('active_termin', activeTermin)
-      const blob = await generateJpeg()
-      if (blob) {
-        const jpegFileName = buildInvoiceFileName(
-          selectedClientData?.company_name || 'document',
-          type,
-          activeTermin,
-          items,
-          selectedClientData?.salutation
-        )
-        formData.append('document_file', blob, `${jpegFileName}.jpg`)
-      }
-      return await pb.collection('invoices').update(id as string, formData)
-    },
-    onSuccess: () => {
-      toast.success('Invoice & Official Document saved')
-      markAsClean()
-      queryClient.invalidateQueries({ queryKey: ['invoice', id] })
-      queryClient.invalidateQueries({ queryKey: ['invoices'] })
-    },
-    onError: () => toast.error('Failed to save changes'),
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: () => pb.collection('invoices').delete(id as string),
-    onSuccess: () => {
-      toast.success('Invoice deleted')
-      queryClient.invalidateQueries({ queryKey: ['invoices'] })
-      navigate('/invoices')
-    },
-    onError: () => toast.error('Failed to delete invoice'),
-  })
+      formData.append('document_file', blob, `${jpegFileName}.jpg`)
+    }
+    save(formData, { onSuccess: () => markAsClean() })
+  }
 
   if (isLoading)
     return (
@@ -265,13 +220,13 @@ export default function InvoiceDetailPage() {
         onBack={handleBack}
         totalLabel="Total"
         total={grandTotal}
-        isSaving={saveMutation.isPending}
+        isSaving={isSaving}
         isDownloading={isDownloading}
-        onSave={() => saveMutation.mutate()}
+        onSave={handleSave}
         onShareWA={handleShareWA}
         onDownload={handleDownloadOfficial}
         onDelete={isSuperAdmin ? () => setDeleteOpen(true) : undefined}
-        isDeleting={deleteMutation.isPending}
+        isDeleting={isDeleting}
         previewContainerRef={previewContainerRef}
         previewScale={previewScale}
         leftPanel={
@@ -392,8 +347,8 @@ export default function InvoiceDetailPage() {
         onOpenChange={setDeleteOpen}
         title="Delete Invoice?"
         description={`This will permanently delete invoice ${invoice?.invoice_number ?? ''}. This action cannot be undone and all data will be lost.`}
-        onConfirm={() => deleteMutation.mutate()}
-        isLoading={deleteMutation.isPending}
+        onConfirm={() => deleteInvoice(undefined, { onSuccess: () => navigate('/invoices') })}
+        isLoading={isDeleting}
       />
     </>
   )

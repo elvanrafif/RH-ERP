@@ -95,3 +95,22 @@ export function useInvoices({ filters, page }: UseInvoicesOptions) {
     isCreating: createMutation.isPending,
   }
 }
+
+export function useLinkedInvoices(
+  type: InvoiceType,
+  clientId: string,
+  enabled: boolean
+) {
+  const { data: linkedInvoices = [] } = useQuery({
+    queryKey: ['invoices-for-project', type, clientId],
+    queryFn: () =>
+      pb.collection('invoices').getFullList({
+        filter: `type = "${type}" && client_id = "${clientId}"`,
+        expand: 'client_id',
+        fields: 'id,invoice_number,expand.client_id.company_name',
+        sort: '-created',
+      }),
+    enabled,
+  })
+  return { linkedInvoices }
+}

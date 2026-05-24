@@ -6,8 +6,9 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
-import { Mail, Phone, MapPin } from 'lucide-react'
-import { getInitials } from '@/lib/helpers'
+import { Mail, Phone, MapPin, Users } from 'lucide-react'
+import { getInitials, formatFullPhone } from '@/lib/helpers'
+import { countries } from '@/lib/constants/countries'
 import { ClientName } from '@/components/shared/ClientName'
 
 interface ClientDetailDialogProps {
@@ -22,6 +23,8 @@ export function ClientDetailDialog({
   onOpenChange,
 }: ClientDetailDialogProps) {
   if (!client) return null
+
+  const picUsers = client.expand?.pic_users ?? []
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -49,11 +52,31 @@ export function ClientDetailDialog({
           </div>
           <div className="flex items-start gap-3 text-sm">
             <Phone className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-            <span className="text-slate-700">{client.phone || '—'}</span>
+            <span className="text-slate-700">{formatFullPhone(client.phone, countries)}</span>
           </div>
           <div className="flex items-start gap-3 text-sm">
             <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
             <span className="text-slate-700">{client.address || '—'}</span>
+          </div>
+          <div className="flex items-start gap-3 text-sm">
+            <Users className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="flex flex-wrap gap-1.5">
+              {picUsers.length > 0 ? (
+                picUsers.map((u) => (
+                  <div
+                    key={u.id}
+                    className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-medium"
+                  >
+                    <div className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[8px] shrink-0">
+                      {getInitials(u.name || u.email)}
+                    </div>
+                    <span>{u.name || u.email}</span>
+                  </div>
+                ))
+              ) : (
+                <span className="text-slate-400">—</span>
+              )}
+            </div>
           </div>
           {client.maps_link && (
             <a

@@ -6,7 +6,7 @@ import { LoadingSpinner } from '@/components/shared/LoadingSpinner'
 import { StatCard } from '@/components/shared/StatCard'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { useCivilTeamProjects } from '@/hooks/useCivilTeamProjects'
-import { ProjectDetailsModal } from '@/pages/projects/ProjectDetailsModal'
+import { ProjectCivilDetailsModal } from '@/pages/projects/projectCivil/ProjectCivilDetailsModal'
 import { CivilGanttChart } from './CivilGanttChart'
 import type { Project } from '@/types'
 
@@ -83,7 +83,7 @@ export function CivilTeamDashboard() {
         />
       )}
 
-      <ProjectDetailsModal
+      <ProjectCivilDetailsModal
         project={selectedProject}
         open={!!selectedProject}
         onOpenChange={(open) => {

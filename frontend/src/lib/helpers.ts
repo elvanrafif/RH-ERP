@@ -236,3 +236,95 @@ export const formatRupiahDisplay = (value: number | string) => {
 export function escapePbFilter(value: string): string {
   return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
 }
+
+export function formatPhoneNumber(value: string): string {
+  let digits = value.replace(/\D/g, '')
+  if (digits.startsWith('0')) {
+    digits = digits.substring(1)
+  }
+  const len = digits.length
+  if (len <= 3) return digits
+  if (len <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`
+  if (len === 10) {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`
+  }
+  if (len === 11) {
+    return `${digits.slice(0, 3)}-${digits.slice(3, 7)}-${digits.slice(7)}`
+  }
+  if (len === 12) {
+    return `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8)}`
+  }
+  if (len >= 13) {
+    return `${digits.slice(0, 4)}-${digits.slice(4, 8)}-${digits.slice(8, 13)}`
+  }
+  return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`
+}
+
+export function parseStoredPhone(
+  phone: string,
+  countryList: Array<{ code: string; dial_code: string }> = []
+): { prefix: string; localNumber: string } {
+  if (!phone) return { prefix: '+62', localNumber: '' }
+  const trimmed = phone.trim()
+
+  // Case 1: Starts with '+' (e.g. +62 815-9150-400 or +62 62815...)
+  if (trimmed.startsWith('+')) {
+    const matched = countryList.length > 0 
+      ? [...countryList].sort((a, b) => b.dial_code.length - a.dial_code.length).find((c) => trimmed.startsWith(c.dial_code))
+      : trimmed.startsWith('+62') ? { dial_code: '+62' } : null;
+      
+    if (matched) {
+      let rest = trimmed.substring(matched.dial_code.length).trim()
+      const cleanPrefix = matched.dial_code.substring(1)
+      const digitsOnlyRest = rest.replace(/\D/g, '')
+      if (digitsOnlyRest.startsWith(cleanPrefix)) {
+        rest = digitsOnlyRest.substring(cleanPrefix.length)
+      }
+      return {
+        prefix: matched.dial_code,
+        localNumber: formatPhoneNumber(rest),
+      }
+    }
+  }
+
+  // Case 2: Starts with country code but without '+' (e.g. 628159150400)
+  const withPlus = '+' + trimmed.replace(/\s+/g, '')
+  const matchedNoPlus = countryList.length > 0
+    ? [...countryList].sort((a, b) => b.dial_code.length - a.dial_code.length).find((c) => withPlus.startsWith(c.dial_code))
+    : withPlus.startsWith('+62') ? { dial_code: '+62' } : null;
+
+  if (matchedNoPlus) {
+    const cleanPrefix = matchedNoPlus.dial_code.substring(1)
+    const digitsOnlyInput = trimmed.replace(/\D/g, '')
+    if (digitsOnlyInput.startsWith(cleanPrefix)) {
+      const rest = digitsOnlyInput.substring(cleanPrefix.length)
+      return {
+        prefix: matchedNoPlus.dial_code,
+        localNumber: formatPhoneNumber(rest),
+      }
+    }
+  }
+
+  // Case 3: Starts with '0'
+  if (trimmed.startsWith('0')) {
+    return {
+      prefix: '+62',
+      localNumber: formatPhoneNumber(trimmed.substring(1)),
+    }
+  }
+
+  // Case 4: Default
+  return {
+    prefix: '+62',
+    localNumber: formatPhoneNumber(trimmed),
+  }
+}
+
+export function formatFullPhone(
+  phone: string,
+  countryList: Array<{ code: string; dial_code: string }> = []
+): string {
+  if (!phone) return '—'
+  const { prefix, localNumber } = parseStoredPhone(phone, countryList)
+  return localNumber ? `${prefix} ${localNumber}` : prefix
+}
