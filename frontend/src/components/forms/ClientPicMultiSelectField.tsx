@@ -36,7 +36,7 @@ export function ClientPicMultiSelectField({ control, users }: ClientPicMultiSele
           <FormItem>
             <FormLabel className="flex items-center gap-1.5">
               <Users className="h-3.5 w-3.5" />
-              PIC{' '}
+              Managed By{' '}
               <span className="text-muted-foreground font-normal">(optional)</span>
             </FormLabel>
             <FormControl>
@@ -48,7 +48,7 @@ export function ClientPicMultiSelectField({ control, users }: ClientPicMultiSele
                     className="w-full justify-between h-9 font-normal"
                   >
                     {selectedUsers.length === 0 ? (
-                      <span className="text-muted-foreground">Select PICs...</span>
+                      <span className="text-muted-foreground">Select managers...</span>
                     ) : (
                       <div className="flex items-center gap-1.5">
                         <div className="flex -space-x-1.5">
@@ -64,7 +64,7 @@ export function ClientPicMultiSelectField({ control, users }: ClientPicMultiSele
                         <span className="text-sm text-slate-700">
                           {selectedUsers.length === 1
                             ? selectedUsers[0].name || selectedUsers[0].email
-                            : `${selectedUsers.length} PICs selected`}
+                            : `${selectedUsers.length} managers selected`}
                         </span>
                       </div>
                     )}

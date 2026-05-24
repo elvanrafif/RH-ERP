@@ -97,10 +97,10 @@ export default function ClientsPage() {
                     picActive ? 'text-primary' : 'text-muted-foreground'
                   )}
                 />
-                <SelectValue placeholder="Filter PIC" />
+                <SelectValue placeholder="Filter Manager" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All PICs</SelectItem>
+                <SelectItem value="all">All Managers</SelectItem>
                 {users.map((u) => (
                   <SelectItem key={u.id} value={u.id}>
                     {u.name || u.email}

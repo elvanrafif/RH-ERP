@@ -11,9 +11,10 @@ import {
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Shield, Smartphone, Pencil } from 'lucide-react'
+import { Shield, Pencil } from 'lucide-react'
 import { RowActions } from '@/components/shared/RowActions'
-import { getInitials } from '@/lib/helpers'
+import { getInitials, formatFullPhone } from '@/lib/helpers'
+import { countries } from '@/lib/constants/countries'
 import { MaskingTextByDivision } from '@/lib/masking'
 import { EmptyState } from '@/components/shared/EmptyState'
 
@@ -90,18 +91,13 @@ export function UserList({ users, onEdit }: UserListProps) {
                     </TableCell>
 
                     <TableCell>
-                      <div className="flex flex-col">
+                      <div className="flex flex-col gap-0.5">
                         <span className="text-sm text-slate-700">
+                          {formatFullPhone(user.phone, countries)}
+                        </span>
+                        <span className="text-xs text-slate-400">
                           {user.email}
                         </span>
-                        {user.phone ? (
-                          <div className="flex items-center gap-1 text-xs text-slate-400 mt-0.5">
-                            <Smartphone className="h-3 w-3" />
-                            {user.phone}
-                          </div>
-                        ) : (
-                          <span className="text-xs text-slate-300">—</span>
-                        )}
                       </div>
                     </TableCell>
 

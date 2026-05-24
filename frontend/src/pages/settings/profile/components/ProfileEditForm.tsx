@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import type { User } from '@/types'
 import { useUpdateProfile } from '@/hooks/useProfile'
+import { PhoneInputField } from '@/components/forms/PhoneInputField'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -19,7 +20,20 @@ import { Loader2, Save } from 'lucide-react'
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string(),
-  phone: z.string().optional(),
+  phone: z
+    .string()
+    .optional()
+    .or(z.literal(''))
+    .refine(
+      (val) => {
+        if (!val) return true
+        const digits = val.replace(/\D/g, '')
+        return digits.length >= 10
+      },
+      {
+        message: 'Phone number must have at least 10 digits.',
+      }
+    ),
 })
 
 type ProfileFormValues = z.infer<typeof profileSchema>
@@ -76,25 +90,11 @@ export function ProfileEditForm({ user }: { user: User }) {
           )}
         />
 
-        <FormField
+        <PhoneInputField
           control={form.control}
+          setValue={form.setValue}
           name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Phone Number / WhatsApp</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  placeholder="0812xxxx"
-                  inputMode="numeric"
-                  onChange={(e) =>
-                    field.onChange(e.target.value.replace(/\D/g, ''))
-                  }
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Phone Number / WhatsApp"
         />
 
         <div className="flex justify-end pt-2 mt-4">

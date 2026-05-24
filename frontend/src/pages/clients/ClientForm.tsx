@@ -6,6 +6,7 @@ import type { Client } from '@/types'
 import { useFormMutation } from '@/hooks/useFormMutation'
 import { useUsers } from '@/hooks/useUsers'
 import { ClientPicMultiSelectField } from '@/components/forms/ClientPicMultiSelectField'
+import { PhoneInputField } from '@/components/forms/PhoneInputField'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,6 +27,8 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Loader2, MapPin } from 'lucide-react'
+
+
 
 const SALUTATIONS = ['Mr.', 'Mrs.', 'Ms.', 'Miss'] as const
 
@@ -129,41 +132,7 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
               <FormItem>
                 <FormLabel>Client Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Ismail Deyrian A" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Email{' '}
-                  <span className="text-muted-foreground font-normal">
-                    (optional)
-                  </span>
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="email@example.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="phone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone / WhatsApp</FormLabel>
-                <FormControl>
-                  <Input placeholder="0812..." {...field} />
+                  <Input placeholder="e.g. Ismail Deyrian A" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -173,13 +142,42 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
 
         <FormField
           control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>
+                Email{' '}
+                <span className="text-muted-foreground font-normal">
+                  (optional)
+                </span>
+              </FormLabel>
+              <FormControl>
+                <Input placeholder="e.g. client@company.com" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <PhoneInputField
+          control={form.control}
+          setValue={form.setValue}
+          name="phone"
+        />
+
+        <FormField
+          control={form.control}
           name="address"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Complete Address</FormLabel>
+              <FormLabel>
+                Complete Address{' '}
+                <span className="text-muted-foreground font-normal">
+                  (optional)
+                </span>
+              </FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="123 Main St..."
+                  placeholder="e.g. Jl. Kemang Raya No. 10, Jakarta Selatan"
                   className="min-h-[100px] resize-none"
                   {...field}
                 />
@@ -196,10 +194,13 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
             <FormItem>
               <FormLabel className="flex items-center gap-1.5">
                 <MapPin className="h-3.5 w-3.5" />
-                Google Maps Link
+                Google Maps Link{' '}
+                <span className="text-muted-foreground font-normal">
+                  (optional)
+                </span>
               </FormLabel>
               <FormControl>
-                <Input placeholder="https://maps.app.goo.gl/..." {...field} />
+                <Input placeholder="e.g. https://maps.app.goo.gl/..." {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

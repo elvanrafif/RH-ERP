@@ -6,9 +6,18 @@ export const userFormSchema = z
     email: z.string().email('Invalid email address'),
     phone: z
       .string()
-      .refine((val) => val === '' || /^\d+$/.test(val), 'Numbers only')
-      .refine((val) => val === '' || val.length >= 10, 'Minimum 10 digits')
-      .optional(),
+      .optional()
+      .or(z.literal(''))
+      .refine(
+        (val) => {
+          if (!val) return true
+          const digits = val.replace(/\D/g, '')
+          return digits.length >= 10
+        },
+        {
+          message: 'Phone number must have at least 10 digits.',
+        }
+      ),
     oldPassword: z.string().optional(),
     password: z.string().optional(),
     passwordConfirm: z.string().optional(),

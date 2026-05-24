@@ -10,12 +10,27 @@ export const clientSchema = z.object({
     .email({ message: 'Invalid email format.' })
     .optional()
     .or(z.literal('')),
-  phone: z.string().min(8, {
-    message: 'Phone number must be at least 8 digits.',
-  }),
-  address: z.string().min(5, {
-    message: 'Address must be at least 5 characters.',
-  }),
+  phone: z
+    .string()
+    .optional()
+    .or(z.literal(''))
+    .refine(
+      (val) => {
+        if (!val) return true
+        const digits = val.replace(/\D/g, '')
+        return digits.length >= 10
+      },
+      {
+        message: 'Phone number must have at least 8 digits.',
+      }
+    ),
+  address: z
+    .string()
+    .optional()
+    .or(z.literal(''))
+    .refine((val) => !val || val.length >= 5, {
+      message: 'Address must be at least 5 characters.',
+    }),
   maps_link: z
     .string()
     .url({ message: 'Invalid URL format.' })

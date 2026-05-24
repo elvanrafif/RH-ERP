@@ -18,7 +18,8 @@ import { RowActions } from '@/components/shared/RowActions'
 import { ClientName } from '@/components/shared/ClientName'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
-import { getInitials } from '@/lib/helpers'
+import { getInitials, formatFullPhone } from '@/lib/helpers'
+import { countries } from '@/lib/constants/countries'
 
 interface ClientTableProps {
   clients: Client[]
@@ -76,7 +77,7 @@ export function ClientTable({
                 <TableHead className="w-[260px]">Client / Company</TableHead>
                 <TableHead className="w-[200px]">Contact</TableHead>
                 <TableHead>Address</TableHead>
-                <TableHead className="w-[120px]">PIC</TableHead>
+                <TableHead className="w-[140px]">Managed By</TableHead>
                 <TableHead className="w-[60px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -116,7 +117,7 @@ export function ClientTable({
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-sm text-slate-600">{client.phone || '—'}</span>
+                        <span className="text-sm text-slate-600">{formatFullPhone(client.phone, countries)}</span>
                         {client.email && (
                           <span className="text-xs text-slate-400">{client.email}</span>
                         )}
