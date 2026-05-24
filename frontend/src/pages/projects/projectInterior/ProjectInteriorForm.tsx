@@ -15,7 +15,7 @@ import { ProjectPicSelectField } from '../components/ProjectPicSelectField'
 import { ProjectNotesField } from '../components/ProjectNotesField'
 import { ProjectStatusSelectField } from '../components/ProjectStatusSelectField'
 import { ProjectDeadlineField } from '../components/ProjectDeadlineField'
-import { InteriorVendorField } from './components/InteriorVendorField'
+import { ProjectVendorSelectField } from '../components/ProjectVendorSelectField'
 import { getInteriorFormDefaults, buildInteriorPayload } from './interiorFormHelpers'
 import { FormSubmitButton } from '@/components/shared/FormSubmitButton'
 import { Input } from '@/components/ui/input'
@@ -111,7 +111,7 @@ export function ProjectInteriorForm({
             users={availableUsers}
             label="Interior PIC"
           />
-          <InteriorVendorField control={form.control} vendors={resolvedInteriorVendors} />
+          <ProjectVendorSelectField control={form.control} vendors={resolvedInteriorVendors} label="Interior Vendor / Contractor" />
         </div>
 
         {/* Deadline */}

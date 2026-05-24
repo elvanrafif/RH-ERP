@@ -1,4 +1,5 @@
 import type { Project } from '@/types'
+import { normalizeAdditionalLinks, buildAdditionalLinksPayload } from '../formHelpers'
 
 const DEFAULT_STATUS = 'draft_skematik'
 
@@ -16,11 +17,7 @@ export function getInteriorFormDefaults(
     area_scope: initialData?.meta_data?.area_scope || '',
     notes: initialData?.notes || '',
     invoice_id: initialData?.invoice_id || '__none__',
-    additional_links: initialData?.meta_data?.additional_links?.length
-      ? (initialData.meta_data.additional_links as Array<string | { label?: string; url: string }>).map(
-          (v) => (typeof v === 'string' ? { label: '', url: v } : { label: v.label ?? '', url: v.url ?? '' })
-        )
-      : [{ label: '', url: '' }],
+    additional_links: normalizeAdditionalLinks(initialData?.meta_data?.additional_links),
   }
 }
 
@@ -38,10 +35,7 @@ export function buildInteriorPayload(data: InteriorFormValues) {
     invoice_id: data.invoice_id === '__none__' ? null : data.invoice_id || null,
     meta_data: {
       area_scope: data.area_scope || '',
-      additional_links:
-        data.additional_links
-          ?.filter((l) => l.url.trim())
-          .map((l) => ({ label: l.label?.trim() ?? '', url: l.url.trim() })) || [],
+      additional_links: buildAdditionalLinksPayload(data.additional_links),
     },
   }
 }

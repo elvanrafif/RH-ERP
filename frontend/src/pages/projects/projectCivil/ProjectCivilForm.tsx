@@ -16,9 +16,9 @@ import { LinkedInvoiceSelectField } from '../components/LinkedInvoiceSelectField
 import { ProjectPicSelectField } from '../components/ProjectPicSelectField'
 import { ProjectNotesField } from '../components/ProjectNotesField'
 import { ProjectStatusSelectField } from '../components/ProjectStatusSelectField'
+import { ProjectVendorSelectField } from '../components/ProjectVendorSelectField'
 import { CivilContractDatesField } from './components/CivilContractDatesField'
 import { SourceArchitectureSelectField } from './components/SourceArchitectureSelectField'
-import { CivilVendorField } from './components/CivilVendorField'
 import { getCivilFormDefaults, buildCivilPayload } from './civilFormHelpers'
 import { FormSubmitButton } from '@/components/shared/FormSubmitButton'
 import { Form } from '@/components/ui/form'
@@ -115,7 +115,7 @@ export function ProjectCivilForm({
             users={civilUsers ?? []}
             label="Managed By"
           />
-          <CivilVendorField control={form.control} vendors={resolvedCivilVendors} />
+          <ProjectVendorSelectField control={form.control} vendors={resolvedCivilVendors} label="Field PIC" placeholder="Select Supervisor" />
         </div>
 
         <AdditionalLinksField control={form.control} />

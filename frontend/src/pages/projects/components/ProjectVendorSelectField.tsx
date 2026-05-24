@@ -9,23 +9,31 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 
-interface InteriorVendorFieldProps {
+interface ProjectVendorSelectFieldProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<any>
   vendors: Vendor[]
+  label: string
+  placeholder?: string
 }
 
-export function InteriorVendorField({ control, vendors }: InteriorVendorFieldProps) {
+export function ProjectVendorSelectField({
+  control,
+  vendors,
+  label,
+  placeholder = 'Select vendor...',
+}: ProjectVendorSelectFieldProps) {
   return (
     <FormField
       control={control}
       name="vendor"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Interior Vendor / Contractor</FormLabel>
+          <FormLabel>{label}</FormLabel>
           <Select onValueChange={field.onChange} value={field.value as string}>
             <FormControl>
               <SelectTrigger>
-                <SelectValue placeholder="Select vendor..." />
+                <SelectValue placeholder={placeholder} />
               </SelectTrigger>
             </FormControl>
             <SelectContent>
