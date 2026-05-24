@@ -12,7 +12,7 @@ import { useProjectPageState } from '@/hooks/useProjectPageState'
 import { DEADLINE_WARNING_DAYS } from '@/lib/constant'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
-import { ProjectFilterBar } from '@/components/projects/ProjectFilterBar'
+import { InteriorFilterBar } from '@/components/projects/InteriorFilterBar'
 import { ProjectStatsSection } from '../components/ProjectStatsSection'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
@@ -103,32 +103,22 @@ export default function InteriorPage() {
       {/* MAIN CONTENT */}
       <div className="flex-1 overflow-hidden relative bg-card/50 rounded-lg border border-border shadow-inner flex flex-col">
         <div className="flex flex-col md:flex-row md:items-center gap-2 px-3 py-2 border-b bg-white/80 backdrop-blur-sm shrink-0">
-          <ProjectFilterBar
+          <InteriorFilterBar
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             filterPic={filterPic}
             onFilterPicChange={setFilterPic}
             filterVendor={filterVendor}
             onFilterVendorChange={setFilterVendor}
-            filterManagedBy="all"
-            onFilterManagedByChange={() => {}}
             filterStatus={statusFilter}
             onFilterStatusChange={setStatusFilter}
             filterDeadline={filterDeadline}
             onFilterDeadlineChange={setFilterDeadline}
             deadlineWarningDays={DEADLINE_DAYS}
-            resultCount={resultCount}
             hasActiveFilters={hasActiveFilters || statusFilter !== 'active'}
-            onResetFilters={() => {
-              resetFilters()
-              setStatusFilter('active')
-            }}
-            isCivil={false}
-            isInterior={true}
+            onResetFilters={() => { resetFilters(); setStatusFilter('active') }}
+            vendors={interiorVendors}
             users={users}
-            civilVendors={[]}
-            interiorVendors={interiorVendors}
-            projectType="interior"
             className="flex flex-1 gap-2 items-center"
           />
         </div>
