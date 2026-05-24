@@ -4,6 +4,8 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { clientSchema, type ClientFormValues } from '@/lib/validations/client'
 import type { Client } from '@/types'
 import { useFormMutation } from '@/hooks/useFormMutation'
+import { useUsers } from '@/hooks/useUsers'
+import { ClientPicMultiSelectField } from '@/components/forms/ClientPicMultiSelectField'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -33,6 +35,8 @@ interface ClientFormProps {
 }
 
 export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
+  const { users } = useUsers()
+
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientSchema),
     defaultValues: {
@@ -42,6 +46,7 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
       phone: initialData?.phone ?? '',
       address: initialData?.address ?? '',
       maps_link: initialData?.maps_link ?? '',
+      pic_users: initialData?.pic_users ?? [],
     },
   })
 
@@ -54,6 +59,7 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
         phone: initialData.phone,
         address: initialData.address,
         maps_link: initialData.maps_link ?? '',
+        pic_users: initialData.pic_users ?? [],
       })
     } else {
       form.reset({
@@ -63,6 +69,7 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
         phone: '',
         address: '',
         maps_link: '',
+        pic_users: [],
       })
     }
   }, [initialData, form])
@@ -198,6 +205,8 @@ export function ClientForm({ onSuccess, initialData }: ClientFormProps) {
             </FormItem>
           )}
         />
+
+        <ClientPicMultiSelectField control={form.control} users={users} />
 
         <div className="flex justify-end pt-4">
           <Button type="submit" disabled={mutation.isPending}>

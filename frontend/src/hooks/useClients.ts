@@ -7,18 +7,22 @@ import type { Client } from '@/types'
  * Used across InvoicesPage, QuotationsPage, ProjectForm, ClientsPage, etc.
  *
  * @param searchTerm - Optional search string to filter by name, email, phone, or address.
- *                     When omitted, returns all clients sorted by company_name.
+ * @param filterPic  - Optional user ID to filter clients by PIC. Pass 'all' or '' to skip.
  */
-export function useClients(searchTerm = '') {
+export function useClients(searchTerm = '', filterPic = '') {
   const { data: clients = [], isLoading } = useQuery({
-    queryKey: ['clients', searchTerm],
+    queryKey: ['clients', searchTerm, filterPic],
     queryFn: async () => {
-      const filter = searchTerm
-        ? `company_name ~ "${searchTerm}" || email ~ "${searchTerm}" || phone ~ "${searchTerm}" || address ~ "${searchTerm}"`
-        : ''
+      const parts: string[] = []
+      if (searchTerm)
+        parts.push(
+          `(company_name ~ "${searchTerm}" || email ~ "${searchTerm}" || phone ~ "${searchTerm}" || address ~ "${searchTerm}")`
+        )
+      if (filterPic && filterPic !== 'all') parts.push(`pic_users ~ "${filterPic}"`)
       return await pb.collection('clients').getFullList<Client>({
         sort: '-created',
-        filter,
+        filter: parts.join(' && '),
+        expand: 'pic_users',
       })
     },
   })

@@ -29,6 +29,7 @@ export const clientSchema = z.object({
     )
     .optional()
     .or(z.literal('')),
+  pic_users: z.array(z.string()).optional(),
 })
 
 export type ClientFormValues = z.infer<typeof clientSchema>

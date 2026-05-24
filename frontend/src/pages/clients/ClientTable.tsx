@@ -7,7 +7,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Button } from '@/components/ui/button'
 import {
   Tooltip,
   TooltipContent,
@@ -28,6 +27,38 @@ interface ClientTableProps {
   onEdit?: (client: Client) => void
 }
 
+function PicAvatarStack({ client }: { client: Client }) {
+  const picUsers = client.expand?.pic_users ?? []
+  if (picUsers.length === 0) return <span className="text-slate-400">—</span>
+
+  const visible = picUsers.slice(0, 3)
+  const extra = picUsers.length - visible.length
+
+  return (
+    <TooltipProvider>
+      <div className="flex -space-x-1.5">
+        {visible.map((u) => (
+          <Tooltip key={u.id} delayDuration={200}>
+            <TooltipTrigger asChild>
+              <div className="h-7 w-7 rounded-full bg-primary/10 border-2 border-white flex items-center justify-center text-primary font-bold text-[10px] cursor-default shrink-0">
+                {getInitials(u.name || u.email)}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent className="bg-slate-800 text-white">
+              {u.name || u.email}
+            </TooltipContent>
+          </Tooltip>
+        ))}
+        {extra > 0 && (
+          <div className="h-7 w-7 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-slate-500 font-medium text-[10px] shrink-0">
+            +{extra}
+          </div>
+        )}
+      </div>
+    </TooltipProvider>
+  )
+}
+
 export function ClientTable({
   clients,
   isLoading,
@@ -37,7 +68,7 @@ export function ClientTable({
   return (
     <div className="flex flex-col h-full bg-white">
       <div className="flex-1 overflow-auto">
-        <div className="min-w-[800px]">
+        <div className="min-w-[900px]">
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
               <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
@@ -46,15 +77,16 @@ export function ClientTable({
                 <TableHead>Email</TableHead>
                 <TableHead>Phone</TableHead>
                 <TableHead>Address</TableHead>
+                <TableHead className="w-[120px]">PIC</TableHead>
                 <TableHead className="w-[60px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRowsSkeleton rows={5} columns={6} />
+                <TableRowsSkeleton rows={5} columns={7} />
               ) : clients.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="h-60">
+                  <TableCell colSpan={7} className="h-60">
                     <EmptyState
                       title="No clients found"
                       description="Try changing your search keywords or add a new client."
@@ -108,6 +140,9 @@ export function ClientTable({
                           </Tooltip>
                         </TooltipProvider>
                       )}
+                    </TableCell>
+                    <TableCell onClick={(e) => e.stopPropagation()}>
+                      <PicAvatarStack client={client} />
                     </TableCell>
                     <TableCell
                       className="text-right"
