@@ -7,7 +7,8 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ChevronDown, Users } from 'lucide-react'
-import { getInitials } from '@/lib/helpers'
+import { getInitials, getAvatarUrl } from '@/lib/helpers'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 
 interface ClientPicMultiSelectFieldProps {
   control: Control<ClientFormValues>
@@ -53,12 +54,12 @@ export function ClientPicMultiSelectField({ control, users }: ClientPicMultiSele
                       <div className="flex items-center gap-1.5">
                         <div className="flex -space-x-1.5">
                           {selectedUsers.slice(0, 3).map((u) => (
-                            <div
-                              key={u.id}
-                              className="h-5 w-5 rounded-full bg-primary/10 border border-white flex items-center justify-center text-primary font-bold text-[9px]"
-                            >
-                              {getInitials(u.name || u.email)}
-                            </div>
+                            <Avatar key={u.id} className="h-5 w-5 border border-white shrink-0">
+                              <AvatarImage src={getAvatarUrl(u) || ''} className="object-cover" />
+                              <AvatarFallback className="bg-primary/10 text-primary font-bold text-[9px]">
+                                {getInitials(u.name || u.email)}
+                              </AvatarFallback>
+                            </Avatar>
                           ))}
                         </div>
                         <span className="text-sm text-slate-700">
@@ -86,9 +87,12 @@ export function ClientPicMultiSelectField({ control, users }: ClientPicMultiSele
                             checked={selected.includes(u.id)}
                             onCheckedChange={() => toggle(u.id)}
                           />
-                          <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[10px] shrink-0">
-                            {getInitials(u.name || u.email)}
-                          </div>
+                          <Avatar className="h-6 w-6 shrink-0">
+                            <AvatarImage src={getAvatarUrl(u) || ''} className="object-cover" />
+                            <AvatarFallback className="bg-primary/10 text-primary font-bold text-[10px]">
+                              {getInitials(u.name || u.email)}
+                            </AvatarFallback>
+                          </Avatar>
                           <span className="text-sm text-slate-700 truncate">
                             {u.name || u.email}
                           </span>

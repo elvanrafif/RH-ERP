@@ -7,9 +7,10 @@ import {
 } from '@/components/ui/dialog'
 import { Separator } from '@/components/ui/separator'
 import { Mail, Phone, MapPin, Users } from 'lucide-react'
-import { getInitials, formatFullPhone } from '@/lib/helpers'
+import { getInitials, formatFullPhone, getAvatarUrl } from '@/lib/helpers'
 import { countries } from '@/lib/constants/countries'
 import { ClientName } from '@/components/shared/ClientName'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 
 interface ClientDetailDialogProps {
   client: Client | null
@@ -28,24 +29,24 @@ export function ClientDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm">
-        <DialogHeader>
-          <div className="flex items-center gap-4">
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg shrink-0">
-              {getInitials(client.company_name)}
-            </div>
-            <div>
-              <DialogTitle className="text-lg font-semibold text-slate-900">
-                <ClientName
-                  name={client.company_name}
-                  salutation={client.salutation}
-                />
-              </DialogTitle>
-            </div>
+      <DialogContent className="w-[95vw] sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="flex flex-row items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-bold text-sm shrink-0">
+            {getInitials(client.company_name)}
+          </div>
+          <div className="flex flex-col gap-0.5 min-w-0">
+            <DialogTitle className="truncate">
+              <ClientName name={client.company_name} />
+            </DialogTitle>
+            <span className="text-xs text-muted-foreground truncate">
+              CP: {client.contact_person}
+            </span>
           </div>
         </DialogHeader>
+
         <Separator />
-        <div className="space-y-3">
+
+        <div className="space-y-4 py-2">
           <div className="flex items-start gap-3 text-sm">
             <Mail className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
             <span className="text-slate-700">{client.email || '—'}</span>
@@ -67,9 +68,12 @@ export function ClientDetailDialog({
                     key={u.id}
                     className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-slate-50 border border-slate-200 text-slate-700 text-xs font-medium"
                   >
-                    <div className="h-4 w-4 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[8px] shrink-0">
-                      {getInitials(u.name || u.email)}
-                    </div>
+                    <Avatar className="h-4 w-4 shrink-0">
+                      <AvatarImage src={getAvatarUrl(u) || ''} className="object-cover" />
+                      <AvatarFallback className="bg-primary/10 text-primary font-bold text-[8px]">
+                        {getInitials(u.name || u.email)}
+                      </AvatarFallback>
+                    </Avatar>
                     <span>{u.name || u.email}</span>
                   </div>
                 ))

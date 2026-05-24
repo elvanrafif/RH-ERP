@@ -18,8 +18,9 @@ import { RowActions } from '@/components/shared/RowActions'
 import { ClientName } from '@/components/shared/ClientName'
 import { EmptyState } from '@/components/shared/EmptyState'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
-import { getInitials, formatFullPhone } from '@/lib/helpers'
+import { getInitials, formatFullPhone, getAvatarUrl } from '@/lib/helpers'
 import { countries } from '@/lib/constants/countries'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 
 interface ClientTableProps {
   clients: Client[]
@@ -41,9 +42,12 @@ function PicAvatarStack({ client }: { client: Client }) {
         {visible.map((u) => (
           <Tooltip key={u.id} delayDuration={200}>
             <TooltipTrigger asChild>
-              <div className="h-7 w-7 rounded-full bg-primary/10 border-2 border-white flex items-center justify-center text-primary font-bold text-[10px] cursor-default shrink-0">
-                {getInitials(u.name || u.email)}
-              </div>
+              <Avatar className="h-7 w-7 border-2 border-white cursor-default shrink-0 shadow-sm">
+                <AvatarImage src={getAvatarUrl(u) || ''} className="object-cover" />
+                <AvatarFallback className="bg-primary/10 text-primary font-bold text-[10px]">
+                  {getInitials(u.name || u.email)}
+                </AvatarFallback>
+              </Avatar>
             </TooltipTrigger>
             <TooltipContent className="bg-slate-800 text-white">
               {u.name || u.email}

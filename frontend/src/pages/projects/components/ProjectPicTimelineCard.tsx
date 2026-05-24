@@ -1,8 +1,8 @@
 import type { Project } from '@/types'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { CalendarClock, CalendarRange, ArrowRight } from 'lucide-react'
-import { getInitials, formatDateLong, getRemainingTime } from '@/lib/helpers'
+import { getInitials, formatDateLong, getRemainingTime, getAvatarUrl } from '@/lib/helpers'
 
 interface ProjectPicTimelineCardProps {
   picData: string | undefined
@@ -31,6 +31,7 @@ export function ProjectPicTimelineCard({
           </p>
           <div className="flex items-center gap-2.5">
             <Avatar className="h-8 w-8 border border-border">
+              <AvatarImage src={getAvatarUrl(project.expand?.assignee) || ''} className="object-cover" />
               <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
                 {getInitials(managedByData)}
               </AvatarFallback>
@@ -50,6 +51,7 @@ export function ProjectPicTimelineCard({
           </p>
           <div className="flex items-center gap-2.5">
             <Avatar className="h-8 w-8 border border-border">
+              <AvatarImage src={getAvatarUrl(project.expand?.assignee) || ''} className="object-cover" />
               <AvatarFallback className="bg-primary/10 text-primary font-bold text-xs">
                 {getInitials(picData)}
               </AvatarFallback>
