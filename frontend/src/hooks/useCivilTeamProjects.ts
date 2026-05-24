@@ -51,6 +51,7 @@ export function useCivilTeamProjects() {
           let hasOverdue = false
           let hasNearDeadline = false
           for (const p of projects) {
+            if (p.is_on_hold) continue
             const date = getProjectDeadlineDate(p)
             if (!date) continue
             const days = getDaysRemaining(date)
