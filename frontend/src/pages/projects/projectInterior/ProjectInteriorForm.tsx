@@ -8,9 +8,10 @@ import { useVendors } from '@/hooks/useVendors'
 import { useLinkedInvoices } from '@/hooks/useInvoices'
 import { useProjectMutation } from '@/hooks/useProjects'
 import { projectSchema } from '@/lib/validations/project'
-import type { ProjectFormValues } from '@/lib/validations/project'
 import { ClientComboboxField } from '@/components/forms/ClientComboboxField'
 import { AdditionalLinksField } from '@/components/forms/AdditionalLinksField'
+import { LinkedInvoiceSelectField } from '../components/LinkedInvoiceSelectField'
+import { ProjectPicSelectField } from '../components/ProjectPicSelectField'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -177,35 +178,10 @@ export function ProjectInteriorForm({
 
         {/* Interior PIC + Vendor */}
         <div className="grid grid-cols-2 gap-4">
-          <FormField
+          <ProjectPicSelectField
             control={form.control}
-            name="assignee"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Interior PIC</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value as string}
-                  disabled={!isSuperAdmin}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select PIC" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {isSuperAdmin && (
-                      <SelectItem value="unassigned">-- Unassigned --</SelectItem>
-                    )}
-                    {availableUsers.map((u) => (
-                      <SelectItem key={u.id} value={u.id}>
-                        {u.name || u.email}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
+            users={availableUsers}
+            label="Interior PIC"
           />
           <FormField
             control={form.control}
@@ -259,39 +235,7 @@ export function ProjectInteriorForm({
 
         <AdditionalLinksField control={form.control} />
 
-        {isSuperAdmin && (
-          <FormField
-            control={form.control}
-            name="invoice_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Linked Invoice</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={(field.value as string) || '__none__'}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select invoice (optional)" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="__none__">None</SelectItem>
-                    {linkedInvoices.map((inv) => {
-                      const clientName =
-                        inv.expand?.client_id?.company_name ?? '—'
-                      return (
-                        <SelectItem key={inv.id} value={inv.id}>
-                          {inv.invoice_number} — {clientName}
-                        </SelectItem>
-                      )
-                    })}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
-        )}
+        <LinkedInvoiceSelectField control={form.control} linkedInvoices={linkedInvoices} />
 
         <FormField
           control={form.control}

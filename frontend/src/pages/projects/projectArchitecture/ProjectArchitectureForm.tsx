@@ -8,10 +8,11 @@ import { useUsers } from '@/hooks/useUsers'
 import { useLinkedInvoices } from '@/hooks/useInvoices'
 import { useProjectMutation } from '@/hooks/useProjects'
 import { projectSchema } from '@/lib/validations/project'
-import type { ProjectFormValues } from '@/lib/validations/project'
 import { ClientComboboxField } from '@/components/forms/ClientComboboxField'
 import { AdditionalLinksField } from '@/components/forms/AdditionalLinksField'
-import { NumberInput } from '@/components/shared/NumberInput'
+import { AreaFields } from '../components/AreaFields'
+import { LinkedInvoiceSelectField } from '../components/LinkedInvoiceSelectField'
+import { ProjectPicSelectField } from '../components/ProjectPicSelectField'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -143,77 +144,13 @@ export function ProjectArchitectureForm({
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="luas_tanah"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Land Area (m²)</FormLabel>
-                <FormControl>
-                  <NumberInput
-                    value={field.value ?? 0}
-                    onChange={field.onChange}
-                    step={0.5}
-                    min={0}
-                    decimal
-                    placeholder="0"
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="luas_bangunan"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Building Area (m²)</FormLabel>
-                <FormControl>
-                  <NumberInput
-                    value={field.value ?? 0}
-                    onChange={field.onChange}
-                    step={0.5}
-                    min={0}
-                    decimal
-                    placeholder="0"
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        </div>
+        <AreaFields control={form.control} />
 
         <div className="grid grid-cols-2 gap-4">
-          <FormField
+          <ProjectPicSelectField
             control={form.control}
-            name="assignee"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>PIC Design / Drafter</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value as string}
-                  disabled={!isSuperAdmin}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select PIC" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {isSuperAdmin && (
-                      <SelectItem value="unassigned">-- Unassigned --</SelectItem>
-                    )}
-                    {availableUsers.map((u) => (
-                      <SelectItem key={u.id} value={u.id}>
-                        {u.name || u.email}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
+            users={availableUsers}
+            label="PIC Design / Drafter"
           />
           <FormField
             control={form.control}
@@ -237,39 +174,7 @@ export function ProjectArchitectureForm({
 
         <AdditionalLinksField control={form.control} />
 
-        {isSuperAdmin && (
-          <FormField
-            control={form.control}
-            name="invoice_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Linked Invoice</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={(field.value as string) || '__none__'}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select invoice (optional)" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="__none__">None</SelectItem>
-                    {linkedInvoices.map((inv) => {
-                      const clientName =
-                        inv.expand?.client_id?.company_name ?? '—'
-                      return (
-                        <SelectItem key={inv.id} value={inv.id}>
-                          {inv.invoice_number} — {clientName}
-                        </SelectItem>
-                      )
-                    })}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
-        )}
+        <LinkedInvoiceSelectField control={form.control} linkedInvoices={linkedInvoices} />
 
         <FormField
           control={form.control}
