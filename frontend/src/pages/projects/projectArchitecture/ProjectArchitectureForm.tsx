@@ -13,30 +13,18 @@ import { AdditionalLinksField } from '@/components/forms/AdditionalLinksField'
 import { AreaFields } from '../components/AreaFields'
 import { LinkedInvoiceSelectField } from '../components/LinkedInvoiceSelectField'
 import { ProjectPicSelectField } from '../components/ProjectPicSelectField'
+import { ProjectNotesField } from '../components/ProjectNotesField'
+import { ProjectStatusSelectField } from '../components/ProjectStatusSelectField'
+import { ProjectDeadlineField } from '../components/ProjectDeadlineField'
 import { getArchitectureFormDefaults, buildArchitecturePayload } from './architectureFormHelpers'
-import { Button } from '@/components/ui/button'
+import { FormSubmitButton } from '@/components/shared/FormSubmitButton'
 import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Loader2 } from 'lucide-react'
+import { Form } from '@/components/ui/form'
 
-const STATUS_OPTIONS = ['denah', 'fasad', 'detail_drawing', 'finish'].map(
-  (value) => ({ value, label: MaskingTextByArchitectureStatus(value) })
-)
+const STATUS_OPTIONS = ['denah', 'fasad', 'detail_drawing', 'finish'].map((value) => ({
+  value,
+  label: MaskingTextByArchitectureStatus(value),
+}))
 
 interface ProjectArchitectureFormProps {
   onSuccess?: () => void
@@ -77,87 +65,22 @@ export function ProjectArchitectureForm({
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ClientComboboxField control={form.control} name="client_id" />
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Status / Stage</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value as string}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status..." />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {STATUS_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
+          <ProjectStatusSelectField control={form.control} options={STATUS_OPTIONS} />
         </div>
 
         <AreaFields control={form.control} />
 
         <div className="grid grid-cols-2 gap-4">
-          <ProjectPicSelectField
-            control={form.control}
-            users={availableUsers}
-            label="PIC Design / Drafter"
-          />
-          <FormField
-            control={form.control}
-            name="deadline"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Target Deadline</FormLabel>
-                <FormControl>
-                  <Input
-                    type="date"
-                    {...field}
-                    value={field.value || ''}
-                    className="block w-full bg-white [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <ProjectPicSelectField control={form.control} users={availableUsers} label="PIC Design / Drafter" />
+          <ProjectDeadlineField control={form.control} />
         </div>
 
         <AdditionalLinksField control={form.control} />
 
         <LinkedInvoiceSelectField control={form.control} linkedInvoices={linkedInvoices} />
 
-        <FormField
-          control={form.control}
-          name="notes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Notes</FormLabel>
-              <FormControl>
-                <Textarea rows={4} {...field} value={field.value || ''} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
-        <div className="flex justify-end pt-4">
-          <Button type="submit" disabled={isPending}>
-            {isPending && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            Save Project
-          </Button>
-        </div>
+        <ProjectNotesField control={form.control} />
+        <FormSubmitButton isPending={isPending} label="Save Project" />
       </form>
     </Form>
   )

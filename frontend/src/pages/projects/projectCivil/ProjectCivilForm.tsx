@@ -14,27 +14,14 @@ import { AdditionalLinksField } from '@/components/forms/AdditionalLinksField'
 import { AreaFields } from '../components/AreaFields'
 import { LinkedInvoiceSelectField } from '../components/LinkedInvoiceSelectField'
 import { ProjectPicSelectField } from '../components/ProjectPicSelectField'
+import { ProjectNotesField } from '../components/ProjectNotesField'
+import { ProjectStatusSelectField } from '../components/ProjectStatusSelectField'
 import { CivilContractDatesField } from './components/CivilContractDatesField'
 import { SourceArchitectureSelectField } from './components/SourceArchitectureSelectField'
 import { CivilVendorField } from './components/CivilVendorField'
 import { getCivilFormDefaults, buildCivilPayload } from './civilFormHelpers'
-import { Button } from '@/components/ui/button'
-import { Textarea } from '@/components/ui/textarea'
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from '@/components/ui/form'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
-import { Loader2 } from 'lucide-react'
+import { FormSubmitButton } from '@/components/shared/FormSubmitButton'
+import { Form } from '@/components/ui/form'
 import { useProjectArchitectureByClient } from '../projectArchitecture/hooks/useProjectArchitectureByClient'
 
 const STATUS_OPTIONS = [
@@ -105,32 +92,7 @@ export function ProjectCivilForm({
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <ClientComboboxField control={form.control} name="client_id" />
-          <FormField
-            control={form.control}
-            name="status"
-            render={({ field }) => (
-              <FormItem className="flex flex-col">
-                <FormLabel>Project Status</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value as string}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select status..." />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {STATUS_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
+          <ProjectStatusSelectField control={form.control} options={STATUS_OPTIONS} label="Project Status" />
         </div>
 
         {/* Contract dates */}
@@ -160,27 +122,8 @@ export function ProjectCivilForm({
 
         <LinkedInvoiceSelectField control={form.control} linkedInvoices={linkedInvoices} />
 
-        <FormField
-          control={form.control}
-          name="notes"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Notes</FormLabel>
-              <FormControl>
-                <Textarea rows={4} {...field} value={field.value || ''} />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
-        <div className="flex justify-end pt-4">
-          <Button type="submit" disabled={isPending}>
-            {isPending && (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            )}
-            Save Project
-          </Button>
-        </div>
+        <ProjectNotesField control={form.control} />
+        <FormSubmitButton isPending={isPending} label="Save Project" />
       </form>
     </Form>
   )
