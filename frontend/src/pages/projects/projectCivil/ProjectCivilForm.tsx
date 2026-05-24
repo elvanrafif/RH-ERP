@@ -3,7 +3,6 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import type { Project } from '@/types'
 import { DIVISION } from '@/lib/constant'
-import { MaskingTextByArchitectureStatus } from '@/lib/masking'
 import { useRole } from '@/hooks/useRole'
 import { useUsers } from '@/hooks/useUsers'
 import { useVendors } from '@/hooks/useVendors'
@@ -15,8 +14,11 @@ import { AdditionalLinksField } from '@/components/forms/AdditionalLinksField'
 import { AreaFields } from '../components/AreaFields'
 import { LinkedInvoiceSelectField } from '../components/LinkedInvoiceSelectField'
 import { ProjectPicSelectField } from '../components/ProjectPicSelectField'
+import { CivilContractDatesField } from './components/CivilContractDatesField'
+import { SourceArchitectureSelectField } from './components/SourceArchitectureSelectField'
+import { CivilVendorField } from './components/CivilVendorField'
+import { getCivilFormDefaults, buildCivilPayload } from './civilFormHelpers'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import {
   Form,
@@ -69,34 +71,7 @@ export function ProjectCivilForm({
 
   const form = useForm({
     resolver: zodResolver(projectSchema),
-    defaultValues: {
-      client_id: initialData?.client || '',
-      assignee: initialData?.assignee || '',
-      status: initialData?.status || STATUS_OPTIONS[0].value,
-      start_date: initialData?.start_date
-        ? initialData.start_date.substring(0, 10)
-        : '',
-      end_date: initialData?.end_date
-        ? initialData.end_date.substring(0, 10)
-        : '',
-      luas_tanah: initialData?.luas_tanah || 0,
-      luas_bangunan: initialData?.luas_bangunan || 0,
-      vendor: initialData?.vendor || '',
-      source_architecture: initialData?.source_architecture || '__none__',
-      notes: initialData?.notes || '',
-      invoice_id: initialData?.invoice_id || '__none__',
-      additional_links: initialData?.meta_data?.additional_links?.length
-        ? (
-            initialData.meta_data.additional_links as Array<
-              string | { label?: string; url: string }
-            >
-          ).map((v) =>
-            typeof v === 'string'
-              ? { label: '', url: v }
-              : { label: v.label ?? '', url: v.url ?? '' }
-          )
-        : [{ label: '', url: '' }],
-    },
+    defaultValues: getCivilFormDefaults(initialData),
   })
 
   const clientId = form.watch('client_id')
@@ -125,29 +100,7 @@ export function ProjectCivilForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((data) =>
-          mutate({
-            client: data.client_id,
-            assignee: data.assignee || null,
-            status: data.status,
-            type: 'civil',
-            start_date: data.start_date || null,
-            end_date: data.end_date || null,
-            luas_tanah: data.luas_tanah || null,
-            luas_bangunan: data.luas_bangunan || null,
-            vendor: data.vendor || null,
-            source_architecture:
-              data.source_architecture === '__none__' ? null : data.source_architecture || null,
-            notes: data.notes || null,
-            invoice_id: data.invoice_id === '__none__' ? null : data.invoice_id || null,
-            meta_data: {
-              additional_links:
-                data.additional_links
-                  ?.filter((l) => l.url.trim())
-                  .map((l) => ({ label: l.label?.trim() ?? '', url: l.url.trim() })) || [],
-            },
-          })
-        )}
+        onSubmit={form.handleSubmit((data) => mutate(buildCivilPayload(data)))}
         className="space-y-4"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -181,80 +134,16 @@ export function ProjectCivilForm({
         </div>
 
         {/* Contract dates */}
-        <div className="grid grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="start_date"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Contract Start</FormLabel>
-                <FormControl>
-                  <Input
-                    type="date"
-                    {...field}
-                    value={field.value || ''}
-                    className="block w-full bg-white [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="end_date"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Contract End</FormLabel>
-                <FormControl>
-                  <Input
-                    type="date"
-                    {...field}
-                    value={field.value || ''}
-                    className="block w-full bg-white [&::-webkit-calendar-picker-indicator]:ml-auto [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-        </div>
+        <CivilContractDatesField control={form.control} />
 
         {/* Land + Building area */}
         <AreaFields control={form.control} />
 
         {/* Source architecture */}
-        <FormField
+        <SourceArchitectureSelectField
           control={form.control}
-          name="source_architecture"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Converted from Architecture Project</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                value={(field.value as string) || ''}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="None (fresh project)" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="__none__">None (fresh project)</SelectItem>
-                  {architectureProjects.map((ap) => (
-                    <SelectItem key={ap.id} value={ap.id}>
-                      {users?.find((u) => u.id === ap.assignee)?.name ?? '—'} ·{' '}
-                      {MaskingTextByArchitectureStatus(ap.status)}
-                      {(ap.luas_tanah || ap.luas_bangunan) && (
-                        <span className="text-muted-foreground">
-                          {' '}
-                          · L:{ap.luas_tanah ?? 0}m² | B:{ap.luas_bangunan ?? 0}m²
-                        </span>
-                      )}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FormItem>
-          )}
+          architectureProjects={architectureProjects}
+          users={users}
         />
 
         {/* Managed By + Field PIC */}
@@ -264,32 +153,7 @@ export function ProjectCivilForm({
             users={civilUsers ?? []}
             label="Managed By"
           />
-          <FormField
-            control={form.control}
-            name="vendor"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Field PIC</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value as string}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Supervisor" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {resolvedCivilVendors.map((v) => (
-                      <SelectItem key={v.id} value={v.id}>
-                        {v.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
+          <CivilVendorField control={form.control} vendors={resolvedCivilVendors} />
         </div>
 
         <AdditionalLinksField control={form.control} />

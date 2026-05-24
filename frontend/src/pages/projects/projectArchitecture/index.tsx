@@ -1,6 +1,4 @@
 import { useState } from 'react'
-import { useMemo } from 'react'
-import type { Project } from '@/types'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRole } from '@/hooks/useRole'
 import { useUsers } from '@/hooks/useUsers'
@@ -8,24 +6,20 @@ import { useProjects } from '@/hooks/useProjects'
 import type { ProjectStatusFilter } from '@/hooks/useProjects'
 import { useProjectFilters } from '@/hooks/useProjectFilters'
 import { useProjectInvoiceStats } from '@/hooks/useProjectInvoiceStats'
-import { useAutoOpenProject } from '@/hooks/useAutoOpenProject'
-import { usePagination } from '@/hooks/usePagination'
+import { useProjectPageState } from '@/hooks/useProjectPageState'
 import { DEADLINE_WARNING_DAYS } from '@/lib/constant'
-import { formatRupiah } from '@/lib/helpers'
 import { Button } from '@/components/ui/button'
-import { Plus, Banknote, Activity, AlertTriangle } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { ProjectFilterBar } from '@/components/projects/ProjectFilterBar'
-import { ProjectStatCard } from '@/components/shared/ProjectStatCard'
+import { ProjectStatsSection } from '../components/ProjectStatsSection'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
 import { PageTableSkeleton } from '@/components/shared/TableSkeleton'
 import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog'
-import { TablePagination } from '@/components/shared/TablePagination'
-import { DataTable } from '@/components/ui/data-table'
 import { ProjectArchitectureForm } from './ProjectArchitectureForm'
 import { ProjectArchitectureDetailsModal } from './ProjectArchitectureDetailsModal'
 import ProjectArchitectureKanban from './ProjectArchitectureKanban'
-import { getArchitectureColumns } from './columns'
+import { ArchitectureHiddenTableView } from './ArchitectureHiddenTableView'
 
 const KANBAN_COLUMNS = [
   { id: 'denah', title: 'Floor Plan' },
@@ -43,11 +37,6 @@ export default function ArsitekturPage() {
 
   const [statusFilter, setStatusFilter] =
     useState<ProjectStatusFilter>('active')
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [editingProject, setEditingProject] = useState<Project | null>(null)
-  const [deleteId, setDeleteId] = useState<string | null>(null)
-  const [viewingProject, setViewingProject] = useState<Project | null>(null)
-
   const { projects, isLoading, updateStatus, deleteProject } = useProjects({
     projectType: 'architecture',
     statusFilter,
@@ -75,57 +64,13 @@ export default function ArsitekturPage() {
     useProjectInvoiceStats('architecture')
 
   const {
-    page,
-    setPage,
-    totalItems,
-    totalPages,
-    paginatedData: paginatedProjects,
-  } = usePagination(filteredProjects, [
-    searchQuery,
-    filterPic,
-    filterDeadline,
-    statusFilter,
-  ])
-
-  const {
-    projectToView: autoOpenProject,
-    setProjectToView: setAutoOpenProject,
-  } = useAutoOpenProject(projects, isLoading)
-
-  const openProject = viewingProject ?? autoOpenProject
-
-  const columns = useMemo(
-    () =>
-      getArchitectureColumns(
-        (p) => setViewingProject(p),
-        handleEdit,
-        (p) => setDeleteId(p.id),
-        isSuperAdmin ?? false
-      ),
-    [isSuperAdmin]
-  )
-
-  function handleCreate() {
-    setEditingProject(null)
-    setIsDialogOpen(true)
-  }
-
-  function handleEdit(project: Project) {
-    setEditingProject(project)
-    setIsDialogOpen(true)
-  }
-
-  function handleDelete() {
-    if (!deleteId) return
-    deleteProject(deleteId, { onSuccess: () => setDeleteId(null) })
-  }
-
-  function handleCloseViewModal(open: boolean) {
-    if (!open) {
-      setViewingProject(null)
-      setAutoOpenProject(null)
-    }
-  }
+    isDialogOpen, setIsDialogOpen,
+    editingProject, setEditingProject,
+    deleteId, setDeleteId,
+    setViewingProject,
+    openProject,
+    handleCreate, handleEdit, handleDelete, handleCloseViewModal,
+  } = useProjectPageState({ projects, isLoading, deleteProject })
 
   return (
     <div className="flex-1 h-full p-4 md:p-8 pt-6 flex flex-col overflow-hidden bg-background/50">
@@ -145,78 +90,13 @@ export default function ArsitekturPage() {
       />
 
       {/* STATS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:flex md:flex-row gap-2 md:gap-3 mb-4 shrink-0">
-        {isSuperAdmin && (
-          <ProjectStatCard
-            icon={<Banknote />}
-            label="Project Revenue"
-            color="emerald"
-            value={
-              <div className="flex flex-col gap-1">
-                <div className="flex items-baseline justify-between md:justify-start gap-2">
-                  <span className="text-xs text-emerald-600 font-medium w-16 shrink-0">
-                    Realized
-                  </span>
-                  <span className="text-sm md:text-base font-bold text-slate-800">
-                    {formatRupiah(realizationRevenue)}
-                  </span>
-                </div>
-                <div className="flex items-baseline justify-between md:justify-start gap-2">
-                  <span className="text-xs text-slate-400 font-medium w-16 shrink-0">
-                    Potential
-                  </span>
-                  <span className="text-sm md:text-base font-bold text-slate-500">
-                    {formatRupiah(potentialRevenue)}
-                  </span>
-                </div>
-              </div>
-            }
-            description="From linked invoices on active projects."
-          />
-        )}
-        <ProjectStatCard
-          icon={<Activity />}
-          label="Active Projects"
-          color="blue"
-          value={
-            <p className="text-base md:text-2xl font-bold text-slate-800 leading-tight">
-              {stats.activeCount}{' '}
-              <span className="text-sm md:text-base font-normal text-slate-400">
-                projects
-              </span>
-            </p>
-          }
-          description="Projects with active status currently in progress."
-        />
-        <ProjectStatCard
-          icon={<AlertTriangle />}
-          label="At-Risk Projects"
-          color="amber"
-          className="sm:col-span-2 md:col-span-1"
-          value={
-            <div className="flex items-baseline gap-3 md:gap-4">
-              <div className="flex items-baseline gap-1">
-                <span className="text-base md:text-2xl font-bold text-red-500 leading-tight">
-                  {stats.overdueCount}
-                </span>
-                <span className="text-xs md:text-sm text-slate-400">
-                  overdue
-                </span>
-              </div>
-              <span className="text-slate-200 font-light select-none">/</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-base md:text-2xl font-bold text-amber-500 leading-tight">
-                  {stats.nearDeadlineCount}
-                </span>
-                <span className="text-xs md:text-sm text-slate-400">
-                  near deadline
-                </span>
-              </div>
-            </div>
-          }
-          description={`Overdue or within ${DEADLINE_DAYS} days of deadline. Needs immediate follow-up.`}
-        />
-      </div>
+      <ProjectStatsSection
+        isSuperAdmin={isSuperAdmin}
+        stats={stats}
+        realizationRevenue={realizationRevenue}
+        potentialRevenue={potentialRevenue}
+        deadlineWarningDays={DEADLINE_DAYS}
+      />
 
       {/* MAIN CONTENT */}
       <div className="flex-1 overflow-hidden relative bg-card/50 rounded-lg border border-border shadow-inner flex flex-col">
@@ -269,17 +149,17 @@ export default function ArsitekturPage() {
       </div>
 
       {/* TABLE VIEW (hidden — accessible via future toggle) */}
-      <div className="hidden">
-        <DataTable columns={columns} data={paginatedProjects} />
-        <TablePagination
-          page={page}
-          totalPages={totalPages}
-          totalItems={totalItems}
-          itemCount={paginatedProjects.length}
-          isLoading={isLoading}
-          onPageChange={setPage}
-        />
-      </div>
+      <ArchitectureHiddenTableView
+        filteredProjects={filteredProjects}
+        searchQuery={searchQuery}
+        filterPic={filterPic}
+        filterDeadline={filterDeadline}
+        statusFilter={statusFilter}
+        isSuperAdmin={isSuperAdmin ?? false}
+        onView={(p) => setViewingProject(p)}
+        onEdit={handleEdit}
+        onDelete={(p) => setDeleteId(p.id)}
+      />
 
       {/* MODALS */}
       <ProjectArchitectureDetailsModal
