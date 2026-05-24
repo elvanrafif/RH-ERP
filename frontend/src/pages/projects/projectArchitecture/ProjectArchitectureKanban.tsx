@@ -1,81 +1,15 @@
 import { useState, useEffect, useCallback } from 'react'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
-import type {
-  DropResult,
-  DraggableProvidedDraggableProps,
-  DraggableProvidedDragHandleProps,
-} from '@hello-pangea/dnd'
+import type { DropResult } from '@hello-pangea/dnd'
 import type { Project } from '@/types'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
-  Tooltip,
-  TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { RowActions } from '@/components/shared/RowActions'
-import { ClientName } from '@/components/shared/ClientName'
-import {
-  CalendarClock,
-  Pencil,
-  Trash2,
-  Ruler,
-  Maximize2,
-  StickyNote,
-  ChevronDown,
-  ChevronUp,
-  FolderOpen,
-} from 'lucide-react'
-import {
-  formatDateShort,
-  formatRupiah,
-  getAvatarUrl,
-  getInitials,
-  getRemainingTime,
-} from '@/lib/helpers'
+import { FolderOpen } from 'lucide-react'
 import { useRole } from '@/hooks/useRole'
 import { canEditProject } from '@/lib/projects/permissions'
-
-export type KanbanColumnDefinition = {
-  id: string
-  title: string
-}
-
-interface KanbanState {
-  tasks: Record<string, Project>
-  columns: Record<string, { id: string; title: string; taskIds: string[] }>
-  columnOrder: string[]
-}
-
-function buildKanbanState(
-  data: Project[],
-  columnsConfig: KanbanColumnDefinition[]
-): KanbanState {
-  const tasks: Record<string, Project> = {}
-  const columns: Record<
-    string,
-    { id: string; title: string; taskIds: string[] }
-  > = {}
-  const columnOrder = columnsConfig.map((c) => c.id)
-
-  columnsConfig.forEach((col) => {
-    columns[col.id] = { id: col.id, title: col.title, taskIds: [] }
-  })
-
-  data.forEach((project) => {
-    tasks[project.id] = project
-    const statusKey =
-      project.status && columns[project.status]
-        ? project.status
-        : columnOrder[0]
-    if (columns[statusKey]) columns[statusKey].taskIds.push(project.id)
-  })
-
-  return { tasks, columns, columnOrder }
-}
+import { buildKanbanState, type KanbanColumnDefinition, type KanbanState } from '../components/kanbanUtils'
+import { ArchKanbanCard } from './ArchKanbanCard'
 
 interface ProjectArchitectureKanbanProps {
   data: Project[]
@@ -198,7 +132,7 @@ export default function ProjectArchitectureKanban({
                             isDragDisabled={!canEdit || !!task.is_on_hold}
                           >
                             {(provided, snapshot) => (
-                              <KanbanCard
+                              <ArchKanbanCard
                                 task={task}
                                 canEdit={canEdit}
                                 isSuperAdmin={isSuperAdmin ?? false}
@@ -227,185 +161,4 @@ export default function ProjectArchitectureKanban({
   )
 }
 
-interface KanbanCardProps {
-  task: Project
-  canEdit: boolean
-  isSuperAdmin: boolean
-  isDragging: boolean
-  draggableProps: DraggableProvidedDraggableProps
-  dragHandleProps: DraggableProvidedDragHandleProps | null
-  innerRef: (el: HTMLElement | null) => void
-  onView: () => void
-  onEdit: () => void
-  onDelete: () => void
-}
-
-function KanbanCard({
-  task,
-  canEdit,
-  isSuperAdmin,
-  isDragging,
-  draggableProps,
-  dragHandleProps,
-  innerRef,
-  onView,
-  onEdit,
-  onDelete,
-}: KanbanCardProps) {
-  const [showNotes, setShowNotes] = useState(false)
-  const assignee = task.expand?.assignee
-  const contractValue = task.expand?.invoice_id?.total_amount
-  const notes = task.notes
-
-  return (
-    <Card
-      ref={innerRef}
-      {...draggableProps}
-      {...dragHandleProps}
-      onClick={onView}
-      className={`shadow-sm hover:shadow-md transition-all duration-200 group border-l-4
-        ${canEdit && !task.is_on_hold ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'}
-        ${task.is_on_hold ? 'border-l-orange-300 border-dashed opacity-70' : 'border-l-blue-400'}
-        ${isDragging ? 'rotate-2 shadow-xl ring-2 ring-primary/20 z-50' : ''}`}
-    >
-      <CardContent className="p-3 space-y-2.5">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center gap-1.5">
-            <Badge
-              variant="secondary"
-              className="text-[10px] px-1.5 py-0 h-5 font-medium uppercase border bg-blue-50 text-blue-700 border-blue-200"
-            >
-              architecture
-            </Badge>
-            {task.is_on_hold && (
-              <Badge
-                variant="secondary"
-                className="text-[10px] px-1.5 py-0 h-5 font-medium uppercase border bg-orange-50 text-orange-700 border-orange-200"
-              >
-                ⏸ On Hold
-              </Badge>
-            )}
-          </div>
-          <RowActions
-            stopPropagation
-            actions={
-              canEdit
-                ? [
-                    { label: 'Edit', icon: Pencil, onClick: onEdit },
-                    {
-                      label: 'Delete',
-                      icon: Trash2,
-                      onClick: onDelete,
-                      variant: 'destructive',
-                      separator: true,
-                    },
-                  ]
-                : []
-            }
-          />
-        </div>
-
-        <div>
-          <h4
-            className="font-semibold text-sm leading-snug text-slate-900 line-clamp-2"
-            title={
-              task.expand?.client
-                ? `${task.expand.client.salutation ? task.expand.client.salutation + ' ' : ''}${task.expand.client.company_name}`
-                : 'Unknown Client'
-            }
-          >
-            {task.expand?.client ? (
-              <ClientName
-                name={task.expand.client.company_name}
-                salutation={task.expand.client.salutation}
-              />
-            ) : (
-              'Unknown Client'
-            )}
-          </h4>
-          {isSuperAdmin && contractValue != null && contractValue > 0 && (
-            <p className="text-xs text-slate-400 mt-0.5 font-normal">
-              {formatRupiah(contractValue)}
-            </p>
-          )}
-        </div>
-
-        {(Number(task.luas_tanah) > 0 || Number(task.luas_bangunan) > 0) && (
-          <div className="flex justify-center gap-2 flex-wrap text-xs text-slate-600 bg-slate-50 p-1.5 rounded border border-slate-100">
-            {Number(task.luas_tanah) > 0 && (
-              <span className="flex items-center gap-1" title="Land Area">
-                <Maximize2 className="h-3 w-3 text-slate-400" />
-                Land: <span className="font-medium">{task.luas_tanah}m²</span>
-              </span>
-            )}
-            {Number(task.luas_tanah) > 0 && Number(task.luas_bangunan) > 0 && (
-              <span className="text-slate-300">|</span>
-            )}
-            {Number(task.luas_bangunan) > 0 && (
-              <span className="flex items-center gap-1" title="Building Area">
-                <Ruler className="h-3 w-3 text-slate-400" />
-                Building:{' '}
-                <span className="font-medium">{task.luas_bangunan}m²</span>
-              </span>
-            )}
-          </div>
-        )}
-
-        {notes && (
-          <div className="rounded border border-yellow-100 overflow-hidden bg-yellow-50/40">
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                setShowNotes((v) => !v)
-              }}
-              className="flex items-center justify-between w-full px-2 py-1.5 text-left cursor-pointer hover:bg-yellow-50 transition-colors"
-            >
-              <div className="flex items-center gap-1.5">
-                <StickyNote className="h-3 w-3 text-yellow-500 shrink-0" />
-                <span className="text-xs text-yellow-600 font-medium">Notes</span>
-              </div>
-              {showNotes ? (
-                <ChevronUp className="h-3 w-3 text-yellow-500" />
-              ) : (
-                <ChevronDown className="h-3 w-3 text-yellow-500" />
-              )}
-            </button>
-            {showNotes && (
-              <p className="px-2 pb-2 text-xs text-slate-500 italic leading-relaxed">
-                {notes}
-              </p>
-            )}
-          </div>
-        )}
-
-        <div className="pt-2 border-t flex items-center justify-between">
-          <div
-            className="flex items-center gap-1.5 text-xs text-slate-400"
-            title="Deadline"
-          >
-            <CalendarClock className="h-3 w-3 shrink-0" />
-            <span>{formatDateShort(task.deadline)}</span>
-            {task.deadline && (
-              <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-1 py-0.5 rounded uppercase leading-none">
-                {getRemainingTime(task.deadline)}
-              </span>
-            )}
-          </div>
-          <Tooltip>
-            <TooltipTrigger>
-              <Avatar className="h-6 w-6 border border-white shadow-sm cursor-pointer">
-                <AvatarImage src={getAvatarUrl(assignee) || ''} />
-                <AvatarFallback className="text-[10px] bg-blue-100 text-blue-700">
-                  {getInitials(assignee?.name)}
-                </AvatarFallback>
-              </Avatar>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>PIC: {assignee?.name || 'Unassigned'}</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
+export type { KanbanColumnDefinition }
