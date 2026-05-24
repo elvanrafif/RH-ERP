@@ -1,10 +1,9 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation } from '@tanstack/react-query'
-import { pb } from '@/lib/pocketbase'
 import { z } from 'zod'
 import type { User } from '@/types'
 import { toast } from 'sonner'
+import { useChangePassword } from '@/hooks/useProfile'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -36,6 +35,7 @@ const passwordSchema = z
 type PasswordFormValues = z.infer<typeof passwordSchema>
 
 export function SecurityForm({ user }: { user: User }) {
+  const mutation = useChangePassword(user.id)
   const form = useForm({
     resolver: zodResolver(passwordSchema),
     defaultValues: {
@@ -45,36 +45,27 @@ export function SecurityForm({ user }: { user: User }) {
     },
   })
 
-  const mutation = useMutation({
-    mutationFn: async (values: PasswordFormValues) => {
-      // PocketBase Self-Update Password Logic
-      return await pb.collection('users').update(user.id, {
-        oldPassword: values.oldPassword,
-        password: values.password,
-        passwordConfirm: values.passwordConfirm,
-      })
-    },
-    onSuccess: () => {
-      toast.success('Password changed successfully')
-      form.reset() // Clear input setelah sukses agar aman
-    },
-    onError: (err: any) => {
-      console.error(err?.message ?? err)
-      // Handle error spesifik "Invalid old password"
-      const errorData = err?.data?.data
-      if (errorData?.oldPassword) {
-        form.setError('oldPassword', { message: 'Incorrect old password' })
-        toast.error('Failed: Incorrect old password')
-      } else {
-        toast.error('Failed to change password')
-      }
-    },
-  })
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
+        onSubmit={form.handleSubmit((data) =>
+          mutation.mutate(data, {
+            onSuccess: () => {
+              toast.success('Password changed successfully')
+              form.reset()
+            },
+            onError: (err: any) => {
+              const errorData = err?.data?.data
+              if (errorData?.oldPassword) {
+                form.setError('oldPassword', { message: 'Incorrect old password' })
+                toast.error('Failed: Incorrect old password')
+              } else {
+                toast.error('Failed to change password')
+              }
+            },
+          })
+        )}
         className="space-y-4 max-w-lg"
       >
         <div className="bg-amber-50 p-3 rounded border border-amber-200 text-xs text-amber-800 mb-4">

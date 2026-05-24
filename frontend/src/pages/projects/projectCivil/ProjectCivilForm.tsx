@@ -1,14 +1,14 @@
 import { useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { pb } from '@/lib/pocketbase'
-import type { Project, User } from '@/types'
+import type { Project } from '@/types'
 import { DIVISION } from '@/lib/constant'
 import { MaskingTextByArchitectureStatus } from '@/lib/masking'
-import { toast } from 'sonner'
 import { useRole } from '@/hooks/useRole'
+import { useUsers } from '@/hooks/useUsers'
 import { useVendors } from '@/hooks/useVendors'
+import { useLinkedInvoices } from '@/hooks/useInvoices'
+import { useProjectMutation } from '@/hooks/useProjects'
 import { projectSchema } from '@/lib/validations/project'
 import type { ProjectFormValues } from '@/lib/validations/project'
 import { ClientComboboxField } from '@/components/forms/ClientComboboxField'
@@ -49,13 +49,8 @@ export function ProjectCivilForm({
   onSuccess,
   initialData,
 }: ProjectCivilFormProps) {
-  const queryClient = useQueryClient()
   const { isSuperAdmin } = useRole()
-
-  const { data: users } = useQuery({
-    queryKey: ['users-list'],
-    queryFn: async () => await pb.collection('users').getFullList<User>(),
-  })
+  const { users } = useUsers()
 
   const civilUsers = users?.filter(
     (u) => u.division?.toLowerCase() === DIVISION.CIVIL
@@ -123,68 +118,35 @@ export function ProjectCivilForm({
     }
   }, [civilUsers?.length])
 
-  const { data: linkedInvoices = [] } = useQuery({
-    queryKey: ['invoices-for-project', 'sipil', clientId],
-    queryFn: () =>
-      pb.collection('invoices').getFullList({
-        filter: `type = "sipil" && client_id = "${clientId}"`,
-        expand: 'client_id',
-        fields: 'id,invoice_number,expand.client_id.company_name',
-        sort: '-created',
-      }),
-    enabled: isSuperAdmin && !!clientId,
-  })
-
-  const mutation = useMutation({
-    mutationFn: async (values: ProjectFormValues) => {
-      const payload = {
-        client: values.client_id,
-        assignee: values.assignee || null,
-        status: values.status,
-        type: 'civil' as const,
-        start_date: values.start_date || null,
-        end_date: values.end_date || null,
-        luas_tanah: values.luas_tanah || null,
-        luas_bangunan: values.luas_bangunan || null,
-        vendor: values.vendor || null,
-        source_architecture:
-          values.source_architecture === '__none__'
-            ? null
-            : values.source_architecture || null,
-        notes: values.notes || null,
-        invoice_id:
-          values.invoice_id === '__none__' ? null : values.invoice_id || null,
-        meta_data: {
-          additional_links:
-            values.additional_links
-              ?.filter((l) => l.url.trim())
-              .map((l) => ({
-                label: l.label?.trim() ?? '',
-                url: l.url.trim(),
-              })) || [],
-        },
-      }
-      return initialData
-        ? await pb.collection('projects').update(initialData.id, payload)
-        : await pb.collection('projects').create(payload)
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['projects'] })
-      toast.success(
-        initialData ? 'Project updated successfully' : 'Project created successfully'
-      )
-      onSuccess?.()
-    },
-    onError: (err) => {
-      console.error(err)
-      toast.error('Failed to save project')
-    },
-  })
+  const { linkedInvoices } = useLinkedInvoices('sipil', clientId, isSuperAdmin && !!clientId)
+  const { mutate, isPending } = useProjectMutation(initialData, onSuccess)
 
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
+        onSubmit={form.handleSubmit((data) =>
+          mutate({
+            client: data.client_id,
+            assignee: data.assignee || null,
+            status: data.status,
+            type: 'civil',
+            start_date: data.start_date || null,
+            end_date: data.end_date || null,
+            luas_tanah: data.luas_tanah || null,
+            luas_bangunan: data.luas_bangunan || null,
+            vendor: data.vendor || null,
+            source_architecture:
+              data.source_architecture === '__none__' ? null : data.source_architecture || null,
+            notes: data.notes || null,
+            invoice_id: data.invoice_id === '__none__' ? null : data.invoice_id || null,
+            meta_data: {
+              additional_links:
+                data.additional_links
+                  ?.filter((l) => l.url.trim())
+                  .map((l) => ({ label: l.label?.trim() ?? '', url: l.url.trim() })) || [],
+            },
+          })
+        )}
         className="space-y-4"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -443,8 +405,8 @@ export function ProjectCivilForm({
         />
 
         <div className="flex justify-end pt-4">
-          <Button type="submit" disabled={mutation.isPending}>
-            {mutation.isPending && (
+          <Button type="submit" disabled={isPending}>
+            {isPending && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
             Save Project

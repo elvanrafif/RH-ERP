@@ -1,8 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { pb } from '@/lib/pocketbase'
 import { toast } from 'sonner'
+import { useFormMutation } from '@/hooks/useFormMutation'
 import { roleFormSchema } from '@/lib/validations/role'
 import type { RoleFormValues } from '@/lib/validations/role'
 
@@ -123,7 +122,6 @@ interface RoleFormProps {
 }
 
 export function RoleForm({ initialData, onSuccess }: RoleFormProps) {
-  const queryClient = useQueryClient()
   const form = useForm<RoleFormValues>({
     resolver: zodResolver(roleFormSchema),
     defaultValues: {
@@ -132,24 +130,15 @@ export function RoleForm({ initialData, onSuccess }: RoleFormProps) {
     },
   })
 
-  const mutation = useMutation({
-    mutationFn: async (values: RoleFormValues) => {
-      if (initialData) {
-        return await pb.collection('roles').update(initialData.id, values)
-      } else {
-        return await pb.collection('roles').create(values)
-      }
-    },
+  const mutation = useFormMutation<RoleFormValues>({
+    collection: 'roles',
+    queryKey: ['roles-list'],
+    initialData,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['roles-list'] })
       toast.success(
         initialData ? 'Role updated successfully' : 'Role created successfully'
       )
       onSuccess()
-    },
-    onError: (err) => {
-      console.error(err?.message ?? err)
-      toast.error('Failed to save role')
     },
   })
 

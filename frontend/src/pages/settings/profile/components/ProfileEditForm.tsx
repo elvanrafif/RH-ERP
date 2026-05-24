@@ -1,10 +1,8 @@
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { pb } from '@/lib/pocketbase'
 import { z } from 'zod'
 import type { User } from '@/types'
-import { toast } from 'sonner'
+import { useUpdateProfile } from '@/hooks/useProfile'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -27,7 +25,7 @@ const profileSchema = z.object({
 type ProfileFormValues = z.infer<typeof profileSchema>
 
 export function ProfileEditForm({ user }: { user: User }) {
-  const queryClient = useQueryClient()
+  const mutation = useUpdateProfile(user.id)
 
   const form = useForm({
     resolver: zodResolver(profileSchema),
@@ -36,21 +34,6 @@ export function ProfileEditForm({ user }: { user: User }) {
       email: user.email || '',
       phone: user.phone || '',
     },
-  })
-
-  const mutation = useMutation({
-    mutationFn: async (values: ProfileFormValues) => {
-      return await pb.collection('users').update(user.id, {
-        name: values.name,
-        phone: values.phone,
-      })
-    },
-    onSuccess: (data) => {
-      pb.authStore.save(pb.authStore.token, data)
-      queryClient.invalidateQueries({ queryKey: ['user-profile'] })
-      toast.success('Profile updated successfully')
-    },
-    onError: () => toast.error('Failed to update profile'),
   })
 
   return (

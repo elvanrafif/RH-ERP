@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect, useTransition } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { pb } from '@/lib/pocketbase'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
+import { useQuotationEditor } from '@/hooks/useQuotationEditor'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -30,8 +29,9 @@ import { useAuth } from '@/contexts/AuthContext'
 export default function QuotationEditor() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const queryClient = useQueryClient()
   const componentRef = useRef<HTMLDivElement>(null)
+  const { quotation, isLoading, save, isSaving, deleteQuotation, isDeleting } =
+    useQuotationEditor(id)
 
   const { containerRef: previewContainerRef, scale: previewScale } =
     useDocumentScaling()
@@ -45,11 +45,6 @@ export default function QuotationEditor() {
   const isRestricted =
     can('manage_quotations_restricted') && !can('manage_quotations')
 
-  const { data: quotation, isLoading } = useQuery({
-    queryKey: ['quotation', id],
-    queryFn: () =>
-      pb.collection('quotations').getOne(id as string, { expand: 'client_id' }),
-  })
 
   const [quotationNumber, setQuotationNumber] = useState('')
   const [status, setStatus] = useState('draft')
@@ -123,57 +118,34 @@ export default function QuotationEditor() {
     })
   }
 
-  const saveMutation = useMutation({
-    mutationFn: async () => {
-      const formData = new FormData()
-      formData.append('client_id', selectedClientId)
-      formData.append('quotation_number', quotationNumber)
-      formData.append('status', status)
-      formData.append('address', address)
-      formData.append('project_area', String(projectArea))
-      formData.append('price_per_meter', String(pricePerMeter))
-      formData.append('discount_percent', String(discountPercent))
-      formData.append('total_price', String(grandTotal))
-      formData.append('bank_details', bankDetails)
-      formData.append(
-        'items',
-        JSON.stringify([
-          {
-            description: 'Design & Architecture Services',
-            quantity: projectArea,
-            price: pricePerMeter,
-          },
-        ])
+  const handleSave = async () => {
+    const formData = new FormData()
+    formData.append('client_id', selectedClientId)
+    formData.append('quotation_number', quotationNumber)
+    formData.append('status', status)
+    formData.append('address', address)
+    formData.append('project_area', String(projectArea))
+    formData.append('price_per_meter', String(pricePerMeter))
+    formData.append('discount_percent', String(discountPercent))
+    formData.append('total_price', String(grandTotal))
+    formData.append('bank_details', bankDetails)
+    formData.append(
+      'items',
+      JSON.stringify([
+        { description: 'Design & Architecture Services', quantity: projectArea, price: pricePerMeter },
+      ])
+    )
+    const blob = await generateJpeg()
+    if (blob) {
+      const jpegName = buildQuotationFileName(
+        selectedClientData?.company_name || 'document',
+        selectedClientData?.salutation,
+        quotation?.project_area
       )
-      const blob = await generateJpeg()
-      if (blob) {
-        const jpegName = buildQuotationFileName(
-          selectedClientData?.company_name || 'document',
-          selectedClientData?.salutation,
-          quotation?.project_area
-        )
-        formData.append('document_file', blob, `${jpegName}.jpg`)
-      }
-      return await pb.collection('quotations').update(id as string, formData)
-    },
-    onSuccess: () => {
-      toast.success('Quotation & Official Document saved')
-      markAsClean()
-      queryClient.invalidateQueries({ queryKey: ['quotation', id] })
-      queryClient.invalidateQueries({ queryKey: ['quotations'] })
-    },
-    onError: () => toast.error('Failed to save changes'),
-  })
-
-  const deleteMutation = useMutation({
-    mutationFn: () => pb.collection('quotations').delete(id as string),
-    onSuccess: () => {
-      toast.success('Quotation deleted')
-      queryClient.invalidateQueries({ queryKey: ['quotations'] })
-      navigate('/quotations')
-    },
-    onError: () => toast.error('Failed to delete quotation'),
-  })
+      formData.append('document_file', blob, `${jpegName}.jpg`)
+    }
+    save(formData, { onSuccess: () => markAsClean() })
+  }
 
   if (isLoading)
     return (
@@ -190,13 +162,13 @@ export default function QuotationEditor() {
         onBack={handleBack}
         totalLabel="Grand Total"
         total={grandTotal}
-        isSaving={saveMutation.isPending}
+        isSaving={isSaving}
         isDownloading={isDownloading}
-        onSave={() => saveMutation.mutate()}
+        onSave={handleSave}
         onShareWA={handleShareWA}
         onDownload={handleDownloadOfficial}
         onDelete={isSuperAdmin ? () => setDeleteOpen(true) : undefined}
-        isDeleting={deleteMutation.isPending}
+        isDeleting={isDeleting}
         previewContainerRef={previewContainerRef}
         previewScale={previewScale}
         leftPanel={
@@ -348,8 +320,8 @@ export default function QuotationEditor() {
         onOpenChange={setDeleteOpen}
         title="Delete Quotation?"
         description={`This will permanently delete quotation ${quotationNumber}. This action cannot be undone and all data will be lost.`}
-        onConfirm={() => deleteMutation.mutate()}
-        isLoading={deleteMutation.isPending}
+        onConfirm={() => deleteQuotation(undefined, { onSuccess: () => navigate('/quotations') })}
+        isLoading={isDeleting}
       />
     </>
   )
