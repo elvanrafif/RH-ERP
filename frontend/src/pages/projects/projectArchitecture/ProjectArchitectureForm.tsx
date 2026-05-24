@@ -13,6 +13,7 @@ import { AdditionalLinksField } from '@/components/forms/AdditionalLinksField'
 import { AreaFields } from '../components/AreaFields'
 import { LinkedInvoiceSelectField } from '../components/LinkedInvoiceSelectField'
 import { ProjectPicSelectField } from '../components/ProjectPicSelectField'
+import { getArchitectureFormDefaults, buildArchitecturePayload } from './architectureFormHelpers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -51,29 +52,7 @@ export function ProjectArchitectureForm({
 
   const form = useForm({
     resolver: zodResolver(projectSchema),
-    defaultValues: {
-      client_id: initialData?.client || '',
-      assignee: initialData?.assignee || (!isSuperAdmin ? user?.id : '') || '',
-      status: initialData?.status || STATUS_OPTIONS[0].value,
-      deadline: initialData?.deadline
-        ? initialData.deadline.substring(0, 10)
-        : '',
-      luas_tanah: initialData?.luas_tanah || 0,
-      luas_bangunan: initialData?.luas_bangunan || 0,
-      notes: initialData?.notes || '',
-      invoice_id: initialData?.invoice_id || '__none__',
-      additional_links: initialData?.meta_data?.additional_links?.length
-        ? (
-            initialData.meta_data.additional_links as Array<
-              string | { label?: string; url: string }
-            >
-          ).map((v) =>
-            typeof v === 'string'
-              ? { label: '', url: v }
-              : { label: v.label ?? '', url: v.url ?? '' }
-          )
-        : [{ label: '', url: '' }],
-    },
+    defaultValues: getArchitectureFormDefaults(initialData, isSuperAdmin, user?.id),
   })
 
   const clientId = form.watch('client_id')
@@ -93,25 +72,7 @@ export function ProjectArchitectureForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((data) =>
-          mutate({
-            client: data.client_id,
-            assignee: data.assignee || null,
-            status: data.status,
-            type: 'architecture',
-            deadline: data.deadline || null,
-            luas_tanah: data.luas_tanah || null,
-            luas_bangunan: data.luas_bangunan || null,
-            notes: data.notes || null,
-            invoice_id: data.invoice_id === '__none__' ? null : data.invoice_id || null,
-            meta_data: {
-              additional_links:
-                data.additional_links
-                  ?.filter((l) => l.url.trim())
-                  .map((l) => ({ label: l.label?.trim() ?? '', url: l.url.trim() })) || [],
-            },
-          })
-        )}
+        onSubmit={form.handleSubmit((data) => mutate(buildArchitecturePayload(data)))}
         className="space-y-4"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

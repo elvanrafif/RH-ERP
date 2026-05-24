@@ -12,6 +12,8 @@ import { ClientComboboxField } from '@/components/forms/ClientComboboxField'
 import { AdditionalLinksField } from '@/components/forms/AdditionalLinksField'
 import { LinkedInvoiceSelectField } from '../components/LinkedInvoiceSelectField'
 import { ProjectPicSelectField } from '../components/ProjectPicSelectField'
+import { InteriorVendorField } from './components/InteriorVendorField'
+import { getInteriorFormDefaults, buildInteriorPayload } from './interiorFormHelpers'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -50,17 +52,15 @@ export function ProjectInteriorForm({
   const { isSuperAdmin, user } = useRole()
   const { users } = useUsers()
 
-  const assignedVendorId = initialData?.vendor
-  const assignedVendor = initialData?.expand?.vendor
   const { vendors: interiorVendors } = useVendors({
     projectType: 'interior',
     activeOnly: true,
   })
   const resolvedInteriorVendors =
-    assignedVendorId &&
-    assignedVendor &&
-    !interiorVendors.find((v) => v.id === assignedVendorId)
-      ? [...interiorVendors, assignedVendor]
+    initialData?.vendor &&
+    initialData?.expand?.vendor &&
+    !interiorVendors.find((v) => v.id === initialData.vendor)
+      ? [...interiorVendors, initialData.expand.vendor]
       : interiorVendors
 
   const availableUsers =
@@ -74,29 +74,7 @@ export function ProjectInteriorForm({
 
   const form = useForm({
     resolver: zodResolver(projectSchema),
-    defaultValues: {
-      client_id: initialData?.client || '',
-      assignee: initialData?.assignee || (!isSuperAdmin ? user?.id : '') || '',
-      status: initialData?.status || STATUS_OPTIONS[0].value,
-      deadline: initialData?.deadline
-        ? initialData.deadline.substring(0, 10)
-        : '',
-      vendor: initialData?.vendor || '',
-      area_scope: initialData?.meta_data?.area_scope || '',
-      notes: initialData?.notes || '',
-      invoice_id: initialData?.invoice_id || '__none__',
-      additional_links: initialData?.meta_data?.additional_links?.length
-        ? (
-            initialData.meta_data.additional_links as Array<
-              string | { label?: string; url: string }
-            >
-          ).map((v) =>
-            typeof v === 'string'
-              ? { label: '', url: v }
-              : { label: v.label ?? '', url: v.url ?? '' }
-          )
-        : [{ label: '', url: '' }],
-    },
+    defaultValues: getInteriorFormDefaults(initialData, isSuperAdmin, user?.id),
   })
 
   const clientId = form.watch('client_id')
@@ -107,25 +85,7 @@ export function ProjectInteriorForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit((data) =>
-          mutate({
-            client: data.client_id,
-            assignee: data.assignee || null,
-            status: data.status,
-            type: 'interior',
-            deadline: data.deadline || null,
-            vendor: data.vendor || null,
-            notes: data.notes || null,
-            invoice_id: data.invoice_id === '__none__' ? null : data.invoice_id || null,
-            meta_data: {
-              area_scope: data.area_scope || '',
-              additional_links:
-                data.additional_links
-                  ?.filter((l) => l.url.trim())
-                  .map((l) => ({ label: l.label?.trim() ?? '', url: l.url.trim() })) || [],
-            },
-          })
-        )}
+        onSubmit={form.handleSubmit((data) => mutate(buildInteriorPayload(data)))}
         className="space-y-4"
       >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -183,32 +143,7 @@ export function ProjectInteriorForm({
             users={availableUsers}
             label="Interior PIC"
           />
-          <FormField
-            control={form.control}
-            name="vendor"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Interior Vendor / Contractor</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  value={field.value as string}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select vendor..." />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {resolvedInteriorVendors.map((v) => (
-                      <SelectItem key={v.id} value={v.id}>
-                        {v.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
+          <InteriorVendorField control={form.control} vendors={resolvedInteriorVendors} />
         </div>
 
         {/* Deadline */}
