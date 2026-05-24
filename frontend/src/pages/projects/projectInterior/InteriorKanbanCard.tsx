@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import type {
   DraggableProvidedDraggableProps,
   DraggableProvidedDragHandleProps,
@@ -14,14 +13,12 @@ import {
 } from '@/components/ui/tooltip'
 import { RowActions } from '@/components/shared/RowActions'
 import { ClientName } from '@/components/shared/ClientName'
+import { KanbanNotesSection } from '../components/KanbanNotesSection'
 import {
   CalendarClock,
   Pencil,
   Trash2,
   MapPin,
-  StickyNote,
-  ChevronDown,
-  ChevronUp,
 } from 'lucide-react'
 import {
   formatDateShort,
@@ -56,7 +53,6 @@ export function InteriorKanbanCard({
   onEdit,
   onDelete,
 }: InteriorKanbanCardProps) {
-  const [showNotes, setShowNotes] = useState(false)
   const assignee = task.expand?.assignee
   const contractValue = task.expand?.invoice_id?.total_amount
   const meta = task.meta_data || {}
@@ -142,32 +138,7 @@ export function InteriorKanbanCard({
           </div>
         )}
 
-        {notes && (
-          <div className="rounded border border-yellow-100 overflow-hidden bg-yellow-50/40">
-            <button
-              onClick={(e) => {
-                e.stopPropagation()
-                setShowNotes((v) => !v)
-              }}
-              className="flex items-center justify-between w-full px-2 py-1.5 text-left cursor-pointer hover:bg-yellow-50 transition-colors"
-            >
-              <div className="flex items-center gap-1.5">
-                <StickyNote className="h-3 w-3 text-yellow-500 shrink-0" />
-                <span className="text-xs text-yellow-600 font-medium">Notes</span>
-              </div>
-              {showNotes ? (
-                <ChevronUp className="h-3 w-3 text-yellow-500" />
-              ) : (
-                <ChevronDown className="h-3 w-3 text-yellow-500" />
-              )}
-            </button>
-            {showNotes && (
-              <p className="px-2 pb-2 text-xs text-slate-500 italic leading-relaxed">
-                {notes}
-              </p>
-            )}
-          </div>
-        )}
+        {notes && <KanbanNotesSection notes={notes} />}
 
         <div className="pt-2 border-t flex items-center justify-between">
           <div className="flex items-center gap-1.5 text-xs text-slate-400" title="Deadline">
