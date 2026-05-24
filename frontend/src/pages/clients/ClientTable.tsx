@@ -68,14 +68,13 @@ export function ClientTable({
   return (
     <div className="flex flex-col h-full bg-white">
       <div className="flex-1 overflow-auto">
-        <div className="min-w-[900px]">
+        <div className="min-w-[820px]">
           <Table>
             <TableHeader className="sticky top-0 bg-white z-10 shadow-sm">
               <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
                 <TableHead className="w-[40px]">#</TableHead>
-                <TableHead className="w-[280px]">Client / Company</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
+                <TableHead className="w-[260px]">Client / Company</TableHead>
+                <TableHead className="w-[200px]">Contact</TableHead>
                 <TableHead>Address</TableHead>
                 <TableHead className="w-[120px]">PIC</TableHead>
                 <TableHead className="w-[60px]"></TableHead>
@@ -83,10 +82,10 @@ export function ClientTable({
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRowsSkeleton rows={5} columns={7} />
+                <TableRowsSkeleton rows={5} columns={6} />
               ) : clients.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="h-60">
+                  <TableCell colSpan={6} className="h-60">
                     <EmptyState
                       title="No clients found"
                       description="Try changing your search keywords or add a new client."
@@ -115,14 +114,16 @@ export function ClientTable({
                         />
                       </div>
                     </TableCell>
-                    <TableCell className="text-slate-600">
-                      {client.email || '—'}
-                    </TableCell>
-                    <TableCell className="text-slate-600">
-                      {client.phone || '—'}
+                    <TableCell>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm text-slate-600">{client.phone || '—'}</span>
+                        {client.email && (
+                          <span className="text-xs text-slate-400">{client.email}</span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell>
-                      {!client.address || client.address.length < 20 ? (
+                      {!client.address || client.address.length < 30 ? (
                         <span className="text-slate-600">
                           {client.address || '—'}
                         </span>
@@ -130,7 +131,7 @@ export function ClientTable({
                         <TooltipProvider>
                           <Tooltip delayDuration={200}>
                             <TooltipTrigger asChild>
-                              <span className="truncate max-w-[250px] block cursor-default text-slate-600 hover:text-slate-900 transition-colors">
+                              <span className="truncate max-w-[320px] block cursor-default text-slate-600 hover:text-slate-900 transition-colors">
                                 {client.address}
                               </span>
                             </TooltipTrigger>
