@@ -23,6 +23,7 @@ export function computeProjectStats(
   let nearDeadlineCount = 0
   for (const p of projects) {
     activeCount++
+    if (p.is_on_hold) continue
     const date = getProjectDeadlineDate(p)
     if (!date) continue
     const days = getDaysRemaining(date)
