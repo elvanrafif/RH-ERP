@@ -9,7 +9,6 @@ import { InvoiceTable } from './components/InvoiceTable'
 import { InvoiceCreateDialog } from './components/InvoiceCreateDialog'
 import { PageHeader } from '@/components/shared/PageHeader'
 import type { CreateInvoicePayload } from '@/hooks/useInvoices'
-import { backfillPaymentDates } from '@/lib/invoicing/backfillPaymentDates'
 
 export default function InvoicesPage() {
   const navigate = useNavigate()
@@ -57,14 +56,9 @@ export default function InvoicesPage() {
         title="Invoices"
         description="Manage billings for Architecture, Civil, and Interior projects."
         action={
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => backfillPaymentDates()}>
-              Backfill payment_dates
-            </Button>
-            <Button onClick={() => setIsDialogOpen(true)} className="shadow-sm">
-              <Plus className="mr-2 h-4 w-4" /> Create Invoice
-            </Button>
-          </div>
+          <Button onClick={() => setIsDialogOpen(true)} className="shadow-sm">
+            <Plus className="mr-2 h-4 w-4" /> Create Invoice
+          </Button>
         }
       />
 
