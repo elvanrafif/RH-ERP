@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import type { Project } from '@/types'
+import type { Project, User } from '@/types'
 import { DIVISION } from '@/lib/constant'
 import { useRole } from '@/hooks/useRole'
 import { useUsers } from '@/hooks/useUsers'
@@ -39,12 +39,13 @@ export function ProjectCivilForm({
   onSuccess,
   initialData,
 }: ProjectCivilFormProps) {
-  const { isSuperAdmin } = useRole()
+  const { isSuperAdmin, user } = useRole()
   const { users } = useUsers()
 
   const civilUsers = users?.filter(
     (u) => u.division?.toLowerCase() === DIVISION.CIVIL
   )
+  const managedByUsers = isSuperAdmin ? (civilUsers ?? []) : (user ? [user as User] : [])
 
   const assignedVendorId = initialData?.vendor
   const assignedVendor = initialData?.expand?.vendor
@@ -58,7 +59,7 @@ export function ProjectCivilForm({
 
   const form = useForm<ProjectFormValues>({
     resolver: zodResolver(projectSchema),
-    defaultValues: getCivilFormDefaults(initialData) as any,
+    defaultValues: getCivilFormDefaults(initialData, !isSuperAdmin ? user?.id : undefined) as any,
   })
 
   const clientId = form.watch('client_id')
@@ -112,8 +113,10 @@ export function ProjectCivilForm({
         <div className="grid grid-cols-2 gap-4">
           <ProjectPicSelectField
             control={form.control}
-            users={civilUsers ?? []}
+            users={managedByUsers}
             label="Managed By"
+            disabled={false}
+            showUnassigned
           />
           <ProjectVendorSelectField control={form.control} vendors={resolvedCivilVendors} label="Field PIC" placeholder="Select Supervisor" />
         </div>

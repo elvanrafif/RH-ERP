@@ -20,14 +20,21 @@ interface ProjectPicSelectFieldProps {
   control: Control<any>
   users: User[]
   label: string
+  disabled?: boolean
+  showUnassigned?: boolean
 }
 
 export function ProjectPicSelectField({
   control,
   users,
   label,
+  disabled,
+  showUnassigned,
 }: ProjectPicSelectFieldProps) {
   const { isSuperAdmin } = useRole()
+
+  const isDisabled = disabled !== undefined ? disabled : !isSuperAdmin
+  const canUnassign = showUnassigned !== undefined ? showUnassigned : isSuperAdmin
 
   return (
     <FormField
@@ -39,7 +46,7 @@ export function ProjectPicSelectField({
           <Select
             onValueChange={field.onChange}
             value={field.value as string}
-            disabled={!isSuperAdmin}
+            disabled={isDisabled}
           >
             <FormControl>
               <SelectTrigger>
@@ -47,7 +54,7 @@ export function ProjectPicSelectField({
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              {isSuperAdmin && (
+              {canUnassign && (
                 <SelectItem value="unassigned">-- Unassigned --</SelectItem>
               )}
               {users.map((u) => (
