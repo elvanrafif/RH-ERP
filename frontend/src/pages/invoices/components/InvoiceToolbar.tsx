@@ -1,4 +1,6 @@
 import { DocumentToolbar } from '@/components/filters/DocumentToolbar'
+import { SortPopover } from '@/components/shared/SortPopover'
+import { INVOICE_SORT_OPTIONS } from '../invoiceSortOptions'
 
 const INVOICE_TYPE_OPTIONS = [
   { label: 'All Types', value: 'all' },
@@ -22,10 +24,10 @@ interface InvoiceToolbarProps {
   onTabChange: (val: string) => void
   searchTerm: string
   onSearchChange: (val: string) => void
-  filterClient: string
-  onClientFilterChange: (val: string) => void
   filterTermin: string
   onTerminFilterChange: (val: string) => void
+  sortBy: string
+  onSortChange: (val: string) => void
   onResetFilter: () => void
 }
 
@@ -34,15 +36,14 @@ export function InvoiceToolbar({
   onTabChange,
   searchTerm,
   onSearchChange,
-  filterClient,
-  onClientFilterChange,
   filterTermin,
   onTerminFilterChange,
+  sortBy,
+  onSortChange,
   onResetFilter,
 }: InvoiceToolbarProps) {
   const hasActiveFilter =
     searchTerm !== '' ||
-    filterClient !== 'all' ||
     activeTab !== 'all' ||
     filterTermin !== 'all'
 
@@ -51,8 +52,6 @@ export function InvoiceToolbar({
       searchTerm={searchTerm}
       onSearchChange={onSearchChange}
       searchPlaceholder="Search by client, title, or inv. number..."
-      filterClient={filterClient}
-      onClientFilterChange={onClientFilterChange}
       onResetFilter={onResetFilter}
       hasActiveFilter={hasActiveFilter}
       typeFilter={{
@@ -65,6 +64,13 @@ export function InvoiceToolbar({
         onChange: onTerminFilterChange,
         options: TERMIN_OPTIONS,
       }}
+      sortButton={
+        <SortPopover
+          options={INVOICE_SORT_OPTIONS}
+          value={sortBy === 'created_desc' ? null : sortBy}
+          onChange={(val) => onSortChange(val ?? 'created_desc')}
+        />
+      }
     />
   )
 }

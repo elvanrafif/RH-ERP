@@ -21,6 +21,10 @@ export default function QuotationsPage() {
     setFilterClient,
     filterArea,
     setFilterArea,
+    filterStatus,
+    setFilterStatus,
+    sortBy,
+    setSortBy,
     page,
     setPage,
     resetFilters,
@@ -66,6 +70,10 @@ export default function QuotationsPage() {
             onClientFilterChange={setFilterClient}
             filterArea={filterArea}
             onAreaFilterChange={setFilterArea}
+            filterStatus={filterStatus}
+            onStatusFilterChange={setFilterStatus}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
             onResetFilter={resetFilters}
           />
         </div>

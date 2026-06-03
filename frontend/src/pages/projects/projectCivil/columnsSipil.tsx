@@ -1,4 +1,4 @@
-import type { ColumnDef, Row } from '@tanstack/react-table'
+import type { ColumnDef } from '@tanstack/react-table'
 import type { Project } from '@/types'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -103,18 +103,7 @@ export const getSipilColumns = (
   // --- COMBINED COLUMN (CONTRACT INFO) ---
   {
     id: 'contract_info',
-    accessorFn: (row) => row.end_date ?? '',
     header: 'Contract Info',
-    enableSorting: true,
-    sortingFn: (rowA: Row<Project>, rowB: Row<Project>) => {
-      const a = rowA.original.end_date
-        ? new Date(rowA.original.end_date).getTime()
-        : 0
-      const b = rowB.original.end_date
-        ? new Date(rowB.original.end_date).getTime()
-        : 0
-      return a - b
-    },
     cell: ({ row }) => (
       <ContractInfoCell project={row.original} isSuperAdmin={isSuperAdmin} />
     ),

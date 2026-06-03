@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import {
@@ -25,12 +26,13 @@ interface DocumentToolbarProps {
   searchTerm: string
   onSearchChange: (val: string) => void
   searchPlaceholder?: string
-  filterClient: string
-  onClientFilterChange: (val: string) => void
+  filterClient?: string
+  onClientFilterChange?: (val: string) => void
   onResetFilter: () => void
   hasActiveFilter: boolean
   typeFilter?: TypeFilterConfig
   secondFilter?: TypeFilterConfig
+  sortButton?: ReactNode
 }
 
 export function DocumentToolbar({
@@ -43,6 +45,7 @@ export function DocumentToolbar({
   hasActiveFilter,
   typeFilter,
   secondFilter,
+  sortButton,
 }: DocumentToolbarProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-3 w-full items-start sm:items-center">
@@ -98,15 +101,19 @@ export function DocumentToolbar({
           </div>
         )}
 
-        <div className="flex-1 sm:w-[180px] sm:flex-none">
-          <ClientCombobox
-            value={filterClient}
-            onChange={onClientFilterChange}
-            showAllOption
-            className="h-9 bg-white shadow-sm text-sm"
-            popoverClassName="w-[260px]"
-          />
-        </div>
+        {filterClient !== undefined && onClientFilterChange && (
+          <div className="flex-1 sm:w-[180px] sm:flex-none">
+            <ClientCombobox
+              value={filterClient}
+              onChange={onClientFilterChange}
+              showAllOption
+              className="h-9 bg-white shadow-sm text-sm"
+              popoverClassName="w-[260px]"
+            />
+          </div>
+        )}
+
+        {sortButton}
 
         {hasActiveFilter && (
           <Button

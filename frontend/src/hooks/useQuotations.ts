@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { pb } from '@/lib/pocketbase'
 import type { QuotationFilters } from './useQuotationFilters'
+import { QUOTATION_SORT_OPTIONS } from '@/pages/quotations/quotationSortOptions'
 
 export interface CreateQuotationPayload {
   clientId: string
@@ -27,6 +28,8 @@ export function useQuotations({ filters, page }: UseQuotationsOptions) {
       filters.debouncedSearch,
       filters.filterClient,
       filters.filterArea,
+      filters.filterStatus,
+      filters.sortBy,
     ],
     queryFn: () => {
       const filterParts: string[] = []
@@ -44,9 +47,15 @@ export function useQuotations({ filters, page }: UseQuotationsOptions) {
       } else if (filters.filterArea === 'missing') {
         filterParts.push(`project_area = 0`)
       }
+      if (filters.filterStatus !== 'all') {
+        filterParts.push(`status = "${filters.filterStatus}"`)
+      }
+
+      const sortOption = QUOTATION_SORT_OPTIONS.find((o) => o.value === filters.sortBy)
+      const sortParam = sortOption?.sortParam ?? '-created'
 
       return pb.collection('quotations').getList(page, 50, {
-        sort: '-created',
+        sort: sortParam,
         expand: 'client_id',
         filter: filterParts.join(' && '),
       })
