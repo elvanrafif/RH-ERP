@@ -23,6 +23,8 @@ export default function QuotationsPage() {
     setFilterArea,
     filterStatus,
     setFilterStatus,
+    filterPaymentMonth,
+    setFilterPaymentMonth,
     sortBy,
     setSortBy,
     page,
@@ -72,6 +74,8 @@ export default function QuotationsPage() {
             onAreaFilterChange={setFilterArea}
             filterStatus={filterStatus}
             onStatusFilterChange={setFilterStatus}
+            filterPaymentMonth={filterPaymentMonth}
+            onPaymentMonthChange={setFilterPaymentMonth}
             sortBy={sortBy}
             onSortChange={setSortBy}
             onResetFilter={resetFilters}
