@@ -17,8 +17,6 @@ export default function QuotationsPage() {
   const {
     searchTerm,
     setSearchTerm,
-    filterClient,
-    setFilterClient,
     filterArea,
     setFilterArea,
     filterStatus,
@@ -68,8 +66,6 @@ export default function QuotationsPage() {
           <QuotationToolbar
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
-            filterClient={filterClient}
-            onClientFilterChange={setFilterClient}
             filterArea={filterArea}
             onAreaFilterChange={setFilterArea}
             filterStatus={filterStatus}

@@ -25,8 +25,6 @@ const STATUS_FILTER_OPTIONS = [
 interface QuotationToolbarProps {
   searchTerm: string
   onSearchChange: (val: string) => void
-  filterClient: string
-  onClientFilterChange: (val: string) => void
   filterArea: 'all' | 'filled' | 'missing'
   onAreaFilterChange: (val: 'all' | 'filled' | 'missing') => void
   filterStatus: QuotationStatusFilter
@@ -41,8 +39,6 @@ interface QuotationToolbarProps {
 export function QuotationToolbar({
   searchTerm,
   onSearchChange,
-  filterClient,
-  onClientFilterChange,
   filterArea,
   onAreaFilterChange,
   filterStatus,
@@ -58,7 +54,6 @@ export function QuotationToolbar({
 
   const hasActiveFilter =
     searchTerm !== '' ||
-    filterClient !== 'all' ||
     filterArea !== 'all' ||
     filterStatus !== 'all' ||
     filterPaymentMonth !== null
@@ -79,8 +74,6 @@ export function QuotationToolbar({
       searchTerm={searchTerm}
       onSearchChange={onSearchChange}
       searchPlaceholder="Search by client or quot. number..."
-      filterClient={filterClient}
-      onClientFilterChange={onClientFilterChange}
       onResetFilter={onResetFilter}
       hasActiveFilter={hasActiveFilter}
       typeFilter={

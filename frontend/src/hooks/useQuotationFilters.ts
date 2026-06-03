@@ -5,7 +5,6 @@ export type QuotationStatusFilter = 'all' | 'paid' | 'draft'
 
 export interface QuotationFilters {
   debouncedSearch: string
-  filterClient: string
   filterArea: 'all' | 'filled' | 'missing'
   filterStatus: QuotationStatusFilter
   filterPaymentMonth: string | null
@@ -14,7 +13,6 @@ export interface QuotationFilters {
 
 export function useQuotationFilters() {
   const [searchTerm, setSearchTerm] = useState('')
-  const [filterClient, setFilterClient] = useState('all')
   const [filterArea, setFilterArea] = useState<'all' | 'filled' | 'missing'>('all')
   const [filterStatus, setFilterStatus] = useState<QuotationStatusFilter>('all')
   const [filterPaymentMonth, setFilterPaymentMonth] = useState<string | null>(null)
@@ -25,11 +23,10 @@ export function useQuotationFilters() {
 
   useEffect(() => {
     setPage(1)
-  }, [debouncedSearch, filterClient, filterArea, filterStatus, filterPaymentMonth, sortBy])
+  }, [debouncedSearch, filterArea, filterStatus, filterPaymentMonth, sortBy])
 
   const resetFilters = () => {
     setSearchTerm('')
-    setFilterClient('all')
     setFilterArea('all')
     setFilterStatus('all')
     setFilterPaymentMonth(null)
@@ -40,8 +37,6 @@ export function useQuotationFilters() {
   return {
     searchTerm,
     setSearchTerm,
-    filterClient,
-    setFilterClient,
     filterArea,
     setFilterArea,
     filterStatus,
@@ -55,7 +50,6 @@ export function useQuotationFilters() {
     resetFilters,
     filters: {
       debouncedSearch,
-      filterClient,
       filterArea,
       filterStatus,
       filterPaymentMonth,

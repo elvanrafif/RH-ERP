@@ -26,7 +26,6 @@ export function useQuotations({ filters, page }: UseQuotationsOptions) {
       'quotations',
       page,
       filters.debouncedSearch,
-      filters.filterClient,
       filters.filterArea,
       filters.filterStatus,
       filters.filterPaymentMonth,
@@ -39,9 +38,6 @@ export function useQuotations({ filters, page }: UseQuotationsOptions) {
         filterParts.push(
           `(quotation_number ~ "${filters.debouncedSearch}" || client_id.company_name ~ "${filters.debouncedSearch}")`
         )
-      }
-      if (filters.filterClient !== 'all') {
-        filterParts.push(`client_id = "${filters.filterClient}"`)
       }
       if (filters.filterArea === 'filled') {
         filterParts.push(`project_area > 0`)
