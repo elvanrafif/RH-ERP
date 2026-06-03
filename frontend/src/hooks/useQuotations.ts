@@ -29,6 +29,7 @@ export function useQuotations({ filters, page }: UseQuotationsOptions) {
       filters.filterClient,
       filters.filterArea,
       filters.filterStatus,
+      filters.filterPaymentMonth,
       filters.sortBy,
     ],
     queryFn: () => {
@@ -49,6 +50,9 @@ export function useQuotations({ filters, page }: UseQuotationsOptions) {
       }
       if (filters.filterStatus !== 'all') {
         filterParts.push(`status = "${filters.filterStatus}"`)
+      }
+      if (filters.filterPaymentMonth) {
+        filterParts.push(`paid_date ~ "${filters.filterPaymentMonth}"`)
       }
 
       const sortOption = QUOTATION_SORT_OPTIONS.find((o) => o.value === filters.sortBy)
