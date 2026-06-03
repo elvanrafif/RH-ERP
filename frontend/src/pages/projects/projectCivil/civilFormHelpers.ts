@@ -3,10 +3,10 @@ import { normalizeAdditionalLinks, buildAdditionalLinksPayload } from '../formHe
 
 const STATUS_OPTIONS_DEFAULT = 'building'
 
-export function getCivilFormDefaults(initialData?: Project | null) {
+export function getCivilFormDefaults(initialData?: Project | null, currentUserId?: string) {
   return {
     client_id: initialData?.client || '',
-    assignee: initialData?.assignee || '',
+    assignee: initialData ? (initialData.assignee || '') : (currentUserId || ''),
     status: initialData?.status || STATUS_OPTIONS_DEFAULT,
     start_date: initialData?.start_date ? initialData.start_date.substring(0, 10) : '',
     end_date: initialData?.end_date ? initialData.end_date.substring(0, 10) : '',
@@ -25,7 +25,7 @@ type CivilFormValues = ReturnType<typeof getCivilFormDefaults>
 export function buildCivilPayload(data: CivilFormValues) {
   return {
     client: data.client_id,
-    assignee: data.assignee || null,
+    assignee: data.assignee && data.assignee !== 'unassigned' ? data.assignee : null,
     status: data.status,
     type: 'civil' as const,
     start_date: data.start_date || null,
