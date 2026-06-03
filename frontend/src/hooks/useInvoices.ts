@@ -33,6 +33,7 @@ export function useInvoices({ filters, page }: UseInvoicesOptions) {
       filters.debouncedSearch,
       filters.activeTab,
       filters.filterTermin,
+      filters.filterPaymentMonth,
       filters.sortBy,
     ],
     queryFn: () => {
@@ -48,6 +49,9 @@ export function useInvoices({ filters, page }: UseInvoicesOptions) {
       }
       if (filters.filterTermin !== 'all') {
         filterParts.push(`active_termin = "${filters.filterTermin}"`)
+      }
+      if (filters.filterPaymentMonth) {
+        filterParts.push(`payment_dates ?~ "${filters.filterPaymentMonth}"`)
       }
 
       const sortOption = INVOICE_SORT_OPTIONS.find((o) => o.value === filters.sortBy)

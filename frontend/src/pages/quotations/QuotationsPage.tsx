@@ -17,12 +17,12 @@ export default function QuotationsPage() {
   const {
     searchTerm,
     setSearchTerm,
-    filterClient,
-    setFilterClient,
     filterArea,
     setFilterArea,
     filterStatus,
     setFilterStatus,
+    filterPaymentMonth,
+    setFilterPaymentMonth,
     sortBy,
     setSortBy,
     page,
@@ -66,12 +66,12 @@ export default function QuotationsPage() {
           <QuotationToolbar
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
-            filterClient={filterClient}
-            onClientFilterChange={setFilterClient}
             filterArea={filterArea}
             onAreaFilterChange={setFilterArea}
             filterStatus={filterStatus}
             onStatusFilterChange={setFilterStatus}
+            filterPaymentMonth={filterPaymentMonth}
+            onPaymentMonthChange={setFilterPaymentMonth}
             sortBy={sortBy}
             onSortChange={setSortBy}
             onResetFilter={resetFilters}

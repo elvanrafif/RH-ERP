@@ -5,17 +5,15 @@ export interface InvoiceFilters {
   debouncedSearch: string
   activeTab: string
   filterTermin: string
+  filterPaymentMonth: string | null
   sortBy: string
 }
 
-/**
- * Manages all filter, search, and pagination state for the Invoices list page.
- * Automatically resets to page 1 when any filter changes.
- */
 export function useInvoiceFilters() {
   const [searchTerm, setSearchTerm] = useState('')
   const [activeTab, setActiveTab] = useState('all')
   const [filterTermin, setFilterTermin] = useState('all')
+  const [filterPaymentMonth, setFilterPaymentMonth] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState('created_desc')
   const [page, setPage] = useState(1)
 
@@ -23,12 +21,13 @@ export function useInvoiceFilters() {
 
   useEffect(() => {
     setPage(1)
-  }, [debouncedSearch, activeTab, filterTermin, sortBy])
+  }, [debouncedSearch, activeTab, filterTermin, filterPaymentMonth, sortBy])
 
   const resetFilters = () => {
     setSearchTerm('')
     setActiveTab('all')
     setFilterTermin('all')
+    setFilterPaymentMonth(null)
     setSortBy('created_desc')
     setPage(1)
   }
@@ -40,11 +39,19 @@ export function useInvoiceFilters() {
     setActiveTab,
     filterTermin,
     setFilterTermin,
+    filterPaymentMonth,
+    setFilterPaymentMonth,
     sortBy,
     setSortBy,
     page,
     setPage,
     resetFilters,
-    filters: { debouncedSearch, activeTab, filterTermin, sortBy } satisfies InvoiceFilters,
+    filters: {
+      debouncedSearch,
+      activeTab,
+      filterTermin,
+      filterPaymentMonth,
+      sortBy,
+    } satisfies InvoiceFilters,
   }
 }

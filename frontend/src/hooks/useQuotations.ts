@@ -26,9 +26,9 @@ export function useQuotations({ filters, page }: UseQuotationsOptions) {
       'quotations',
       page,
       filters.debouncedSearch,
-      filters.filterClient,
       filters.filterArea,
       filters.filterStatus,
+      filters.filterPaymentMonth,
       filters.sortBy,
     ],
     queryFn: () => {
@@ -39,9 +39,6 @@ export function useQuotations({ filters, page }: UseQuotationsOptions) {
           `(quotation_number ~ "${filters.debouncedSearch}" || client_id.company_name ~ "${filters.debouncedSearch}")`
         )
       }
-      if (filters.filterClient !== 'all') {
-        filterParts.push(`client_id = "${filters.filterClient}"`)
-      }
       if (filters.filterArea === 'filled') {
         filterParts.push(`project_area > 0`)
       } else if (filters.filterArea === 'missing') {
@@ -49,6 +46,9 @@ export function useQuotations({ filters, page }: UseQuotationsOptions) {
       }
       if (filters.filterStatus !== 'all') {
         filterParts.push(`status = "${filters.filterStatus}"`)
+      }
+      if (filters.filterPaymentMonth) {
+        filterParts.push(`paid_date ~ "${filters.filterPaymentMonth}"`)
       }
 
       const sortOption = QUOTATION_SORT_OPTIONS.find((o) => o.value === filters.sortBy)

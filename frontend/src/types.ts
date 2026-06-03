@@ -129,6 +129,28 @@ export interface Invoice {
   total_amount: number
   bank_details?: string
   items?: any[]
+  payment_dates?: string[]
+  expand?: {
+    client_id?: Client
+  }
+  created: string
+  updated: string
+}
+
+export interface Quotation {
+  id: string
+  quotation_number: string
+  client_id: string
+  date: string | Date
+  status: string
+  address?: string
+  project_area: number
+  price_per_meter: number
+  discount_percent: number
+  total_price: number
+  bank_details?: string
+  items?: any[]
+  paid_date?: string
   expand?: {
     client_id?: Client
   }

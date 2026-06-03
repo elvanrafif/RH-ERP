@@ -21,6 +21,8 @@ export default function InvoicesPage() {
     setActiveTab,
     filterTermin,
     setFilterTermin,
+    filterPaymentMonth,
+    setFilterPaymentMonth,
     sortBy,
     setSortBy,
     page,
@@ -71,6 +73,8 @@ export default function InvoicesPage() {
             onSearchChange={setSearchTerm}
             filterTermin={filterTermin}
             onTerminFilterChange={setFilterTermin}
+            filterPaymentMonth={filterPaymentMonth}
+            onPaymentMonthChange={setFilterPaymentMonth}
             sortBy={sortBy}
             onSortChange={setSortBy}
             onResetFilter={resetFilters}

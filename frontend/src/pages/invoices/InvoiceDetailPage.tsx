@@ -19,6 +19,7 @@ import { useWhatsAppShare } from '@/hooks/useWhatsAppShare'
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges'
 import { recalculateTermItems } from '@/lib/invoicing/termCalculation'
 import type { TermItem } from '@/lib/invoicing/termCalculation'
+import { derivePaymentDates } from '@/lib/invoicing/paymentDates'
 import { buildInvoiceFileName } from '@/lib/helpers'
 import {
   DEFAULT_DESIGN_PRICE_PER_METER,
@@ -191,6 +192,7 @@ export default function InvoiceDetailPage() {
       : 'unpaid'
     formData.append('status', derivedStatus)
     formData.append('active_termin', activeTermin)
+    formData.append('payment_dates', JSON.stringify(derivePaymentDates(items)))
     const blob = await generateJpeg()
     if (blob) {
       const jpegFileName = buildInvoiceFileName(
