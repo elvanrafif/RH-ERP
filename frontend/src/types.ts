@@ -129,6 +129,7 @@ export interface Invoice {
   total_amount: number
   bank_details?: string
   items?: any[]
+  payment_dates?: string[]
   expand?: {
     client_id?: Client
   }
