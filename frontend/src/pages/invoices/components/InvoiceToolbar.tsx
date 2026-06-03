@@ -92,7 +92,7 @@ export function InvoiceToolbar({
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className={`h-9 text-sm bg-white shadow-sm w-[160px] justify-start text-left font-normal ${
+                className={`h-9 text-sm bg-white shadow-sm w-[185px] justify-start text-left font-normal ${
                   filterPaymentMonth
                     ? 'border-primary/50 ring-1 ring-primary/30 text-primary'
                     : 'text-muted-foreground'
