@@ -27,7 +27,7 @@ interface InvoiceToolbarProps {
   filterTermin: string
   onTerminFilterChange: (val: string) => void
   sortBy: string
-  onSortChange: (val: string | null) => void
+  onSortChange: (val: string) => void
   onResetFilter: () => void
 }
 

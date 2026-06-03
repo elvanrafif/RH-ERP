@@ -9,7 +9,7 @@ import {
 import { cn } from '@/lib/utils'
 
 interface SortPopoverProps {
-  options: Array<{ value: string; label: string }>
+  options: ReadonlyArray<{ value: string; label: string }>
   value: string | null
   onChange: (value: string | null) => void
 }

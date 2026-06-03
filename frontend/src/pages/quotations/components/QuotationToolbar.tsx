@@ -14,7 +14,7 @@ interface QuotationToolbarProps {
   filterStatus: QuotationStatusFilter
   onStatusFilterChange: (val: QuotationStatusFilter) => void
   sortBy: string
-  onSortChange: (val: string | null) => void
+  onSortChange: (val: string) => void
   onResetFilter: () => void
 }
 
