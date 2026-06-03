@@ -24,6 +24,7 @@
 @docs/claude/solid.md
 @docs/claude/conventions.md
 @docs/claude/branching.md
+@docs/claude/sort.md
 @docs/modules.md
 @docs/decisions/
 @docs/security.md

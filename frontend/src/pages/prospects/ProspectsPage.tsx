@@ -8,6 +8,9 @@ import { useProspects } from '@/hooks/useProspects'
 import { TablePagination } from '@/components/shared/TablePagination'
 import { usePagination } from '@/hooks/usePagination'
 import { useTableState } from '@/hooks/useTableState'
+import { useSort } from '@/hooks/useSort'
+import { PROSPECT_SORT_OPTIONS } from './prospectSortOptions'
+import { SortPopover } from '@/components/shared/SortPopover'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -61,13 +64,16 @@ export default function ProspectsPage() {
       })
   }, [data, filterStatus, selectedMonth])
 
+  const { sortedData: sortedProspects, sortValue, setSortValue } =
+    useSort(filteredData, PROSPECT_SORT_OPTIONS)
+
   const {
     page,
     setPage,
     totalItems,
     totalPages,
     paginatedData: paginatedProspects,
-  } = usePagination(filteredData, [debouncedSearch, filterStatus, selectedMonth])
+  } = usePagination(sortedProspects, [debouncedSearch, filterStatus, selectedMonth, sortValue])
 
   const handleMonthSelect = (date: Date | undefined) => {
     setSelectedMonth(date ? startOfMonth(date) : undefined)
@@ -165,6 +171,11 @@ export default function ProspectsPage() {
               />
             </PopoverContent>
           </Popover>
+          <SortPopover
+            options={PROSPECT_SORT_OPTIONS}
+            value={sortValue}
+            onChange={setSortValue}
+          />
         </div>
 
         <ProspectTable

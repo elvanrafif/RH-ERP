@@ -9,10 +9,13 @@ import { useProjectFilters } from '@/hooks/useProjectFilters'
 import { useProjectInvoiceStats } from '@/hooks/useProjectInvoiceStats'
 import { usePagination } from '@/hooks/usePagination'
 import { useProjectPageState } from '@/hooks/useProjectPageState'
+import { useSort } from '@/hooks/useSort'
 import { DEADLINE_WARNING_DAYS } from '@/lib/constant'
 import { Button } from '@/components/ui/button'
 import { Plus } from 'lucide-react'
 import { CivilFilterBar } from '@/components/projects/CivilFilterBar'
+import { SortPopover } from '@/components/shared/SortPopover'
+import { CIVIL_SORT_OPTIONS } from './civilSortOptions'
 import { ProjectStatsSection } from '../components/ProjectStatsSection'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { FormDialog } from '@/components/shared/FormDialog'
@@ -59,18 +62,22 @@ export default function SipilPage() {
   const { potentialRevenue, realizationRevenue } =
     useProjectInvoiceStats('civil')
 
+  const { sortedData: sortedProjects, sortValue, setSortValue } =
+    useSort(filteredProjects, CIVIL_SORT_OPTIONS)
+
   const {
     page,
     setPage,
     totalItems,
     totalPages,
     paginatedData: paginatedProjects,
-  } = usePagination(filteredProjects, [
+  } = usePagination(sortedProjects, [
     searchQuery,
     filterPic,
     filterManagedBy,
     filterDeadline,
     statusFilter,
+    sortValue,
   ])
 
   const {
@@ -128,6 +135,11 @@ export default function SipilPage() {
             vendors={civilVendors}
             users={users}
             className="flex flex-1 gap-2 items-center"
+          />
+          <SortPopover
+            options={CIVIL_SORT_OPTIONS}
+            value={sortValue}
+            onChange={setSortValue}
           />
         </div>
 

@@ -3,9 +3,9 @@ import { useDebounce } from './useDebounce'
 
 export interface InvoiceFilters {
   debouncedSearch: string
-  filterClient: string
   activeTab: string
   filterTermin: string
+  sortBy: string
 }
 
 /**
@@ -14,37 +14,37 @@ export interface InvoiceFilters {
  */
 export function useInvoiceFilters() {
   const [searchTerm, setSearchTerm] = useState('')
-  const [filterClient, setFilterClient] = useState('all')
   const [activeTab, setActiveTab] = useState('all')
   const [filterTermin, setFilterTermin] = useState('all')
+  const [sortBy, setSortBy] = useState('created_desc')
   const [page, setPage] = useState(1)
 
   const debouncedSearch = useDebounce(searchTerm, 500)
 
   useEffect(() => {
     setPage(1)
-  }, [debouncedSearch, filterClient, activeTab, filterTermin])
+  }, [debouncedSearch, activeTab, filterTermin, sortBy])
 
   const resetFilters = () => {
     setSearchTerm('')
-    setFilterClient('all')
     setActiveTab('all')
     setFilterTermin('all')
+    setSortBy('created_desc')
     setPage(1)
   }
 
   return {
     searchTerm,
     setSearchTerm,
-    filterClient,
-    setFilterClient,
     activeTab,
     setActiveTab,
     filterTermin,
     setFilterTermin,
+    sortBy,
+    setSortBy,
     page,
     setPage,
     resetFilters,
-    filters: { debouncedSearch, filterClient, activeTab, filterTermin } satisfies InvoiceFilters,
+    filters: { debouncedSearch, activeTab, filterTermin, sortBy } satisfies InvoiceFilters,
   }
 }

@@ -3,6 +3,7 @@ import { toast } from 'sonner'
 import { pb } from '@/lib/pocketbase'
 import { getTemplateByType } from '@/pages/invoices/template'
 import type { InvoiceFilters } from './useInvoiceFilters'
+import { INVOICE_SORT_OPTIONS } from '@/pages/invoices/invoiceSortOptions'
 import type { Invoice } from '@/types'
 
 export type InvoiceType = 'design' | 'sipil' | 'interior'
@@ -30,9 +31,9 @@ export function useInvoices({ filters, page }: UseInvoicesOptions) {
       'invoices',
       page,
       filters.debouncedSearch,
-      filters.filterClient,
       filters.activeTab,
       filters.filterTermin,
+      filters.sortBy,
     ],
     queryFn: () => {
       const filterParts: string[] = []
@@ -42,9 +43,6 @@ export function useInvoices({ filters, page }: UseInvoicesOptions) {
           `(title ~ "${filters.debouncedSearch}" || invoice_number ~ "${filters.debouncedSearch}" || client_id.company_name ~ "${filters.debouncedSearch}")`
         )
       }
-      if (filters.filterClient !== 'all') {
-        filterParts.push(`client_id = "${filters.filterClient}"`)
-      }
       if (filters.activeTab !== 'all') {
         filterParts.push(`type = "${filters.activeTab}"`)
       }
@@ -52,8 +50,11 @@ export function useInvoices({ filters, page }: UseInvoicesOptions) {
         filterParts.push(`active_termin = "${filters.filterTermin}"`)
       }
 
+      const sortOption = INVOICE_SORT_OPTIONS.find((o) => o.value === filters.sortBy)
+      const sortParam = sortOption?.sortParam ?? '-created'
+
       return pb.collection('invoices').getList(page, 50, {
-        sort: '-created',
+        sort: sortParam,
         expand: 'client_id',
         filter: filterParts.join(' && '),
       })

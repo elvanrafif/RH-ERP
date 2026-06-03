@@ -70,7 +70,7 @@ export function CivilFilterBar({
         </div>
 
         <div className="flex-1 min-w-[120px] max-w-[180px] relative">
-          {picActive && <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />}
+          {picActive && <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white" />}
           <Select value={filterPic} onValueChange={onFilterPicChange}>
             <SelectTrigger className={cn('h-9 bg-white transition-colors', picActive ? ACTIVE : '')}>
               <Filter className={cn('w-3.5 h-3.5 mr-2', picActive ? 'text-primary' : 'text-muted-foreground')} />
@@ -90,7 +90,7 @@ export function CivilFilterBar({
         </div>
 
         <div className="flex-1 min-w-[120px] max-w-[180px] relative">
-          {managedByActive && <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />}
+          {managedByActive && <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white" />}
           <Select value={filterManagedBy} onValueChange={onFilterManagedByChange}>
             <SelectTrigger className={cn('h-9 bg-white transition-colors', managedByActive ? ACTIVE : '')}>
               <LayoutList className={cn('w-3.5 h-3.5 mr-2', managedByActive ? 'text-primary' : 'text-muted-foreground')} />
@@ -107,7 +107,7 @@ export function CivilFilterBar({
         </div>
 
         <div className="flex-1 min-w-[190px] max-w-[250px] relative">
-          {statusActive && <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />}
+          {statusActive && <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white" />}
           <Select value={filterStatus} onValueChange={(v) => onFilterStatusChange(v as ProjectStatusFilter)}>
             <SelectTrigger className={cn('h-9 bg-white transition-colors', statusActive ? ACTIVE : '')}>
               <CircleDot className={cn('w-3.5 h-3.5 mr-2', statusActive ? 'text-primary' : 'text-muted-foreground')} />
@@ -124,7 +124,7 @@ export function CivilFilterBar({
         </div>
 
         <div className="flex-1 min-w-[160px] max-w-[220px] relative">
-          {deadlineActive && <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-primary ring-2 ring-white" />}
+          {deadlineActive && <span className="absolute -top-1 -right-1 z-10 h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white" />}
           <Select value={filterDeadline} onValueChange={(v) => onFilterDeadlineChange(v as DeadlineFilter)}>
             <SelectTrigger className={cn('h-9 bg-white transition-colors', deadlineActive ? ACTIVE : '')}>
               <Clock className={cn('w-3.5 h-3.5 mr-2', deadlineActive ? 'text-primary' : 'text-muted-foreground')} />

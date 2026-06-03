@@ -17,12 +17,12 @@ export default function InvoicesPage() {
   const {
     searchTerm,
     setSearchTerm,
-    filterClient,
-    setFilterClient,
     activeTab,
     setActiveTab,
     filterTermin,
     setFilterTermin,
+    sortBy,
+    setSortBy,
     page,
     setPage,
     resetFilters,
@@ -69,10 +69,10 @@ export default function InvoicesPage() {
             onTabChange={setActiveTab}
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
-            filterClient={filterClient}
-            onClientFilterChange={setFilterClient}
             filterTermin={filterTermin}
             onTerminFilterChange={setFilterTermin}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
             onResetFilter={resetFilters}
           />
         </div>
