@@ -48,6 +48,7 @@ export default function QuotationEditor() {
 
   const [quotationNumber, setQuotationNumber] = useState('')
   const [status, setStatus] = useState('draft')
+  const [paidDate, setPaidDate] = useState('')
   const [address, setAddress] = useState('')
   const [projectArea, setProjectArea] = useState(0)
   const [pricePerMeter, setPricePerMeter] = useState(
@@ -77,6 +78,7 @@ export default function QuotationEditor() {
       setQuotationNumber(quotation.quotation_number)
     }
     setStatus(quotation.status || 'draft')
+    setPaidDate(quotation.paid_date || '')
     const clientObj = quotation.expand?.client_id
     if (quotation.client_id) {
       setSelectedClientId(quotation.client_id)
@@ -123,6 +125,7 @@ export default function QuotationEditor() {
     formData.append('client_id', selectedClientId)
     formData.append('quotation_number', quotationNumber)
     formData.append('status', status)
+    formData.append('paid_date', paidDate)
     formData.append('address', address)
     formData.append('project_area', String(projectArea))
     formData.append('price_per_meter', String(pricePerMeter))
@@ -193,25 +196,45 @@ export default function QuotationEditor() {
                 />
               </div>
 
-              <div className="space-y-1">
-                <Label className="text-[10px] text-slate-500">Status</Label>
-                <Select
-                  value={status}
-                  disabled={isRestricted}
-                  onValueChange={(val) => {
-                    setStatus(val)
-                    markAsDirty()
-                  }}
-                >
-                  <SelectTrigger className="h-8 text-xs bg-white">
-                    <SelectValue placeholder="Select Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="paid">Paid</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="space-y-1">
+                  <Label className="text-[10px] text-slate-500">Status</Label>
+                  <Select
+                    value={status}
+                    disabled={isRestricted}
+                    onValueChange={(val) => {
+                      setStatus(val)
+                      if (val === 'paid' && !paidDate) {
+                        setPaidDate(new Date().toISOString().split('T')[0])
+                      } else if (val !== 'paid') {
+                        setPaidDate('')
+                      }
+                      markAsDirty()
+                    }}
+                  >
+                    <SelectTrigger className="h-8 text-xs bg-white">
+                      <SelectValue placeholder="Select Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="draft">Draft</SelectItem>
+                      <SelectItem value="paid">Paid</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label className="text-[10px] text-slate-500">Paid Date</Label>
+                  <input
+                    type="date"
+                    value={paidDate}
+                    disabled={status !== 'paid' || isRestricted}
+                    onChange={(e) => {
+                      setPaidDate(e.target.value)
+                      markAsDirty()
+                    }}
+                    className="h-8 w-full rounded-md border border-input bg-white px-2 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  />
+                </div>
               </div>
 
               <div className="space-y-1">
