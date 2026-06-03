@@ -13,7 +13,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command'
 import { ChevronDown, Check } from 'lucide-react'
 import { countries } from '@/lib/constants/countries'
-import { parseStoredPhone, formatPhoneNumber } from '@/lib/helpers'
+import { parseStoredPhone } from '@/lib/helpers'
 import { cn } from '@/lib/utils'
 
 function getFlagEmoji(countryCode: string): string {
@@ -36,60 +36,6 @@ function FlagImage({ countryCode, className }: { countryCode: string; className?
   )
 }
 
-function cleanAndParsePhone(
-  inputValue: string,
-  currentPrefix: string
-): { prefix: string; localNumber: string } {
-  const trimmed = inputValue.trim()
-
-  // Case 1: Starts with '+' (e.g. +62 815-9150-400 or +62 62815...)
-  if (trimmed.startsWith('+')) {
-    const sortedCountries = [...countries].sort((a, b) => b.dial_code.length - a.dial_code.length)
-    const matched = sortedCountries.find((c) => trimmed.startsWith(c.dial_code))
-    if (matched) {
-      let rest = trimmed.substring(matched.dial_code.length).trim()
-      const cleanPrefix = matched.dial_code.substring(1)
-      const digitsOnlyRest = rest.replace(/\D/g, '')
-      if (digitsOnlyRest.startsWith(cleanPrefix)) {
-        rest = digitsOnlyRest.substring(cleanPrefix.length)
-      }
-      return {
-        prefix: matched.dial_code,
-        localNumber: formatPhoneNumber(rest),
-      }
-    }
-  }
-
-  // Case 2: Starts with country code but without '+' (e.g. 62 815-9150-400)
-  const withPlus = '+' + trimmed.replace(/\s+/g, '')
-  const sortedCountries = [...countries].sort((a, b) => b.dial_code.length - a.dial_code.length)
-  const matchedNoPlus = sortedCountries.find((c) => withPlus.startsWith(c.dial_code))
-  if (matchedNoPlus) {
-    const cleanPrefix = matchedNoPlus.dial_code.substring(1)
-    const digitsOnlyInput = trimmed.replace(/\D/g, '')
-    if (digitsOnlyInput.startsWith(cleanPrefix)) {
-      const rest = digitsOnlyInput.substring(cleanPrefix.length)
-      return {
-        prefix: matchedNoPlus.dial_code,
-        localNumber: formatPhoneNumber(rest),
-      }
-    }
-  }
-
-  // Case 3: Standard national format starting with '0' (e.g. 0815-9150-400)
-  if (trimmed.startsWith('0')) {
-    return {
-      prefix: currentPrefix,
-      localNumber: formatPhoneNumber(trimmed.substring(1)),
-    }
-  }
-
-  // Case 4: Standard local number (e.g. 815-9150-400)
-  return {
-    prefix: currentPrefix,
-    localNumber: formatPhoneNumber(trimmed),
-  }
-}
 
 interface PhoneInputFieldProps<T extends FieldValues> {
   control: Control<T>
@@ -128,12 +74,11 @@ export function PhoneInputField<T extends FieldValues>({
         }, [field.value])
 
         const handlePhoneChange = (inputValue: string) => {
-          const { prefix, localNumber } = cleanAndParsePhone(inputValue, countryCode)
-          setCountryCode(prefix)
-          setLocalPhone(localNumber)
+          setLocalPhone(inputValue)
+          const digits = inputValue.replace(/\D/g, '')
           setValue(
             name,
-            (localNumber ? `${prefix}${localNumber.replace(/\D/g, '')}` : '') as any,
+            (digits ? `${countryCode}${digits}` : '') as any,
             { shouldValidate: true, shouldDirty: true }
           )
         }
