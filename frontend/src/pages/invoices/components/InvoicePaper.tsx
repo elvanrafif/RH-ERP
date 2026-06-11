@@ -107,7 +107,7 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
         <div className="grid grid-cols-2 mb-6 relative z-10">
           <div className="flex flex-col items-center justify-center">
             <p className="text-yellow-600 font-bold text-lg">
-              Termin {activeTermin}
+              {items[parseInt(activeTermin) - 1]?.name || `Termin ${activeTermin}`}
             </p>
           </div>
         </div>
