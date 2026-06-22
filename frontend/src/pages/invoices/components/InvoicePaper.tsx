@@ -2,7 +2,7 @@ import React from 'react'
 import QRCode from 'react-qr-code'
 import RHStudioKopImg from '@/assets/rh-studio-kop.png'
 import { formatDate, formatRupiah } from '@/lib/helpers'
-import { calculatePaidSummary } from '@/lib/invoicing/termCalculation'
+import { calculatePaidSummary, isInvoiceFullyPaid } from '@/lib/invoicing/termCalculation'
 import { COMPANY_INFO } from '@/lib/constant'
 
 // --- TYPE DEFINITION ---
@@ -48,6 +48,7 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
     } = props
 
     const { remainingPayment } = calculatePaidSummary(items, grandTotal)
+    const fullyPaid = isInvoiceFullyPaid(items)
 
     const securityClass = isPublicView
       ? 'pointer-events-none user-select-none'
@@ -240,13 +241,21 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
 
         {/* REMAINING */}
         <div className="mb-10 mr-18 relative z-10">
-          <div className="flex justify-end gap-10">
+          <div className="flex justify-end items-center gap-10">
             <span className="text-xl font-bold">Remaining Payment</span>
-            <span className="text-xl font-bold">
-              {activeTermin === '1' && items[0]?.percent?.toLowerCase() === 'dp'
-                ? ''
-                : formatRupiah(remainingPayment)}
-            </span>
+            {fullyPaid ? (
+              <div className="border-[3px] border-green-600 rounded-lg px-3 py-0.5 opacity-80">
+                <span className="text-lg font-black text-green-600 tracking-widest uppercase">
+                  FULLY PAID
+                </span>
+              </div>
+            ) : (
+              <span className="text-xl font-bold">
+                {activeTermin === '1' && items[0]?.percent?.toLowerCase() === 'dp'
+                  ? ''
+                  : formatRupiah(remainingPayment)}
+              </span>
+            )}
           </div>
         </div>
 

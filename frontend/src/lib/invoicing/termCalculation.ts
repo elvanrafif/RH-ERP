@@ -19,6 +19,10 @@ export function calculatePaidSummary(
   return { paidAmount, remainingPayment: grandTotal - paidAmount }
 }
 
+export function isInvoiceFullyPaid(items: TermItem[]): boolean {
+  return items.length > 0 && items.every((i) => i.status === PAYMENT_ITEM_STATUS.SUCCESS)
+}
+
 export function recalculateTermItems(
   items: TermItem[],
   grandTotal: number,
