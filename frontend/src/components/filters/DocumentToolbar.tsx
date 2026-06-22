@@ -61,7 +61,7 @@ export function DocumentToolbar({
         />
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+      <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
         {typeFilter && (
           <div className="flex-1 sm:w-[150px] sm:flex-none">
             <Select
