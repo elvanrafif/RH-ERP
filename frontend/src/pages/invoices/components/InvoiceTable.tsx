@@ -64,19 +64,17 @@ export function InvoiceTable({
                 <TableHead className="w-[100px]">Created</TableHead>
                 <TableHead className="w-[300px]">Client</TableHead>
                 <TableHead>Type</TableHead>
-                <TableHead>Specification</TableHead>
-                <TableHead className="text-center">Active Termin</TableHead>
-                <TableHead className="text-center">Status</TableHead>
+                <TableHead className="text-center">Termin</TableHead>
                 <TableHead className="text-right">Total</TableHead>
                 <TableHead className="text-right w-[60px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRowsSkeleton rows={5} columns={10} />
+                <TableRowsSkeleton rows={5} columns={8} />
               ) : invoices?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={10} className="h-60">
+                  <TableCell colSpan={8} className="h-60">
                     <EmptyState title="No invoices found." />
                   </TableCell>
                 </TableRow>
@@ -106,33 +104,29 @@ export function InvoiceTable({
                         '-'
                       )}
                     </TableCell>
-                    <TableCell>{getTypeBadge(inv.type)}</TableCell>
-                    <TableCell className="font-medium">
-                      {inv.type === 'design' && inv.project_area > 0 ? (
+                    <TableCell className="w-px whitespace-nowrap">
+                      <div className="flex items-center gap-1.5">
+                        {getTypeBadge(inv.type)}
+                        {inv.type === 'design' && inv.project_area > 0 && (
+                          <span className="text-xs text-slate-400">· {inv.project_area} m²</span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="w-px whitespace-nowrap">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-xs text-slate-600 font-medium">Termin {inv.active_termin}</span>
+                        <span className="text-xs text-slate-400">·</span>
                         <Badge
                           variant="outline"
-                          className="bg-slate-50 font-normal text-slate-600 px-1.5 h-5"
+                          className={cn(
+                            inv.is_fully_paid
+                              ? 'bg-green-50 text-green-700 border-green-200'
+                              : 'bg-slate-50 text-slate-500 border-slate-200'
+                          )}
                         >
-                          {inv.project_area}m²
+                          {inv.is_fully_paid ? 'Settled' : 'Ongoing'}
                         </Badge>
-                      ) : (
-                        <span className="text-slate-400">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {inv.active_termin}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Badge
-                        variant="outline"
-                        className={cn(
-                          inv.is_fully_paid
-                            ? 'bg-green-50 text-green-700 border-green-200'
-                            : 'bg-slate-50 text-slate-500 border-slate-200'
-                        )}
-                      >
-                        {inv.is_fully_paid ? 'Settled' : 'Ongoing'}
-                      </Badge>
+                      </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <span className="font-bold text-slate-700">
