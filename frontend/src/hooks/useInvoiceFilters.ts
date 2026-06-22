@@ -6,6 +6,7 @@ export interface InvoiceFilters {
   activeTab: string
   filterTermin: string
   filterPaymentMonth: string | null
+  filterSettled: string
   sortBy: string
 }
 
@@ -14,6 +15,7 @@ export function useInvoiceFilters() {
   const [activeTab, setActiveTab] = useState('all')
   const [filterTermin, setFilterTermin] = useState('all')
   const [filterPaymentMonth, setFilterPaymentMonth] = useState<string | null>(null)
+  const [filterSettled, setFilterSettled] = useState('all')
   const [sortBy, setSortBy] = useState('created_desc')
   const [page, setPage] = useState(1)
 
@@ -21,13 +23,14 @@ export function useInvoiceFilters() {
 
   useEffect(() => {
     setPage(1)
-  }, [debouncedSearch, activeTab, filterTermin, filterPaymentMonth, sortBy])
+  }, [debouncedSearch, activeTab, filterTermin, filterPaymentMonth, filterSettled, sortBy])
 
   const resetFilters = () => {
     setSearchTerm('')
     setActiveTab('all')
     setFilterTermin('all')
     setFilterPaymentMonth(null)
+    setFilterSettled('all')
     setSortBy('created_desc')
     setPage(1)
   }
@@ -41,6 +44,8 @@ export function useInvoiceFilters() {
     setFilterTermin,
     filterPaymentMonth,
     setFilterPaymentMonth,
+    filterSettled,
+    setFilterSettled,
     sortBy,
     setSortBy,
     page,
@@ -51,6 +56,7 @@ export function useInvoiceFilters() {
       activeTab,
       filterTermin,
       filterPaymentMonth,
+      filterSettled,
       sortBy,
     } satisfies InvoiceFilters,
   }

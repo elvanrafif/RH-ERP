@@ -34,6 +34,7 @@ export function useInvoices({ filters, page }: UseInvoicesOptions) {
       filters.activeTab,
       filters.filterTermin,
       filters.filterPaymentMonth,
+      filters.filterSettled,
       filters.sortBy,
     ],
     queryFn: () => {
@@ -52,6 +53,9 @@ export function useInvoices({ filters, page }: UseInvoicesOptions) {
       }
       if (filters.filterPaymentMonth) {
         filterParts.push(`payment_dates ?~ "${filters.filterPaymentMonth}"`)
+      }
+      if (filters.filterSettled !== 'all') {
+        filterParts.push(`is_fully_paid = ${filters.filterSettled === 'settled'}`)
       }
 
       const sortOption = INVOICE_SORT_OPTIONS.find((o) => o.value === filters.sortBy)

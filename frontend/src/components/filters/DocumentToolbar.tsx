@@ -32,6 +32,7 @@ interface DocumentToolbarProps {
   hasActiveFilter: boolean
   typeFilter?: TypeFilterConfig
   secondFilter?: TypeFilterConfig
+  thirdFilter?: TypeFilterConfig
   sortButton?: ReactNode
 }
 
@@ -45,6 +46,7 @@ export function DocumentToolbar({
   hasActiveFilter,
   typeFilter,
   secondFilter,
+  thirdFilter,
   sortButton,
 }: DocumentToolbarProps) {
   return (
@@ -92,6 +94,26 @@ export function DocumentToolbar({
               </SelectTrigger>
               <SelectContent>
                 {secondFilter.options.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
+
+        {thirdFilter && (
+          <div className="flex-1 sm:w-[140px] sm:flex-none">
+            <Select
+              value={thirdFilter.value}
+              onValueChange={thirdFilter.onChange}
+            >
+              <SelectTrigger className="h-9 bg-white shadow-sm w-full">
+                <SelectValue placeholder={thirdFilter.options[0]?.label} />
+              </SelectTrigger>
+              <SelectContent>
+                {thirdFilter.options.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>
                     {opt.label}
                   </SelectItem>

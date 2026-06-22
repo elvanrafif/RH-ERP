@@ -25,6 +25,12 @@ const TERMIN_OPTIONS = [
   { label: 'Termin 6', value: '6' },
 ]
 
+const SETTLED_OPTIONS = [
+  { label: 'All Status', value: 'all' },
+  { label: 'Settled', value: 'settled' },
+  { label: 'Ongoing', value: 'ongoing' },
+]
+
 interface InvoiceToolbarProps {
   activeTab: string
   onTabChange: (val: string) => void
@@ -34,6 +40,8 @@ interface InvoiceToolbarProps {
   onTerminFilterChange: (val: string) => void
   filterPaymentMonth: string | null
   onPaymentMonthChange: (val: string | null) => void
+  filterSettled: string
+  onSettledFilterChange: (val: string) => void
   sortBy: string
   onSortChange: (val: string) => void
   onResetFilter: () => void
@@ -48,6 +56,8 @@ export function InvoiceToolbar({
   onTerminFilterChange,
   filterPaymentMonth,
   onPaymentMonthChange,
+  filterSettled,
+  onSettledFilterChange,
   sortBy,
   onSortChange,
   onResetFilter,
@@ -58,7 +68,8 @@ export function InvoiceToolbar({
     searchTerm !== '' ||
     activeTab !== 'all' ||
     filterTermin !== 'all' ||
-    filterPaymentMonth !== null
+    filterPaymentMonth !== null ||
+    filterSettled !== 'all'
 
   const selectedMonthDate = filterPaymentMonth
     ? new Date(`${filterPaymentMonth}-01`)
@@ -85,6 +96,11 @@ export function InvoiceToolbar({
         value: filterTermin,
         onChange: onTerminFilterChange,
         options: TERMIN_OPTIONS,
+      }}
+      thirdFilter={{
+        value: filterSettled,
+        onChange: onSettledFilterChange,
+        options: SETTLED_OPTIONS,
       }}
       sortButton={
         <>

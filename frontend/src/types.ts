@@ -130,6 +130,7 @@ export interface Invoice {
   bank_details?: string
   items?: any[]
   payment_dates?: string[]
+  is_fully_paid?: boolean
   expand?: {
     client_id?: Client
   }

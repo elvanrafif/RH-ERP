@@ -66,16 +66,17 @@ export function InvoiceTable({
                 <TableHead>Type</TableHead>
                 <TableHead>Specification</TableHead>
                 <TableHead className="text-center">Active Termin</TableHead>
+                <TableHead className="text-center">Status</TableHead>
                 <TableHead className="text-right">Total</TableHead>
                 <TableHead className="text-right w-[60px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRowsSkeleton rows={5} columns={9} />
+                <TableRowsSkeleton rows={5} columns={10} />
               ) : invoices?.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="h-60">
+                  <TableCell colSpan={10} className="h-60">
                     <EmptyState title="No invoices found." />
                   </TableCell>
                 </TableRow>
@@ -120,6 +121,18 @@ export function InvoiceTable({
                     </TableCell>
                     <TableCell className="text-center">
                       {inv.active_termin}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Badge
+                        variant="outline"
+                        className={cn(
+                          inv.is_fully_paid
+                            ? 'bg-green-50 text-green-700 border-green-200'
+                            : 'bg-slate-50 text-slate-500 border-slate-200'
+                        )}
+                      >
+                        {inv.is_fully_paid ? 'Settled' : 'Ongoing'}
+                      </Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <span className="font-bold text-slate-700">
