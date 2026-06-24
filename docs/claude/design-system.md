@@ -167,20 +167,21 @@ Border aktif: `border-primary/50 ring-1 ring-primary/30 text-primary`.
 
 **`DocumentToolbar`** — `components/filters/DocumentToolbar.tsx`
 
-Dipakai di halaman Invoice dan Quotation. Props:
-- `searchTerm` / `onSearchChange`
-- `filterClient` / `onClientFilterChange` — daftar client di Select
-- `typeFilter?` — optional Select tambahan (mis. status invoice)
+Dipakai sebagai base toolbar di `InvoiceToolbar` dan `QuotationToolbar`. Props:
+- `searchTerm` / `onSearchChange` / `searchPlaceholder?`
+- `filterClient?` / `onClientFilterChange?` — `ClientCombobox` server-side search
+- `typeFilter?` — `TypeFilterConfig` (Select pertama, mis. tipe proyek)
+- `secondFilter?` — `TypeFilterConfig` (Select kedua, mis. filter settled)
+- `thirdFilter?` — `TypeFilterConfig` (Select ketiga, mis. payment month)
+- `sortButton?` — `ReactNode` slot untuk `SortPopover`
 - `hasActiveFilter` / `onResetFilter` — tampilkan tombol X reset
 
-**`ProjectFilterBar`** — `components/projects/ProjectFilterBar.tsx`
+**Filter bars per tipe proyek** — `components/projects/`
 
-Dipakai di semua halaman proyek. Props:
-- `searchQuery` — filter by nama client
-- `filterPic` — filter by PIC (user atau vendor tergantung `isCivil`)
-- `filterVendor?` — hanya untuk interior
-- `filterStatus` — `'all' | 'active' | 'finished'`
-- `filterDeadline` — `'all' | 'near' | 'overdue'`
+Tidak ada shared `ProjectFilterBar`. Masing-masing tipe punya filter bar sendiri:
+- `ArchitectureFilterBar` — props: `searchQuery`, `filterPic`, `filterStatus`, `filterDeadline`, `sortValue`, `onSortChange`
+- `CivilFilterBar` — props: `searchQuery`, `filterPic`, `filterStatus`, `filterDeadline`, `sortValue`, `onSortChange`
+- `InteriorFilterBar` — props: `searchQuery`, `filterPic`, `filterVendor`, `filterStatus`, `filterDeadline`, `sortValue`, `onSortChange`
 
 ---
 
@@ -274,59 +275,30 @@ Radix `<AlertDialog>` untuk konfirmasi hapus. Tombol confirm merah `bg-red-600`.
 
 ## Komponen Shared Lainnya
 
-### CrudPageShell
+### ClientName
 
-**`CrudPageShell`** — `components/shared/CrudPageShell.tsx`
+**`ClientName`** — `components/shared/ClientName.tsx`
 
-Layout standar untuk semua halaman CRUD. Dipakai di ClientsPage, VendorsPage, ProspectsPage, UserManagement.
-
-Props: `header`, `toolbar`, `table`, `dialogs?` — semua `ReactNode`.
+Render nama client dengan salutation prefix (kecil, muted). Props: `name`, `salutation?`, `className?`. Juga re-export `formatClientName` dari helpers.
 
 ```tsx
-<CrudPageShell
-  header={<PageHeader ... />}
-  toolbar={<SearchInput ... />}
-  table={<><ClientTable .../><TablePagination .../></>}
-  dialogs={<><FormDialog .../><ClientDetailDialog .../></>}
-/>
+<ClientName name={client.name} salutation={client.salutation} />
+// → <span><span class="text-muted-foreground text-xs mr-1">Mr.</span> Budi Santoso</span>
 ```
 
-### EntityAvatar
+### SortPopover
 
-**`EntityAvatar`** — `components/shared/EntityAvatar.tsx`
+**`SortPopover`** — `components/shared/SortPopover.tsx`
 
-Avatar initials bulat untuk client/vendor. Props: `name`, `size?: 'sm' | 'md'` (default `'sm'`).
+Button + popover pilihan sort. Props: `options: ReadonlyArray<{ value, label }>`, `value: string | null`, `onChange: (value: string | null) => void`.
 
-- `sm` → `h-8 w-8 text-xs` — untuk baris tabel
-- `md` → `h-12 w-12 text-lg` — untuk header dialog
+Dot indikator `bg-rose-500` + border aktif saat sort aktif. Tombol "Clear Sort" saat ada sort aktif. Dipakai oleh semua tabel yang punya sort — lihat `docs/claude/sort.md`.
 
-### ActiveBadge
+### ProjectStatCard
 
-**`ActiveBadge`** — `components/shared/ActiveBadge.tsx`
+**`ProjectStatCard`** — `components/shared/ProjectStatCard.tsx`
 
-Badge status aktif/nonaktif vendor. Props: `isActive: boolean`.
-
-- Active: `bg-emerald-50 text-emerald-700 border-emerald-200`
-- Inactive: `bg-slate-100 text-slate-500 border-slate-200`
-
-### DetailField
-
-**`DetailField`** — `components/shared/DetailField.tsx`
-
-Field display untuk detail dialog. Props: `label`, `value?`, `icon?`, `className?`.
-
-Dua varian berdasarkan ada/tidaknya `icon`:
-- **Dengan icon** (Client/VendorDetailDialog): `flex items-start gap-3` — icon di kiri, nilai di kanan
-- **Tanpa icon** (ProspectDetailDialog): `label` di atas kecil, `value` di bawah
-
-```tsx
-// dengan icon
-<DetailField label="Phone" value={client.phone}
-  icon={<Phone className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />} />
-
-// tanpa icon
-<DetailField label="Land Size" value="120 m²" />
-```
+Stat card khusus project dashboard. Props: `icon`, `label`, `color: 'emerald' | 'blue' | 'amber'`, `value: ReactNode`, `description`, `className?`. Berbeda dari `StatCard` — layout horizontal di mobile, vertical di desktop, dengan border warna per color variant.
 
 ### PageHeader
 
@@ -366,7 +338,7 @@ Skeleton placeholder saat chart loading.
 
 Picker bulan & tahun tanpa grid tanggal. Grid 3x4 bulan (Jan–Dec) dengan navigasi tahun. Props: `selected: Date | undefined`, `onSelect: (date: Date | undefined) => void`.
 
-Dipakai di ProspectsPage untuk filter berdasarkan bulan created date. Dipakai bersama `<Popover>`:
+Dipakai di ProspectsPage (filter created date), InvoicesPage (filter payment month by `payment_dates`), dan QuotationsPage (filter payment month by `paid_date`). Dipakai bersama `<Popover>`:
 
 ```tsx
 <Popover>

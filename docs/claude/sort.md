@@ -146,10 +146,50 @@ const { sortedData, sortValue, setSortValue } = useSort(data, options)
 
 ## Referensi Implementasi
 
-Civil table adalah referensi lengkap:
+Civil table adalah referensi lengkap untuk **client-side sort**:
 
 ```
 pages/projects/projectCivil/
 ├── civilSortOptions.ts   ← config: deadline, land area, building area
 └── index.tsx             ← useSort + SortPopover integration
 ```
+
+---
+
+## Server-side Sort (Invoice & Quotation)
+
+Invoice dan Quotation menggunakan **server-side sort** — sort dilakukan oleh PocketBase query, bukan `Array.sort` di frontend. Pola ini berbeda dari client-side sort di atas.
+
+### Struktur config
+
+```ts
+// pages/invoices/invoiceSortOptions.ts
+export const INVOICE_SORT_OPTIONS = [
+  { value: 'created_desc', label: 'Newest First', sortParam: '-created' },
+  { value: 'created_asc',  label: 'Oldest First', sortParam: 'created'  },
+] as const
+
+// pages/quotations/quotationSortOptions.ts
+export const QUOTATION_SORT_OPTIONS = [
+  { value: 'created_desc', label: 'Newest First',   sortParam: '-created'      },
+  { value: 'created_asc',  label: 'Oldest First',   sortParam: 'created'       },
+  { value: 'area_desc',    label: 'Largest Area',   sortParam: '-project_area' },
+  { value: 'area_asc',     label: 'Smallest Area',  sortParam: 'project_area'  },
+] as const
+```
+
+> `sortParam` adalah nilai yang dikirim langsung ke `pb.collection().getFullList({ sort: sortParam })`.
+
+### Cara kerja
+
+1. `sortBy` state dikelola di `useInvoiceFilters` / `useQuotationFilters` (bukan `useSort`)
+2. Hook `useInvoices` / `useQuotations` membaca `filters.sortBy`, cari `sortParam` dari options, teruskan ke query PocketBase
+3. Default `sortParam` saat tidak ada sort aktif: `'-created'` (terbaru duluan)
+4. `SortPopover` tetap dipakai sebagai UI — perbedaannya hanya di backend
+
+### Kapan pakai mana
+
+| Situasi | Pola |
+|---|---|
+| Data di-fetch sekaligus (`getFullList` tanpa pagination server) — Kanban, project table | **Client-side** (`useSort` + `compareFn`) |
+| Data di-fetch dengan sort server / pagination server — Invoice, Quotation | **Server-side** (`sortParam` di query) |

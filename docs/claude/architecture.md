@@ -16,24 +16,34 @@ frontend/src/
 │   ├── editors/               # DocumentEditorLayout — shared layout untuk quotation & invoice editor; props: onDelete? + isDeleting? untuk tombol delete superadmin (desktop: icon di header kiri, mobile: tombol di action row)
 │   ├── dialogs/               # CreateDocumentDialog
 │   ├── filters/               # DocumentToolbar
-│   ├── forms/                 # ClientComboboxField, AdditionalLinksField
+│   ├── forms/                 # ClientCombobox (standalone), ClientComboboxField (RHF wrapper),
+│   │                          # AdditionalLinksField, ClientPicMultiSelectField,
+│   │                          # PhoneInputField, UserComboboxField
 │   ├── projects/              # ArchitectureFilterBar, CivilFilterBar, InteriorFilterBar
 │   │                          # (type-specific filter bars — tidak ada shared ProjectFilterBar)
 │   ├── shared/                # EmptyState, FormDialog, LoadingSpinner, PageHeader,
-│   │                          # StatCard, TablePagination, DeleteConfirmDialog,
+│   │                          # StatCard, ProjectStatCard, TablePagination, DeleteConfirmDialog,
 │   │                          # NumberInput, RowActions, TableSkeleton, ChartSkeleton,
-│   │                          # FormSubmitButton, EntityAvatar,
-│   │                          # ActiveBadge, DetailField, CrudPageShell, MonthYearPicker
-│   └── dashboard/             # ExecutiveDashboard (superadmin), MyProjectsDashboard (employee),
-│                              # CivilTeamDashboard (civil role) — Gantt chart per vendor,
+│   │                          # FormSubmitButton, MonthYearPicker,
+│   │                          # ClientName, SortPopover
+│   └── dashboard/             # ExecutiveDashboard (superadmin — tabs: Overview, Resource Monitoring),
+│                              # MyProjectsDashboard (employee — tabs: Calendar, My Projects),
+│                              # CivilTeamDashboard (civil division — Gantt chart per vendor),
 │                              # CivilGanttChart, CivilGanttBar, CivilVendorSection,
-│                              # DashboardCalendar (responsive: mobile→listMonth+bottom sheet, desktop→dayGrid+floating popover), DashboardCalendarPopover
-│       └── tabs/              # OverviewTab, ResourceMonitoringTab, ClientTrackingTab,
+│                              # DashboardCalendar (responsive: mobile→listMonth+bottom sheet,
+│                              #   desktop→dayGrid+floating popover), DashboardCalendarPopover
+│       └── tabs/              # OverviewTab (stat cards + DashboardCalendar + top lists),
+│                              # ResourceMonitoringTab (WorkloadChart),
+│                              # ClientTrackingTab (dipakai di ClientTrackingPage standalone),
 │                              # SemesterCard, WorkloadChart, RevenuePieChart,
+│                              # InvoiceRevenue, QuotationRevenue,
 │                              # TopInvoicesList, TopQuotationsList
 ├── hooks/                     # Custom hooks — satu hook satu tanggung jawab
 ├── lib/
-│   ├── helpers.ts             # Format tanggal, rupiah, avatar, formatDateTime, formatDateLongEn, getRemainingTime, buildInvoiceFileName, buildQuotationFileName, getSalutationLabel
+│   ├── helpers.ts             # formatRupiah, formatDate, formatDateShort, formatDateLong, formatDateLongEn, formatDateTime,
+│   │                          # formatTimeUntil (→ TimeUntilResult), formatClientName, getSalutationLabel,
+│   │                          # buildInvoiceFileName, buildQuotationFileName, getRemainingTime, calculateDuration,
+│   │                          # getInitials, getAvatarUrl, escapePbFilter, formatPhoneNumber
 │   ├── constant.ts            # Semua konstanta global
 │   ├── booleans.ts            # Boolean utility helpers
 │   ├── masking.ts             # Display label helpers: MaskingTextByDivision, MaskingTextByInvoiceType, MaskingTextByArchitectureStatus
@@ -71,10 +81,12 @@ frontend/src/
     │       └── hooks/         # (reserved)
     ├── buildConversion/       # BuildConversionPage (superadmin only)
     ├── quotations/            # QuotationsPage, QuotationEditor, QuotationPaper,
-    │                          # QuotationTable, QuotationCreateDialog, QuotationToolbar
+    │                          # QuotationTable, QuotationCreateDialog, QuotationToolbar,
+    │                          # quotationSortOptions
+    ├── clientTracking/        # ClientTrackingPage — proyek per client dikelompokkan S1/S2
     ├── invoices/              # InvoicesPage, InvoiceDetailPage, InvoicePaper,
     │                          # InvoiceTable, InvoiceCreateDialog, InvoiceToolbar,
-    │                          # InvoiceEditorSettings, PaymentTermsEditor
+    │                          # InvoiceEditorSettings, PaymentTermsEditor, invoiceSortOptions
     ├── reports/               # ReportsPage
     │   └── components/        # RevenueStatCards, RevenueBarChart, RevenueDetailTable,
     │                          # ReportExportButton
@@ -137,6 +149,15 @@ Satu hook = satu tanggung jawab. Return object (bukan array) kecuali state seder
 | `useMyProjects` | Fetch active projects assigned to current user (excludes done/finish/cancelled), compute nearDeadlineCount per type threshold + inProgressCount |
 | `useCivilTeamProjects` | Fetch semua civil project aktif, group by vendor, compute hasOverdue/hasNearDeadline per vendor group + aggregated counts — data source untuk CivilTeamDashboard |
 | `usePagination` | Client-side pagination generic: slice `data` array by page, reset ke page 1 otomatis saat `resetDeps` berubah |
+| `useClientSearch` | Server-side search client dengan debounce 300ms — aktif hanya jika query ≥ 2 karakter, return `{ clients, isSearching }` |
+| `useInvoiceEditor` | Fetch + mutate single invoice by ID — dipakai di `InvoiceDetailPage`; return `{ invoice, isLoading, updateInvoice, isPending }` |
+| `useQuotationEditor` | Fetch + mutate single quotation by ID — dipakai di `QuotationEditor`; return `{ quotation, isLoading, updateQuotation, isPending }` |
+| `useInvoiceRevenue` | Fetch invoices dengan filter date range, jalankan `buildInvoiceRevenueData` — dipakai di halaman `/reports` tab Invoice |
+| `useQuotationRevenue` | Fetch quotations dengan filter date range, jalankan `buildQuotationRevenueData` — dipakai di halaman `/reports` tab Quotation |
+| `useMyCalendarEvents` | Agregasi deadline project + prospect + survey ke `CalendarEvent[]` difilter by current user — dipakai di `MyProjectsDashboard` Calendar tab (bukan Executive dashboard) |
+| `useProjectHold` | Mutation hold/resume project — update field `is_on_hold`; options: `onHoldSuccess`, `onResumeSuccess` |
+| `useProjectInvoiceStats` | Fetch invoice stats per project type (architecture/civil/interior) — dipakai di dashboard stats cards |
+| `useSort` | Generic client-side sort: state `sortValue` + compute `sortedData` via `compareFn`; lihat `docs/claude/sort.md` untuk detail |
 
 ## Validasi Schema
 

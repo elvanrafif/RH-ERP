@@ -28,18 +28,49 @@
 
 ## Daftar Permission
 
+Permission dikelompokkan sesuai `PERMISSION_GROUPS` di `roleForm.tsx`.
+
+### Dashboard & Finance
 | Permission | Akses |
 |---|---|
-| `view_index_project_architecture` | Halaman proyek arsitektur |
-| `view_index_project_civil` | Halaman proyek sipil |
-| `view_index_project_interior` | Halaman proyek interior |
+| `view_dashboard` | Akses halaman dashboard (defined in roleForm, belum dipakai sebagai guard UI) |
+| `view_revenue` | Lihat data revenue di dashboard & reports; gates sidebar Reports + Invoices |
+
+### Projects
+| Permission | Akses |
+|---|---|
+| `view_index_project_architecture` | Halaman daftar proyek arsitektur (sidebar + route guard) |
+| `view_detail_project_architecture` | Lihat detail modal proyek arsitektur (defined, belum dipakai sebagai guard UI) |
+| `manage_architecture` | Gates tombol Create/Edit di halaman arsitektur |
+| `view_index_project_civil` | Halaman daftar proyek sipil (sidebar + route guard) |
+| `view_detail_project_civil` | Lihat detail modal proyek sipil (defined, belum dipakai sebagai guard UI) |
+| `manage_civil` | Gates tombol Create/Edit di halaman sipil |
+| `view_index_project_interior` | Halaman daftar proyek interior (sidebar + route guard) |
+| `view_detail_project_interior` | Lihat detail modal proyek interior (defined, belum dipakai sebagai guard UI) |
+| `manage_interior` | Gates tombol Create/Edit di halaman interior |
+
+### Clients & Prospects
+| Permission | Akses |
+|---|---|
 | `manage_clients` | Edit & buat client |
-| `manage_prospects` | Kelola data prospek |
+| `manage_prospects` | Kelola data prospek (sidebar + CRUD) |
+
+### Survey
+| Permission | Akses |
+|---|---|
 | `view_surveys` | Lihat halaman & daftar survey (read-only) |
 | `manage_surveys` | Buat, edit & hapus survey (include view) |
+
+### Quotations
+| Permission | Akses |
+|---|---|
 | `manage_quotations` | Buat & edit quotation penuh |
 | `manage_quotations_restricted` | Buat quotation tapi field finansial disembunyikan |
-| `view_revenue` | Lihat data revenue di dashboard & invoice |
+
+### Settings
+| Permission | Akses |
+|---|---|
+| `manage_users` | Gates route Settings > User Management dan Role Management; sidebar item |
 
 > Superadmin (`isSuperAdmin: true`) selalu punya akses ke semua fitur tanpa permission.
 
