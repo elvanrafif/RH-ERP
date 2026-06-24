@@ -12,7 +12,7 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 |---|---|---|
 | Login / Auth | ✅ | Session timeout 1 jam, auto logout, show/hide password toggle |
 | RBAC (Role & Permission) | ✅ | Custom roles dengan permission granular via PocketBase |
-| Dashboard | ✅ | Role-based: superadmin → Executive Overview (workload, client tracking, **Team Calendar** — deadline project civil/architecture/interior, jadwal meeting prospect & survey, monthly/weekly view, color-coded events, day-detail popover; responsive: mobile → list view + bottom sheet, desktop → grid + floating popover); employee → My Projects (active assigned projects, deadline stats); civil role → Civil Team Dashboard (Gantt chart per vendor, responsive 1–3 month window, Today label, color-coded deadlines) |
+| Dashboard | ✅ | Role-based routing via `Dashboard.tsx`: **superadmin** → `ExecutiveDashboard` (2 tabs: Overview — stat cards, **Team Calendar** dengan `useDashboardCalendarEvents` semua event, top invoices/quotations; Resource Monitoring — workload per PIC); **civil division** (`user.division === DIVISION.CIVIL`) → `CivilTeamDashboard` (Gantt chart per vendor, responsive 1–3 month window, Today label, color-coded deadlines); **employee** → `MyProjectsDashboard` (2 tabs: Calendar — `useMyCalendarEvents` difilter by current user; My Projects — active assigned projects + deadline stats). Client Tracking dipindah ke halaman standalone `/client-tracking` (superadmin only). Calendar: responsive mobile → listMonth + bottom sheet, desktop → dayGrid + floating popover. |
 | Profile & Security | ✅ | Edit profil, ganti password, upload avatar |
 
 ---
@@ -34,7 +34,7 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 | Modul | Status | Catatan |
 |---|---|---|
 | Clients | ✅ | Table, search, detail dialog, form CRUD; klik baris → detail dialog; email opsional, phone minimal 8 digit |
-| Prospects | ✅ | Table, search, status filter (7 values), month filter (created date via MonthYearPicker), form multi-section (contact, property, schedule); status kolom dihapus dari table — filter via dropdown; status badge berwarna di detail dialog; meeting schedule bisa diedit semua user; quotation options: design · civil · civil + design |
+| Prospects | ✅ | Table, search, status filter (7 values), month filter (created date via MonthYearPicker), form multi-section (contact, property, schedule); status kolom dihapus dari table — filter via dropdown; status badge berwarna di detail dialog; meeting schedule bisa diedit semua user; quotation options: design · civil · civil + design; kolom client menampilkan Instagram handle (`@handle`) jika tersedia; kolom survey schedule tampil di table |
 | Vendors | ✅ | Table, search, filter project type, hanya superadmin; klik baris → detail dialog |
 
 ---
@@ -43,9 +43,9 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 
 | Modul | Status | Catatan |
 |---|---|---|
-| Quotations | ✅ | Table, editor A4, print/download, WhatsApp share (pesan formal profesional); QR code di paper dilabeli "Scan to Verify"; area m² mendukung decimal; file name format: `QUOTATION_<SALUTATION>_<CLIENT>_<AREA>m2`; delete (superadmin only) dari editor dengan konfirmasi dialog |
+| Quotations | ✅ | Table, editor A4, print/download, WhatsApp share (pesan formal profesional); QR code di paper dilabeli "Scan to Verify"; area m² mendukung decimal; file name format: `QUOTATION_<SALUTATION>_<CLIENT>_<AREA>m2`; delete (superadmin only) dari editor dengan konfirmasi dialog; `paid_date` field di editor (di samping status); filter status (All/Paid/Draft); filter payment month via `MonthYearPicker` (filter by `paid_date`); sort: Newest First / Oldest First / Largest Area / Smallest Area (server-side) |
 | Quotation — Restricted Access | ✅ | Role socmed: bisa buat quotation tapi field finansial disembunyikan |
-| Invoices | ✅ | Table, editor A4, payment terms, print/download, WhatsApp share (pesan formal profesional); QR code di paper dilabeli "Scan to Verify"; filter active termin (1–6) di table; payment terms editor: term name editable, Set Active per card, Select term type (Percentage/Fixed DP/Settlement/Custom Amount), toast warning jika total % > 100; area m² mendukung decimal; file name format: `INVOICE_<TYPE>_TERMIN<N>_<SALUTATION>_<CLIENT>` (prefix `INVOICE_UPDATE` jika termin sudah paid); delete (superadmin only) dari editor dengan konfirmasi dialog |
+| Invoices | ✅ | Table, editor A4, payment terms, print/download, WhatsApp share (pesan formal profesional); QR code di paper dilabeli "Scan to Verify"; filter active termin (1–6) di table; payment terms editor: term name editable, Set Active per card, Select term type (Percentage/Fixed DP/Settlement/Custom Amount), toast warning jika total % > 100; area m² mendukung decimal; file name format: `INVOICE_<TYPE>_TERMIN<N>_<SALUTATION>_<CLIENT>` (prefix `INVOICE_UPDATE` jika termin sudah paid); delete (superadmin only) dari editor dengan konfirmasi dialog; `is_fully_paid` field (auto-computed saat semua termin paid, disync on save); badge Settled/Ongoing di tabel berdasarkan `is_fully_paid`; FULLY PAID stamp di atas invoice paper saat `is_fully_paid = true`; filter Settled/Ongoing di toolbar; filter payment month via `MonthYearPicker` (filter by `payment_dates` field — array tanggal pembayaran per termin, disync on save); sort: Newest First / Oldest First (server-side) |
 | Public Verification | ✅ | Halaman publik untuk verifikasi dokumen via QR/link |
 
 ---
@@ -72,6 +72,14 @@ Daftar semua modul dalam RH-ERP beserta status pengembangannya.
 | Modul | Status | Catatan |
 |---|---|---|
 | Financial Reporting | ✅ | `/reports` (requires `view_revenue`) — stat cards (Total Revenue, Invoice Revenue, Quotation Paid) dengan % change vs periode sebelumnya; bar chart per bulan/kuartal/tahun dengan highlight periode aktif; tabel detail dua tab Invoice + Quotation dengan row total; filter granularitas (Monthly/Quarterly/Yearly), tahun, bulan/kuartal, tipe proyek — semua di-sync ke URL params; Export PDF via jsPDF + html-to-image; sidebar nav item "Reports" |
+
+---
+
+## Client Tracking
+
+| Modul | Status | Catatan |
+|---|---|---|
+| Client Tracking | ✅ | Halaman standalone di sidebar (`/client-tracking`) — menampilkan daftar proyek per client dikelompokkan per semester (S1: Jan–Jun, S2: Jul–Des) dan tahun; data dari semua tipe proyek (architecture/interior by `deadline`, civil by `end_date`); filter year; reuses `ClientTrackingTab` component; hanya tampil di sidebar untuk `isSuperAdmin` |
 
 ---
 
