@@ -3,6 +3,8 @@ import RHStudioKopImg from '@/assets/rh-studio-kop.png'
 import { formatRupiah } from '@/lib/helpers'
 import { formatClientName } from '@/components/shared/ClientName'
 import QRCode from 'react-qr-code' // <-- Tambahkan import ini
+import { QUOTATION_LABELS } from '@/lib/invoicing/quotationLabels'
+import type { Lang } from '@/lib/invoicing/invoiceLabels'
 
 interface QuotationPaperProps {
   quotationNumber: string
@@ -16,6 +18,7 @@ interface QuotationPaperProps {
   bankDetails: string
   qrLink: string
   isPublicView?: boolean
+  lang?: Lang
 }
 
 export const QuotationPaper = React.forwardRef<
@@ -33,7 +36,12 @@ export const QuotationPaper = React.forwardRef<
     bankDetails,
     qrLink,
     isPublicView,
+    lang = 'en',
   } = props
+
+  const t = QUOTATION_LABELS[lang]
+  const clientName = client ? formatClientName(client) : t.clientFallback
+  const displayAddress = address || t.addressFallback
 
   return (
     <div
@@ -45,7 +53,7 @@ export const QuotationPaper = React.forwardRef<
         <div className="watermark-layer absolute inset-0 flex items-center justify-center pointer-events-none z-50 overflow-hidden print:hidden">
           <div className="opacity-15 transform -rotate-45 border-[10px] border-emerald-600 px-12 py-4 rounded-xl">
             <span className="text-9xl font-black text-emerald-600 tracking-widest whitespace-nowrap uppercase">
-              VERIFIED
+              {t.verified}
             </span>
           </div>
         </div>
@@ -85,11 +93,7 @@ export const QuotationPaper = React.forwardRef<
       <div className="px-6">
         {/* --- 2. INTRO TEXT --- */}
         <div className="mt-5 mb-3 text-sm text-slate-900 leading-relaxed font-light pr-10">
-          With reference to our previous discussions, we are pleased to present
-          this design quotation for the residential renovation project of{' '}
-          <span>{client ? formatClientName(client) : 'Client'}</span>, located
-          in <span>{address || 'Project Address'}</span>. The detailed scope of
-          services is as follows:
+          {t.introText(clientName, displayAddress)}
         </div>
 
         {/* --- 3. TABEL UTAMA --- */}
@@ -97,13 +101,13 @@ export const QuotationPaper = React.forwardRef<
           <thead>
             <tr className="border-b-[3px] border-[#ce9c2b]">
               <th className="text-left py-3 font-black tracking-widest text-[17px] w-[45%] text-slate-900">
-                DESCRIPTION
+                {t.description}
               </th>
               <th className="text-center py-3 font-black tracking-widest text-[17px] text-slate-900">
                 QTY
               </th>
               <th className="text-center py-3 font-black tracking-widest text-[17px] text-slate-900">
-                PRICE
+                {t.price}
               </th>
               <th className="text-center py-3 font-black tracking-widest text-[17px] text-slate-900">
                 TOTAL
@@ -114,19 +118,9 @@ export const QuotationPaper = React.forwardRef<
             <tr>
               <td className="py-5 pr-4 align-top">
                 <ul className="list-disc pl-5 space-y-1.5 font-light text-slate-900 leading-tight">
-                  <li>Layout / Floor Plan Design</li>
-                  <li>3D Facade Design</li>
-                  <li>3D Facade Rendering</li>
-                  <li>Detail Drawing / Working Drawing</li>
-                  <li>Draft Interior Schematic Design</li>
-                  <li>Budget Estimation (RAB)</li>
-                  <li>
-                    50% Discount applicable upon inclusion of construction works
-                  </li>
-                  <li>
-                    Complimentary interior design upon request, subject to
-                    inclusion of construction works
-                  </li>
+                  {t.services.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
                 </ul>
               </td>
               <td className="py-5 text-center align-middle font-medium text-slate-900 text-[14px]">
@@ -160,65 +154,53 @@ export const QuotationPaper = React.forwardRef<
           </tbody>
         </table>
         <p className="text-xs italic mt-1 text-slate-800 font-light tracking-tight">
-          Note: The total built area shall be measured and verified using
-          AutoCAD and is subject to mutual review and agreement.
+          {t.note}
         </p>
 
         {/* --- 4. SYARAT & KETENTUAN --- */}
         <div className="mt-6 text-sm text-slate-900 font-light">
           <h4 className="font-bold text-[15px] mb-2">
-            Payment Terms & Conditions:
+            {t.paymentTermsTitle}
           </h4>
           <div className="leading-5">
-            <p>
-              <span className="font-bold">Term 1</span> — IDR 2,500,000, payable
-              prior to the commencement of design work.
-            </p>
-            <p>
-              <span className="font-bold">Term 2</span> — 50% of the total fee,
-              payable upon finalization of the Floor Plan or prior to the
-              commencement of 3D Facade design.
-            </p>
-            <p>
-              <span className="font-bold">Term 3</span> — 30% of the total fee,
-              payable upon finalization of the 3D Facade or prior to the
-              commencement of Working Drawings and Interior Schematic.
-            </p>
-            <p>
-              <span className="font-bold">Term 4</span> — remaining balance,
-              payable upon completion of Structural Drawings and Budget
-              Estimation.
-            </p>
+            {t.terms.map((term, i) => (
+              <p key={i}>
+                <span className="font-bold">{term.label}</span> {term.text}
+              </p>
+            ))}
           </div>
         </div>
+
+      </div>
 
         {/* --- 5. PAYMENT INFORMATION & QR CODE --- */}
-        <div className="mt-6 flex justify-between items-end">
-          <div className="w-2/3 pr-10">
-            <h4 className="font-black text-[20px] tracking-[0.1em] uppercase mb-1 text-slate-900">
-              PAYMENT INFORMATION
-            </h4>
-            <div className="text-sm font-light text-slate-900 space-y-1 tracking-wide whitespace-pre-line">
-              {bankDetails}
+        <div className="absolute bottom-[15mm] left-0 w-full px-[15mm] z-10">
+          <div className="flex justify-between items-end px-6">
+            <div className="w-2/3 pr-10">
+              <h4 className="font-black text-[20px] tracking-[0.1em] uppercase mb-1 text-slate-900">
+                {t.paymentInformation}
+              </h4>
+              <div className="text-sm font-light text-slate-900 space-y-1 tracking-wide whitespace-pre-line">
+                {bankDetails}
+              </div>
             </div>
-          </div>
 
-          {/* Kotak QR Code di kanan bawah */}
-          <div className="flex flex-col items-center gap-1">
-            <div className="bg-white p-1 border-2 border-[#ce9c2b] rounded">
-              <QRCode
-                value={qrLink}
-                size={80}
-                style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
-                viewBox={`0 0 256 256`}
-              />
+            {/* Kotak QR Code di kanan bawah */}
+            <div className="flex flex-col items-center gap-1">
+              <div className="bg-white p-1 border-2 border-[#ce9c2b] rounded">
+                <QRCode
+                  value={qrLink}
+                  size={80}
+                  style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
+                  viewBox={`0 0 256 256`}
+                />
+              </div>
+              <p className="text-[9px] text-gray-500 tracking-wide">
+                {t.scanToVerify}
+              </p>
             </div>
-            <p className="text-[9px] text-gray-500 tracking-wide">
-              Scan to Verify
-            </p>
           </div>
         </div>
-      </div>
     </div>
   )
 })

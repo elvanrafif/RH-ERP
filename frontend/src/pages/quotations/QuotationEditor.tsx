@@ -16,6 +16,8 @@ import { NumberInput } from '@/components/shared/NumberInput'
 import { ClientCombobox } from '@/components/forms/ClientCombobox'
 
 import { QuotationPaper } from './QuotationPaper'
+import { LangToggle } from '@/components/shared/LangToggle'
+import type { Lang } from '@/lib/invoicing/invoiceLabels'
 import { DocumentEditorLayout } from '@/components/editors/DocumentEditorLayout'
 import { DeleteConfirmDialog } from '@/components/shared/DeleteConfirmDialog'
 import { useDocumentScaling } from '@/hooks/useDocumentScaling'
@@ -61,6 +63,7 @@ export default function QuotationEditor() {
   const [selectedClientId, setSelectedClientId] = useState('')
   const [selectedClientData, setSelectedClientData] = useState<any>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [lang, setLang] = useState<Lang>('en')
 
   const qrLink = `${import.meta.env.VITE_FE_LINK_URL}/verify/quotations/${id}`
   const contractValue = projectArea * pricePerMeter
@@ -322,6 +325,7 @@ export default function QuotationEditor() {
             </div>
           </div>
         }
+        previewAbove={<LangToggle lang={lang} onChange={setLang} />}
         preview={
           <QuotationPaper
             qrLink={qrLink}
@@ -335,6 +339,7 @@ export default function QuotationEditor() {
             discountPercent={discountPercent}
             grandTotal={grandTotal}
             bankDetails={bankDetails}
+            lang={lang}
           />
         }
       />

@@ -8,6 +8,8 @@ import { Textarea } from '@/components/ui/textarea'
 
 import { getTemplateByType } from './template'
 import { InvoicePaper } from './components/InvoicePaper'
+import { LangToggle } from '@/components/shared/LangToggle'
+import type { Lang } from '@/lib/invoicing/invoiceLabels'
 import { InvoiceEditorSettings } from './components/InvoiceEditorSettings'
 import { PaymentTermsEditor } from './components/PaymentTermsEditor'
 import { DocumentEditorLayout } from '@/components/editors/DocumentEditorLayout'
@@ -58,6 +60,7 @@ export default function InvoiceDetailPage() {
   const [manualTotal, setManualTotal] = useState(0)
   const [discountPercent, setDiscountPercent] = useState(0)
   const [deleteOpen, setDeleteOpen] = useState(false)
+  const [lang, setLang] = useState<Lang>('en')
 
   const qrLink = `${import.meta.env.VITE_FE_LINK_URL}/verify/invoices/${id}`
 
@@ -326,6 +329,7 @@ export default function InvoiceDetailPage() {
             />
           </div>
         }
+        previewAbove={<LangToggle lang={lang} onChange={setLang} />}
         preview={
           <InvoicePaper
             ref={componentRef}
@@ -342,6 +346,7 @@ export default function InvoiceDetailPage() {
             items={items}
             bankDetails={bankDetails}
             qrLink={qrLink}
+            lang={lang}
           />
         }
       />

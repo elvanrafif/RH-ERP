@@ -32,6 +32,7 @@ interface DocumentEditorLayoutProps {
   previewScale: number
   leftPanel: ReactNode
   preview: ReactNode
+  previewAbove?: ReactNode
 }
 
 export function DocumentEditorLayout({
@@ -51,6 +52,7 @@ export function DocumentEditorLayout({
   previewScale,
   leftPanel,
   preview,
+  previewAbove,
 }: DocumentEditorLayoutProps) {
   const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit')
 
@@ -256,6 +258,9 @@ export function DocumentEditorLayout({
             </h3>
           </div>
 
+          {previewAbove && (
+            <div className="mb-3 print:hidden">{previewAbove}</div>
+          )}
           <div
             className="shrink-0 shadow-2xl bg-white origin-center transform-gpu transition-all duration-500"
             style={{

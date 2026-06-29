@@ -1,0 +1,38 @@
+export type Lang = 'en' | 'id'
+
+export const INVOICE_LABELS = {
+  en: {
+    verified: 'VERIFIED',
+    invoiceTo: 'Invoice to:',
+    clientFallback: 'Client Name',
+    designProject: 'Design Project:',
+    pricePerMeter: 'Price per m²:',
+    contractValue: 'CONTRACT VALUE',
+    afterDiscount: 'AFTER DISCOUNT',
+    description: 'DESCRIPTION',
+    price: 'PRICE',
+    paymentDate: 'PAYMENT DATE',
+    remainingPayment: 'Remaining Payment',
+    fullyPaid: 'FULLY PAID',
+    paymentInformation: 'PAYMENT INFORMATION',
+    noBankInfo: 'No bank account info.',
+    scanToVerify: 'Scan to Verify',
+  },
+  id: {
+    verified: 'TERVERIFIKASI',
+    invoiceTo: 'Tagihan kepada:',
+    clientFallback: 'Nama Klien',
+    designProject: 'Proyek Desain:',
+    pricePerMeter: 'Harga per m²:',
+    contractValue: 'NILAI KONTRAK',
+    afterDiscount: 'SETELAH DISKON',
+    description: 'DESKRIPSI',
+    price: 'HARGA',
+    paymentDate: 'TANGGAL BAYAR',
+    remainingPayment: 'Sisa Pembayaran',
+    fullyPaid: 'LUNAS',
+    paymentInformation: 'INFORMASI PEMBAYARAN',
+    noBankInfo: 'Info rekening belum diisi.',
+    scanToVerify: 'Pindai untuk Verifikasi',
+  },
+} as const
