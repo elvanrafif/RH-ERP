@@ -4,6 +4,8 @@ import RHStudioKopImg from '@/assets/rh-studio-kop.png'
 import { formatDate, formatRupiah } from '@/lib/helpers'
 import { calculatePaidSummary, isInvoiceFullyPaid } from '@/lib/invoicing/termCalculation'
 import { COMPANY_INFO } from '@/lib/constant'
+import { INVOICE_LABELS } from '@/lib/invoicing/invoiceLabels'
+import type { Lang } from '@/lib/invoicing/invoiceLabels'
 
 // --- TYPE DEFINITION ---
 interface InvoicePaperProps {
@@ -25,6 +27,7 @@ interface InvoicePaperProps {
   bankDetails: string
   qrLink: string
   isPublicView?: boolean
+  lang?: Lang
 }
 
 // --- COMPONENT ---
@@ -45,8 +48,10 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
       bankDetails,
       qrLink,
       isPublicView = false,
+      lang = 'en',
     } = props
 
+    const t = INVOICE_LABELS[lang]
     const { remainingPayment } = calculatePaidSummary(items, grandTotal)
     const fullyPaid = isInvoiceFullyPaid(items)
 
@@ -65,7 +70,7 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
           <div className="watermark-layer absolute inset-0 flex items-center justify-center pointer-events-none z-50 overflow-hidden print:hidden">
             <div className="opacity-15 transform -rotate-45 border-[10px] border-emerald-600 px-12 py-4 rounded-xl">
               <span className="text-9xl font-black text-emerald-600 tracking-widest whitespace-nowrap uppercase">
-                VERIFIED
+                {t.verified}
               </span>
             </div>
           </div>
@@ -116,9 +121,9 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
         {/* INFO KLIEN & PROJECT */}
         <div className="w-full mb-10 relative z-10">
           <div className="w-1/2 mb-6">
-            <h3 className="text-md font-bold">Invoice to:</h3>
+            <h3 className="text-md font-bold">{t.invoiceTo}</h3>
             <p className="text-slate-600 text-sm font-bold">
-              {client?.company_name || 'Nama Klien'}
+              {client?.company_name || t.clientFallback}
             </p>
             <p className="text-slate-600 text-sm whitespace-pre-line">
               {client?.address || '-'}
@@ -130,13 +135,13 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
             {type === 'design' ? (
               <>
                 <div className="text-center">
-                  <h3 className="text-md font-bold">Design Project:</h3>
+                  <h3 className="text-md font-bold">{t.designProject}</h3>
                   <p className="text-slate-600 text-sm pl-0">
                     {projectArea} m²
                   </p>
                 </div>
                 <div className="text-center pr-10">
-                  <h3 className="text-md font-bold">Price per m²:</h3>
+                  <h3 className="text-md font-bold">{t.pricePerMeter}</h3>
                   <p className="text-slate-600 text-sm">
                     {formatRupiah(pricePerMeter)}
                   </p>
@@ -155,14 +160,14 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
                   : 'text-yellow-600 text-lg font-bold'
               }
             >
-              CONTRACT VALUE :{' '}
+              {t.contractValue} :{' '}
               <span className={discountPercent > 0 ? 'line-through' : ''}>
                 {formatRupiah(contractValue)}
               </span>
             </h2>
             {discountPercent > 0 && (
               <p className="text-yellow-600 text-lg font-bold">
-                AFTER DISCOUNT {discountPercent}% : {formatRupiah(grandTotal)}
+                {t.afterDiscount} {discountPercent}% : {formatRupiah(grandTotal)}
               </p>
             )}
           </div>
@@ -173,19 +178,19 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
           <thead>
             <tr className="bg-black">
               <th className="font-bold text-md py-2 text-yellow-500 border-r-0 text-center w-[25%]">
-                DESCRIPTION
+                {t.description}
               </th>
               <th className="font-bold text-md py-2 text-yellow-500 text-center w-[15%]">
                 %
               </th>
               <th className="font-bold text-md py-2 text-yellow-500 text-center w-[25%]">
-                PRICE
+                {t.price}
               </th>
               <th className="font-bold text-md py-2 text-yellow-500 text-center w-[15%]">
                 STATUS
               </th>
               <th className="font-bold text-md py-2 text-yellow-500 text-center w-[20%]">
-                PAYMENT DATE
+                {t.paymentDate}
               </th>
             </tr>
           </thead>
@@ -242,11 +247,11 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
         {/* REMAINING */}
         <div className="mb-10 mr-18 relative z-10">
           <div className="flex justify-end items-center gap-10">
-            <span className="text-xl font-bold">Remaining Payment</span>
+            <span className="text-xl font-bold">{t.remainingPayment}</span>
             {fullyPaid ? (
               <div className="border-[3px] border-green-600 rounded-lg px-3 py-0.5 opacity-80">
                 <span className="text-lg font-black text-green-600 tracking-widest uppercase">
-                  FULLY PAID
+                  {t.fullyPaid}
                 </span>
               </div>
             ) : (
@@ -264,11 +269,11 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
           <div className="flex justify-between items-end">
             <div className="w-2/3 pr-10">
               <h2 className="font-bold uppercase text-md">
-                PAYMENT INFORMATION
+                {t.paymentInformation}
               </h2>
               <div className="text-gray-700">
                 <p className="whitespace-pre-line font-medium text-md">
-                  {bankDetails || 'No bank account info.'}
+                  {bankDetails || t.noBankInfo}
                 </p>
               </div>
             </div>
@@ -282,7 +287,7 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
                 />
               </div>
               <p className="text-[9px] text-gray-500 tracking-wide">
-                Scan to Verify
+                {t.scanToVerify}
               </p>
             </div>
           </div>

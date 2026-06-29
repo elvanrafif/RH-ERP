@@ -8,6 +8,8 @@ import { useDocumentScaling } from '@/hooks/useDocumentScaling'
 import { useDocumentExport } from '@/hooks/useDocumentExport'
 import { A4_BASE_WIDTH } from '@/lib/constant'
 import { buildQuotationFileName } from '@/lib/helpers'
+import { LangToggle } from '@/components/shared/LangToggle'
+import type { Lang } from '@/lib/invoicing/invoiceLabels'
 
 import { InvoicePaper } from '../invoices/components/InvoicePaper'
 import { QuotationPaper } from '../quotations/QuotationPaper'
@@ -15,6 +17,7 @@ import { QuotationPaper } from '../quotations/QuotationPaper'
 export default function PublicVerificationPage() {
   const { docType, id } = useParams()
   const [isCapturing, setIsCapturing] = useState(false)
+  const [lang, setLang] = useState<Lang>('en')
   const captureRef = useRef<HTMLDivElement>(null)
 
   const { data: doc, isLoading, isError } = usePublicDocument(docType, id)
@@ -79,6 +82,7 @@ export default function PublicVerificationPage() {
           grandTotal={quotationGrandTotal}
           bankDetails={doc?.bank_details}
           isPublicView={!forCapture}
+          lang={lang}
         />
       )
     }
@@ -111,6 +115,7 @@ export default function PublicVerificationPage() {
         bankDetails={doc?.bank_details}
         qrLink={qrLink}
         isPublicView={!forCapture}
+        lang={lang}
       />
     )
   }
@@ -148,6 +153,10 @@ export default function PublicVerificationPage() {
           )}
           {isCapturing ? 'Generating PDF...' : 'Download PDF'}
         </Button>
+      </div>
+
+      <div className="mb-2 z-10 relative">
+        <LangToggle lang={lang} onChange={setLang} />
       </div>
 
       <div
