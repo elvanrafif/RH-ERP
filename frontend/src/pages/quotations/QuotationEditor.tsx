@@ -24,7 +24,7 @@ import { useDocumentScaling } from '@/hooks/useDocumentScaling'
 import { useDocumentExport } from '@/hooks/useDocumentExport'
 import { useWhatsAppShare } from '@/hooks/useWhatsAppShare'
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges'
-import { DEFAULT_QUOTATION_PRICE_PER_METER } from '@/lib/constant'
+import { DEFAULT_QUOTATION_PRICE_PER_METER, BANK_MANDIRI } from '@/lib/constant'
 import { buildQuotationFileName } from '@/lib/helpers'
 import { useAuth } from '@/contexts/AuthContext'
 
@@ -57,9 +57,7 @@ export default function QuotationEditor() {
     DEFAULT_QUOTATION_PRICE_PER_METER
   )
   const [discountPercent, setDiscountPercent] = useState(0)
-  const [bankDetails, setBankDetails] = useState(
-    `Name : Ismail Deyrian Anugrah\nAccount Number : BNI ${import.meta.env.VITE_BANK_ACCOUNT_NUMBER}`
-  )
+  const [bankDetails, setBankDetails] = useState(BANK_MANDIRI)
   const [selectedClientId, setSelectedClientId] = useState('')
   const [selectedClientData, setSelectedClientData] = useState<any>(null)
   const [deleteOpen, setDeleteOpen] = useState(false)
