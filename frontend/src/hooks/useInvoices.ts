@@ -4,6 +4,7 @@ import { pb } from '@/lib/pocketbase'
 import { getTemplateByType } from '@/pages/invoices/template'
 import type { InvoiceFilters } from './useInvoiceFilters'
 import { INVOICE_SORT_OPTIONS } from '@/pages/invoices/invoiceSortOptions'
+import { BANK_BNI, BANK_MANDIRI } from '@/lib/constant'
 import type { Invoice } from '@/types'
 
 export type InvoiceType = 'design' | 'sipil' | 'interior'
@@ -85,7 +86,7 @@ export function useInvoices({ filters, page }: UseInvoicesOptions) {
         price_per_meter: 200000,
         project_area: 0,
         total_amount: 0,
-        bank_details: `BNI - ${import.meta.env.VITE_BANK_ACCOUNT_NUMBER}\nIsmail Deyrian Anugrah`,
+        bank_details: type === 'design' ? BANK_MANDIRI : BANK_BNI,
         items: getTemplateByType(type),
       })
     },

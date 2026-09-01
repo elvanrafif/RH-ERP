@@ -1,3 +1,7 @@
+// Bank accounts
+export const BANK_BNI = `BNI - 0717571663\nIsmail Deyrian Anugrah`
+export const BANK_MANDIRI = `Mandiri - 1570014441258\nIsmail Deyrian Anugrah`
+
 // Document editor
 export const A4_BASE_WIDTH = 800
 export const DEFAULT_DESIGN_PRICE_PER_METER = 200_000
