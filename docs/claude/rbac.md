@@ -67,6 +67,11 @@ Permission dikelompokkan sesuai `PERMISSION_GROUPS` di `roleForm.tsx`.
 | `manage_quotations` | Buat & edit quotation penuh |
 | `manage_quotations_restricted` | Buat quotation tapi field finansial disembunyikan |
 
+### Petty Cash
+| Permission | Akses |
+|---|---|
+| `access_petty_cash` | Akses penuh ke daftar dan detail petty cash; gates sidebar serta kedua route `/petty-cash` dan `/petty-cash/:id` |
+
 ### Settings
 | Permission | Akses |
 |---|---|
@@ -78,4 +83,5 @@ Permission dikelompokkan sesuai `PERMISSION_GROUPS` di `roleForm.tsx`.
 
 1. Tambah string permission di checklist `pages/settings/roleManagement/roleForm.tsx`
 2. Pakai `can('nama_permission')` atau `<PermissionGuard require="nama_permission" />` di komponen
-3. Update tabel di atas
+3. Gate menu sidebar menggunakan `<Guard require="nama_permission">` bila modul memiliki menu
+4. Update tabel di atas

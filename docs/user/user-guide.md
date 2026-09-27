@@ -16,13 +16,14 @@ Sistem manajemen internal RH Studio Arsitek — untuk tim Arsitektur, Sipil, dan
    - [Menambah dan Mengedit Proyek](#menambah-dan-mengedit-proyek)
 6. [Penawaran (Quotation)](#6-penawaran-quotation)
 7. [Invoice (Tagihan)](#7-invoice-tagihan)
-8. [Klien](#8-klien)
-9. [Prospek](#9-prospek)
-10. [Build Conversion](#10-build-conversion)
-11. [Manajemen Pengguna](#11-manajemen-pengguna)
-12. [Manajemen Peran (Role)](#12-manajemen-peran-role)
-13. [Profil Saya](#13-profil-saya)
-14. [Pencarian dan Filter di Semua Halaman](#14-pencarian-dan-filter-di-semua-halaman)
+8. [Petty Cash](#8-petty-cash)
+9. [Klien](#9-klien)
+10. [Prospek](#10-prospek)
+11. [Build Conversion](#11-build-conversion)
+12. [Manajemen Pengguna](#12-manajemen-pengguna)
+13. [Manajemen Peran (Role)](#13-manajemen-peran-role)
+14. [Profil Saya](#14-profil-saya)
+15. [Pencarian dan Filter di Semua Halaman](#15-pencarian-dan-filter-di-semua-halaman)
 
 ---
 
@@ -208,7 +209,39 @@ Sama seperti Penawaran, Invoice juga bisa diunduh sebagai gambar atau dibagikan 
 
 ---
 
-## 8. Klien
+## 8. Petty Cash
+
+Menu **Petty Cash** digunakan untuk mencatat kas kecil per periode, transaksi pengeluaran, dan penambahan saldo. Menu dan halaman ini hanya tersedia bagi pengguna yang role-nya memiliki izin **Access Petty Cash**; Superadmin selalu memiliki akses.
+
+### Membuat Periode
+
+1. Buka menu **Petty Cash**.
+2. Klik **Create Petty Cash**.
+3. Periksa nama periode (default tanggal hari ini, format `DD-MM-YYYY`) dan saldo awal (default Rp5.000.000); sesuaikan bila perlu.
+4. Klik **Create Petty Cash**. Sistem membuka halaman detail periode yang baru dibuat.
+
+### Mencatat Pengeluaran atau Top-up
+
+1. Buka periode dengan status **Open**.
+2. Klik **Add Expense** untuk pengeluaran atau **Top Up** untuk penambahan saldo.
+3. Isi tanggal transaksi dan jumlah. Untuk pengeluaran, isi juga nama orang dan tujuan; catatan bersifat opsional.
+4. Lampirkan receipt gambar atau PDF untuk pengeluaran bila tersedia, lalu simpan transaksi.
+5. Jika jumlah pengeluaran melebihi saldo tersisa, sistem meminta konfirmasi sebelum transaksi diteruskan.
+
+Tabel transaksi menampilkan nomor, tanggal (nama hari dalam bahasa Inggris di atas tanggal), tipe, nama, jumlah, tujuan/catatan, dan receipt. Klik ikon receipt untuk melihat lampiran.
+
+### Mengubah atau Menutup Periode
+
+- Periode **Open** mengizinkan transaksi ditambah, diedit, atau dihapus. Nama periode juga dapat diubah.
+- Klik **Close Petty Cash** untuk mengunci periode setelah konfirmasi. Transaksi periode tertutup hanya dapat dilihat dan diekspor.
+- Klik **Reopen Petty Cash** untuk membuka kembali periode dan mengizinkan perubahan transaksi.
+- Klik **Export Report** untuk mengunduh ringkasan dan daftar transaksi sebagai PDF; laporan tersedia untuk periode open maupun closed.
+
+Saldo tersisa dihitung dari saldo awal ditambah seluruh top-up dikurangi seluruh pengeluaran.
+
+---
+
+## 9. Klien
 
 Menu **Klien** menyimpan data semua klien atau perusahaan yang bekerja sama dengan RH Studio.
 
@@ -227,7 +260,7 @@ Menu **Klien** menyimpan data semua klien atau perusahaan yang bekerja sama deng
 
 ---
 
-## 9. Prospek
+## 10. Prospek
 
 Menu **Prospek** digunakan untuk mencatat calon klien yang sedang dalam tahap penjajakan atau negosiasi, sebelum resmi menjadi klien.
 
@@ -247,7 +280,7 @@ Menu **Prospek** digunakan untuk mencatat calon klien yang sedang dalam tahap pe
 
 ---
 
-## 10. Build Conversion
+## 11. Build Conversion
 
 > **Khusus Admin.** Menu ini hanya bisa diakses oleh Administrator.
 
@@ -263,7 +296,7 @@ Relasi antara proyek arsitektur dan sipil ditentukan oleh field **Source Archite
 
 ---
 
-## 11. Manajemen Pengguna
+## 12. Manajemen Pengguna
 
 > **Khusus Admin.** Menu ini hanya bisa diakses oleh pengguna dengan peran Administrator.
 
@@ -285,7 +318,7 @@ Karyawan bisa masuk menggunakan email dan kata sandi yang ditetapkan, lalu mengu
 
 ---
 
-## 12. Manajemen Peran (Role)
+## 13. Manajemen Peran (Role)
 
 > **Khusus Admin.** Menu ini hanya bisa diakses oleh Administrator.
 
@@ -298,11 +331,13 @@ Peran menentukan fitur apa saja yang bisa diakses oleh setiap karyawan. Misalnya
 3. Centang atau hapus centang izin yang sesuai.
 4. Klik **Simpan**.
 
+Untuk memberi akses kas kecil, centang **Access Petty Cash** pada kelompok Petty Cash. Pengguna dengan role tersebut dapat membuka daftar dan detail Petty Cash serta mengelola periode dan transaksinya. Superadmin selalu memiliki akses.
+
 > **Tips:** Pastikan setiap peran hanya memiliki akses ke fitur yang memang perlu. Ini menjaga keamanan data perusahaan.
 
 ---
 
-## 13. Profil Saya
+## 14. Profil Saya
 
 Setiap pengguna bisa memperbarui data dirinya sendiri.
 
@@ -329,7 +364,7 @@ Setiap pengguna bisa memperbarui data dirinya sendiri.
 
 ---
 
-## 14. Pencarian dan Filter di Semua Halaman
+## 15. Pencarian dan Filter di Semua Halaman
 
 Hampir semua halaman daftar (Proyek, Penawaran, Invoice, Klien) memiliki fitur pencarian dan filter.
 

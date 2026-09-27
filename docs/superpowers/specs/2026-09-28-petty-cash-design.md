@@ -11,12 +11,14 @@ Included:
 - Create a period with an initial balance defaulting to 5,000,000 and a name defaulting to today's date in `DD-MM-YYYY` format.
 - View period summary and chronological combined expense/top-up transactions.
 - Add expense and top-up transactions while the period is open.
+- Edit the period name and edit/delete transactions while the period is open.
+- Authorize module access with `access_petty_cash` on navigation and routes; Superadmins retain access through the existing permission helper.
 - Warn when an expense exceeds available balance; allow the user to cancel or continue.
 - Upload image/PDF receipts, convert images to WebP and resize their longest dimension to at most 1920px in the browser, preserve PDFs unchanged, and preview files through PocketBase's authenticated file endpoint.
 - Close and reopen a period. A closed period is read-only for its transactions; reopening allows transactions to be changed again.
 - Export a PDF summary and transaction list with receipt references.
 
-Excluded: approval workflows, role-specific petty cash permissions, and top-up amount limits.
+Excluded: approval workflows and top-up amount limits.
 
 ## UX and Visual Design
 
@@ -34,11 +36,11 @@ Fields: Name (pre-filled with today's `DD-MM-YYYY`) and Initial Balance (pre-fil
 
 ### Detail page
 
-Route: `/petty-cash/:id`.
+Route: `/petty-cash/:id`; both list and detail routes require the `access_petty_cash` permission. Superadmins bypass permission checks through the existing AuthContext behavior.
 
-The summary shows Initial Balance, Total Top-up, Total Spent, Remaining Balance, and Status. The transaction table combines expenses and top-ups and displays type, person, amount, purpose/notes, receipt action, and date. Expenses use the established red treatment and top-ups the established green treatment.
+The summary shows Initial Balance, Total Top-up, Total Spent, Remaining Balance, and Status. The transaction table combines expenses and top-ups and displays row number, date, type, person, amount, purpose/notes, receipt action, and optional actions. The date cell shows the weekday in small muted English text above the formatted date. Expenses use the established red treatment and top-ups the established green treatment.
 
-When open, show “Add Expense”, “Top Up”, and “Close Petty Cash” actions. When closed, hide/disable transaction mutations and provide “Reopen Petty Cash”. Keep “Export Report” available for either status. Confirm close/reopen before changing status.
+When open, allow editing the period name and show “Add Expense”, “Top Up”, and “Close Petty Cash” actions. Transactions can be edited or deleted while the period is open. When closed, hide/disable transaction mutations and provide “Reopen Petty Cash”. Keep “Export Report” available for either status. Confirm close/reopen and deletion before changing data.
 
 ### Entry forms and receipt preview
 
@@ -46,7 +48,7 @@ Expense fields: Person Name, Amount, Purpose, Notes, Receipt. Top-up fields: Amo
 
 ## Data Model
 
-Use two PocketBase collections:
+Use two PocketBase collections. Receipt files are stored through PocketBase's native S3-compatible file storage configured for a private Backblaze B2 bucket; credentials remain server-side in PocketBase settings.
 
 ### `petty_cash`
 - `name`: text, required.
@@ -62,6 +64,7 @@ Use two PocketBase collections:
 - `purpose`: text; required for expenses, optional for top-ups.
 - `notes`: text, optional.
 - `receipt`: file; optional for top-ups and supplied for expenses when available.
+- `transaction_date`: transaction date used for display and report rows.
 - PocketBase system `created` timestamp.
 
 Remaining balance is calculated as initial balance + sum(top-ups) − sum(expenses); it is not stored as a separately mutable field.
@@ -70,9 +73,9 @@ Remaining balance is calculated as initial balance + sum(top-ups) − sum(expens
 
 All PocketBase reads/writes go through dedicated TanStack Query hooks, not directly from React page/components. Query keys distinguish list, detail, and entries; successful mutations invalidate affected keys.
 
-While a parent petty cash record is `closed`, PocketBase API rules reject create, update, and delete operations on its entries. The frontend also omits transaction mutation actions for closed periods. The parent status remains changeable in either direction; changing it back to `open` permits entry mutations. Read/list access remains available for reports and historical review.
+The frontend omits transaction mutation actions for closed periods. The parent status remains changeable in either direction; changing it back to `open` permits entry mutations. Read/list access remains available for reports and historical review. PocketBase collection API rules must independently enforce intended access and closed-period restrictions; frontend guards alone are not a security boundary.
 
-File storage is configured as private S3-compatible Backblaze B2 through PocketBase native file storage. Frontend uses PocketBase's file token and file endpoint; no public permanent links or custom presigned-URL flow are introduced.
+File storage is configured as private S3-compatible Backblaze B2 through PocketBase native file storage. The configured bucket is `pettycash-rh` at endpoint `s3.us-east-005.backblazeb2.com`. Frontend uses PocketBase's file token and file endpoint; no public permanent links or custom presigned-URL flow are introduced. S3 credentials are configured only in PocketBase and must not be added to frontend environment variables or source control.
 
 ## Receipt Handling
 
@@ -88,10 +91,9 @@ Use Zod schemas under `frontend/src/lib/validations/`. Period name and balances 
 
 ## Testing and Verification
 
-- Add a test runner if none is configured.
 - Unit-test balance aggregation, over-balance detection, validation, receipt transformations/URL creation, and report data generation.
 - Component-test list/create, transaction flows, status lock/reopen behavior, receipt preview selection, and report action.
-- Verify PocketBase API rules for closed parent records, private file access, and actual collection field names against the running PocketBase instance.
+- Verify PocketBase API rules for role access, closed parent records, private file access, and actual collection field names against the running PocketBase instance.
 - Run frontend build and lint.
 
 ## Decisions and Assumptions
@@ -99,4 +101,5 @@ Use Zod schemas under `frontend/src/lib/validations/`. Period name and balances 
 - UI visual treatment follows existing RH-ERP pages and components.
 - Status is reversible: `open ↔ closed`; entries can only change while the parent is open.
 - PocketBase collections use the field names above, including English `receipt` and system `created` timestamp.
-- Because no live schema export was supplied, actual PocketBase field constraints and API rules must be checked before integration verification.
+- PocketBase private S3-compatible file storage is configured for Backblaze B2 bucket `pettycash-rh`; private receipt URLs are served through PocketBase file tokens.
+- Role access uses the single full-access permission `access_petty_cash`; it is enforced on the sidebar item and both routes.
