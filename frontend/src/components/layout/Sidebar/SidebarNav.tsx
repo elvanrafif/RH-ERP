@@ -179,14 +179,16 @@ export function SidebarNav({
         onClick={onLinkClick}
       />
 
-      <NavItem
-        to="/petty-cash"
-        icon={Wallet}
-        label="Petty Cash"
-        collapsed={collapsed}
-        isActive={isActive('/petty-cash')}
-        onClick={onLinkClick}
-      />
+      <Guard require="access_petty_cash">
+        <NavItem
+          to="/petty-cash"
+          icon={Wallet}
+          label="Petty Cash"
+          collapsed={collapsed}
+          isActive={isActive('/petty-cash')}
+          onClick={onLinkClick}
+        />
+      </Guard>
 
       <Guard require="manage_prospects">
         <NavItem

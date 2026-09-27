@@ -119,8 +119,10 @@ function AppRoutes() {
 
         <Route path="clients" element={<ClientsPage />} />
 
-        <Route path="petty-cash" element={<PettyCashPage />} />
-        <Route path="petty-cash/:id" element={<PettyCashDetailPage />} />
+        <Route element={<PermissionGuard require="access_petty_cash" />}>
+          <Route path="petty-cash" element={<PettyCashPage />} />
+          <Route path="petty-cash/:id" element={<PettyCashDetailPage />} />
+        </Route>
 
         <Route element={<SuperAdminGuard />}>
           <Route path="vendors" element={<VendorsPage />} />

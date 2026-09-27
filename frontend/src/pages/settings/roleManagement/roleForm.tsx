@@ -114,6 +114,10 @@ const PERMISSION_GROUPS = [
       },
     ],
   },
+  {
+    title: 'Petty Cash',
+    permissions: [{ id: 'access_petty_cash', label: 'Access Petty Cash' }],
+  },
 ]
 
 interface RoleFormProps {
