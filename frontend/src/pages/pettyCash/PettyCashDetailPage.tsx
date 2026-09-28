@@ -66,7 +66,7 @@ export default function PettyCashDetailPage() {
       <AlertDialog open={!!deletingEntry} onOpenChange={(open) => { if (!open) setDeletingEntry(null) }}>
         <AlertDialogContent>
           <AlertDialogHeader><AlertDialogTitle>Delete transaction?</AlertDialogTitle><AlertDialogDescription>This transaction will be permanently removed.</AlertDialogDescription></AlertDialogHeader>
-          <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" disabled={deleteMutation.isPending} onClick={(event) => { event.preventDefault(); if (deletingEntry) void deleteMutation.mutateAsync({ id: deletingEntry.id, pettyCashId: pettyCash.id }).then(() => { toast.success('Transaction deleted'); setDeletingEntry(null) }).catch(() => toast.error('Failed to delete transaction')) }}>Delete</AlertDialogAction></AlertDialogFooter>
+          <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction className="bg-destructive text-white hover:bg-destructive/90" disabled={deleteMutation.isPending} onClick={(event) => { event.preventDefault(); if (deletingEntry) void deleteMutation.mutateAsync({ id: deletingEntry.id, pettyCashId: pettyCash.id }).then(() => { toast.success('Transaction deleted'); setDeletingEntry(null) }).catch(() => toast.error('Failed to delete transaction')) }}>Delete</AlertDialogAction></AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </div>
