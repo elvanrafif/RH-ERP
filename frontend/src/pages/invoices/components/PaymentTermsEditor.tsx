@@ -12,13 +12,17 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { formatRupiah } from '@/lib/helpers'
-
-type PercentType = 'percentage' | 'fixed_dp' | 'settlement' | 'custom_amount'
+import {
+  parseTermType,
+  serializeTermType,
+  type TermType,
+} from '@/lib/invoicing/termCalculation'
 
 interface TermItem {
   name?: string
   percent: string
   amount: number
+  termType?: TermType
   status?: string
   paymentDate?: string
   [key: string]: unknown
@@ -29,30 +33,10 @@ interface PaymentTermsEditorProps {
   activeTermin: string
   onUpdateItem: (index: number, field: string, value: unknown) => void
   onPercentChange: (index: number, val: string) => void
+  onTermTypeChange: (index: number, val: TermType, percentValue: string) => void
   onActiveTerminChange: (val: string) => void
   onAddTerm: () => void
   onRemoveTerm: (index: number) => void
-}
-
-function parsePercentType(percent: string): {
-  type: PercentType
-  value: string
-} {
-  const clean = (percent || '').trim().toLowerCase()
-  if (clean === 'dp') return { type: 'fixed_dp', value: '' }
-  if (clean === 'pelunasan' || clean === 'settlement')
-    return { type: 'settlement', value: '' }
-  const numeric = clean.replace('%', '').trim()
-  if (numeric !== '' && !isNaN(Number(numeric)))
-    return { type: 'percentage', value: numeric }
-  return { type: 'percentage', value: '' }
-}
-
-function serializePercent(type: PercentType, value: string): string {
-  if (type === 'fixed_dp') return 'DP'
-  if (type === 'settlement') return 'Settlement'
-  if (type === 'custom_amount') return ''
-  return value ? `${value}%` : ''
 }
 
 export function PaymentTermsEditor({
@@ -60,12 +44,13 @@ export function PaymentTermsEditor({
   activeTermin,
   onUpdateItem,
   onPercentChange,
+  onTermTypeChange,
   onActiveTerminChange,
   onAddTerm,
   onRemoveTerm,
 }: PaymentTermsEditorProps) {
   const totalPercentage = items.reduce((sum, item) => {
-    const { type, value } = parsePercentType(item.percent)
+    const { type, value } = parseTermType(item.percent, item.termType)
     if (type !== 'percentage') return sum
     const n = parseFloat(value)
     return sum + (isNaN(n) ? 0 : n)
@@ -91,8 +76,9 @@ export function PaymentTermsEditor({
         {items.map((item, index) => {
           const isActive = activeTermin === String(index + 1)
           const isPastTerm = index + 1 < Number(activeTermin)
-          const { type: percentType, value: percentValue } = parsePercentType(
-            item.percent
+          const { type: percentType, value: percentValue } = parseTermType(
+            item.percent,
+            item.termType
           )
 
           return (
@@ -183,11 +169,8 @@ export function PaymentTermsEditor({
                   </Label>
                   <Select
                     value={percentType}
-                    onValueChange={(val: PercentType) => {
-                      onPercentChange(
-                        index,
-                        serializePercent(val, percentValue)
-                      )
+                    onValueChange={(val: TermType) => {
+                      onTermTypeChange(index, val, percentValue)
                     }}
                   >
                     <SelectTrigger className="h-7 text-xs bg-white w-full">
@@ -217,7 +200,7 @@ export function PaymentTermsEditor({
                       onChange={(e) =>
                         onPercentChange(
                           index,
-                          serializePercent('percentage', e.target.value)
+                          serializeTermType('percentage', e.target.value).percent
                         )
                       }
                       placeholder="50"
@@ -234,7 +217,13 @@ export function PaymentTermsEditor({
                     Amount {percentType !== 'custom_amount' && '(Auto)'}
                   </Label>
                   <Input
-                    value={formatRupiah(Number(item.amount) || 0)}
+                    type={percentType === 'custom_amount' ? 'number' : 'text'}
+                    min={percentType === 'custom_amount' ? 0 : undefined}
+                    value={
+                      percentType === 'custom_amount'
+                        ? Number(item.amount) || 0
+                        : formatRupiah(Number(item.amount) || 0)
+                    }
                     readOnly={percentType !== 'custom_amount'}
                     disabled={percentType !== 'custom_amount'}
                     onChange={
@@ -243,7 +232,7 @@ export function PaymentTermsEditor({
                             onUpdateItem(
                               index,
                               'amount',
-                              Number(e.target.value.replace(/\D/g, ''))
+                              Math.max(0, Number(e.target.value) || 0)
                             )
                         : undefined
                     }

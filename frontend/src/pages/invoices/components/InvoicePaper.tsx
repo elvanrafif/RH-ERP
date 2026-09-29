@@ -227,7 +227,9 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
                     {item.name}
                   </td>
                   <td className={`py-4 text-center ${textColor} ${fontWeight}`}>
-                    {item.percent}
+                    {item.termType === 'custom_amount'
+                      ? 'Custom Amount'
+                      : item.percent}
                   </td>
                   <td className={`py-4 text-center ${textColor} ${fontWeight}`}>
                     {displayPrice}
