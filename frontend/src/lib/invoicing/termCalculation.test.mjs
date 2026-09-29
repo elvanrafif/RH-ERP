@@ -5,9 +5,14 @@ import {
   recalculateTermItems,
   serializeTermType,
   updateTermItemType,
+  formatTermPercent,
 } from './termCalculation.ts'
 
 describe('payment term types', () => {
+  it('shows a dash in the invoice percent column for custom amount terms', () => {
+    assert.equal(formatTermPercent('', 'custom_amount'), '-')
+  })
+
   it('round-trips Custom Amount so the selection does not reset', () => {
     const storedValue = serializeTermType('custom_amount')
 

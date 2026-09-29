@@ -30,6 +30,10 @@ export function parseTermType(percent: string, termType?: TermType): {
   return { type: 'percentage', value: '' }
 }
 
+export function formatTermPercent(percent: string, termType?: TermType): string {
+  return termType === 'custom_amount' ? '-' : percent
+}
+
 export function serializeTermType(
   type: TermType,
   value = ''
