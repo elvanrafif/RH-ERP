@@ -40,7 +40,7 @@ export function ProfileAvatar({ user, className }: ProfileAvatarProps) {
 
   const getInitials = (name?: string) =>
     name ? name.substring(0, 2).toUpperCase() : '??'
-  const avatarUrl = user.avatar ? pb.files.getUrl(user, user.avatar) : null
+  const avatarUrl = user.avatar ? pb.files.getURL(user, user.avatar) : null
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

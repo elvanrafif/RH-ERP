@@ -25,6 +25,25 @@ export const PROJECT_TYPE = {
   INTERIOR: 'interior',
 } as const
 
+export const PETTY_CASH_COLLECTION = {
+  PERIOD: 'petty_cash',
+  ENTRY: 'petty_cash_entry',
+} as const
+
+export const PETTY_CASH_STATUS = {
+  OPEN: 'open',
+  CLOSED: 'closed',
+} as const
+
+export const PETTY_CASH_ENTRY_TYPE = {
+  EXPENSE: 'expense',
+  TOPUP: 'topup',
+} as const
+
+export const PETTY_CASH_DEFAULT_BALANCE = 5_000_000
+export const PETTY_CASH_RECEIPT_MAX_EDGE = 1920
+export const PETTY_CASH_RECEIPT_WEBP_QUALITY = 0.85
+
 export const INVOICE_STATUS = {
   DRAFT: 'draft',
   UNPAID: 'unpaid',

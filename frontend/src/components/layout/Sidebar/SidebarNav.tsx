@@ -14,6 +14,7 @@ import {
   ClipboardList,
   BarChart2,
   UsersRound,
+  Wallet,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { NavItem } from './NavItem'
@@ -177,6 +178,17 @@ export function SidebarNav({
         isActive={isActive('/clients')}
         onClick={onLinkClick}
       />
+
+      <Guard require="access_petty_cash">
+        <NavItem
+          to="/petty-cash"
+          icon={Wallet}
+          label="Petty Cash"
+          collapsed={collapsed}
+          isActive={isActive('/petty-cash')}
+          onClick={onLinkClick}
+        />
+      </Guard>
 
       <Guard require="manage_prospects">
         <NavItem

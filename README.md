@@ -1,6 +1,6 @@
 # RH-ERP
 
-Internal ERP system for managing architecture, civil, and interior design projects — including clients, quotations, invoices, vendors, and project tracking.
+Internal ERP system for managing architecture, civil, and interior design projects — including clients, quotations, invoices, petty cash, vendors, and project tracking.
 
 ## Tech Stack
 

@@ -76,6 +76,8 @@ Frontend guard tetap dipakai untuk UX, bukan security.
 - `users`: List/View = `@request.auth.id != ""`, Update = `@request.auth.id = id || @request.auth.isSuperAdmin = true`, Create/Delete = `@request.auth.isSuperAdmin = true` — View rule dilonggarkan dari `@request.auth.id = id || @request.auth.isSuperAdmin = true` agar expand `assignee` pada project query bisa resolve untuk semua authenticated user (fix bug PIC Unassigned di halaman arsitektur)
 - `invoices`, `quotations`: List/Create/Update = `@request.auth.id != ""`, View = kosong (dibutuhkan public verification), Delete = `@request.auth.isSuperAdmin = true`
 
+**Petty Cash:** Permission `access_petty_cash` saat ini diterapkan pada sidebar dan route frontend. Verifikasi juga Collection Rules PocketBase untuk `petty_cash` dan `petty_cash_entry`; frontend permission/closed-state checks bukan pengganti authorization backend. Untuk receipt privat, aktifkan opsi **Protected** pada field file dan gunakan private Backblaze B2 melalui PocketBase file token. Jangan simpan kredensial B2 di frontend atau repository.
+
 Level 2 (full permission parity) dan H4 (public verification token) belum dikerjakan.
 
 ---

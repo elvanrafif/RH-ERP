@@ -49,6 +49,7 @@ frontend/src/
 │   ├── masking.ts             # Display label helpers: MaskingTextByDivision, MaskingTextByInvoiceType, MaskingTextByArchitectureStatus
 │   ├── validations/           # Zod schemas: client, user, project, role, vendor, prospect, survey
 │   ├── invoicing/             # dateFilter, termCalculation, revenueStats, quotationStats
+│   ├── pettyCash/             # balance, money formatting, receipt processing/file URL, PDF report
 │   ├── projects/              # statistics, permissions, deadline, status
 │   └── formatting/            # currency
 └── pages/                     # Halaman — hanya render, tidak ada business logic
@@ -90,6 +91,8 @@ frontend/src/
     ├── reports/               # ReportsPage
     │   └── components/        # RevenueStatCards, RevenueBarChart, RevenueDetailTable,
     │                          # ReportExportButton
+    ├── pettyCash/             # PettyCashPage, PettyCashDetailPage
+    │   └── components/       # period/entry tables, summary, forms, status and receipt dialogs
     ├── settings/
     │   ├── users/             # UserManagement
     │   │   └── components/    # UserForm, UserList, PasswordSection
@@ -108,6 +111,7 @@ Satu hook = satu tanggung jawab. Return object (bukan array) kecuali state seder
 | Hook | Tanggung Jawab |
 |---|---|
 | `useInvoices` | Fetch & mutate invoices |
+| `usePettyCash` | Fetch & mutate petty cash periods and entries; query invalidation for list/detail/entry data |
 | `useQuotations` | Fetch & mutate quotations |
 | `useSurveys` | Fetch surveys dengan filter searchTerm (by client name), filterPic (surveyor ID), filterStatus (`all`\|`pending`\|`done`), expand `client,surveyor` |
 | `useProjects` | Fetch & mutate projects |
@@ -161,4 +165,10 @@ Satu hook = satu tanggung jawab. Return object (bukan array) kecuali state seder
 
 ## Validasi Schema
 
-Semua Zod schema di `lib/validations/`. Schema yang tersedia: `client.ts`, `user.ts`, `project.ts`, `role.ts`, `vendor.ts`, `prospect.ts`, `survey.ts`
+Semua Zod schema di `lib/validations/`. Schema yang tersedia: `client.ts`, `user.ts`, `project.ts`, `role.ts`, `vendor.ts`, `prospect.ts`, `survey.ts`, `pettyCash.ts`.
+
+## Petty Cash
+
+- Routes: `/petty-cash` dan `/petty-cash/:id`, keduanya di-guard dengan `access_petty_cash`.
+- PocketBase collections: `petty_cash` dan `petty_cash_entry`; akses melalui `usePettyCash`.
+- Balance/report/receipt logic berada di `lib/pettyCash/`; receipt file memakai PocketBase file token dan private S3-compatible storage.
