@@ -19,8 +19,12 @@ import { useDocumentScaling } from '@/hooks/useDocumentScaling'
 import { useDocumentExport } from '@/hooks/useDocumentExport'
 import { useWhatsAppShare } from '@/hooks/useWhatsAppShare'
 import { useUnsavedChanges } from '@/hooks/useUnsavedChanges'
-import { recalculateTermItems, isInvoiceFullyPaid } from '@/lib/invoicing/termCalculation'
-import type { TermItem } from '@/lib/invoicing/termCalculation'
+import {
+  recalculateTermItems,
+  isInvoiceFullyPaid,
+  updateTermItemType,
+} from '@/lib/invoicing/termCalculation'
+import type { TermItem, TermType } from '@/lib/invoicing/termCalculation'
 import { derivePaymentDates } from '@/lib/invoicing/paymentDates'
 import { buildInvoiceFileName } from '@/lib/helpers'
 import {
@@ -119,7 +123,22 @@ export default function InvoiceDetailPage() {
   const handlePercentChange = (index: number, val: string) => {
     markAsDirty()
     const newItems = [...items]
-    newItems[index].percent = val
+    newItems[index] = { ...newItems[index], percent: val }
+    setItems(recalcItems(newItems, grandTotal))
+  }
+
+  const handleTermTypeChange = (
+    index: number,
+    termType: TermType,
+    percentValue: string
+  ) => {
+    markAsDirty()
+    const newItems = [...items]
+    newItems[index] = updateTermItemType(
+      newItems[index],
+      termType,
+      percentValue
+    )
     setItems(recalcItems(newItems, grandTotal))
   }
 
@@ -127,7 +146,7 @@ export default function InvoiceDetailPage() {
     markAsDirty()
     const newItems = [...items]
     newItems[index] = { ...newItems[index], [field]: value }
-    setItems(newItems)
+    setItems(field === 'amount' ? recalcItems(newItems, grandTotal) : newItems)
   }
 
   const handleAddTerm = () => {
@@ -322,6 +341,7 @@ export default function InvoiceDetailPage() {
               activeTermin={activeTermin}
               onUpdateItem={handleUpdateItem}
               onPercentChange={handlePercentChange}
+              onTermTypeChange={handleTermTypeChange}
               onActiveTerminChange={(val) => {
                 setActiveTermin(val)
                 markAsDirty()

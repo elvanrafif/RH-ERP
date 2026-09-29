@@ -2,7 +2,11 @@ import React from 'react'
 import QRCode from 'react-qr-code'
 import RHStudioKopImg from '@/assets/rh-studio-kop.png'
 import { formatDate, formatRupiah } from '@/lib/helpers'
-import { calculatePaidSummary, isInvoiceFullyPaid } from '@/lib/invoicing/termCalculation'
+import {
+  calculatePaidSummary,
+  formatTermPercent,
+  isInvoiceFullyPaid,
+} from '@/lib/invoicing/termCalculation'
 import { COMPANY_INFO } from '@/lib/constant'
 import { INVOICE_LABELS } from '@/lib/invoicing/invoiceLabels'
 import type { Lang } from '@/lib/invoicing/invoiceLabels'
@@ -227,7 +231,7 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
                     {item.name}
                   </td>
                   <td className={`py-4 text-center ${textColor} ${fontWeight}`}>
-                    {item.percent}
+                    {formatTermPercent(item.percent, item.termType)}
                   </td>
                   <td className={`py-4 text-center ${textColor} ${fontWeight}`}>
                     {displayPrice}
