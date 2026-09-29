@@ -24,7 +24,7 @@ interface UserListProps {
 }
 
 const getAvatar = (user: User) =>
-  user.avatar ? pb.files.getUrl(user, user.avatar) : null
+  user.avatar ? pb.files.getURL(user, user.avatar) : null
 
 const getDivisionBadge = (div?: string) => {
   switch (div?.toLowerCase()) {

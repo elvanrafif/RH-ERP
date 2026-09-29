@@ -7,8 +7,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "test": "node --import tsx --test src/lib/invoicing/termCalculation.test.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest run --exclude src/lib/invoicing/termCalculation.test.mjs && node --import tsx --test src/lib/invoicing/termCalculation.test.mjs"
   },
   "dependencies": {
     "@fullcalendar/daygrid": "^6.1.20",
@@ -59,6 +59,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@react-pdf/renderer": "^4.3.2",
 "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "^24.10.9",
     "@types/react": "^19.2.5",
@@ -74,7 +75,8 @@
     "tsx": "^4.21.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.4",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "vitest": "^5.0.2"
   },
   "engines": {
     "node": ">=22.13.0",

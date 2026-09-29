@@ -2,13 +2,11 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
-import { pb } from '@/lib/pocketbase'
 
 // Components
 import AppLayout from '@/components/layout/AppLayout'
 import Login from '@/pages/Login'
 import Dashboard from './pages/Dashboard'
-import { Button } from '@/components/ui/button' // Tambahkan import Button untuk fallback
 
 import ArsitekturPage from './pages/projects/projectArchitecture'
 import SipilPage from './pages/projects/projectCivil'
@@ -38,6 +36,8 @@ import VendorsPage from './pages/vendors/VendorsPage'
 import BuildConversionPage from './pages/buildConversion/BuildConversionPage'
 import ProspectsPage from './pages/prospects/ProspectsPage'
 import SurveyPage from './pages/survey/SurveyPage'
+import PettyCashPage from './pages/pettyCash/PettyCashPage'
+import PettyCashDetailPage from './pages/pettyCash/PettyCashDetailPage'
 import {
   FallbackDecider,
   ProtectedRoute,
@@ -118,6 +118,11 @@ function AppRoutes() {
         </Route>
 
         <Route path="clients" element={<ClientsPage />} />
+
+        <Route element={<PermissionGuard require="access_petty_cash" />}>
+          <Route path="petty-cash" element={<PettyCashPage />} />
+          <Route path="petty-cash/:id" element={<PettyCashDetailPage />} />
+        </Route>
 
         <Route element={<SuperAdminGuard />}>
           <Route path="vendors" element={<VendorsPage />} />

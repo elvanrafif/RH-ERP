@@ -136,7 +136,7 @@ export const getInitials = (name?: string) =>
         .toUpperCase()
     : '??'
 export const getAvatarUrl = (user?: any) =>
-  user?.avatar ? pb.files.getUrl(user, user.avatar) : null
+  user?.avatar ? pb.files.getURL(user, user.avatar) : null
 
 export function calculateDuration(startDateStr?: string, endDateStr?: string) {
   if (!startDateStr || !endDateStr) return '-'
