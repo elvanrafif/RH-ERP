@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { pb } from '@/lib/pocketbase'
+import { SESSION_LAST_ACTIVITY_KEY } from '@/lib/constant'
 import { motion } from 'framer-motion'
 import Logo from '@/assets/rh-studio-transparent.png'
 
@@ -28,6 +29,9 @@ export default function Login() {
     try {
       await pb.collection('users').authWithPassword(email, password)
       if (pb.authStore.isValid) {
+        // Sesi baru = aktivitas baru. Reset timestamp agar pengecekan
+        // "session expired" tidak memakai sisa sesi sebelumnya.
+        localStorage.setItem(SESSION_LAST_ACTIVITY_KEY, String(Date.now()))
         toast.success('Login successful! Welcome.')
         navigate('/')
       }

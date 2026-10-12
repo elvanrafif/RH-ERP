@@ -19,6 +19,7 @@ import {
 } from '@/components/ui/alert-dialog'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { useRole } from '@/hooks/useRole'
+import { SESSION_LAST_ACTIVITY_KEY } from '@/lib/constant'
 import { SidebarNav } from './Sidebar/SidebarNav'
 import { DeadlineNotificationBell } from './Sidebar/DeadlineNotificationBell'
 
@@ -50,6 +51,7 @@ function SidebarContent({
   const handleLogout = () => {
     pb.authStore.clear()
     localStorage.removeItem('sidebar-collapsed')
+    localStorage.removeItem(SESSION_LAST_ACTIVITY_KEY)
     navigate('/login')
   }
 
