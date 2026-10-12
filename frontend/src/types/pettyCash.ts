@@ -19,7 +19,7 @@ export interface PettyCashEntry {
   amount: number
   purpose?: string
   notes?: string
-  receipt?: string
+  receipt?: string[]
   created: string
   updated: string
 }
@@ -37,5 +37,8 @@ export interface PettyCashEntryInput {
   amount: number
   purpose?: string
   notes?: string
-  receipt?: File
+  /** New files to upload (already processed). */
+  receipt?: File[]
+  /** Existing server filenames to keep on update. Omitted/empty removes all. */
+  keep_receipts?: string[]
 }

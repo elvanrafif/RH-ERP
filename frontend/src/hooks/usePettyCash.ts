@@ -99,7 +99,7 @@ export function useCreatePettyCashEntry() {
       if (input.person_name) formData.append('person_name', input.person_name)
       if (input.purpose) formData.append('purpose', input.purpose)
       if (input.notes) formData.append('notes', input.notes)
-      if (input.receipt) formData.append('receipt', input.receipt)
+      input.receipt?.forEach((file) => formData.append('receipt', file))
       return pb.collection(PETTY_CASH_COLLECTION.ENTRY).create<PettyCashEntry>(formData)
     },
     onSuccess: (_record, input) => {
@@ -120,7 +120,10 @@ export function useUpdatePettyCashEntry() {
       formData.append('person_name', input.person_name ?? '')
       formData.append('purpose', input.purpose ?? '')
       formData.append('notes', input.notes ?? '')
-      if (input.receipt) formData.append('receipt', input.receipt)
+      // PocketBase replaces the whole file field on update: keep existing
+      // filenames (as strings) and append new files to persist both.
+      input.keep_receipts?.forEach((name) => formData.append('receipt', name))
+      input.receipt?.forEach((file) => formData.append('receipt', file))
       return pb.collection(PETTY_CASH_COLLECTION.ENTRY).update<PettyCashEntry>(id, formData)
     },
     onSuccess: (record) => {

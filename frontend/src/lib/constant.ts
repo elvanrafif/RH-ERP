@@ -43,6 +43,8 @@ export const PETTY_CASH_ENTRY_TYPE = {
 export const PETTY_CASH_DEFAULT_BALANCE = 5_000_000
 export const PETTY_CASH_RECEIPT_MAX_EDGE = 1920
 export const PETTY_CASH_RECEIPT_WEBP_QUALITY = 0.85
+export const PETTY_CASH_RECEIPT_MAX_COUNT = 5
+export const PETTY_CASH_RECEIPT_MAX_SIZE_BYTES = 3 * 1024 * 1024 // 3 MB per file
 
 export const INVOICE_STATUS = {
   DRAFT: 'draft',
