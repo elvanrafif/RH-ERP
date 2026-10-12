@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from '@/components/ui/sonner'
@@ -6,43 +7,67 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 // Components
 import AppLayout from '@/components/layout/AppLayout'
 import Login from '@/pages/Login'
-import Dashboard from './pages/Dashboard'
-
-import ArsitekturPage from './pages/projects/projectArchitecture'
-import SipilPage from './pages/projects/projectCivil'
-import InteriorPage from './pages/projects/projectInterior'
-
-import ClientsPage from './pages/clients/ClientsPage'
-import QuotationsPage from './pages/quotations/QuotationsPage'
-import QuotationEditor from './pages/quotations/QuotationEditor'
 
 // Hooks
 import { useSessionTimeout } from '@/hooks/useSessionTimeout'
-import UserManagementPage from './pages/settings/users/UserManagement'
-import ProfilePage from './pages/settings/profile/ProfilePage'
-
-// --- IMPORT ROLE MANAGEMENT PAGE ---
-import RoleManagementPage from './pages/settings/roleManagement/roleManagement'
-
-import InvoicesPage from './pages/invoices/InvoicesPage'
-import InvoiceDetailPage from './pages/invoices/InvoiceDetailPage'
-import ReportsPage from './pages/reports/ReportsPage'
-import ClientTrackingPage from './pages/clientTracking/ClientTrackingPage'
-import PublicVerificationPage from './pages/verification/PublicVerificationPage'
 import { AuthProvider } from './contexts/AuthContext'
 import { PermissionGuard } from './components/ui/PermissionGuard'
 import { SuperAdminGuard } from './components/ui/SuperAdminGuard'
-import VendorsPage from './pages/vendors/VendorsPage'
-import BuildConversionPage from './pages/buildConversion/BuildConversionPage'
-import ProspectsPage from './pages/prospects/ProspectsPage'
-import SurveyPage from './pages/survey/SurveyPage'
-import PettyCashPage from './pages/pettyCash/PettyCashPage'
-import PettyCashDetailPage from './pages/pettyCash/PettyCashDetailPage'
 import {
   FallbackDecider,
   ProtectedRoute,
   PublicRoute,
 } from './components/auth/route'
+
+// Halaman di-lazy-load agar tidak semua ikut ke bundle awal.
+const Dashboard = lazy(() => import('./pages/Dashboard'))
+
+const ArsitekturPage = lazy(() => import('./pages/projects/projectArchitecture'))
+const SipilPage = lazy(() => import('./pages/projects/projectCivil'))
+const InteriorPage = lazy(() => import('./pages/projects/projectInterior'))
+
+const ClientsPage = lazy(() => import('./pages/clients/ClientsPage'))
+const QuotationsPage = lazy(() => import('./pages/quotations/QuotationsPage'))
+const QuotationEditor = lazy(() => import('./pages/quotations/QuotationEditor'))
+
+const UserManagementPage = lazy(
+  () => import('./pages/settings/users/UserManagement'),
+)
+const ProfilePage = lazy(() => import('./pages/settings/profile/ProfilePage'))
+const RoleManagementPage = lazy(
+  () => import('./pages/settings/roleManagement/roleManagement'),
+)
+
+const InvoicesPage = lazy(() => import('./pages/invoices/InvoicesPage'))
+const InvoiceDetailPage = lazy(
+  () => import('./pages/invoices/InvoiceDetailPage'),
+)
+const ReportsPage = lazy(() => import('./pages/reports/ReportsPage'))
+const ClientTrackingPage = lazy(
+  () => import('./pages/clientTracking/ClientTrackingPage'),
+)
+const PublicVerificationPage = lazy(
+  () => import('./pages/verification/PublicVerificationPage'),
+)
+const VendorsPage = lazy(() => import('./pages/vendors/VendorsPage'))
+const BuildConversionPage = lazy(
+  () => import('./pages/buildConversion/BuildConversionPage'),
+)
+const ProspectsPage = lazy(() => import('./pages/prospects/ProspectsPage'))
+const SurveyPage = lazy(() => import('./pages/survey/SurveyPage'))
+const PettyCashPage = lazy(() => import('./pages/pettyCash/PettyCashPage'))
+const PettyCashDetailPage = lazy(
+  () => import('./pages/pettyCash/PettyCashDetailPage'),
+)
+
+// Fallback ringan saat chunk halaman sedang di-download.
+function PageLoader() {
+  return (
+    <div className="flex h-screen w-full items-center justify-center bg-slate-50">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-slate-300 border-t-slate-800" />
+    </div>
+  )
+}
 
 const queryClient = new QueryClient()
 
@@ -50,7 +75,8 @@ function AppRoutes() {
   useSessionTimeout()
 
   return (
-    <Routes>
+    <Suspense fallback={<PageLoader />}>
+      <Routes>
       <Route
         path="/login"
         element={
@@ -156,7 +182,8 @@ function AppRoutes() {
 
       {/* FALLBACK LEVEL 2: Jika user mengetik URL ngawur di root (di luar AppLayout) */}
       <Route path="*" element={<FallbackDecider />} />
-    </Routes>
+      </Routes>
+    </Suspense>
   )
 }
 

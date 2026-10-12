@@ -1,12 +1,11 @@
 import type { RefObject } from 'react'
-import { toJpeg } from 'html-to-image'
-import jsPDF from 'jspdf'
 
 export function useDocumentExport(ref: RefObject<HTMLDivElement | null>) {
   const generateJpeg = async (): Promise<Blob | null> => {
     if (!ref.current) return null
 
     try {
+      const { toJpeg } = await import('html-to-image')
       const dataUrl = await toJpeg(ref.current, {
         quality: 0.8,
         pixelRatio: 2,
@@ -24,6 +23,10 @@ export function useDocumentExport(ref: RefObject<HTMLDivElement | null>) {
   const generatePdf = async (fileName: string): Promise<void> => {
     if (!ref.current) return
 
+    const [{ toJpeg }, { default: jsPDF }] = await Promise.all([
+      import('html-to-image'),
+      import('jspdf'),
+    ])
     const dataUrl = await toJpeg(ref.current, {
       quality: 0.95,
       pixelRatio: 2,
