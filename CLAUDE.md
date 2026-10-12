@@ -1,7 +1,7 @@
 # CLAUDE.md — RH-ERP Codebase Guide
 
 > Panduan ini wajib dibaca sebelum membuat atau memodifikasi kode.
-> Terakhir diperbarui: 2026-04-26
+> Terakhir diperbarui: 2026-10-12
 
 ---
 
@@ -13,6 +13,8 @@
 **Auth:** `frontend/src/contexts/AuthContext.tsx` — RBAC penuh via `useAuth()`
 **DB Client:** `frontend/src/lib/pocketbase.ts`
 **Types:** `frontend/src/types.ts`
+
+> **Performa:** halaman di-`App.tsx` di-lazy-load (`React.lazy` + `Suspense`); library berat (`jspdf`, `html-to-image`) di-dynamic import. Vendor chunk dipisah di `vite.config.ts`, nginx memakai gzip. Jangan kembalikan ke import statis. Detail: `docs/claude/architecture.md` → Routing & Code-Splitting.
 
 ---
 

@@ -1,5 +1,8 @@
 # Rencana: Perbaikan Performa Load RH-ERP
 
+> Status: **selesai & sudah di production** (`main` commit `2484a0d`, 2026-10-12).
+> Branch: `improvement/perf-code-splitting` + `fix/session-expired-race`.
+
 ## Root cause (terbukti)
 - TIDAK ADA code-splitting → semua 22 halaman + library berat (recharts, jspdf, fullcalendar, dnd, framer-motion) dalam 1 bundle.
 - Baseline: `index.js` = 2,379.75 kB (gzip 714 kB).

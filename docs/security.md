@@ -50,7 +50,7 @@ Legend: 🔴 Open · 🟡 In Progress · ✅ Fixed
 
 ```bash
 # Contoh attack: user biasa akses semua invoice
-curl https://pb-rh.elvanrff.com/api/collections/invoices/records \
+curl https://pb.rhstudioarsitek.my.id/api/collections/invoices/records \
   -H "Authorization: <token_user_biasa>"
 ```
 
@@ -187,6 +187,8 @@ Backend PocketBase collection rule untuk quotations juga harus block update fiel
 localStorage.setItem('rh_last_activity', String(Date.now() + 999999999))
 ```
 
+> **Catatan (2026):** Bug fungsional "toaster *Session expired* muncul padahal login berhasil" sudah diperbaiki — timestamp kini di-reset saat login sukses, `useSessionTimeout` reaktif terhadap `pb.authStore.onChange`, dan `Sidebar.handleLogout` ikut membersihkan timestamp (fix `fix/session-expired-race`). Namun isu keamanan di bawah (timestamp bisa dimanipulasi karena disimpan client-side) **tetap terbuka**.
+
 **Fix Jangka Pendek:** Tambahkan server timestamp validation:
 
 ```tsx
@@ -280,8 +282,8 @@ add_header Content-Security-Policy "
   script-src 'self' 'unsafe-inline';
   style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
   font-src 'self' https://fonts.gstatic.com;
-  img-src 'self' data: blob: https://pb-rh.elvanrff.com;
-  connect-src 'self' https://pb-rh.elvanrff.com;
+  img-src 'self' data: blob: https://pb.rhstudioarsitek.my.id https://pb-staging.rhstudioarsitek.my.id;
+  connect-src 'self' https://pb.rhstudioarsitek.my.id https://pb-staging.rhstudioarsitek.my.id;
   frame-ancestors 'none';
 " always;
 
@@ -326,6 +328,7 @@ Wajib di-check untuk setiap PR yang menyentuh auth, data, atau form:
 - Password field menggunakan `type="password"`
 - Logout sudah clear PocketBase authStore via `pb.authStore.clear()`
 - Zod validation di semua form sudah ada
+- Tidak ada script analytics/pihak ketiga yang dimuat. Script `analytics.elvanrff.com` pernah dipasang di `index.html` dan sudah dihapus karena domainnya mati (juga menghilangkan permukaan serangan pihak ketiga).
 
 ---
 
