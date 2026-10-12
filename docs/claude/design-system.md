@@ -52,8 +52,8 @@ Dark mode didukung via class `.dark` (`@custom-variant dark (&:is(.dark *))`), t
 | Drag & drop | `@hello-pangea/dnd` | ^18 |
 | Charts | `recharts` | ^3 |
 | Tanggal | `date-fns` | ^4 |
-| Export gambar | `html-to-image` | — |
-| Export PDF | `jspdf` | — |
+| Export gambar | `html-to-image` | — (dynamic import via `useDocumentExport`) |
+| Export PDF | `jspdf` | — (dynamic import via `useDocumentExport`) |
 | Print | `react-to-print` | — |
 | QR code | `react-qr-code` | — |
 | Routing | `react-router-dom` | v7 |

@@ -9,6 +9,7 @@
 - **Error handling** — selalu `try/catch` dengan `toast.success` / `toast.error` dan pesan informatif.
 - **Bahasa UI** — semua teks user-facing (label, placeholder, toast, button, error message) wajib dalam **English**. Termasuk dokumen resmi (QuotationPaper, InvoicePaper) — tidak ada pengecualian.
 - **TypeScript** — tidak ada `any`. Gunakan `import type` untuk import yang hanya dipakai sebagai tipe.
+- **Code-splitting** — halaman baru di `App.tsx` wajib pakai `React.lazy(() => import(...))` (bukan import statis). Library berat yang hanya dipakai sesekali (mis. `jspdf`, `html-to-image`) di-`await import()` di dalam fungsi, bukan di top-level. Lihat `docs/claude/architecture.md` → Routing & Code-Splitting.
 
 ## Checklist Sebelum Commit
 

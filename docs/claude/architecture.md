@@ -140,7 +140,7 @@ Satu hook = satu tanggung jawab. Return object (bukan array) kecuali state seder
 | `useProjectArchitectureByClient` | Query architecture projects by client ID, dengan expand `client,assignee` |
 | `useArchitectureToBuildConversion` | Cross-reference arsitektur vs civil via `source_architecture` field — return converted/potential/notConverted + stats, optional filter by PIC |
 | `useDocumentScaling` | A4 ResizeObserver scaling |
-| `useDocumentExport` | Export dokumen ke JPEG |
+| `useDocumentExport` | Export dokumen ke JPEG + PDF. `html-to-image` & `jspdf` di-*dynamic import* saat dipanggil (hanya ter-download ketika user klik export) |
 | `useWhatsAppShare` | Format nomor & buka link WhatsApp |
 | `usePublicDocument` | Fetch dokumen untuk halaman verifikasi publik |
 | `useUnsavedChanges` | Deteksi form dirty state |
@@ -162,6 +162,18 @@ Satu hook = satu tanggung jawab. Return object (bukan array) kecuali state seder
 | `useProjectHold` | Mutation hold/resume project — update field `is_on_hold`; options: `onHoldSuccess`, `onResumeSuccess` |
 | `useProjectInvoiceStats` | Fetch invoice stats per project type (architecture/civil/interior) — dipakai di dashboard stats cards |
 | `useSort` | Generic client-side sort: state `sortValue` + compute `sortedData` via `compareFn`; lihat `docs/claude/sort.md` untuk detail |
+
+## Routing & Code-Splitting
+
+**Entry point:** `frontend/src/App.tsx` — semua route aplikasi didefinisikan di sini.
+
+- **Halaman di-lazy-load.** Setiap halaman `pages/*` di-import via `React.lazy(() => import(...))` dan dirender di dalam satu `<Suspense fallback={<PageLoader />}>`. Jangan kembali ke import statis — itu membundel seluruh aplikasi ke satu bundle besar.
+- **Library berat di-lazy-load.** `jspdf` dan `html-to-image` (di `useDocumentExport`) memakai `await import()` di dalam fungsi, sehingga hanya ter-download saat user benar-benar mengekspor dokumen.
+- **Vendor chunk dipisah** lewat `build.rollupOptions.output.manualChunks` di `frontend/vite.config.ts` (react, query, charts, calendar, motion, dnd).
+- **Static import hanya untuk yang benar-benar dibutuhkan di awal:** `AppLayout`, `Login`, provider (Auth/Query/Tooltip), guard, dan `useSessionTimeout`.
+- **nginx** (`frontend/nginx.conf`) mengaktifkan gzip + `index.html` di-`no-cache` (asset berhash tetap `immutable`).
+
+> Detail investigasi & angka before/after ada di `docs/notes/perf-plan.md`.
 
 ## Validasi Schema
 
