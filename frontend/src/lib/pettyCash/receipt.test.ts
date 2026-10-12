@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { processReceipt, processReceipts, normalizeReceipts, isImageReceipt, isPdfReceipt, isAllowedReceiptType, isReceiptWithinSize } from './receipt'
+import { processReceipt, processReceipts, normalizeReceipts, isImageReceipt, isPdfReceipt, isAllowedReceiptType, isReceiptWithinSize, appendReceipts } from './receipt'
 
 describe('processReceipt', () => {
   it('passes PDF receipts through without changing the file', async () => {
@@ -95,5 +95,26 @@ describe('receipt type helpers', () => {
     expect(isImageReceipt('scan.webp')).toBe(true)
     expect(isImageReceipt('scan.jpeg')).toBe(true)
     expect(isImageReceipt('scan.pdf')).toBe(false)
+  })
+})
+
+describe('appendReceipts', () => {
+  it('appends kept filenames and new files under the receipt key', () => {
+    const formData = new FormData()
+    const file = new File(['a'], 'a.pdf', { type: 'application/pdf' })
+    appendReceipts(formData, { keep: ['old.webp'], files: [file] })
+    expect(formData.getAll('receipt')).toEqual(['old.webp', file])
+  })
+
+  it('sends an explicit empty value when clearing on update', () => {
+    const formData = new FormData()
+    appendReceipts(formData, { keep: [], files: [], clearWhenEmpty: true })
+    expect(formData.getAll('receipt')).toEqual([''])
+  })
+
+  it('sends nothing when empty and not clearing (create / top-up)', () => {
+    const formData = new FormData()
+    appendReceipts(formData, { keep: [], files: [], clearWhenEmpty: false })
+    expect(formData.has('receipt')).toBe(false)
   })
 })

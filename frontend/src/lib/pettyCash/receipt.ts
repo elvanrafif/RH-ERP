@@ -91,6 +91,30 @@ export function isImageReceipt(name: string): boolean {
   return /\.(webp|png|jpe?g|gif)$/i.test(name)
 }
 
+/**
+ * Appends receipt entries to a FormData instance for a create/update request.
+ *
+ * PocketBase replaces the whole file field on update and treats an *absent*
+ * field as "leave unchanged". So when the caller intends to end up with zero
+ * receipts (e.g. "Remove all" or removing the last one), we must send an
+ * explicit zero-value: an empty string, which PB normalizes to an empty list
+ * for a multiple-file field.
+ *
+ * `clearWhenEmpty` should only be true on update of a receipt-bearing entry;
+ * on create the field defaults to empty anyway, and on non-receipt records
+ * (e.g. top-up) the field must not be touched at all.
+ */
+export function appendReceipts(
+  formData: FormData,
+  { keep = [], files = [], clearWhenEmpty = false }: { keep?: string[]; files?: File[]; clearWhenEmpty?: boolean }
+): void {
+  keep.forEach((name) => formData.append('receipt', name))
+  files.forEach((file) => formData.append('receipt', file))
+  if (clearWhenEmpty && keep.length === 0 && files.length === 0) {
+    formData.append('receipt', '')
+  }
+}
+
 export async function getReceiptUrl(
   record: { id: string; collectionId: string; collectionName?: string },
   filename: string,
