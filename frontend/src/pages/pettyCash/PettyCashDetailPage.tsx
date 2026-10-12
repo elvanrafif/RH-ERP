@@ -8,6 +8,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Skeleton } from '@/components/ui/skeleton'
 import { useDeletePettyCashEntry, usePettyCashDetail } from '@/hooks/usePettyCash'
 import { calculatePettyCashBalance } from '@/lib/pettyCash/balance'
+import { normalizeReceipts } from '@/lib/pettyCash/receipt'
 import { exportPettyCashReport } from '@/lib/pettyCash/report'
 import type { PettyCashEntry, PettyCashEntryType } from '@/types/pettyCash'
 import { PettyCashEntryDialog } from './components/PettyCashEntryDialog'
@@ -25,6 +26,7 @@ export default function PettyCashDetailPage() {
   const [statusOpen, setStatusOpen] = useState(false)
   const [editNameOpen, setEditNameOpen] = useState(false)
   const [previewEntry, setPreviewEntry] = useState<PettyCashEntry | null>(null)
+  const [previewIndex, setPreviewIndex] = useState(0)
   const [editingEntry, setEditingEntry] = useState<PettyCashEntry | null>(null)
   const [deletingEntry, setDeletingEntry] = useState<PettyCashEntry | null>(null)
   const deleteMutation = useDeletePettyCashEntry()
@@ -56,13 +58,13 @@ export default function PettyCashDetailPage() {
       />
       <PettyCashSummary period={pettyCash} balance={balance} />
       {isOpen && <div className="flex gap-2"><Button onClick={() => setEntryType('expense')}><Plus className="mr-2 h-4 w-4" />Add Expense</Button><Button variant="outline" onClick={() => setEntryType('topup')}><Plus className="mr-2 h-4 w-4" />Top Up</Button></div>}
-      <PettyCashEntryTable entries={entries.data ?? []} isLoading={entries.isLoading} onPreview={setPreviewEntry} canEdit={isOpen} onEdit={setEditingEntry} onDelete={setDeletingEntry} />
+      <PettyCashEntryTable entries={entries.data ?? []} isLoading={entries.isLoading} onPreview={(entry, index = 0) => { setPreviewEntry(entry); setPreviewIndex(index) }} canEdit={isOpen} onEdit={setEditingEntry} onDelete={setDeletingEntry} />
       {entries.isError && <p role="alert" className="text-sm text-destructive">Unable to load transactions.</p>}
       {entryType && <PettyCashEntryDialog open={!!entryType} onOpenChange={(open) => { if (!open) setEntryType(null) }} pettyCashId={pettyCash.id} type={entryType} remainingBalance={balance.balance} />}
       {editingEntry && <PettyCashEntryDialog key={editingEntry.id} open onOpenChange={(open) => { if (!open) setEditingEntry(null) }} pettyCashId={pettyCash.id} type={editingEntry.type} remainingBalance={balance.balance} entry={editingEntry} />}
       <PettyCashStatusDialog period={pettyCash} open={statusOpen} onOpenChange={setStatusOpen} />
       <EditPettyCashNameDialog period={pettyCash} open={editNameOpen} onOpenChange={setEditNameOpen} />
-      {previewEntry && <ReceiptPreviewDialog key={previewEntry.id} entry={previewEntry} open onOpenChange={(open) => { if (!open) setPreviewEntry(null) }} />}
+      {previewEntry && <ReceiptPreviewDialog key={previewEntry.id} open onOpenChange={(open) => { if (!open) setPreviewEntry(null) }} entryId={previewEntry.id} filenames={normalizeReceipts(previewEntry.receipt)} initialIndex={previewIndex} />}
       <AlertDialog open={!!deletingEntry} onOpenChange={(open) => { if (!open) setDeletingEntry(null) }}>
         <AlertDialogContent>
           <AlertDialogHeader><AlertDialogTitle>Delete transaction?</AlertDialogTitle><AlertDialogDescription>This transaction will be permanently removed.</AlertDialogDescription></AlertDialogHeader>

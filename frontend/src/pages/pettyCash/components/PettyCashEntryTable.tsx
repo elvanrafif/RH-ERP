@@ -4,12 +4,13 @@ import { EmptyState } from '@/components/shared/EmptyState'
 import { TableRowsSkeleton } from '@/components/shared/TableSkeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { formatDate, formatRupiah } from '@/lib/helpers'
+import { normalizeReceipts } from '@/lib/pettyCash/receipt'
 import type { PettyCashEntry } from '@/types/pettyCash'
 
 interface PettyCashEntryTableProps {
   entries: PettyCashEntry[]
   isLoading: boolean
-  onPreview: (entry: PettyCashEntry) => void
+  onPreview: (entry: PettyCashEntry, index?: number) => void
   canEdit?: boolean
   onEdit?: (entry: PettyCashEntry) => void
   onDelete?: (entry: PettyCashEntry) => void
@@ -33,7 +34,9 @@ export function PettyCashEntryTable({ entries, isLoading, onPreview, canEdit, on
             </TableRow>
           </TableHeader>
           <TableBody>
-            {isLoading ? <TableRowsSkeleton rows={4} columns={canEdit ? 8 : 7} /> : entries.length === 0 ? <TableRow><TableCell colSpan={canEdit ? 8 : 7} className="h-52"><EmptyState title="No transactions yet" description="Add an expense or top-up to start tracking this period." /></TableCell></TableRow> : entries.map((entry, index) => (
+            {isLoading ? <TableRowsSkeleton rows={4} columns={canEdit ? 8 : 7} /> : entries.length === 0 ? <TableRow><TableCell colSpan={canEdit ? 8 : 7} className="h-52"><EmptyState title="No transactions yet" description="Add an expense or top-up to start tracking this period." /></TableCell></TableRow> : entries.map((entry, index) => {
+              const receipts = normalizeReceipts(entry.receipt)
+              return (
               <TableRow key={entry.id}>
                 <TableCell className="align-top text-xs tabular-nums text-slate-400">{index + 1}</TableCell>
                 <TableCell className="align-top text-slate-600">
@@ -48,10 +51,11 @@ export function PettyCashEntryTable({ entries, isLoading, onPreview, canEdit, on
                 <TableCell className="align-top break-words text-slate-700">{entry.person_name || '—'}</TableCell>
                 <TableCell className={`align-top font-medium tabular-nums ${entry.type === 'expense' ? 'text-red-700' : 'text-emerald-700'}`}>{entry.type === 'expense' ? '− ' : '+ '}{formatRupiah(entry.amount)}</TableCell>
                 <TableCell className="align-top"><div className="break-words text-slate-700">{entry.purpose || '—'}</div>{entry.notes && <div className="mt-0.5 break-words text-xs text-muted-foreground">{entry.notes}</div>}</TableCell>
-                <TableCell className="align-top">{entry.receipt ? <Button type="button" variant="ghost" size="icon" aria-label="Preview receipt" onClick={() => onPreview(entry)}><Eye className="h-4 w-4" /></Button> : '—'}</TableCell>
+                <TableCell className="align-top">{receipts.length > 0 ? <Button type="button" variant="ghost" size="sm" className="h-8 gap-1.5 px-2 text-xs" aria-label={`Preview ${receipts.length} receipt${receipts.length > 1 ? 's' : ''}`} onClick={() => onPreview(entry, 0)}><Eye className="h-4 w-4" />{receipts.length > 1 ? receipts.length : ''}</Button> : '—'}</TableCell>
                 {canEdit && <TableCell className="align-top"><div className="flex gap-1"><Button type="button" size="icon" variant="ghost" aria-label="Edit transaction" onClick={() => onEdit?.(entry)}><Pencil className="h-4 w-4" /></Button><Button type="button" size="icon" variant="ghost" aria-label="Delete transaction" onClick={() => onDelete?.(entry)}><Trash2 className="h-4 w-4 text-destructive" /></Button></div></TableCell>}
               </TableRow>
-            ))}
+              )
+            })}
           </TableBody>
         </Table>
       </div>

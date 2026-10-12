@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import { PETTY_CASH_RECEIPT_MAX_COUNT } from '@/lib/constant'
+import { isAllowedReceiptType, isReceiptWithinSize, RECEIPT_ALLOWED_LABEL, RECEIPT_MAX_SIZE_LABEL } from '@/lib/pettyCash/receipt'
 
 export const createPettyCashSchema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
@@ -9,6 +11,11 @@ export const updatePettyCashNameSchema = z.object({
   name: z.string().trim().min(1, 'Name is required'),
 })
 
+const receiptFileSchema = z
+  .instanceof(File)
+  .refine(isAllowedReceiptType, `Receipt must be a ${RECEIPT_ALLOWED_LABEL} file`)
+  .refine(isReceiptWithinSize, `Receipt must be ${RECEIPT_MAX_SIZE_LABEL} or smaller`)
+
 export const pettyCashExpenseSchema = z.object({
   type: z.literal('expense'),
   transaction_date: z.string().min(1, 'Transaction date is required'),
@@ -17,11 +24,8 @@ export const pettyCashExpenseSchema = z.object({
   purpose: z.string().trim().min(1, 'Purpose is required'),
   notes: z.string().optional(),
   receipt: z
-    .instanceof(File)
-    .refine(
-      (file) => file.type.startsWith('image/') || file.type === 'application/pdf',
-      'Receipt must be an image or PDF'
-    )
+    .array(receiptFileSchema)
+    .max(PETTY_CASH_RECEIPT_MAX_COUNT, `Maximum ${PETTY_CASH_RECEIPT_MAX_COUNT} receipts`)
     .optional(),
 })
 
