@@ -9,4 +9,26 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Pisahkan library berat ke chunk sendiri supaya tidak ikut
+        // ke bundle awal. Chunk ini hanya di-download saat halaman
+        // yang memakainya benar-benar dibuka.
+        manualChunks: {
+          "vendor-react": ["react", "react-dom", "react-router-dom"],
+          "vendor-charts": ["recharts"],
+          "vendor-calendar": [
+            "@fullcalendar/react",
+            "@fullcalendar/daygrid",
+            "@fullcalendar/interaction",
+            "@fullcalendar/list",
+          ],
+          "vendor-motion": ["framer-motion"],
+          "vendor-dnd": ["@hello-pangea/dnd"],
+          "vendor-query": ["@tanstack/react-query", "@tanstack/react-table"],
+        },
+      },
+    },
+  },
 })
