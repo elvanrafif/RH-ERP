@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { pb } from '@/lib/pocketbase'
 import { toast } from 'sonner'
@@ -12,29 +12,49 @@ type SessionMessage = { type: 'activity' } | { type: 'logout' }
 export function useSessionTimeout() {
   const navigate = useNavigate()
 
-  const logout = useCallback((broadcast = true) => {
-    if (!pb.authStore.isValid) return
-    if (broadcast) {
-      const ch = new BroadcastChannel(CHANNEL_NAME)
-      ch.postMessage({ type: 'logout' } satisfies SessionMessage)
-      ch.close()
-    }
-    pb.authStore.clear()
-    localStorage.removeItem(SESSION_LAST_ACTIVITY_KEY)
-    toast.warning('Session expired due to inactivity. Please log in again.')
-    navigate('/login')
-  }, [navigate])
+  // Lacak status auth sebagai state React. Ini penting: efek di bawah
+  // harus berjalan/berhenti saat user login/logout, bukan hanya saat mount.
+  // Tanpa ini, efek bisa membaca timestamp lama tepat setelah login dan
+  // salah menganggap sesi sudah expired.
+  const [isAuth, setIsAuth] = useState(pb.authStore.isValid)
 
   useEffect(() => {
+    return pb.authStore.onChange(() => {
+      setIsAuth(pb.authStore.isValid)
+    })
+  }, [])
+
+  const logout = useCallback(
+    (broadcast = true) => {
+      if (!pb.authStore.isValid) return
+      if (broadcast) {
+        const ch = new BroadcastChannel(CHANNEL_NAME)
+        ch.postMessage({ type: 'logout' } satisfies SessionMessage)
+        ch.close()
+      }
+      pb.authStore.clear()
+      localStorage.removeItem(SESSION_LAST_ACTIVITY_KEY)
+      toast.warning('Session expired due to inactivity. Please log in again.')
+      navigate('/login')
+    },
+    [navigate]
+  )
+
+  useEffect(() => {
+    if (!isAuth) return
     if (!pb.authStore.isValid) return
 
-    // Cek apakah sesi sudah expire saat tab ditutup
+    // Cek apakah sesi sudah expire saat tab ditutup.
+    // Hanya dianggap expired kalau timestamp memang ada DAN valid.
     const stored = localStorage.getItem(SESSION_LAST_ACTIVITY_KEY)
     if (stored) {
-      const elapsed = Date.now() - parseInt(stored, 10)
-      if (elapsed >= SESSION_TIMEOUT_MS) {
-        logout()
-        return
+      const lastActivity = parseInt(stored, 10)
+      if (!Number.isNaN(lastActivity)) {
+        const elapsed = Date.now() - lastActivity
+        if (elapsed >= SESSION_TIMEOUT_MS) {
+          logout()
+          return
+        }
       }
     }
 
@@ -77,8 +97,10 @@ export function useSessionTimeout() {
 
     return () => {
       clearTimeout(timeoutId)
-      ACTIVITY_EVENTS.forEach((ev) => window.removeEventListener(ev, resetTimer))
+      ACTIVITY_EVENTS.forEach((ev) =>
+        window.removeEventListener(ev, resetTimer)
+      )
       channel.close()
     }
-  }, [logout])
+  }, [isAuth, logout])
 }
