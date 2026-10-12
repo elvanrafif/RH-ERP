@@ -1,6 +1,7 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { pb } from '@/lib/pocketbase'
 import { PETTY_CASH_COLLECTION } from '@/lib/constant'
+import { appendReceipts } from '@/lib/pettyCash/receipt'
 import type {
   CreatePettyCashInput,
   PettyCash,
@@ -99,7 +100,7 @@ export function useCreatePettyCashEntry() {
       if (input.person_name) formData.append('person_name', input.person_name)
       if (input.purpose) formData.append('purpose', input.purpose)
       if (input.notes) formData.append('notes', input.notes)
-      input.receipt?.forEach((file) => formData.append('receipt', file))
+      appendReceipts(formData, { files: input.receipt ?? [] })
       return pb.collection(PETTY_CASH_COLLECTION.ENTRY).create<PettyCashEntry>(formData)
     },
     onSuccess: (_record, input) => {
@@ -122,8 +123,11 @@ export function useUpdatePettyCashEntry() {
       formData.append('notes', input.notes ?? '')
       // PocketBase replaces the whole file field on update: keep existing
       // filenames (as strings) and append new files to persist both.
-      input.keep_receipts?.forEach((name) => formData.append('receipt', name))
-      input.receipt?.forEach((file) => formData.append('receipt', file))
+      appendReceipts(formData, {
+        keep: input.keep_receipts ?? [],
+        files: input.receipt ?? [],
+        clearWhenEmpty: input.keep_receipts !== undefined,
+      })
       return pb.collection(PETTY_CASH_COLLECTION.ENTRY).update<PettyCashEntry>(id, formData)
     },
     onSuccess: (record) => {
