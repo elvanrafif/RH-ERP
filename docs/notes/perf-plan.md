@@ -27,5 +27,18 @@ Entry turun ~81% (714 kB → 136 kB gzip).
 ## Sisa (opsional, belum dikerjakan)
 - framer-motion (118 kB) ikut preload karena dipakai di AuthContext (splash).
 - vendor-charts (348 kB) di-preload karena Dashboard reachable dari `/`.
-- Analytics pihak ketiga di index.html.
+
+## 🔴 ROOT CAUSE UTAMA "lama masuk" (ditemukan setelah deploy)
+`index.html` memuat script pihak ketiga `https://analytics.elvanrff.com/api/script.js`
+yang sudah MATI (DNS SERVFAIL, domain induk elvanrff.com juga tidak resolve).
+- curl: timeout 7-15s, http 000.
+- Karena script ada di <head>, browser menahan load awal menunggu DNS/koneksi
+  timeout sebelum render apa pun → "belum muncul apa-apa" di local & production.
+- FIX: hapus script dari index.html (commit 5f3fa06, sudah push ke staging).
+
+## Sisa (opsional, belum dikerjakan)
+- getFullList('projects') tanpa limit di useDashboard.ts (dan 30 getFullList lain).
+- Splash AuthProvider menahan render sampai getOne(users) selesai.
+- framer-motion & vendor-charts ikut preload.
+
 
