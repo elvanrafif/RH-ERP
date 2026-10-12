@@ -17,16 +17,16 @@ export function PettyCashTable({ periods, balances, isLoading }: PettyCashTableP
 
   return (
     <div className="rounded-md border bg-white shadow-sm">
-      <div className="min-w-[760px]">
-        <Table>
+      <div className="overflow-x-auto">
+        <Table className="table-fixed min-w-[760px]">
           <TableHeader className="sticky top-0 z-10 bg-white shadow-sm">
             <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
-              <TableHead className="w-[40px]">#</TableHead>
+              <TableHead className="w-[48px]">#</TableHead>
               <TableHead>Name</TableHead>
-              <TableHead>Initial Balance</TableHead>
-              <TableHead>Remaining Balance</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Created</TableHead>
+              <TableHead className="w-[160px]">Initial Balance</TableHead>
+              <TableHead className="w-[170px]">Remaining Balance</TableHead>
+              <TableHead className="w-[100px]">Status</TableHead>
+              <TableHead className="w-[120px]">Created</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -35,7 +35,7 @@ export function PettyCashTable({ periods, balances, isLoading }: PettyCashTableP
             ) : periods.map((period, index) => (
               <TableRow key={period.id} className="h-14 cursor-pointer" onClick={() => navigate(`/petty-cash/${period.id}`)}>
                 <TableCell className="text-xs tabular-nums text-slate-400">{index + 1}</TableCell>
-                <TableCell className="font-medium text-slate-900">{period.name}</TableCell>
+                <TableCell className="break-words font-medium text-slate-900">{period.name}</TableCell>
                 <TableCell className="tabular-nums text-slate-600">{formatRupiah(period.initial_balance)}</TableCell>
                 <TableCell className="tabular-nums font-medium text-slate-700">{formatRupiah(balances[period.id]?.balance ?? period.initial_balance)}</TableCell>
                 <TableCell><span className={`inline-flex rounded-md border px-2 py-0.5 text-xs font-medium ${period.status === 'open' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-slate-200 bg-slate-100 text-slate-600'}`}>{period.status === 'open' ? 'Open' : 'Closed'}</span></TableCell>
