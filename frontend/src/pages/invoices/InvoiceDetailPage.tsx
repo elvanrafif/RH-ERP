@@ -215,7 +215,7 @@ export default function InvoiceDetailPage() {
       ? 'paid'
       : 'unpaid'
     formData.append('status', derivedStatus)
-    formData.append('is_fully_paid', String(isInvoiceFullyPaid(items)))
+    formData.append('is_fully_paid', String(isInvoiceFullyPaid(items, grandTotal)))
     formData.append('active_termin', activeTermin)
     formData.append('payment_dates', JSON.stringify(derivePaymentDates(items)))
     const blob = await generateJpeg()

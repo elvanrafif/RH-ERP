@@ -57,7 +57,9 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
 
     const t = INVOICE_LABELS[lang]
     const { remainingPayment } = calculatePaidSummary(items, grandTotal)
-    const fullyPaid = isInvoiceFullyPaid(items)
+    // Lunas hanya jika remaining payment sudah 0 — bukan sekadar semua termin
+    // berstatus paid.
+    const fullyPaid = isInvoiceFullyPaid(items, grandTotal)
 
     const securityClass = isPublicView
       ? 'pointer-events-none user-select-none'
