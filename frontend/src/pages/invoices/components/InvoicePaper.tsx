@@ -57,7 +57,14 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
 
     const t = INVOICE_LABELS[lang]
     const { remainingPayment } = calculatePaidSummary(items, grandTotal)
-    const fullyPaid = isInvoiceFullyPaid(items)
+    // Lunas hanya jika remaining payment sudah 0 — bukan sekadar semua termin
+    // berstatus paid.
+    const fullyPaid = isInvoiceFullyPaid(items, grandTotal)
+    // remaining negatif = client membayar lebih dari kewajiban. Tetap lunas,
+    // tapi kelebihannya ditampilkan supaya tidak hilang dari catatan.
+    const overpaidAmount = remainingPayment < 0 ? Math.abs(remainingPayment) : 0
+    const showOverpaid =
+      overpaidAmount > 0.5 && remainingPayment <= -0.5
 
     const securityClass = isPublicView
       ? 'pointer-events-none user-select-none'
@@ -266,6 +273,16 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
               </span>
             )}
           </div>
+          {showOverpaid && (
+            <div className="flex justify-end items-center gap-2 mt-1">
+              <span className="text-xs font-semibold text-amber-600">
+                {t.overpaid}
+              </span>
+              <span className="text-xs font-bold text-amber-600 tabular-nums">
+                {formatRupiah(overpaidAmount)}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* FOOTER */}
