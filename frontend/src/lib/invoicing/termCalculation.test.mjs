@@ -7,6 +7,7 @@ import {
   updateTermItemType,
   formatTermPercent,
   isInvoiceFullyPaid,
+  calculatePaidSummary,
 } from './termCalculation.ts'
 
 describe('payment term types', () => {
@@ -196,5 +197,65 @@ describe('isInvoiceFullyPaid', () => {
 
     assert.equal(isInvoiceFullyPaid(items, 0), true)
     assert.equal(isInvoiceFullyPaid([{ percent: '100%', amount: 0 }], 0), false)
+  })
+})
+
+describe('overpayment', () => {
+  // Client bisa transfer lebih dari kewajiban (mis. custom amount dibulatkan ke
+  // atas). Invoice tetap lunas, tapi kelebihannya harus bisa dihitung supaya
+  // bisa ditampilkan di paper dan tidak hilang dari catatan.
+  const overpaid = () =>
+    recalculateTermItems(
+      [
+        { percent: '40%', amount: 0, status: 'Success' },
+        { percent: '30%', amount: 0, status: 'Success' },
+        {
+          ...serializeTermType('custom_amount'),
+          amount: 3_500_000,
+          status: 'Success',
+        },
+      ],
+      10_000_000,
+      'interior'
+    )
+
+  it('reports a negative remaining payment when the client overpaid', () => {
+    const items = overpaid()
+    const { remainingPayment } = calculatePaidSummary(items, 10_000_000)
+
+    assert.equal(remainingPayment, -500_000)
+  })
+
+  it('still treats an overpaid invoice as fully paid', () => {
+    assert.equal(isInvoiceFullyPaid(overpaid(), 10_000_000), true)
+  })
+
+  it('has no overpayment when the amount matches exactly', () => {
+    const items = recalculateTermItems(
+      [
+        { percent: '40%', amount: 0, status: 'Success' },
+        { percent: '60%', amount: 0, status: 'Success' },
+      ],
+      10_000_000,
+      'interior'
+    )
+
+    assert.equal(calculatePaidSummary(items, 10_000_000).remainingPayment, 0)
+  })
+
+  it('has no overpayment while the invoice is still underpaid', () => {
+    const items = recalculateTermItems(
+      [
+        { percent: '40%', amount: 0, status: 'Success' },
+        { percent: '60%', amount: 0 },
+      ],
+      10_000_000,
+      'interior'
+    )
+
+    assert.equal(
+      calculatePaidSummary(items, 10_000_000).remainingPayment,
+      6_000_000
+    )
   })
 })
