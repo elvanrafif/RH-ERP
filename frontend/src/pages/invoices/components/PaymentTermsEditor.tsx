@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { formatRupiah } from '@/lib/helpers'
+import { NumberInput } from '@/components/shared/NumberInput'
 import {
   parseTermType,
   serializeTermType,
@@ -216,28 +217,25 @@ export function PaymentTermsEditor({
                   <Label className="text-[9px] text-slate-400 uppercase">
                     Amount {percentType !== 'custom_amount' && '(Auto)'}
                   </Label>
-                  <Input
-                    type={percentType === 'custom_amount' ? 'number' : 'text'}
-                    min={percentType === 'custom_amount' ? 0 : undefined}
-                    value={
-                      percentType === 'custom_amount'
-                        ? Number(item.amount) || 0
-                        : formatRupiah(Number(item.amount) || 0)
-                    }
-                    readOnly={percentType !== 'custom_amount'}
-                    disabled={percentType !== 'custom_amount'}
-                    onChange={
-                      percentType === 'custom_amount'
-                        ? (e) =>
-                            onUpdateItem(
-                              index,
-                              'amount',
-                              Math.max(0, Number(e.target.value) || 0)
-                            )
-                        : undefined
-                    }
-                    className={`h-7 text-xs font-mono w-full ${percentType === 'custom_amount' ? 'bg-white border-blue-200' : 'bg-slate-100 text-slate-500 border-slate-200 cursor-not-allowed'}`}
-                  />
+                  {percentType === 'custom_amount' ? (
+                    <NumberInput
+                      value={Number(item.amount) || 0}
+                      onChange={(val) => onUpdateItem(index, 'amount', val)}
+                      step={100000}
+                      min={0}
+                      placeholder="Enter amount..."
+                      className="h-7 rounded-md"
+                      inputClassName="text-xs font-mono"
+                    />
+                  ) : (
+                    <Input
+                      type="text"
+                      value={formatRupiah(Number(item.amount) || 0)}
+                      readOnly
+                      disabled
+                      className="h-7 text-xs font-mono w-full bg-slate-100 text-slate-500 border-slate-200 cursor-not-allowed"
+                    />
+                  )}
                 </div>
 
                 <div className="space-y-0.5">
