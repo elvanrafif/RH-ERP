@@ -6,6 +6,8 @@ import {
   serializeTermType,
   updateTermItemType,
   formatTermPercent,
+  isInvoiceFullyPaid,
+  calculatePaidSummary,
 } from './termCalculation.ts'
 
 describe('payment term types', () => {
@@ -127,5 +129,133 @@ describe('recalculateTermItems', () => {
     )
 
     assert.equal(result[0].amount, 1_500_000)
+  })
+})
+
+
+describe('isInvoiceFullyPaid', () => {
+  // Laporan: invoice interior 3 termin, T1 & T2 paid, T3 custom amount diisi
+  // lebih kecil dari sisa lalu di-set Paid. Dulu langsung FULLY PAID padahal
+  // remaining payment masih ada.
+  const underpaidInterior = () =>
+    recalculateTermItems(
+      [
+        { name: 'Termin 1', percent: '40%', amount: 0, status: 'Success' },
+        { name: 'Termin 2', percent: '30%', amount: 0, status: 'Success' },
+        {
+          name: 'Termin 3',
+          ...serializeTermType('custom_amount'),
+          amount: 1_000_000,
+          status: 'Success',
+        },
+      ],
+      10_000_000,
+      'interior'
+    )
+
+  it('stays not fully paid while remaining payment is not 0', () => {
+    const items = underpaidInterior()
+
+    assert.ok(items.every((item) => item.status === 'Success'))
+    assert.equal(isInvoiceFullyPaid(items, 10_000_000), false)
+  })
+
+  it('becomes fully paid when the term covers the remaining balance', () => {
+    const items = recalculateTermItems(
+      [
+        { name: 'Termin 1', percent: '40%', amount: 0, status: 'Success' },
+        { name: 'Termin 2', percent: '30%', amount: 0, status: 'Success' },
+        {
+          name: 'Termin 3',
+          ...serializeTermType('custom_amount'),
+          amount: 3_000_000,
+          status: 'Success',
+        },
+      ],
+      10_000_000,
+      'interior'
+    )
+
+    assert.equal(isInvoiceFullyPaid(items, 10_000_000), true)
+  })
+
+  it('is not fully paid while any term is still unpaid', () => {
+    const items = [
+      { percent: '40%', amount: 4_000_000, status: 'Success' },
+      { percent: '60%', amount: 6_000_000 },
+    ]
+
+    assert.equal(isInvoiceFullyPaid(items, 10_000_000), false)
+  })
+
+  it('is not fully paid for an empty term list', () => {
+    assert.equal(isInvoiceFullyPaid([], 10_000_000), false)
+  })
+
+  it('falls back to term status when the grand total is not set', () => {
+    const items = [{ percent: '100%', amount: 0, status: 'Success' }]
+
+    assert.equal(isInvoiceFullyPaid(items, 0), true)
+    assert.equal(isInvoiceFullyPaid([{ percent: '100%', amount: 0 }], 0), false)
+  })
+})
+
+describe('overpayment', () => {
+  // Client bisa transfer lebih dari kewajiban (mis. custom amount dibulatkan ke
+  // atas). Invoice tetap lunas, tapi kelebihannya harus bisa dihitung supaya
+  // bisa ditampilkan di paper dan tidak hilang dari catatan.
+  const overpaid = () =>
+    recalculateTermItems(
+      [
+        { percent: '40%', amount: 0, status: 'Success' },
+        { percent: '30%', amount: 0, status: 'Success' },
+        {
+          ...serializeTermType('custom_amount'),
+          amount: 3_500_000,
+          status: 'Success',
+        },
+      ],
+      10_000_000,
+      'interior'
+    )
+
+  it('reports a negative remaining payment when the client overpaid', () => {
+    const items = overpaid()
+    const { remainingPayment } = calculatePaidSummary(items, 10_000_000)
+
+    assert.equal(remainingPayment, -500_000)
+  })
+
+  it('still treats an overpaid invoice as fully paid', () => {
+    assert.equal(isInvoiceFullyPaid(overpaid(), 10_000_000), true)
+  })
+
+  it('has no overpayment when the amount matches exactly', () => {
+    const items = recalculateTermItems(
+      [
+        { percent: '40%', amount: 0, status: 'Success' },
+        { percent: '60%', amount: 0, status: 'Success' },
+      ],
+      10_000_000,
+      'interior'
+    )
+
+    assert.equal(calculatePaidSummary(items, 10_000_000).remainingPayment, 0)
+  })
+
+  it('has no overpayment while the invoice is still underpaid', () => {
+    const items = recalculateTermItems(
+      [
+        { percent: '40%', amount: 0, status: 'Success' },
+        { percent: '60%', amount: 0 },
+      ],
+      10_000_000,
+      'interior'
+    )
+
+    assert.equal(
+      calculatePaidSummary(items, 10_000_000).remainingPayment,
+      6_000_000
+    )
   })
 })

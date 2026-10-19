@@ -73,8 +73,27 @@ export function calculatePaidSummary(
   return { paidAmount, remainingPayment: grandTotal - paidAmount }
 }
 
-export function isInvoiceFullyPaid(items: TermItem[]): boolean {
-  return items.length > 0 && items.every((i) => i.status === PAYMENT_ITEM_STATUS.SUCCESS)
+/**
+ * Invoice baru boleh dianggap lunas kalau SEMUA termin sudah dibayar DAN nominal
+ * yang terbayar sudah menutup grand total.
+ *
+ * Cek status saja tidak cukup: termin bisa berstatus Success tapi nominalnya
+ * lebih kecil dari kewajiban (mis. custom amount), sehingga remaining payment
+ * masih lebih dari 0. Selama remaining belum 0, invoice tidak boleh lunas.
+ *
+ * Sumber kebenaran "sisa" diambil dari calculatePaidSummary agar tidak ada dua
+ * definisi remaining payment yang bisa berbeda.
+ */
+export function isInvoiceFullyPaid(items: TermItem[], grandTotal = 0): boolean {
+  if (items.length === 0) return false
+  if (!items.every((i) => i.status === PAYMENT_ITEM_STATUS.SUCCESS)) return false
+
+  // Tanpa grand total yang valid tidak ada kewajiban yang bisa dibandingkan,
+  // jadi keputusan jatuh ke status termin (perilaku lama).
+  if (!(grandTotal > 0)) return true
+
+  const { remainingPayment } = calculatePaidSummary(items, grandTotal)
+  return remainingPayment <= 0.5
 }
 
 export function recalculateTermItems(
