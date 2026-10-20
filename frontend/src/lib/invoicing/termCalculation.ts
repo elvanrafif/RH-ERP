@@ -1,6 +1,6 @@
 import { DEFAULT_DP_AMOUNT, PAYMENT_ITEM_STATUS } from '@/lib/constant'
 
-export type TermType = 'percentage' | 'fixed_dp' | 'settlement' | 'custom_amount'
+export type TermType = 'percentage' | 'fixed_dp' | 'settlement' | 'custom_amount' | 'extra_works'
 
 export interface TermItem {
   percent: string
@@ -17,6 +17,7 @@ export function parseTermType(percent: string, termType?: TermType): {
   value: string
 } {
   if (termType === 'custom_amount') return { type: 'custom_amount', value: '' }
+  if (termType === 'extra_works') return { type: 'extra_works', value: '' }
 
   const clean = (percent || '').trim().toLowerCase()
   if (clean === 'dp') return { type: 'fixed_dp', value: '' }
@@ -31,7 +32,7 @@ export function parseTermType(percent: string, termType?: TermType): {
 }
 
 export function formatTermPercent(percent: string, termType?: TermType): string {
-  return termType === 'custom_amount' ? '-' : percent
+  return termType === 'custom_amount' || termType === 'extra_works' ? '-' : percent
 }
 
 export function serializeTermType(
@@ -39,6 +40,7 @@ export function serializeTermType(
   value = ''
 ): Pick<TermItem, 'percent' | 'termType'> {
   if (type === 'custom_amount') return { percent: '', termType: type }
+  if (type === 'extra_works') return { percent: '', termType: type }
   if (type === 'fixed_dp') return { percent: 'DP' }
   if (type === 'settlement') return { percent: 'Settlement' }
   return { percent: value ? `${value}%` : '' }
@@ -57,7 +59,10 @@ export function updateTermItemType(
   }
 
   if (!serialized.termType) delete updatedItem.termType
-  if (previousType === 'custom_amount' && type === 'percentage') {
+  if (
+    (previousType === 'custom_amount' || previousType === 'extra_works') &&
+    type === 'percentage'
+  ) {
     updatedItem.amount = 0
   }
   return updatedItem
@@ -67,10 +72,18 @@ export function calculatePaidSummary(
   items: TermItem[],
   grandTotal: number
 ): { paidAmount: number; remainingPayment: number } {
+  // Extra works amounts are outside the contract value but still
+  // contribute to the total obligation (and thus remaining payment).
+  const extraWorksTotal = items
+    .filter((i) => parseTermType(i.percent, i.termType).type === 'extra_works')
+    .reduce((sum, i) => sum + (Number(i.amount) || 0), 0)
+
+  const effectiveTotal = grandTotal + extraWorksTotal
+
   const paidAmount = items
     .filter((i) => i.status === PAYMENT_ITEM_STATUS.SUCCESS)
     .reduce((sum, i) => sum + (Number(i.amount) || 0), 0)
-  return { paidAmount, remainingPayment: grandTotal - paidAmount }
+  return { paidAmount, remainingPayment: effectiveTotal - paidAmount }
 }
 
 /**
@@ -106,7 +119,7 @@ export function recalculateTermItems(
     let newAmount = 0
     const { type, value } = parseTermType(item.percent, item.termType)
 
-    if (type === 'custom_amount') {
+    if (type === 'custom_amount' || type === 'extra_works') {
       newAmount = Number(item.amount) || 0
     } else if (type === 'fixed_dp' && invoiceType === 'design') {
       newAmount = Math.min(DEFAULT_DP_AMOUNT, grandTotal)

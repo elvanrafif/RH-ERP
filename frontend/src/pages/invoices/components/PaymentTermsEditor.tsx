@@ -85,7 +85,7 @@ export function PaymentTermsEditor({
           return (
             <div
               key={index}
-              className={`p-3 rounded border text-xs shadow-sm transition-all ${isActive ? 'bg-blue-50/50 border-blue-300 ring-1 ring-blue-100' : 'bg-white border-slate-200 hover:border-slate-300'}`}
+              className={`p-3 rounded border text-xs shadow-sm transition-all ${isActive ? 'bg-blue-50/50 border-blue-300 ring-1 ring-blue-100' : percentType === 'extra_works' ? 'bg-orange-50/40 border-orange-200 hover:border-orange-300' : 'bg-white border-slate-200 hover:border-slate-300'}`}
             >
               <div className="flex flex-row items-center justify-between gap-2 mb-2 pb-2 border-b border-dashed border-slate-200">
                 <div className="group flex items-center gap-1.5 min-w-0 overflow-hidden">
@@ -105,6 +105,11 @@ export function PaymentTermsEditor({
                   {isPastTerm && (
                     <span className="text-[9px] text-slate-400 border border-slate-200 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider shrink-0">
                       Past
+                    </span>
+                  )}
+                  {percentType === 'extra_works' && (
+                    <span className="text-[9px] bg-orange-100 text-orange-600 border border-orange-200 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider shrink-0">
+                      Extra Works
                     </span>
                   )}
                 </div>
@@ -184,6 +189,7 @@ export function PaymentTermsEditor({
                       <SelectItem value="custom_amount">
                         Custom Amount
                       </SelectItem>
+                      <SelectItem value="extra_works">Extra Works</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -215,9 +221,18 @@ export function PaymentTermsEditor({
               <div className="grid grid-cols-2 gap-2 mt-2">
                 <div className="space-y-0.5">
                   <Label className="text-[9px] text-slate-400 uppercase">
-                    Amount {percentType !== 'custom_amount' && '(Auto)'}
+                    Amount{' '}
+                    {percentType !== 'custom_amount' &&
+                      percentType !== 'extra_works' &&
+                      '(Auto)'}
+                    {percentType === 'extra_works' && (
+                      <span className="ml-1 text-[8px] bg-orange-100 text-orange-600 border border-orange-200 px-1 py-0.5 rounded uppercase font-bold tracking-wider">
+                        Outside Contract
+                      </span>
+                    )}
                   </Label>
-                  {percentType === 'custom_amount' ? (
+                  {percentType === 'custom_amount' ||
+                  percentType === 'extra_works' ? (
                     <NumberInput
                       value={Number(item.amount) || 0}
                       onChange={(val) => onUpdateItem(index, 'amount', val)}
