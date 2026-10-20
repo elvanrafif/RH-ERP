@@ -214,9 +214,9 @@ export function PaymentTermsEditor({
               </div>
 
               {/* Row 2: Amount + Pay Date */}
-              <div className={`grid grid-cols-2 gap-2 mt-2 ${percentType === 'extra_works' ? 'items-end' : ''}`}>
+              <div className="grid grid-cols-2 gap-2 mt-2">
                 <div className={`${percentType === 'extra_works' ? 'space-y-1.5' : 'space-y-0.5'}`}>
-                  <Label className="text-[9px] text-slate-400 uppercase flex items-center gap-1">
+                  <Label className={`text-[9px] text-slate-400 uppercase flex items-center gap-1 ${percentType === 'extra_works' ? 'min-h-[18px]' : ''}`}>
                     Amount{' '}
                     {percentType !== 'custom_amount' &&
                       percentType !== 'extra_works' &&
@@ -250,7 +250,7 @@ export function PaymentTermsEditor({
                 </div>
 
                 <div className={`${percentType === 'extra_works' ? 'space-y-1.5' : 'space-y-0.5'}`}>
-                  <Label className="text-[9px] text-slate-400 uppercase">
+                  <Label className={`text-[9px] text-slate-400 uppercase flex items-center ${percentType === 'extra_works' ? 'min-h-[18px]' : ''}`}>
                     Pay Date
                   </Label>
                   <Input
