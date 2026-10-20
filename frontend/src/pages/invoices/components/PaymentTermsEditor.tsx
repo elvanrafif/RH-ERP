@@ -107,11 +107,7 @@ export function PaymentTermsEditor({
                       Past
                     </span>
                   )}
-                  {percentType === 'extra_works' && (
-                    <span className="text-[9px] bg-orange-100 text-orange-600 border border-orange-200 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider shrink-0">
-                      Extra Works
-                    </span>
-                  )}
+
                 </div>
 
                 <div className="flex items-center gap-1 shrink-0">
@@ -219,14 +215,14 @@ export function PaymentTermsEditor({
 
               {/* Row 2: Amount + Pay Date */}
               <div className="grid grid-cols-2 gap-2 mt-2">
-                <div className="space-y-0.5">
-                  <Label className="text-[9px] text-slate-400 uppercase">
+                <div className={`${percentType === 'extra_works' ? 'space-y-1.5' : 'space-y-0.5'}`}>
+                  <Label className="text-[9px] text-slate-400 uppercase flex items-center gap-1">
                     Amount{' '}
                     {percentType !== 'custom_amount' &&
                       percentType !== 'extra_works' &&
                       '(Auto)'}
                     {percentType === 'extra_works' && (
-                      <span className="ml-1 text-[8px] bg-orange-100 text-orange-600 border border-orange-200 px-1 py-0.5 rounded uppercase font-bold tracking-wider">
+                      <span className="text-[8px] bg-orange-100 text-orange-600 border border-orange-200 px-1 py-0.5 rounded uppercase font-bold tracking-wider">
                         Outside Contract
                       </span>
                     )}
@@ -253,7 +249,7 @@ export function PaymentTermsEditor({
                   )}
                 </div>
 
-                <div className="space-y-0.5">
+                <div className={`${percentType === 'extra_works' ? 'space-y-1.5' : 'space-y-0.5'}`}>
                   <Label className="text-[9px] text-slate-400 uppercase">
                     Pay Date
                   </Label>
