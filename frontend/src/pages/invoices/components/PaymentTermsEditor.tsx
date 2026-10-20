@@ -214,7 +214,7 @@ export function PaymentTermsEditor({
               </div>
 
               {/* Row 2: Amount + Pay Date */}
-              <div className="grid grid-cols-2 gap-2 mt-2">
+              <div className={`grid grid-cols-2 gap-2 mt-2 ${percentType === 'extra_works' ? 'items-end' : ''}`}>
                 <div className={`${percentType === 'extra_works' ? 'space-y-1.5' : 'space-y-0.5'}`}>
                   <Label className="text-[9px] text-slate-400 uppercase flex items-center gap-1">
                     Amount{' '}
