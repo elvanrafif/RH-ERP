@@ -23,6 +23,7 @@ import {
   recalculateTermItems,
   isInvoiceFullyPaid,
   updateTermItemType,
+  parseTermType,
 } from '@/lib/invoicing/termCalculation'
 import type { TermItem, TermType } from '@/lib/invoicing/termCalculation'
 import { derivePaymentDates } from '@/lib/invoicing/paymentDates'
@@ -134,11 +135,16 @@ export default function InvoiceDetailPage() {
   ) => {
     markAsDirty()
     const newItems = [...items]
-    newItems[index] = updateTermItemType(
-      newItems[index],
-      termType,
-      percentValue
-    )
+    const previousType = parseTermType(
+      newItems[index].percent,
+      newItems[index].termType
+    ).type
+    newItems[index] = updateTermItemType(newItems[index], termType, percentValue)
+    if (termType === 'extra_works') {
+      newItems[index] = { ...newItems[index], name: 'Pek Tambah' }
+    } else if (previousType === 'extra_works') {
+      newItems[index] = { ...newItems[index], name: `Term ${index + 1}` }
+    }
     setItems(recalcItems(newItems, grandTotal))
   }
 
