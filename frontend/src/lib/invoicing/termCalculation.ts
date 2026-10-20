@@ -65,9 +65,6 @@ export function updateTermItemType(
   ) {
     updatedItem.amount = 0
   }
-  if (type === 'extra_works') {
-    updatedItem.name = 'Pek Tambah'
-  }
   return updatedItem
 }
 
