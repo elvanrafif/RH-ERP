@@ -273,7 +273,7 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
               </span>
             )}
           </div>
-          {showOverpaid && (
+          {/* {showOverpaid && (
             <div className="flex justify-end items-center gap-2 mt-1">
               <span className="text-xs font-semibold text-amber-600">
                 {t.overpaid}
@@ -282,7 +282,7 @@ export const InvoicePaper = React.forwardRef<HTMLDivElement, InvoicePaperProps>(
                 {formatRupiah(overpaidAmount)}
               </span>
             </div>
-          )}
+          )} */}
         </div>
 
         {/* FOOTER */}
