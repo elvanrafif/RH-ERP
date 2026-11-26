@@ -31,8 +31,7 @@ import { buildInvoiceFileName } from '@/lib/helpers'
 import {
   DEFAULT_DESIGN_PRICE_PER_METER,
   PAYMENT_ITEM_STATUS,
-  BANK_BNI,
-  BANK_MANDIRI,
+  INVOICE_DEFAULT_BANK,
 } from '@/lib/constant'
 
 export default function InvoiceDetailPage() {
@@ -92,7 +91,11 @@ export default function InvoiceDetailPage() {
       invoice.items?.length > 0 ? invoice.items : getTemplateByType(currentType)
     setDate(invoice.date ? invoice.date.substring(0, 10) : '')
     setActiveTermin(invoice.active_termin || '1')
-    setBankDetails(invoice.bank_details || (currentType === 'design' ? BANK_MANDIRI : BANK_BNI))
+    setBankDetails(
+      invoice.bank_details ||
+        INVOICE_DEFAULT_BANK[currentType as keyof typeof INVOICE_DEFAULT_BANK] ||
+        INVOICE_DEFAULT_BANK.design
+    )
     setNotes(invoice.notes || '')
     if (invoice.client_id) {
       setSelectedClientId(invoice.client_id)
