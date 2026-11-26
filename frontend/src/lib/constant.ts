@@ -1,6 +1,13 @@
 // Bank accounts
-export const BANK_BNI = `BNI - 0717571663\nIsmail Deyrian Anugrah`
 export const BANK_MANDIRI = `Mandiri - 1570014441258\nIsmail Deyrian Anugrah`
+export const BANK_MANDIRI_SIPIL = `Bank Mandiri - 1570012939402\nIsmail Deyrian Anugrah`
+export const BANK_MANDIRI_INTERIOR = `Bank Mandiri - 1570014517024\nARDINE LUQMANUL HAKI`
+
+export const INVOICE_DEFAULT_BANK: Record<'design' | 'sipil' | 'interior', string> = {
+  design: BANK_MANDIRI,
+  sipil: BANK_MANDIRI_SIPIL,
+  interior: BANK_MANDIRI_INTERIOR,
+}
 
 // Document editor
 export const A4_BASE_WIDTH = 800
